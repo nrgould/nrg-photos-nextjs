@@ -79,7 +79,7 @@ export default function Polaroid({
 			>
 				<div
 					className='relative overflow-hidden'
-					style={{ width: '100%', aspectRatio: '3 / 4' }}
+					style={{ width: '100%', aspectRatio: '5 / 5' }}
 				>
 					<Image
 						src={src}

@@ -78,10 +78,12 @@ export default function ScrollGallery({
 		const viewportWidth = window.innerWidth;
 
 		// Ensure first item starts off-screen to the right with a leading spacer
-		const spacer = Math.max(0, Math.floor(viewportWidth * 0.55));
+		const spacer = Math.max(0, Math.floor(viewportWidth * 0.62));
 		setLeadingGap(spacer);
 
-		const trackWidth = track.scrollWidth; // total horizontal content width (includes padding)
+		// Include spacer and trailing right padding in distance
+		const trailing = Math.floor(viewportWidth * 0.08);
+		const trackWidth = track.scrollWidth + spacer + trailing;
 		const distance = Math.max(0, trackWidth - viewportWidth);
 		setTrackScrollDistance(distance);
 
