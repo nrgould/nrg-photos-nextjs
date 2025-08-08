@@ -55,12 +55,12 @@ export default function QuoteSection() {
 							return (
 								<span
 									key={i}
-									className='inline-block overflow-hidden align-top pb-[0.08em] whitespace-nowrap'
+									className='inline-block overflow-hidden align-top pb-[0.08em]'
 								>
 									<motion.span
 										className={
 											isGreenWord
-												? 'inline-block text-green-500'
+												? 'inline-block text-[#0e9b6e]'
 												: 'inline-block'
 										}
 										variants={child}

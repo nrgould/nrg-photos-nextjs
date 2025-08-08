@@ -165,13 +165,13 @@ export default function TravelSection() {
 					<MarqueeRow
 						images={images}
 						direction='left'
-						speed={50}
+						progress={progress}
 						heightClass='h-[22vh]'
 					/>
 					<MarqueeRow
 						images={images}
 						direction='right'
-						speed={50}
+						progress={progress}
 						heightClass='h-[22vh]'
 					/>
 				</div>
@@ -183,32 +183,31 @@ export default function TravelSection() {
 function MarqueeRow({
 	images,
 	direction,
-	speed = 60,
+	progress = 0,
 	heightClass = 'h-[26vh]',
 }: {
 	images: GalleryImage[];
 	direction: 'left' | 'right';
-	speed?: number;
+	progress?: number;
 	heightClass?: string;
 }) {
 	const row = [...images, ...images];
 	const animClass = direction === 'left' ? 'marquee-left' : 'marquee-right';
+	// Very slow baseline; gently speeds up
+	const speedSeconds = Math.max(90, 160 - progress * 50);
 	return (
 		<div className={`relative w-full overflow-hidden ${heightClass}`}>
 			<div
-				className={`flex gap-6 ${animClass}`}
+				className={`flex h-full gap-6 ${animClass}`}
 				style={{
-					['--marquee-speed' as unknown as string]: `${speed}s`,
+					['--marquee-speed' as unknown as string]: `${speedSeconds}s`,
 				}}
 			>
 				{row.map((img, i) => (
 					<div
 						key={i}
 						className='relative shrink-0 bg-neutral-900'
-						style={{
-							width: 'min(34vw, 420px)',
-							aspectRatio: '4 / 5',
-						}}
+						style={{ height: '100%', aspectRatio: '4 / 5' }}
 					>
 						<Image
 							src={img.src}

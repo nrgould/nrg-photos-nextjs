@@ -5,6 +5,7 @@ import ContactPostcard from '@/components/ContactPostcard';
 import TravelSection from '@/components/TravelSection';
 import PolaroidStackSection from '@/components/PolaroidStackSection';
 import QuoteSection from '@/components/QuoteSection';
+import TestimonialsSection from '@/components/TestimonialsSection';
 
 export default function Home() {
 	return (
@@ -28,6 +29,11 @@ export default function Home() {
 				{/* Quote */}
 				<div className='w-full'>
 					<QuoteSection />
+				</div>
+
+				{/* Testimonials */}
+				<div className='w-full'>
+					<TestimonialsSection />
 				</div>
 
 				{/* Travel */}

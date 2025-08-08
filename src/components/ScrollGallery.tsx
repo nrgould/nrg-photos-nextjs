@@ -67,6 +67,7 @@ export default function ScrollGallery({
 	const trackRef = useRef<HTMLDivElement | null>(null);
 	const [x, setX] = useState(0);
 	const [leadingGap, setLeadingGap] = useState(0);
+	const [bg, setBg] = useState('rgb(12,12,12)');
 
 	const [trackScrollDistance, setTrackScrollDistance] = useState(0);
 	const [sectionHeight, setSectionHeight] = useState(0);
@@ -78,17 +79,28 @@ export default function ScrollGallery({
 		const viewportWidth = window.innerWidth;
 
 		// Ensure first item starts off-screen to the right with a leading spacer
-		const spacer = Math.max(0, Math.floor(viewportWidth * 0.62));
+		const spacer = Math.max(0, Math.floor(viewportWidth * 0.7));
 		setLeadingGap(spacer);
 
-		// Include spacer and trailing right padding in distance
-		const trailing = Math.floor(viewportWidth * 0.08);
-		const trackWidth = track.scrollWidth + spacer + trailing;
-		const distance = Math.max(0, trackWidth - viewportWidth);
+		// Compute distance so that the LAST card's center stops at viewport center
+		const firstChild = track.children[0] as HTMLElement | undefined;
+		const childWidth = firstChild
+			? firstChild.getBoundingClientRect().width
+			: Math.min(viewportWidth * 0.52, 560);
+		const computedGap = parseFloat(
+			getComputedStyle(track).columnGap || '24'
+		);
+		const num = track.children.length;
+		const lastCenter =
+			spacer + (num - 1) * (childWidth + computedGap) + childWidth / 2;
+		const viewportCenter = viewportWidth / 2;
+		const xEnd = viewportCenter - lastCenter; // negative value
+		const distance = Math.abs(xEnd);
 		setTrackScrollDistance(distance);
 
 		// Set a generous section height so that scrolling from start to end maps to full horizontal distance
-		const heightNeeded = window.innerHeight + distance; // keeps sticky area pinned for entire translation
+		const density = 0.7; // smaller -> denser/faster horizontal travel
+		const heightNeeded = window.innerHeight + distance * density;
 		setSectionHeight(heightNeeded);
 	}, []);
 
@@ -111,6 +123,20 @@ export default function ScrollGallery({
 			const v = progressed / totalScrollable;
 			const targetX = -v * trackScrollDistance;
 			setX(targetX);
+
+			// Background interpolation based on active index
+			const colors = [
+				'#0c0c0c',
+				'#06161a',
+				'#1a0a10',
+				'#0e1506',
+				'#121212',
+			];
+			const idx = Math.min(
+				colors.length - 1,
+				Math.max(0, Math.round(v * (colors.length - 1)))
+			);
+			setBg(colors[idx]);
 		};
 		onScroll();
 		window.addEventListener('scroll', onScroll, { passive: true });
@@ -124,11 +150,17 @@ export default function ScrollGallery({
 			style={{ height: sectionHeight || undefined }}
 		>
 			{/* Sticky viewport */}
-			<div className='sticky top-0 h-screen overflow-hidden bg-[rgb(12,12,12)] text-white'>
+			<div
+				className='sticky top-0 h-screen overflow-hidden text-white'
+				style={{
+					background: bg,
+					transition: 'background 400ms linear',
+				}}
+			>
 				{/* Background heading text */}
 				<div className='pointer-events-none absolute inset-0 flex items-center justify-center'>
 					<h2
-						className='select-none text-[18vw] sm:text-[14vw] leading-none font-black tracking-tight text-white/5'
+						className='select-none text-[18vw] sm:text-[14vw] leading-none font-black tracking-tight text-white/9'
 						aria-hidden
 					>
 						{headingText}
@@ -143,7 +175,7 @@ export default function ScrollGallery({
 						paddingLeft: leadingGap,
 						paddingRight: '8vw',
 					}}
-					className='absolute left-0 top-0 h-full flex items-center gap-8 will-change-transform'
+					className='absolute left-0 top-0 h-full flex items-center gap-6 will-change-transform'
 				>
 					{items.map((img, index) => (
 						<Slide key={index} index={index} {...img} />
@@ -157,6 +189,7 @@ export default function ScrollGallery({
 function Slide({ src, title, alt, index }: GalleryImage & { index: number }) {
 	const cardRef = useRef<HTMLDivElement | null>(null);
 	const [active, setActive] = useState(false);
+	const [hasEntered, setHasEntered] = useState(index === 0 ? false : true);
 
 	// Horizontal center activation to avoid flicker on sticky sections
 	useEffect(() => {
@@ -169,6 +202,10 @@ function Slide({ src, title, alt, index }: GalleryImage & { index: number }) {
 			const distance = Math.abs(cardCenterX - centerX);
 			const threshold = rect.width * 0.25; // within 25% of card width
 			setActive(distance < threshold);
+			// Fade-in when the card's right edge first touches viewport (for first card this ensures opacity 0 until scroll starts)
+			if (!hasEntered && rect.right <= window.innerWidth) {
+				setHasEntered(true);
+			}
 		};
 		onScroll();
 		window.addEventListener('scroll', onScroll, { passive: true });
@@ -195,16 +232,17 @@ function Slide({ src, title, alt, index }: GalleryImage & { index: number }) {
 					priority={index < 2}
 				/>
 
-				{/* Title pop-up when centered */}
-				<div
-					style={{
-						opacity: active ? 1 : 0,
-						transform: `scale(${active ? 1 : 0.96})`,
-						transition: 'opacity 240ms ease, transform 240ms ease',
-					}}
-					className='absolute inset-0 flex items-center justify-center'
-				>
-					<span className='px-4 py-2 text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight bg-black/50 text-white backdrop-blur'>
+				{/* Title pop-up when centered (no bg) and persists after entering */}
+				<div className='absolute inset-0 flex items-center justify-center pointer-events-none'>
+					<span
+						className='text-4xl sm:text-6xl md:text-8xl font-extrabold tracking-tight'
+						style={{
+							opacity: active || hasEntered ? 1 : 0,
+							transform: `scale(${active ? 1 : 0.96})`,
+							transition:
+								'opacity 240ms ease, transform 240ms ease',
+						}}
+					>
 						{title}
 					</span>
 				</div>

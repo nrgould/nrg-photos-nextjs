@@ -36,3 +36,17 @@ body {
 }
 .marquee-left { animation: marquee-left var(--marquee-speed, 60s) linear infinite; }
 .marquee-right { animation: marquee-right var(--marquee-speed, 60s) linear infinite; }
+
+/* Rotating testimonials (fade + slight slide) */
+@keyframes testimonial-rotate {
+  0% { opacity: 0; transform: translateY(8px); }
+  5% { opacity: 1; transform: translateY(0); }
+  25% { opacity: 1; transform: translateY(0); }
+  30% { opacity: 0; transform: translateY(-6px); }
+  100% { opacity: 0; transform: translateY(-6px); }
+}
+.testimonial-slide {
+  animation-name: testimonial-rotate;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
