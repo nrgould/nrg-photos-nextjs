@@ -66,6 +66,7 @@ export default function ScrollGallery({
 	const sectionRef = useRef<HTMLDivElement | null>(null);
 	const trackRef = useRef<HTMLDivElement | null>(null);
 	const [x, setX] = useState(0);
+	const [leadingGap, setLeadingGap] = useState(0);
 
 	const [trackScrollDistance, setTrackScrollDistance] = useState(0);
 	const [sectionHeight, setSectionHeight] = useState(0);
@@ -75,7 +76,12 @@ export default function ScrollGallery({
 		const track = trackRef.current;
 		if (!track) return;
 		const viewportWidth = window.innerWidth;
-		const trackWidth = track.scrollWidth; // total horizontal content width
+
+		// Ensure first item starts off-screen to the right with a leading spacer
+		const spacer = Math.max(0, Math.floor(viewportWidth * 0.55));
+		setLeadingGap(spacer);
+
+		const trackWidth = track.scrollWidth; // total horizontal content width (includes padding)
 		const distance = Math.max(0, trackWidth - viewportWidth);
 		setTrackScrollDistance(distance);
 
@@ -130,8 +136,12 @@ export default function ScrollGallery({
 				{/* Horizontal track */}
 				<motion.div
 					ref={trackRef}
-					style={{ transform: `translate3d(${x}px, 0, 0)` }}
-					className='absolute left-0 top-0 h-full flex items-center gap-8 px-[8vw] will-change-transform'
+					style={{
+						transform: `translate3d(${x}px, 0, 0)`,
+						paddingLeft: leadingGap,
+						paddingRight: '8vw',
+					}}
+					className='absolute left-0 top-0 h-full flex items-center gap-8 will-change-transform'
 				>
 					{items.map((img, index) => (
 						<Slide key={index} index={index} {...img} />
@@ -146,31 +156,32 @@ function Slide({ src, title, alt, index }: GalleryImage & { index: number }) {
 	const cardRef = useRef<HTMLDivElement | null>(null);
 	const [active, setActive] = useState(false);
 
+	// Horizontal center activation to avoid flicker on sticky sections
 	useEffect(() => {
 		const onScroll = () => {
 			const el = cardRef.current;
 			if (!el) return;
 			const rect = el.getBoundingClientRect();
-			const centerY = window.innerHeight / 2;
-			const cardCenter = rect.top + rect.height / 2;
-			const distance = Math.abs(cardCenter - centerY);
-			const threshold = rect.height * 0.22; // within ~22% of height counts as active
+			const centerX = window.innerWidth / 2;
+			const cardCenterX = rect.left + rect.width / 2;
+			const distance = Math.abs(cardCenterX - centerX);
+			const threshold = rect.width * 0.25; // within 25% of card width
 			setActive(distance < threshold);
 		};
 		onScroll();
 		window.addEventListener('scroll', onScroll, { passive: true });
-		return () => window.removeEventListener('scroll', onScroll);
+		window.addEventListener('resize', onScroll);
+		return () => {
+			window.removeEventListener('scroll', onScroll);
+			window.removeEventListener('resize', onScroll);
+		};
 	}, []);
 
 	return (
 		<div className='relative shrink-0'>
-			<motion.div
+			<div
 				ref={cardRef}
-				initial={{ x: 120, opacity: 0 }}
-				whileInView={{ x: 0, opacity: 1 }}
-				viewport={{ amount: 0.3, once: false }}
-				transition={{ type: 'spring', stiffness: 160, damping: 22 }}
-				className='relative overflow-hidden rounded-xl bg-neutral-900'
+				className='relative overflow-hidden bg-neutral-900'
 				style={{ width: 'min(52vw, 560px)', aspectRatio: '4 / 5' }}
 			>
 				<Image
@@ -183,19 +194,19 @@ function Slide({ src, title, alt, index }: GalleryImage & { index: number }) {
 				/>
 
 				{/* Title pop-up when centered */}
-				<motion.div
-					animate={{
+				<div
+					style={{
 						opacity: active ? 1 : 0,
-						scale: active ? 1 : 0.9,
+						transform: `scale(${active ? 1 : 0.96})`,
+						transition: 'opacity 240ms ease, transform 240ms ease',
 					}}
-					transition={{ type: 'spring', stiffness: 180, damping: 24 }}
 					className='absolute inset-0 flex items-center justify-center'
 				>
-					<span className='px-4 py-2 text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight bg-black/50 text-white rounded-md backdrop-blur'>
+					<span className='px-4 py-2 text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight bg-black/50 text-white backdrop-blur'>
 						{title}
 					</span>
-				</motion.div>
-			</motion.div>
+				</div>
+			</div>
 		</div>
 	);
 }
