@@ -1,10 +1,10 @@
-import Image from 'next/image';
 import Hero from '@/components/Hero';
 import AboutSection from '@/components/AboutSection';
 import ScrollGallery from '@/components/ScrollGallery';
 import ContactPostcard from '@/components/ContactPostcard';
 import TravelSection from '@/components/TravelSection';
 import PolaroidStackSection from '@/components/PolaroidStackSection';
+import QuoteSection from '@/components/QuoteSection';
 
 export default function Home() {
 	return (
@@ -20,14 +20,19 @@ export default function Home() {
 					<AboutSection />
 				</div>
 
-				{/* Travel */}
-				<div className='w-full'>
-					<TravelSection />
-				</div>
-
 				{/* Portfolio Section */}
 				<div className='w-full'>
 					<ScrollGallery headingText='NRG' />
+				</div>
+
+				{/* Quote */}
+				<div className='w-full'>
+					<QuoteSection />
+				</div>
+
+				{/* Travel */}
+				<div className='w-full'>
+					<TravelSection />
 				</div>
 
 				{/* Polaroid Stack Section */}

@@ -27,7 +27,7 @@ export default function ContactPostcard() {
 			className='relative w-full bg-[#f7f5ef] text-black'
 		>
 			{/* Perimeter border to feel like a card */}
-			<div className='mx-auto w-full max-w-none border-y border-black/10'>
+			<div className='mx-auto w-full md:w-2/3 max-w-none border-y border-black/10'>
 				<form onSubmit={submit} className='relative w-full'>
 					{/* Postcard canvas */}
 					<div className='mx-auto w-full px-6 md:px-10 py-16 md:py-24'>

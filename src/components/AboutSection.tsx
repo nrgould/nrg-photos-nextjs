@@ -69,11 +69,11 @@ export default function AboutSection() {
 	return (
 		<section
 			ref={sectionRef}
-			className='relative w-full bg-black text-white'
+			className='relative w-full h-[100vh] bg-black text-white'
 		>
 			<div className='mx-auto max-w-6xl px-6 py-24 md:py-40'>
 				<div className='grid grid-cols-1 md:grid-cols-[420px,1fr] items-center gap-12 md:gap-16'>
-					<div className='relative w-full h-[420px] md:h-[520px]'>
+					<div className='relative h-[200px] w-[200px] md:h-[200px] md:w-[200px]'>
 						<Image
 							src='https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=800&h=800&fit=crop&auto=format&dpr=2'
 							alt='Profile portrait'

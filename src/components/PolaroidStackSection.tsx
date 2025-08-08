@@ -1,9 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as motion from 'motion/react-client';
 import Polaroid from '@/components/Polaroid';
-import Image from 'next/image';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 type StackImage = { src: string; caption: string };
@@ -171,6 +170,30 @@ function Lightbox({
 	onNext: () => void;
 	onPrev: () => void;
 }) {
+	const containerRef = useRef<HTMLDivElement | null>(null);
+	const [containerW, setContainerW] = useState(1200);
+	const [slideWidth, setSlideWidth] = useState(700);
+	const GAP_PX = 40;
+	const EXTRA_POLAROID_HEIGHT = 120; // approx padding + caption height
+
+	useEffect(() => {
+		const measure = () => {
+			const w = containerRef.current?.clientWidth ?? window.innerWidth;
+			const h =
+				containerRef.current?.clientHeight ??
+				Math.floor(window.innerHeight * 0.8);
+			setContainerW(w);
+			const maxByWidth = Math.min(Math.floor(w * 0.8), 900);
+			const maxByHeight = Math.floor(
+				((h - EXTRA_POLAROID_HEIGHT) * 3) / 4
+			);
+			const target = Math.max(220, Math.min(maxByWidth, maxByHeight));
+			setSlideWidth(target);
+		};
+		measure();
+		window.addEventListener('resize', measure);
+		return () => window.removeEventListener('resize', measure);
+	}, []);
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent) => {
 			if (e.key === 'Escape') onClose();
@@ -190,7 +213,7 @@ function Lightbox({
 
 	return (
 		<div className='fixed inset-0 z-[9999] bg-black/80 text-white pointer-events-auto'>
-			<div className='absolute inset-0' onClick={onClose} />
+			<div className='absolute inset-0 z-[9998]' onClick={onClose} />
 			<button
 				aria-label='Close'
 				className='absolute top-5 right-5 z-[10001] p-2 border border-white/40 hover:bg-white hover:text-black transition-colors'
@@ -217,17 +240,58 @@ function Lightbox({
 
 			<div className='absolute inset-0 z-[10000] flex items-center justify-center px-6 pointer-events-none'>
 				<div
-					className='relative w-full max-w-5xl pointer-events-auto'
-					style={{ aspectRatio: '3 / 2' }}
+					ref={containerRef}
+					className='relative w-full max-w-[1200px] h-[80vh] md:h-[76vh] pointer-events-auto overflow-visible py-4'
 				>
-					<Image
-						src={img.src}
-						alt={img.caption}
-						fill
-						sizes='1200px'
-						style={{ objectFit: 'contain' }}
-						priority
-					/>
+					{/* Sliding track */}
+					<div
+						className='absolute top-1/2 flex items-center'
+						style={{
+							gap: GAP_PX,
+							left: 0,
+							transform: `translate3d(${
+								containerW / 2 -
+								slideWidth / 2 -
+								index * (slideWidth + GAP_PX)
+							}px, -50%, 0)`,
+							transition:
+								'transform 520ms cubic-bezier(0.22, 1, 0.36, 1)',
+						}}
+					>
+						{images.map((s, i) => (
+							<motion.div
+								key={i}
+								className='shrink-0'
+								style={{ width: slideWidth }}
+								animate={
+									i === index
+										? { scale: 1, opacity: 1, zIndex: 3 }
+										: {
+												scale: 0.88,
+												opacity: 0.7,
+												zIndex: 1,
+										  }
+								}
+								transition={{
+									type: 'spring',
+									stiffness: 360,
+									damping: 24,
+								}}
+							>
+								<Polaroid
+									src={s.src}
+									caption={s.caption}
+									width={slideWidth}
+									x={0}
+									startYOffset={0}
+									startScale={1}
+									startRotationDeg={0}
+									endRotationDeg={0}
+									progress={1}
+								/>
+							</motion.div>
+						))}
+					</div>
 				</div>
 			</div>
 		</div>
