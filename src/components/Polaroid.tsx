@@ -90,7 +90,7 @@ export default function Polaroid({
 					/>
 				</div>
 				<div className='mt-2 text-center'>
-					<span className='text-[12px] tracking-wide text-neutral-800 font-medium'>
+					<span className='text-[12px] tracking-wide uppercase text-neutral-800 font-medium'>
 						{caption}
 					</span>
 				</div>
