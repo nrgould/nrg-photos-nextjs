@@ -58,7 +58,7 @@ function HalationLink({ href, children }: HalationLinkProps) {
 export default function Header() {
 	const [shopOpen, setShopOpen] = useState(false);
 	return (
-		<header className='sticky top-0 z-40 bg-transparent text-white'>
+		<header className='fixed top-0 left-0 right-0 z-40 bg-transparent text-white'>
 			<div className='w-full px-4 md:px-6'>
 				<div className='grid grid-cols-[1fr_auto_1fr] h-14 md:h-16 items-center'>
 					{/* Left brand */}
