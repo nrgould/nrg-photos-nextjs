@@ -126,7 +126,7 @@ export default function ScrollGallery({
 
 			// Background interpolation based on active index
 			const colors = [
-				'#0c0c0c',
+				'#000',
 				'#06161a',
 				'#1a0a10',
 				'#0e1506',
@@ -220,7 +220,7 @@ function Slide({ src, title, alt, index }: GalleryImage & { index: number }) {
 		<div className='relative shrink-0'>
 			<div
 				ref={cardRef}
-				className='relative overflow-hidden bg-neutral-900'
+				className='relative overflow-hidden'
 				style={{ width: 'min(52vw, 560px)', aspectRatio: '4 / 5' }}
 			>
 				<Image
