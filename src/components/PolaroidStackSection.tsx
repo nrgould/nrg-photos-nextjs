@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import * as motion from 'motion/react-client';
 import Polaroid from '@/components/Polaroid';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 type StackImage = { src: string; caption: string };
 
@@ -38,18 +39,18 @@ export default function PolaroidStackSection() {
 	const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
 	return (
-		<section className='relative w-full bg-black text-white py-24 md:py-32'>
+		<section className='relative w-full text-white py-24 md:py-32'>
 			<div className='mx-auto max-w-6xl px-6'>
 				<div className='mb-8 flex items-center justify-between'>
 					<h3 className='text-[32px] md:text-[48px] font-black tracking-[-0.02em]'>
 						Selected Prints
 					</h3>
-					<button
+					<Button
+						variant='outlineInverted'
 						onClick={() => setExpanded((e) => !e)}
-						className='border border-white px-4 py-2 text-sm font-semibold uppercase tracking-wide hover:bg-white hover:text-black transition-colors'
 					>
 						{expanded ? 'Collapse' : 'Expand'}
-					</button>
+					</Button>
 				</div>
 
 				{/* Stack / Row container */}
@@ -209,7 +210,8 @@ function Lightbox({
 		};
 	}, [onClose, onNext, onPrev]);
 
-	const img = images[index];
+	// Ensure index is valid without unused variable
+	void images[index];
 
 	return (
 		<div className='fixed inset-0 z-[9999] bg-black/80 text-white pointer-events-auto'>

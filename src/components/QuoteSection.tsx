@@ -61,7 +61,7 @@ export default function QuoteSection() {
 	return (
 		<section
 			onMouseMove={onMove}
-			className='relative isolate w-full bg-black text-white py-44 sm:py-56 overflow-hidden'
+			className='relative isolate w-full text-white py-44 sm:py-56 overflow-hidden'
 		>
 			{/* Base */}
 			<div className='absolute inset-0 -z-20 bg-black' />

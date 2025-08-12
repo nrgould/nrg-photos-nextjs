@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import * as motion from 'motion/react-client';
 import { ArrowUpRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function Hero() {
 	const [mouse, setMouse] = useState({ x: 0, y: 0 });
@@ -28,10 +29,10 @@ export default function Hero() {
 	return (
 		<section
 			onMouseMove={onMove}
-			className='relative isolate w-full min-h-[92vh] flex items-center justify-center bg-black text-white overflow-hidden'
+			className='relative isolate w-full min-h-[92vh] flex items-center justify-center text-white overflow-hidden'
 		>
 			{/* Background color + vignette */}
-			<div className='absolute inset-0 -z-20 bg-black' />
+			<div className='absolute inset-0 -z-20' />
 			<div className='pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(120%_100%_at_50%_0%,rgba(0,0,0,0)_20%,rgba(0,0,0,0.6)_60%,rgba(0,0,0,1)_100%)]' />
 
 			{/* Glow orbs (blurred, screen blend) */}
@@ -67,13 +68,12 @@ export default function Hero() {
 				</p>
 
 				<div className='mt-10 flex items-center justify-center gap-4'>
-					<a
-						href='#contact'
-						className='inline-flex items-center gap-2 border border-white/60 px-5 py-3 text-sm font-semibold tracking-wide uppercase hover:bg-white hover:text-black transition-colors'
-					>
-						Let&#39;s Talk{' '}
-						<ArrowUpRight size={16} className='-mt-[2px]' />
-					</a>
+					<Button asChild variant='outlineInverted' size='lg'>
+						<a href='#contact'>
+							Let&#39;s Talk{' '}
+							<ArrowUpRight size={16} className='-mt-[2px]' />
+						</a>
+					</Button>
 				</div>
 			</div>
 		</section>

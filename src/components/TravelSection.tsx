@@ -141,10 +141,7 @@ export default function TravelSection() {
 	}, []);
 
 	return (
-		<section
-			ref={sectionRef}
-			className='relative w-full bg-black text-white'
-		>
+		<section ref={sectionRef} className='relative w-full text-white'>
 			<div className='relative w-full h-[90vh] overflow-hidden'>
 				{/* Globe background */}
 				<div className='absolute inset-0 -z-10'>

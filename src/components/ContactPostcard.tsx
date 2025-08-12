@@ -4,6 +4,7 @@ import { useState } from 'react';
 import * as motion from 'motion/react-client';
 import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
+import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 
 type MessageLines = [string, string, string, string, string, string];
@@ -36,20 +37,17 @@ export default function ContactPostcard() {
 	};
 
 	return (
-		<section
-			id='contact'
-			className='relative w-full bg-[#f7f5ef] text-black'
-		>
+		<section id='contact' className='relative w-full text-black'>
 			<div className='mx-auto w-full max-w-6xl px-6 md:px-10 py-16 md:py-24'>
 				{/* Controls OUTSIDE the card */}
 				<div className='mb-4 flex items-center justify-end gap-3'>
-					<button
+					<Button
 						type='button'
+						variant='outlineInverted'
 						onClick={() => setIsFlipped((f) => !f)}
-						className='border border-black px-4 py-2 text-sm font-semibold uppercase tracking-wide hover:bg-black hover:text-white transition-colors'
 					>
 						{isFlipped ? 'Show Front' : 'Flip Postcard'}
-					</button>
+					</Button>
 				</div>
 
 				{/* Postcard with 3D flip, maintains 3:2 aspect */}
@@ -188,16 +186,17 @@ export default function ContactPostcard() {
 										</div>
 
 										<div className='mt-8 flex justify-end'>
-											<button
+											<Button
 												type='submit'
-												className='inline-flex items-center gap-2 border border-black px-4 py-2 font-semibold uppercase tracking-wide hover:bg-black hover:text-white transition-colors'
+												variant='outline'
+												className='gap-2'
 											>
 												Send
 												<ArrowUpRight
 													size={16}
 													className='-mt-[2px]'
 												/>
-											</button>
+											</Button>
 										</div>
 									</div>
 								</div>

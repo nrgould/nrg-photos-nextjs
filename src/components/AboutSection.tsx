@@ -86,7 +86,7 @@ export default function AboutSection() {
 	return (
 		<section
 			ref={sectionRef}
-			className='relative w-full bg-black text-white min-h-[90vh] py-16 md:py-20'
+			className='relative w-full text-white min-h-[90vh] py-16 md:py-20'
 		>
 			<div className='mx-auto max-w-6xl px-6'>
 				{/* 5 x 3 grid */}

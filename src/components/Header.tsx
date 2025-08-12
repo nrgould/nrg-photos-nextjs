@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import * as motion from 'motion/react-client';
+import { Button } from '@/components/ui/button';
 
 type HalationLinkProps = {
 	href: string;
@@ -113,12 +114,13 @@ export default function Header() {
 
 					{/* Right CTA */}
 					<div className='justify-self-end'>
-						<Link
-							href='#contact'
-							className='inline-flex items-center gap-2 border border-white/60 px-4 py-2 text-xs md:text-sm font-semibold tracking-wide uppercase hover:bg-white hover:text-black transition-colors'
+						<Button
+							asChild
+							variant='outlineInverted'
+							className='text-xs md:text-sm'
 						>
-							Let&#39;s Talk
-						</Link>
+							<Link href='#contact'>Let&#39;s Talk</Link>
+						</Button>
 					</div>
 				</div>
 			</div>
