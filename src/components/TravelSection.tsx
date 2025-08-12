@@ -1,15 +1,14 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import * as THREE from 'three';
 import Image from 'next/image';
+import GreenGlobe from '@/components/GreenGlobe';
 // motion imported elsewhere in project; not needed here
 
 type GalleryImage = { src: string; alt?: string };
 
 export default function TravelSection() {
 	const sectionRef = useRef<HTMLDivElement | null>(null);
-	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const [progress, setProgress] = useState(0); // 0..1 scroll progress through this section
 	const progressRef = useRef(0);
 
@@ -62,90 +61,14 @@ export default function TravelSection() {
 		};
 	}, []);
 
-	// Three.js Globe init
-	useEffect(() => {
-		const canvas = canvasRef.current;
-		if (!canvas) return;
-
-		const renderer = new THREE.WebGLRenderer({
-			canvas,
-			antialias: true,
-			alpha: true,
-		});
-		renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-		const scene = new THREE.Scene();
-		const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
-		camera.position.set(0, 0, 7);
-
-		const sphere = new THREE.Mesh(
-			new THREE.SphereGeometry(2.4, 64, 64),
-			new THREE.MeshStandardMaterial({
-				color: 0x2a2a2a,
-				metalness: 0.15,
-				roughness: 0.9,
-			})
-		);
-		scene.add(sphere);
-
-		const wire = new THREE.LineSegments(
-			new THREE.WireframeGeometry(new THREE.SphereGeometry(2.42, 24, 16)),
-			new THREE.LineBasicMaterial({
-				color: 0x4d4d4d,
-				transparent: true,
-				opacity: 0.35,
-			})
-		);
-		scene.add(wire);
-
-		const ambient = new THREE.AmbientLight(0xffffff, 0.35);
-		scene.add(ambient);
-		const light1 = new THREE.DirectionalLight(0xffffff, 1.25);
-		light1.position.set(5, 4, 6);
-		scene.add(light1);
-		const light2 = new THREE.DirectionalLight(0xff6f00, 0.8);
-		light2.position.set(-6, -3, -4);
-		scene.add(light2);
-
-		const resize = () => {
-			const parent = canvas.parentElement as HTMLElement;
-			if (!parent) return;
-			const w = parent.clientWidth;
-			const h = parent.clientHeight;
-			renderer.setSize(w, h, false);
-			camera.aspect = w / h;
-			camera.updateProjectionMatrix();
-		};
-		resize();
-		window.addEventListener('resize', resize);
-
-		let rafId = 0 as number;
-		const loop = () => {
-			// Rotate the globe based on progress and time for subtle motion
-			const baseRotation = performance.now() * 0.00007;
-			const scrollTurn = progressRef.current * Math.PI * 2; // one full turn over the section
-			sphere.rotation.y = baseRotation + scrollTurn;
-			wire.rotation.y = sphere.rotation.y;
-			renderer.render(scene, camera);
-			rafId = requestAnimationFrame(loop);
-		};
-		rafId = requestAnimationFrame(loop);
-
-		return () => {
-			cancelAnimationFrame(rafId);
-			window.removeEventListener('resize', resize);
-			renderer.dispose();
-			sphere.geometry.dispose();
-			(sphere.material as THREE.Material).dispose();
-		};
-	}, []);
+	// Removed previous Three.js globe; now using Globe.gl via GreenGlobe component
 
 	return (
 		<section ref={sectionRef} className='relative w-full text-white'>
 			<div className='relative w-full h-[90vh] overflow-hidden'>
 				{/* Globe background */}
 				<div className='absolute inset-0 -z-10'>
-					<canvas ref={canvasRef} className='w-full h-full' />
+					<GreenGlobe className='absolute inset-0' />
 					{/* Soft vignette */}
 					<div className='pointer-events-none absolute inset-0 bg-[radial-gradient(120%_100%_at_50%_0%,rgba(0,0,0,0)_10%,rgba(0,0,0,0.65)_70%,rgba(0,0,0,1)_100%)]' />
 				</div>
