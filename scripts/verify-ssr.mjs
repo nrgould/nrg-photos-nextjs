@@ -3,7 +3,6 @@ const base = process.env.PREVIEW_URL || "http://localhost:3107";
 const cases = [
   ["/", "Some places", 0],
   ["/about", "Always", 0],
-  ["/prints", "A view to", 0],
   ["/contact", "It starts with", 0],
   ["/work", "The way I", 39],
   ["/work?collection=a-study-in-green", "The way I", 7],
@@ -28,6 +27,12 @@ for (const [path, text, count] of cases) {
     `${path}: server-rendered photograph count`,
   );
   assert.ok(!html.includes("images.unsplash.com"), `${path}: no stock images`);
+  assert.ok(!html.includes('href="/prints"'), `${path}: no print navigation`);
+  if (path === "/") {
+    assert.ok(html.includes('id="places"'), "globe section in server HTML");
+    assert.ok(html.includes("data-land"), "globe geography in server HTML");
+    assert.ok(html.includes("North Carolina"), "globe locations in server HTML");
+  }
   console.log(
     `PASS ${path}: HTTP 200, server HTML, metadata${count ? `, ${count} photographs` : ""}`,
   );
@@ -42,5 +47,8 @@ console.log(
 for (const path of ["/robots.txt", "/sitemap.xml"]) {
   const response = await fetch(base + path);
   assert.equal(response.status, 200);
+  assert.ok(!(await response.text()).includes("/prints"));
   console.log(`PASS ${path}`);
 }
+assert.equal((await fetch(base + "/prints")).status, 404);
+console.log("PASS removed prints route: HTTP 404");

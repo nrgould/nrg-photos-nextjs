@@ -2,11 +2,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Arrow } from "./Arrow";
 const links = [
   { href: "/work", label: "Work" },
   { href: "/about", label: "About" },
-  { href: "/prints", label: "Prints" },
+  { href: "/#places", label: "Places" },
 ];
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -41,7 +40,7 @@ export default function Header() {
         ))}
       </nav>
       <Link href="/contact" className="header-contact">
-        Let’s make something <Arrow diagonal />
+        Let’s make something
       </Link>
       <button
         id="menu-toggle"
@@ -67,7 +66,6 @@ export default function Header() {
             aria-current={pathname.startsWith(link.href) ? "page" : undefined}
           >
             {link.label}
-            <Arrow diagonal />
           </Link>
         ))}
       </nav>

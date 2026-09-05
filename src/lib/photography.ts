@@ -281,6 +281,5 @@ export const portrait = photo(
   "Nicholas Gould in a green jacket with mountains in the background",
   "about",
 );
-export const printPhotos = [travel[1], green[3], travel[4], travel[0]];
 export const getCollection = (slug: string) =>
   collections.find((c) => c.slug === slug);

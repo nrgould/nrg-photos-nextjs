@@ -27,7 +27,7 @@ export default function Hero({ photos }: { photos: Photo[] }) {
           <em>stay with you.</em>
         </h1>
         <Link href="/work" className="hero-link">
-          Explore the photographs <Arrow />
+          Explore the photographs
         </Link>
       </div>
       <div className="hero-bottom">

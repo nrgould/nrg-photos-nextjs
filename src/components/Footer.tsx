@@ -16,7 +16,7 @@ export default function Footer() {
         </Link>
         <p>North Carolina & wherever the story goes.</p>
         <a href={site.instagram} target="_blank" rel="noreferrer">
-          Instagram <Arrow diagonal />
+          Instagram
         </a>
         <span>© {new Date().getFullYear()} NRG Studios, LLC</span>
       </div>

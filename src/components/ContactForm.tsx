@@ -8,15 +8,10 @@ import {
   type ContactInput,
 } from "@/lib/contact";
 import { site } from "@/lib/site";
-import { Arrow } from "./Arrow";
 export default function ContactForm({
   emailEnabled,
-  printTitle,
-  isPrint,
 }: {
   emailEnabled: boolean;
-  printTitle?: string;
-  isPrint: boolean;
 }) {
   const [status, setStatus] = useState<
     "idle" | "sending" | "sent" | "draft" | "error"
@@ -71,7 +66,7 @@ export default function ContactForm({
           shared.
         </p>
         <button className="text-link" onClick={() => setStatus("idle")}>
-          Write another note <Arrow />
+          Write another note
         </button>
       </div>
     );
@@ -84,7 +79,7 @@ export default function ContactForm({
           sent yet.
         </p>
         <a className="solid-button" href={draft}>
-          Open email draft <Arrow diagonal />
+          Open email draft
         </a>
         <button className="text-link" onClick={() => setStatus("idle")}>
           Back to your note
@@ -131,10 +126,7 @@ export default function ContactForm({
         <select
           id="interest"
           name="interest"
-          defaultValue={
-            lastInput?.interest ??
-            (isPrint ? "Fine art print" : "Brand & lifestyle")
-          }
+          defaultValue={lastInput?.interest ?? "Brand & lifestyle"}
         >
           {interests.map((interest) => (
             <option key={interest}>{interest}</option>
@@ -150,12 +142,7 @@ export default function ContactForm({
           required
           minLength={10}
           maxLength={5000}
-          defaultValue={
-            lastInput?.message ??
-            (printTitle
-              ? `I’m interested in a print of “${printTitle}”. Please share the available sizes and pricing.`
-              : "")
-          }
+          defaultValue={lastInput?.message ?? ""}
           placeholder="The story, the place, the timing. Anything you’d like me to know."
         />
       </label>
@@ -181,7 +168,6 @@ export default function ContactForm({
             : emailEnabled
               ? "Send your note"
               : "Prepare an email"}
-          <Arrow diagonal />
         </button>
         <p>
           {emailEnabled

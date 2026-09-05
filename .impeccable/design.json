@@ -115,16 +115,6 @@
     },
     "shadows": [
       {
-        "name": "print-mat",
-        "value": "0 18px 30px -25px #60705735",
-        "purpose": "Physical print mat."
-      },
-      {
-        "name": "print-image",
-        "value": "0 4px 12px #45553815",
-        "purpose": "Homepage print paper."
-      },
-      {
         "name": "mobile-menu",
         "value": "0 18px 25px -25px #293c2e",
         "purpose": "Separates the expanded menu from content below."
@@ -190,7 +180,7 @@
       "name": "Desktop navigation",
       "kind": "nav",
       "description": "Underlines identify current and hovered destinations.",
-      "html": "<nav class=\"ds-nav\" aria-label=\"Main navigation\"><a href=\"/work\" aria-current=\"page\">Work</a><a href=\"/about\">About</a><a href=\"/prints\">Prints</a></nav>",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Main navigation\"><a href=\"/work\" aria-current=\"page\">Work</a><a href=\"/about\">About</a><a href=\"/#places\">Places</a></nav>",
       "css": ".ds-nav{display:flex;gap:38px;font-family:var(--sans, \"DM Sans\", Arial, sans-serif);color:var(--ink,#263d32)}.ds-nav a{position:relative;padding:14px 0;font-size:13px;color:inherit;text-decoration:none}.ds-nav a:after{position:absolute;content:\"\";height:1px;left:0;bottom:8px;width:100%;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .2s}.ds-nav a:hover:after,.ds-nav a[aria-current]:after{transform:scaleX(1)}.ds-nav a:focus-visible{outline:2px solid #768d55;outline-offset:6px}@media(prefers-reduced-motion:reduce){.ds-nav a:after{transition:none}}"
     },
     {
@@ -211,7 +201,7 @@
   ],
   "narrative": {
     "northStar": "The Photographic Journal",
-    "overview": "Original photographs set the pace. Warm paper, forest ink, restrained captions, and large serif headings make room for locations and people to carry the identity. Staggered spreads alternate with quieter introductions and print presentations.\n\nThe system is built for a web experience: visitors browse photographs, open collections, and reach a direct inquiry. This document describes the implemented system in `src/app/globals.css` and the React components; the homepage strategy lives separately in `.impeccable/surfaces/`.",
+    "overview": "Original photographs set the pace. Warm paper, forest ink, restrained captions, and large serif headings make room for locations and people to carry the identity. Staggered spreads alternate with quieter introductions and geographic exploration.\n\nThe system is built for a web experience: visitors browse photographs, open collections, and reach a direct inquiry. This document describes the implemented system in `src/app/globals.css` and the React components; the homepage strategy lives separately in `.impeccable/surfaces/`.",
     "keyCharacteristics": [
       "Original photography at generous scale.",
       "Literary headings with small, clear sans-serif navigation and captions.",

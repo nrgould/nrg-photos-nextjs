@@ -3,7 +3,6 @@ import { site } from "./site";
 export const interests = [
   "Brand & lifestyle",
   "Portraits",
-  "Fine art print",
   "Something else",
 ] as const;
 export const contactSchema = z.object({

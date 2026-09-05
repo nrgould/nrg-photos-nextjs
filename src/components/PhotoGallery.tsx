@@ -36,7 +36,10 @@ export default function PhotoGallery({ photos }: { photos: Photo[] }) {
     <>
       <div className="photo-grid">
         {photos.map((photo, i) => (
-          <figure key={photo.src}>
+          <figure
+            key={photo.src}
+            id={photo.src.split("/").pop()?.replace(".webp", "")}
+          >
             <button
               className="photo-button"
               aria-label={`View ${photo.title}`}

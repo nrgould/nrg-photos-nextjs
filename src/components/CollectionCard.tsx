@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Collection } from "@/lib/photography";
 import PhotoImage from "./PhotoImage";
-import { Arrow } from "./Arrow";
 export default function CollectionCard({
   collection,
 }: {
@@ -14,9 +13,7 @@ export default function CollectionCard({
     >
       <div className="collection-image">
         <PhotoImage photo={collection.cover} />
-        <span className="collection-open">
-          View collection <Arrow diagonal />
-        </span>
+        <span className="collection-open">View collection</span>
       </div>
       <div className="collection-caption">
         <div>
@@ -24,7 +21,7 @@ export default function CollectionCard({
           <p>{collection.category}</p>
         </div>
         <span className="collection-count">
-          {collection.photos.length} photographs <Arrow diagonal />
+          {collection.photos.length} photographs
         </span>
       </div>
     </Link>

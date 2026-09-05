@@ -2,13 +2,9 @@ import Link from "next/link";
 import Hero from "@/components/Hero";
 import CollectionCard from "@/components/CollectionCard";
 import PhotoImage from "@/components/PhotoImage";
-import { Arrow } from "@/components/Arrow";
-import {
-  collections,
-  heroPhotos,
-  portrait,
-  printPhotos,
-} from "@/lib/photography";
+import { collections, heroPhotos, portrait } from "@/lib/photography";
+import TravelGlobe from "@/components/TravelGlobe";
+import { travelPlaces } from "@/lib/places";
 import { site } from "@/lib/site";
 export const metadata = { alternates: { canonical: "/" } };
 export default function Home() {
@@ -25,7 +21,7 @@ export default function Home() {
             A few ways of <em>seeing.</em>
           </h2>
           <Link href="/work" className="text-link">
-            All photographs <Arrow />
+            All photographs
           </Link>
         </div>
         <div className="collection-grid">
@@ -54,7 +50,7 @@ export default function Home() {
             everyday experiences, and stories for brands.
           </p>
           <Link href="/about" className="text-link">
-            A little about me <Arrow />
+            A little about me
           </Link>
         </div>
       </section>
@@ -67,34 +63,11 @@ export default function Home() {
           <span>C2Life</span>
         </div>
       </section>
-      <section className="print-preview page-width">
-        <div className="print-preview-copy">
-          <h2>
-            A place to
-            <br />
-            <em>come back to.</em>
-          </h2>
-          <p>
-            Bring a little of the outside in. Selected photographs, printed on
-            Hahnemühle Photo Rag and signed by hand.
-          </p>
-          <Link href="/prints" className="text-link">
-            Explore fine art prints <Arrow />
-          </Link>
-        </div>
-        <Link
-          href="/prints"
-          className="print-mat"
-          aria-label="Explore Lago di Braies and the fine art print collection"
-        >
-          <PhotoImage photo={printPhotos[0]} />
-          <span>Lago di Braies, Italy</span>
-        </Link>
-      </section>
+      <TravelGlobe places={travelPlaces} />
       <section className="instagram-note page-width">
         <p>There’s more along the way.</p>
         <a href={site.instagram} target="_blank" rel="noreferrer">
-          Follow @nicholasgould1 <Arrow diagonal />
+          Follow @nicholasgould1
         </a>
       </section>
     </main>

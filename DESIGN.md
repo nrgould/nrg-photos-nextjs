@@ -68,7 +68,7 @@ components:
 
 **Creative North Star: "The Photographic Journal"**
 
-Original photographs set the pace. Warm paper, forest ink, restrained captions, and large serif headings make room for locations and people to carry the identity. Staggered spreads alternate with quieter introductions and print presentations.
+Original photographs set the pace. Warm paper, forest ink, restrained captions, and large serif headings make room for locations and people to carry the identity. Staggered spreads alternate with quieter introductions and geographic exploration.
 
 The system is built for a web experience: visitors browse photographs, open collections, and reach a direct inquiry. This document describes the implemented system in `src/app/globals.css` and the React components; the homepage strategy lives separately in `.impeccable/surfaces/`.
 
@@ -110,18 +110,20 @@ The recovered portrait source is 300px square. Its final CSS treatment is a cent
 
 ## Elevation & Depth
 
-Most surfaces are flat. Pale backgrounds, spacing, and rules separate regions. Print mats alone suggest physical paper through `0 18px 30px -25px #60705735`; the homepage print image has `0 4px 12px #45553815`. The mobile menu has a faint lower shadow. Avoid introducing elevated card shells around photographic collections.
+Most surfaces are flat. Pale backgrounds, spacing, and rules separate regions. The mobile menu has a faint lower shadow. Avoid introducing elevated card shells around photographic collections.
 
-Motion uses `cubic-bezier(0.22, 1, 0.36, 1)`: the hero settles once over 1.3s, collection images enlarge to 1.025 over 0.7s, and link arrows move 4px over 0.3s. Reduced-motion preference removes animation and transitions and restores automatic scroll behavior.
+Motion uses `cubic-bezier(0.22, 1, 0.36, 1)`: the hero settles once over 1.3s, collection images enlarge to 1.025 over 0.7s, and link arrows move 4px over 0.3s. The location globe rotates gently while visible; choosing a location turns toward its marker and pauses. Reduced-motion preference snaps to selected locations, suppresses automatic rotation, removes animation and transitions, and restores automatic scroll behavior.
 
 ## Shapes
 
-Photographs, print mats, buttons, and form controls have square corners. Circular outlines identify manual hero controls only. Arrows are simple 20px inline SVG strokes, with horizontal and diagonal variants. Fine borders and underlines supply definition without ornamental frames.
+Photographs, buttons, and form controls have square corners. Circular outlines identify manual hero controls and geographic markers. Arrows are simple 20px inline SVG strokes, with horizontal and diagonal variants. Fine borders and underlines supply definition without ornamental frames.
 
 ## Components
 
 - **Primary button:** forest fill, paper text, 18px/24px padding, 54px minimum height, and a lighter forest hover. Disabled buttons show wait cursor and 0.65 opacity.
-- **Text link:** a one-pixel underline, generous vertical padding, and an arrow that shifts on hover. Keep copy as the accessible link name.
+- **Text link:** a one-pixel underline, generous vertical padding, and an underline on hover. Keep copy as the accessible link name.
+- **Globe:** forest section, sage SVG land, subtle graticule, regional markers, four text location buttons, and an uncropped photograph linking into the travel collection. Pause when offscreen or the tab is hidden.
+- **Arrows:** keep only directional photo/collection controls and the main footer contact invitation. Ordinary links rely on typography and underlines.
 - **Navigation:** small sans-serif desktop links with an underline for hover/current route. Mobile uses an explicit Menu/Close disclosure with larger serif links, current-route semantics, and Escape support.
 - **Collection entrance:** a large image above its title, category, and photo count. Hover or keyboard focus reveals a paper action strip. The strip is hidden on mobile; the whole entrance remains a link.
 - **Photo viewer:** full-screen dark native dialog, contained image, caption, count, and previous/next/close controls. Preserve keyboard operation and focus handling.

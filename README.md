@@ -19,13 +19,15 @@ npm run dev -- --port 3107
 
 ## Rendering
 
-`src/app/layout.tsx` calls `await connection()` so all portfolio pages render on each request. Collection filters are URL-driven and rendered on the server. The initial HTML contains the photographs, captions, navigation and page copy. Small client components provide the featured-photo controls, mobile menu, native-dialog viewer and inquiry form. There is no Instagram feed or external photo API needed at runtime.
+`src/app/layout.tsx` calls `await connection()` so all portfolio pages render on each request. Collection filters are URL-driven and rendered on the server. The initial HTML contains the photographs, captions, navigation and page copy. Small client components provide the featured-photo controls, mobile menu, location globe, native-dialog viewer and inquiry form. There is no Instagram feed or external photo API needed at runtime.
 
 `next/font` downloads and self-hosts Cormorant Garamond and DM Sans during the build. Deployment builds need internet access for that download. Photographs are local WebP files delivered through `next/image`.
 
 ## Content
 
-- `src/lib/photography.ts`: collections, sequence, titles, alt text and print selections.
+- `src/lib/photography.ts`: collections, sequence, titles and alt text.
+- `src/lib/places.ts`: globe locations and their linked original photographs.
+- `src/data/land.json`: local Natural Earth geography (see `src/data/README.md`).
 - `src/lib/photo-manifest.json`: original-image sources and dimensions.
 - `src/lib/site.ts`: canonical domain, contact address and Instagram profile.
 - `public/photos`: curated optimized originals.
@@ -67,7 +69,7 @@ npm start
 
 Tests cover fixed-recipient delivery, Reply-To, literal content, validation, request limits, cross-origin rejection, honeypot behavior, delivery failures, draft encoding and original-photo integrity.
 
-Browser checks performed: desktop 1440px, mobile 390px; hero controls, navigation, filters, image viewer arrow/Escape controls and focus return, print inquiry prefill, draft flow and preserving entered data. Additional narrow and medium viewport checks are documented in `docs/verification.md`.
+Browser checks performed: desktop 1440px, mobile 390px; hero controls, navigation, filters, image viewer arrow/Escape controls and focus return, globe selection and reduced motion, draft flow and preserving entered data. Additional narrow and medium viewport checks are documented in `docs/verification.md`.
 
 ## Deploy
 

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import PhotoImage from "@/components/PhotoImage";
-import { Arrow } from "@/components/Arrow";
 import { portrait, collections } from "@/lib/photography";
 import { site } from "@/lib/site";
 export const metadata = {
@@ -39,7 +38,7 @@ export default function AboutPage() {
             a different light.
           </p>
           <Link href="/contact" className="text-link">
-            Tell me what you have in mind <Arrow />
+            Tell me what you have in mind
           </Link>
           <a
             href={site.instagram}
@@ -47,7 +46,7 @@ export default function AboutPage() {
             target="_blank"
             rel="noreferrer"
           >
-            More from my days, @nicholasgould1 <Arrow diagonal />
+            More from my days, @nicholasgould1
           </a>
         </div>
       </section>
@@ -81,9 +80,7 @@ export default function AboutPage() {
       </section>
       <div className="about-landscape">
         <PhotoImage photo={collections[1].photos[7]} sizes="100vw" />
-        <Link href="/work/far-from-here">
-          A little further from home <Arrow />
-        </Link>
+        <Link href="/work/far-from-here">A little further from home</Link>
       </div>
     </main>
   );
