@@ -112,7 +112,7 @@ The recovered portrait source is 300px square. Its final CSS treatment is a cent
 
 Most surfaces are flat. Pale backgrounds, spacing, and rules separate regions. The mobile menu has a faint lower shadow. Avoid introducing elevated card shells around photographic collections.
 
-Motion uses `cubic-bezier(0.22, 1, 0.36, 1)`: the hero settles once over 1.3s, collection images enlarge to 1.025 over 0.7s, and link arrows move 4px over 0.3s. The location globe rotates gently while visible; choosing a location turns toward its marker and pauses. Reduced-motion preference snaps to selected locations, suppresses automatic rotation, removes animation and transitions, and restores automatic scroll behavior.
+Motion uses `cubic-bezier(0.22, 1, 0.36, 1)`: the hero settles once over 1.3s, collection images enlarge to 1.025 over 0.7s, and link arrows move 4px over 0.3s. The location globe starts still for selection, with optional rotation while visible; choosing a location turns toward its marker and pauses. Reduced-motion preference snaps to selected locations, suppresses automatic rotation, removes animation and transitions, and restores automatic scroll behavior.
 
 ## Shapes
 
@@ -122,7 +122,7 @@ Photographs, buttons, and form controls have square corners. Circular outlines i
 
 - **Primary button:** forest fill, paper text, 18px/24px padding, 54px minimum height, and a lighter forest hover. Disabled buttons show wait cursor and 0.65 opacity.
 - **Text link:** a one-pixel underline, generous vertical padding, and an underline on hover. Keep copy as the accessible link name.
-- **Globe:** forest section, sage SVG land, subtle graticule, regional markers, four text location buttons, and an uncropped photograph linking into the travel collection. Pause when offscreen or the tab is hidden.
+- **Globe:** forest section, sage SVG land, subtle graticule, clickable labeled regional markers, four text location buttons, and a stack of original photographs from the selected location. Loose paper frames preserve natural photo proportions with modest rotation and soft offset shadows. Clicking the front card advances, clicking an exposed card brings it forward, and the collection link follows the front photo. Omit descriptive filler and image backplates. Pause when offscreen or the tab is hidden.
 - **Arrows:** keep only directional photo/collection controls and the main footer contact invitation. Ordinary links rely on typography and underlines.
 - **Navigation:** small sans-serif desktop links with an underline for hover/current route. Mobile uses an explicit Menu/Close disclosure with larger serif links, current-route semantics, and Escape support.
 - **Collection entrance:** a large image above its title, category, and photo count. Hover or keyboard focus reveals a paper action strip. The strip is hidden on mobile; the whole entrance remains a link.

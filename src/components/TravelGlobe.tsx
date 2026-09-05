@@ -1,14 +1,14 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { Pause, Play } from "lucide-react";
 import { globeFrame, initialView, shortestTurn } from "@/lib/globe";
 import type { TravelPlace } from "@/lib/places";
-import PhotoImage from "./PhotoImage";
+import PhotoStack from "./PhotoStack";
 export default function TravelGlobe({ places }: { places: TravelPlace[] }) {
   const [selection, setSelection] = useState({ index: 0 });
   const selected = selection.index;
-  const [rotating, setRotating] = useState(true);
+  const [rotating, setRotating] = useState(false);
+  const markerRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const svgRef = useRef<SVGSVGElement>(null);
   const view = useRef<[number, number]>([...initialView]);
   const target = useRef<[number, number] | null>(null);
@@ -42,6 +42,12 @@ export default function TravelGlobe({ places }: { places: TravelPlace[] }) {
             `translate(${point.position[0]},${point.position[1]})`,
           );
         pin.style.visibility = point.visible ? "visible" : "hidden";
+        const marker = markerRefs.current[i];
+        if (marker && point.position) {
+          marker.style.left = `${point.position[0] / 5.6}%`;
+          marker.style.top = `${point.position[1] / 5.6}%`;
+          marker.style.visibility = point.visible ? "visible" : "hidden";
+        }
       });
     };
     const tick = (now: number) => {
@@ -111,40 +117,80 @@ export default function TravelGlobe({ places }: { places: TravelPlace[] }) {
             <br />
             <em>the photographs.</em>
           </h2>
-          <p>
-            A few stops along the way.
-            <br />
-            Choose a place and take a closer look.
-          </p>
         </div>
         <div className="travel-layout">
           <div className="globe-panel">
-            <svg
-              ref={svgRef}
-              viewBox="0 0 560 560"
-              className="travel-globe"
-              aria-hidden="true"
+            <div
+              className="globe-map"
+              role="group"
+              aria-label="Select a location on the globe"
             >
-              <circle cx="280" cy="280" r="251" className="globe-ocean" />
-              <path data-grid d={initial.grid} className="globe-grid" />
-              <path data-land d={initial.land} className="globe-land" />
+              <svg
+                ref={svgRef}
+                viewBox="0 0 560 560"
+                className="travel-globe"
+                aria-hidden="true"
+                onClick={(event) => {
+                  const bounds = event.currentTarget.getBoundingClientRect();
+                  const x =
+                    ((event.clientX - bounds.left) * 560) / bounds.width;
+                  const y =
+                    ((event.clientY - bounds.top) * 560) / bounds.height;
+                  const points = globeFrame(
+                    view.current,
+                    places.map((p) => p.coordinates),
+                  ).points;
+                  const nearest = points
+                    .map((p, i) => ({
+                      i,
+                      distance:
+                        p.visible && p.position
+                          ? Math.hypot(p.position[0] - x, p.position[1] - y)
+                          : Infinity,
+                    }))
+                    .sort((a, b) => a.distance - b.distance)[0];
+                  if (nearest.distance < 70) choose(nearest.i);
+                }}
+              >
+                <circle cx="280" cy="280" r="251" className="globe-ocean" />
+                <path data-grid d={initial.grid} className="globe-grid" />
+                <path data-land d={initial.land} className="globe-land" />
+                {initial.points.map((point, i) => (
+                  <g
+                    key={places[i].id}
+                    data-pin
+                    transform={`translate(${point.position?.[0] ?? 0},${point.position?.[1] ?? 0})`}
+                    style={{ visibility: point.visible ? "visible" : "hidden" }}
+                    className={
+                      i === selected ? "globe-pin is-selected" : "globe-pin"
+                    }
+                  >
+                    <circle r={i === selected ? 12 : 6} className="pin-ring" />
+                    <circle r={i === selected ? 4 : 2.5} className="pin-core" />
+                  </g>
+                ))}
+              </svg>
               {initial.points.map((point, i) => (
-                <g
+                <button
                   key={places[i].id}
-                  data-pin
-                  transform={`translate(${point.position?.[0] ?? 0},${point.position?.[1] ?? 0})`}
-                  style={{ visibility: point.visible ? "visible" : "hidden" }}
-                  className={
-                    i === selected ? "globe-pin is-selected" : "globe-pin"
-                  }
+                  ref={(element) => {
+                    markerRefs.current[i] = element;
+                  }}
+                  className={`globe-marker marker-${places[i].id}`}
+                  style={{
+                    left: `${(point.position?.[0] ?? 0) / 5.6}%`,
+                    top: `${(point.position?.[1] ?? 0) / 5.6}%`,
+                    visibility: point.visible ? "visible" : "hidden",
+                  }}
+                  aria-label={`Show photographs from ${places[i].name}`}
+                  aria-pressed={selected === i}
+                  onClick={() => choose(i)}
                 >
-                  <circle r={i === selected ? 12 : 6} className="pin-ring" />
-                  <circle r={i === selected ? 4 : 2.5} className="pin-core" />
-                </g>
+                  {places[i].name}
+                </button>
               ))}
-            </svg>
+            </div>
             <div className="globe-caption">
-              <span>Near home. Far from familiar.</span>
               <button
                 className="globe-motion"
                 onClick={() => setRotating(!rotating)}
@@ -173,28 +219,7 @@ export default function TravelGlobe({ places }: { places: TravelPlace[] }) {
                 </button>
               ))}
             </div>
-            <figure
-              className="place-photo"
-              aria-live="polite"
-              aria-atomic="true"
-            >
-              <PhotoImage
-                photo={place.photo}
-                sizes="(max-width:700px) 90vw, 38vw"
-              />
-              <figcaption>
-                <div>
-                  <h3>{place.photo.title}</h3>
-                  <p>{place.location}</p>
-                </div>
-                <Link
-                  href={`/work/far-from-here#${place.photo.src.split("/").pop()?.replace(".webp", "")}`}
-                  className="text-link"
-                >
-                  View in collection
-                </Link>
-              </figcaption>
-            </figure>
+            <PhotoStack key={place.id} place={place} />
           </div>
         </div>
       </div>

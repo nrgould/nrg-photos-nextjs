@@ -21,7 +21,7 @@ Nicholas Gould is a lifestyle photographer based in North Carolina. The existing
 Use Nicholas's original images. Public Instagram reviewed September 4, 2026: deep botanical greens, mountain landscapes, lakes, muted alpine light, sunflowers, careful framing and small serif collection titles. The original Next.js repo includes a green series and Hallstatt/Bavaria travel photos. Preserve the useful collection and postcard concepts.
 
 ## Requested refinements
-Connect the globe to photographed places. Remove prints from the website. Reserve arrows for photograph controls, collection navigation, and the main contact invitation.
+Connect the globe to photographed places with directly clickable markers and location-specific stacks of photographs, arranged like loose polaroids. Keep descriptive filler out of this section. Remove prints from the website. Reserve arrows for photograph controls, collection navigation, and the main contact invitation.
 
 ## Constraints
 No invented testimonials, stock photographs presented as Nicholas's, fabricated project details, print prices or availability promises. Images and content must render without an Instagram embed. No publishing or DNS changes requested. Contact delivery requires configured Resend credentials; keep direct email available.

@@ -26,7 +26,7 @@ npm run dev -- --port 3107
 ## Content
 
 - `src/lib/photography.ts`: collections, sequence, titles and alt text.
-- `src/lib/places.ts`: globe locations and their linked original photographs.
+- `src/lib/places.ts`: globe locations and their original-photo sets; add photos to each `photos` array to extend the stack.
 - `src/data/land.json`: local Natural Earth geography (see `src/data/README.md`).
 - `src/lib/photo-manifest.json`: original-image sources and dimensions.
 - `src/lib/site.ts`: canonical domain, contact address and Instagram profile.
@@ -69,7 +69,7 @@ npm start
 
 Tests cover fixed-recipient delivery, Reply-To, literal content, validation, request limits, cross-origin rejection, honeypot behavior, delivery failures, draft encoding and original-photo integrity.
 
-Browser checks performed: desktop 1440px, mobile 390px; hero controls, navigation, filters, image viewer arrow/Escape controls and focus return, globe selection and reduced motion, draft flow and preserving entered data. Additional narrow and medium viewport checks are documented in `docs/verification.md`.
+Browser checks performed: desktop 1440px, mobile 390px; hero controls, navigation, filters, image viewer arrow/Escape controls and focus return, direct globe-marker selection, photograph stacks, keyboard cycling and reduced motion, draft flow and preserving entered data. Additional narrow and medium viewport checks are documented in `docs/verification.md`.
 
 ## Deploy
 

@@ -20,9 +20,14 @@ test("globe turns across the short side of the date line", () => {
   assert.equal(shortestTurn(175, -175), 10);
   assert.equal(shortestTurn(-175, 175), -10);
 });
-test("every location points to a real photograph in the travel collection", () => {
+test("every location has a distinct set of original photographs", () => {
   for (const place of travelPlaces) {
-    assert.equal(place.photo.collection, "far-from-here");
-    assert.ok(place.photo.src.startsWith("/photos/"));
+    assert.ok(place.photos.length >= 2);
+    assert.equal(
+      new Set(place.photos.map((p) => p.src)).size,
+      place.photos.length,
+    );
+    for (const photo of place.photos)
+      assert.ok(photo.src.startsWith("/photos/"));
   }
 });

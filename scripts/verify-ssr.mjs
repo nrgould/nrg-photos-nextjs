@@ -31,7 +31,17 @@ for (const [path, text, count] of cases) {
   if (path === "/") {
     assert.ok(html.includes('id="places"'), "globe section in server HTML");
     assert.ok(html.includes("data-land"), "globe geography in server HTML");
-    assert.ok(html.includes("North Carolina"), "globe locations in server HTML");
+    assert.ok(
+      html.includes("Show photographs from Italy"),
+      "clickable globe locations in server HTML",
+    );
+    assert.ok(html.includes("polaroid"), "photo stack in server HTML");
+    assert.ok(!html.includes("A few stops along the way"));
+    assert.ok(!html.includes("Near home. Far from familiar"));
+    assert.ok(
+      html.includes("North Carolina"),
+      "globe locations in server HTML",
+    );
   }
   console.log(
     `PASS ${path}: HTTP 200, server HTML, metadata${count ? `, ${count} photographs` : ""}`,
