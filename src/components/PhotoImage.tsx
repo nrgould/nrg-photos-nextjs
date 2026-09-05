@@ -1,0 +1,26 @@
+import Image from "next/image";
+import type { Photo } from "@/lib/photography";
+export default function PhotoImage({
+  photo,
+  className = "",
+  priority = false,
+  sizes = "(max-width: 700px) 100vw, 50vw",
+}: {
+  photo: Photo;
+  className?: string;
+  priority?: boolean;
+  sizes?: string;
+}) {
+  return (
+    <Image
+      src={photo.src}
+      alt={photo.alt}
+      width={photo.width}
+      height={photo.height}
+      className={className}
+      sizes={sizes}
+      quality={85}
+      preload={priority}
+    />
+  );
+}

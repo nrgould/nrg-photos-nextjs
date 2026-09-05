@@ -1,129 +1,76 @@
-'use client';
-
-import Link from 'next/link';
-import { useState } from 'react';
-import * as motion from 'motion/react-client';
-import { Button } from '@/components/ui/button';
-
-type HalationLinkProps = {
-	href: string;
-	children: React.ReactNode;
-};
-
-function HalationLink({ href, children }: HalationLinkProps) {
-	const [hovered, setHovered] = useState(false);
-	return (
-		<div
-			onMouseEnter={() => setHovered(true)}
-			onMouseLeave={() => setHovered(false)}
-			className='relative inline-flex items-center justify-center px-3 py-1'
-		>
-			{/* Halation glow (stronger, layered) */}
-			<motion.div
-				aria-hidden
-				initial={{ opacity: 0, scale: 0.9 }}
-				animate={{
-					opacity: hovered ? 1 : 0,
-					scale: hovered ? 1 : 0.95,
-				}}
-				transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-				className='pointer-events-none absolute inset-0'
-				style={{
-					filter: 'blur(18px)',
-					background:
-						'radial-gradient(45% 65% at 50% 50%, rgba(255,210,64,0.6), rgba(255,140,0,0.45) 40%, rgba(0,0,0,0) 72%)',
-				}}
-			/>
-			<motion.div
-				aria-hidden
-				initial={{ opacity: 0 }}
-				animate={{ opacity: hovered ? 0.8 : 0 }}
-				transition={{ type: 'tween', duration: 0.2 }}
-				className='pointer-events-none absolute inset-0'
-				style={{
-					filter: 'blur(32px)',
-					background:
-						'radial-gradient(60% 90% at 50% 50%, rgba(255,170,0,0.35), rgba(255,110,0,0.25) 45%, rgba(0,0,0,0) 80%)',
-				}}
-			/>
-			<Link
-				href={href}
-				className='relative z-10 text-sm md:text-base tracking-wide'
-			>
-				{children}
-			</Link>
-		</div>
-	);
-}
-
+"use client";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { Arrow } from "./Arrow";
+const links = [
+  { href: "/work", label: "Work" },
+  { href: "/about", label: "About" },
+  { href: "/prints", label: "Prints" },
+];
 export default function Header() {
-	const [shopOpen, setShopOpen] = useState(false);
-	return (
-		<header className='fixed top-0 left-0 right-0 z-40 bg-transparent text-white'>
-			<div className='w-full px-4 md:px-6'>
-				<div className='grid grid-cols-[1fr_auto_1fr] h-14 md:h-16 items-center'>
-					{/* Left brand */}
-					<div className='justify-self-start text-xs md:text-sm font-semibold tracking-[0.2em]'>
-						<Link href='/'>NICHOLAS GOULD</Link>
-					</div>
-
-					{/* Center nav */}
-					<nav className='justify-self-center'>
-						<ul className='flex items-center gap-3 md:gap-6'>
-							<li>
-								<HalationLink href='/'>Home</HalationLink>
-							</li>
-							<li>
-								<HalationLink href='/projects'>
-									Projects
-								</HalationLink>
-							</li>
-							{/* Shop dropdown */}
-							<li
-								className='relative'
-								onMouseEnter={() => setShopOpen(true)}
-								onMouseLeave={() => setShopOpen(false)}
-							>
-								<HalationLink href='#'>Shop</HalationLink>
-								{shopOpen && (
-									<div className='absolute left-1/2 top-full mt-3 -translate-x-1/2 z-50'>
-										<div className='min-w-[220px] bg-black/80 border border-white/10 p-3 text-sm shadow-2xl'>
-											<div className='grid grid-cols-2 gap-2'>
-												<Link
-													href='/shop/prints'
-													className='px-3 py-2 hover:underline'
-												>
-													Prints
-												</Link>
-												<Link
-													href='/shop/presets'
-													className='px-3 py-2 hover:underline'
-												>
-													Presets
-												</Link>
-											</div>
-										</div>
-									</div>
-								)}
-							</li>
-							<li>
-								<HalationLink href='/blog'>Blog</HalationLink>
-							</li>
-						</ul>
-					</nav>
-
-					{/* Right CTA */}
-					<div className='justify-self-end'>
-						<Button
-							asChild
-							variant='outlineInverted'
-							className='text-xs md:text-sm'
-						>
-							<Link href='#contact'>Let&#39;s Talk</Link>
-						</Button>
-					</div>
-				</div>
-			</div>
-		</header>
-	);
+  const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  return (
+    <header
+      className="site-header"
+      onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          setOpen(false);
+          document.getElementById("menu-toggle")?.focus();
+        }
+      }}
+    >
+      <Link
+        href="/"
+        className="wordmark"
+        onClick={() => setOpen(false)}
+        aria-label="Nicholas Gould photography home"
+      >
+        Nicholas Gould<span>Photography</span>
+      </Link>
+      <nav className="desktop-nav" aria-label="Main navigation">
+        {links.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            aria-current={pathname.startsWith(link.href) ? "page" : undefined}
+          >
+            {link.label}
+          </Link>
+        ))}
+      </nav>
+      <Link href="/contact" className="header-contact">
+        Let’s make something <Arrow diagonal />
+      </Link>
+      <button
+        id="menu-toggle"
+        className="menu-toggle"
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-controls="mobile-nav"
+      >
+        {open ? "Close" : "Menu"}
+        <span aria-hidden="true">{open ? "−" : "+"}</span>
+      </button>
+      <nav
+        id="mobile-nav"
+        className="mobile-nav"
+        aria-label="Mobile navigation"
+        hidden={!open}
+      >
+        {[...links, { href: "/contact", label: "Get in touch" }].map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            onClick={() => setOpen(false)}
+            aria-current={pathname.startsWith(link.href) ? "page" : undefined}
+          >
+            {link.label}
+            <Arrow diagonal />
+          </Link>
+        ))}
+      </nav>
+    </header>
+  );
 }

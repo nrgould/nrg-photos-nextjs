@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-05T02:23:42.384154+00:00",
+  "title": "Design System: Nicholas Gould Photography",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Warm paper",
+        "tonalRamp": [
+          "oklch(15% 0.00952 93.57)",
+          "oklch(26% 0.00952 93.57)",
+          "oklch(38% 0.00952 93.57)",
+          "oklch(49% 0.00952 93.57)",
+          "oklch(61% 0.00952 93.57)",
+          "oklch(72% 0.00952 93.57)",
+          "oklch(84% 0.00952 93.57)",
+          "oklch(95% 0.00952 93.57)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Forest ink",
+        "tonalRamp": [
+          "oklch(15% 0.03496 163.08)",
+          "oklch(26% 0.03496 163.08)",
+          "oklch(38% 0.03496 163.08)",
+          "oklch(49% 0.03496 163.08)",
+          "oklch(61% 0.03496 163.08)",
+          "oklch(72% 0.03496 163.08)",
+          "oklch(84% 0.03496 163.08)",
+          "oklch(95% 0.03496 163.08)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted green-gray",
+        "tonalRamp": [
+          "oklch(15% 0.01905 142.47)",
+          "oklch(26% 0.01905 142.47)",
+          "oklch(38% 0.01905 142.47)",
+          "oklch(49% 0.01905 142.47)",
+          "oklch(61% 0.01905 142.47)",
+          "oklch(72% 0.01905 142.47)",
+          "oklch(84% 0.01905 142.47)",
+          "oklch(95% 0.01905 142.47)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Soft divider",
+        "tonalRamp": [
+          "oklch(15% 0.01651 118.16)",
+          "oklch(26% 0.01651 118.16)",
+          "oklch(38% 0.01651 118.16)",
+          "oklch(49% 0.01651 118.16)",
+          "oklch(61% 0.01651 118.16)",
+          "oklch(72% 0.01651 118.16)",
+          "oklch(84% 0.01651 118.16)",
+          "oklch(95% 0.01651 118.16)"
+        ]
+      },
+      "forest": {
+        "role": "primary",
+        "displayName": "Forest",
+        "tonalRamp": [
+          "oklch(15% 0.03696 161.75)",
+          "oklch(26% 0.03696 161.75)",
+          "oklch(38% 0.03696 161.75)",
+          "oklch(49% 0.03696 161.75)",
+          "oklch(61% 0.03696 161.75)",
+          "oklch(72% 0.03696 161.75)",
+          "oklch(84% 0.03696 161.75)",
+          "oklch(95% 0.03696 161.75)"
+        ]
+      },
+      "pale": {
+        "role": "neutral",
+        "displayName": "Pale leaf",
+        "tonalRamp": [
+          "oklch(15% 0.01468 110.89)",
+          "oklch(26% 0.01468 110.89)",
+          "oklch(38% 0.01468 110.89)",
+          "oklch(49% 0.01468 110.89)",
+          "oklch(61% 0.01468 110.89)",
+          "oklch(72% 0.01468 110.89)",
+          "oklch(84% 0.01468 110.89)",
+          "oklch(95% 0.01468 110.89)"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "Warm white",
+        "tonalRamp": [
+          "oklch(15% 0.00666 97.35)",
+          "oklch(26% 0.00666 97.35)",
+          "oklch(38% 0.00666 97.35)",
+          "oklch(49% 0.00666 97.35)",
+          "oklch(61% 0.00666 97.35)",
+          "oklch(72% 0.00666 97.35)",
+          "oklch(84% 0.00666 97.35)",
+          "oklch(95% 0.00666 97.35)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Hero heading",
+        "purpose": "Large heading over the hero photograph."
+      },
+      "body": {
+        "displayName": "Body copy",
+        "purpose": "Readable sans-serif prose; section overrides commonly use 14px."
+      }
+    },
+    "shadows": [
+      {
+        "name": "print-mat",
+        "value": "0 18px 30px -25px #60705735",
+        "purpose": "Physical print mat."
+      },
+      {
+        "name": "print-image",
+        "value": "0 4px 12px #45553815",
+        "purpose": "Homepage print paper."
+      },
+      {
+        "name": "mobile-menu",
+        "value": "0 18px 25px -25px #293c2e",
+        "purpose": "Separates the expanded menu from content below."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Image and arrow transitions."
+      },
+      {
+        "name": "hero-settle",
+        "value": "1.3s",
+        "purpose": "One-time image settling animation."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "narrow-phone",
+        "value": "380px"
+      },
+      {
+        "name": "mobile",
+        "value": "700px"
+      },
+      {
+        "name": "compact-desktop",
+        "value": "1050px"
+      },
+      {
+        "name": "wide-desktop",
+        "value": "1700px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary button",
+      "kind": "button",
+      "description": "Filled inquiry action.",
+      "html": "<button class=\"ds-primary\">Send inquiry <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" aria-hidden=\"true\"><path d=\"M3 12h17m-6-6 6 6-6 6\"/></svg></button>",
+      "css": ".ds-primary{font-family:var(--sans, \"DM Sans\", Arial, sans-serif);display:inline-flex;align-items:center;justify-content:space-between;gap:26px;background:var(--forest,#243c30);color:var(--paper,#f5f3ec);padding:18px 24px;border:0;border-radius:0;font-size:14px;min-height:54px;cursor:pointer;transition:background .2s}.ds-primary:hover{background:#395341}.ds-primary:focus-visible{outline:2px solid #768d55;outline-offset:6px}.ds-primary:disabled{cursor:wait;opacity:.65}@media(prefers-reduced-motion:reduce){.ds-primary{transition:none}}",
+      "refersTo": "button-primary"
+    },
+    {
+      "name": "Text link",
+      "kind": "custom",
+      "description": "Underlined navigation to a collection or supporting route.",
+      "html": "<a class=\"ds-link\" href=\"/work\">All photographs <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" aria-hidden=\"true\"><path d=\"M3 12h17m-6-6 6 6-6 6\"/></svg></a>",
+      "css": ".ds-link{font-family:var(--sans, \"DM Sans\", Arial, sans-serif);display:inline-flex;align-items:center;justify-content:space-between;gap:28px;color:var(--ink,#263d32);font-size:13px;line-height:1.5;padding:13px 0;border-bottom:1px solid currentColor;text-decoration:none}.ds-link svg{transition:transform .3s var(--ease,cubic-bezier(.22,1,.36,1))}.ds-link:hover svg{transform:translateX(4px)}.ds-link:focus-visible{outline:2px solid #768d55;outline-offset:6px}@media(prefers-reduced-motion:reduce){.ds-link svg{transition:none}}",
+      "refersTo": "text-link"
+    },
+    {
+      "name": "Inquiry field",
+      "kind": "input",
+      "description": "Visible label with a transparent, underlined text field.",
+      "html": "<label class=\"ds-field\">Your name<input autocomplete=\"name\" placeholder=\"Your name\" /></label>",
+      "css": ".ds-field{font-family:var(--sans, \"DM Sans\", Arial, sans-serif);display:block;color:var(--ink,#263d32);font-size:12px}.ds-field input{font:inherit;color:inherit;display:block;width:100%;background:transparent;border:0;border-bottom:1px solid #a8b3a1;border-radius:0;padding:15px 0 13px;margin-top:6px;font-size:14px;line-height:1.6;min-height:48px;caret-color:var(--forest,#243c30)}.ds-field input::placeholder{color:#677162;opacity:1}.ds-field input:focus{border-bottom-color:var(--forest,#243c30)}.ds-field input:focus-visible{outline:2px solid #768d55;outline-offset:6px}@media(max-width:700px){.ds-field input{font-size:16px}}",
+      "refersTo": "input"
+    },
+    {
+      "name": "Desktop navigation",
+      "kind": "nav",
+      "description": "Underlines identify current and hovered destinations.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Main navigation\"><a href=\"/work\" aria-current=\"page\">Work</a><a href=\"/about\">About</a><a href=\"/prints\">Prints</a></nav>",
+      "css": ".ds-nav{display:flex;gap:38px;font-family:var(--sans, \"DM Sans\", Arial, sans-serif);color:var(--ink,#263d32)}.ds-nav a{position:relative;padding:14px 0;font-size:13px;color:inherit;text-decoration:none}.ds-nav a:after{position:absolute;content:\"\";height:1px;left:0;bottom:8px;width:100%;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .2s}.ds-nav a:hover:after,.ds-nav a[aria-current]:after{transform:scaleX(1)}.ds-nav a:focus-visible{outline:2px solid #768d55;outline-offset:6px}@media(prefers-reduced-motion:reduce){.ds-nav a:after{transition:none}}"
+    },
+    {
+      "name": "Hero control",
+      "kind": "button",
+      "description": "Circular next-image control, shown on its dark photographic context.",
+      "html": "<div class=\"ds-control-context\"><button class=\"ds-control\" aria-label=\"Next photograph\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" aria-hidden=\"true\"><path d=\"M3 12h17m-6-6 6 6-6 6\"/></svg></button></div>",
+      "css": ".ds-control-context{background:#344334;padding:16px}.ds-control{display:grid;place-items:center;color:var(--paper,#f5f3ec);border:1px solid #a7b09a;border-radius:50%;width:44px;height:44px;background:none;cursor:pointer;transition:background .2s}.ds-control:hover{background:rgba(245,243,236,.18)}.ds-control:focus-visible{outline:2px solid #768d55;outline-offset:6px}@media(prefers-reduced-motion:reduce){.ds-control{transition:none}}",
+      "refersTo": "hero-control"
+    },
+    {
+      "name": "Collection entrance",
+      "kind": "card",
+      "description": "Original cover photograph with title and quiet metadata.",
+      "html": "<a class=\"ds-collection\" href=\"/work/far-from-here\"><div class=\"ds-cover\"><img src=\"/photos/hallstatt-1.webp\" alt=\"Hallstatt through the trees\"/><span class=\"ds-open\">View collection <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" aria-hidden=\"true\"><path d=\"M3 12h17m-6-6 6 6-6 6\"/></svg></span></div><h3>Far from here</h3><p>Landscape &amp; travel</p></a>",
+      "css": ".ds-collection{display:block;max-width:380px;color:var(--ink,#263d32);text-decoration:none}.ds-cover{position:relative;overflow:hidden;aspect-ratio:4/5;background:var(--pale,#e9eadf)}.ds-cover img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .7s var(--ease,cubic-bezier(.22,1,.36,1))}.ds-collection:hover img{transform:scale(1.025)}.ds-open{font-family:var(--sans, \"DM Sans\", Arial, sans-serif);position:absolute;inset:auto 20px 20px;display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:var(--paper,#f5f3ec);font-size:12px;transform:translateY(80px);transition:transform .4s var(--ease,cubic-bezier(.22,1,.36,1))}.ds-collection:hover .ds-open,.ds-collection:focus-visible .ds-open{transform:translateY(0)}.ds-collection h3{font-family:var(--serif,\"Cormorant Garamond\",Georgia,serif);font-size:clamp(30px,3vw,42px);font-weight:400;line-height:1.02;letter-spacing:-.015em;margin:23px 0 0}.ds-collection p{font-family:var(--sans, \"DM Sans\", Arial, sans-serif);font-size:11px;color:var(--muted,#60695f);margin:8px 0 0;line-height:1.75}.ds-collection:focus-visible{outline:2px solid #768d55;outline-offset:6px}@media(max-width:700px){.ds-open{display:none}}@media(prefers-reduced-motion:reduce){.ds-cover img,.ds-open{transition:none}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Photographic Journal",
+    "overview": "Original photographs set the pace. Warm paper, forest ink, restrained captions, and large serif headings make room for locations and people to carry the identity. Staggered spreads alternate with quieter introductions and print presentations.\n\nThe system is built for a web experience: visitors browse photographs, open collections, and reach a direct inquiry. This document describes the implemented system in `src/app/globals.css` and the React components; the homepage strategy lives separately in `.impeccable/surfaces/`.",
+    "keyCharacteristics": [
+      "Original photography at generous scale.",
+      "Literary headings with small, clear sans-serif navigation and captions.",
+      "Square image edges, fine rules, and pale regional backgrounds.",
+      "Native scrolling with restrained image and link motion."
+    ],
+    "rules": [],
+    "dos": [
+      "Do use Nicholas's original photographs and grounded collection names.",
+      "Do preserve the hierarchy of image, title, and restrained caption.",
+      "Do use the final square portrait sizing instead of enlarging the 300px source.",
+      "Do retain manual controls, visible focus, and reduced-motion behavior."
+    ],
+    "donts": [
+      "Don't invent testimonials, clients, print prices, or availability claims.",
+      "Don't replace original photography with generated or stock imagery presented as Nicholas's.",
+      "Don't add generic rounded card containers to collection spreads."
+    ]
+  }
+}

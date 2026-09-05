@@ -1,0 +1,46 @@
+import assert from "node:assert/strict";
+const base = process.env.PREVIEW_URL || "http://localhost:3107";
+const cases = [
+  ["/", "Some places", 0],
+  ["/about", "Always", 0],
+  ["/prints", "A view to", 0],
+  ["/contact", "It starts with", 0],
+  ["/work", "The way I", 39],
+  ["/work?collection=a-study-in-green", "The way I", 7],
+  ["/work/a-study-in-green", "A study in green", 7],
+  ["/work/far-from-here", "Far from here", 12],
+  ["/work/everyday-stories", "Everyday stories", 8],
+  ["/work/people-and-places", "People &amp;", 12],
+];
+for (const [path, text, count] of cases) {
+  const response = await fetch(base + path);
+  assert.equal(response.status, 200, path);
+  const html = (await response.text()).replace(
+    /<script\b[^>]*>[\s\S]*?<\/script>/gi,
+    "",
+  );
+  assert.ok(html.includes(text), `${path}: server-rendered heading`);
+  assert.ok(html.includes('id="main"'), `${path}: main content`);
+  assert.ok(html.includes('rel="canonical"'), `${path}: canonical metadata`);
+  assert.equal(
+    (html.match(/class="photo-button"/g) || []).length,
+    count,
+    `${path}: server-rendered photograph count`,
+  );
+  assert.ok(!html.includes("images.unsplash.com"), `${path}: no stock images`);
+  console.log(
+    `PASS ${path}: HTTP 200, server HTML, metadata${count ? `, ${count} photographs` : ""}`,
+  );
+}
+const missing = await fetch(base + "/work/not-a-real-collection");
+const missingHtml = await missing.text();
+assert.ok(missingHtml.includes("A little off the map."));
+assert.ok(missingHtml.includes("noindex"));
+console.log(
+  `PASS unknown collection: not-found page and noindex (HTTP ${missing.status})`,
+);
+for (const path of ["/robots.txt", "/sitemap.xml"]) {
+  const response = await fetch(base + path);
+  assert.equal(response.status, 200);
+  console.log(`PASS ${path}`);
+}

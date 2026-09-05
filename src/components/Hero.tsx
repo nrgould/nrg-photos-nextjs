@@ -1,81 +1,61 @@
-'use client';
-
-import { useState, useCallback } from 'react';
-import * as motion from 'motion/react-client';
-import { ArrowUpRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-
-export default function Hero() {
-	const [mouse, setMouse] = useState({ x: 0, y: 0 });
-
-	const onMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-		const rect = e.currentTarget.getBoundingClientRect();
-		const cx = rect.left + rect.width / 2;
-		const cy = rect.top + rect.height / 2;
-		setMouse({ x: e.clientX - cx, y: e.clientY - cy });
-	}, []);
-
-	const orb1 = {
-		transform: `translate3d(${mouse.x * -0.02}px, ${
-			mouse.y * -0.04
-		}px, 0) scaleX(1.6) rotate(-8deg)`,
-	} as React.CSSProperties;
-	const orb2 = {
-		transform: `translate3d(${mouse.x * 0.02}px, ${
-			mouse.y * 0.03
-		}px, 0) scaleX(1.4) rotate(12deg)`,
-	} as React.CSSProperties;
-
-	return (
-		<section
-			onMouseMove={onMove}
-			className='relative isolate w-full min-h-[92vh] flex items-center justify-center text-white overflow-hidden'
-		>
-			{/* Background color + vignette */}
-			<div className='absolute inset-0 -z-20' />
-			<div className='pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(120%_100%_at_50%_0%,rgba(0,0,0,0)_20%,rgba(0,0,0,0.6)_60%,rgba(0,0,0,1)_100%)]' />
-
-			{/* Glow orbs (blurred, screen blend) */}
-			<motion.div
-				aria-hidden
-				className='absolute -top-40 -left-48 w-[85vw] h-[85vw] rounded-full blur-3xl mix-blend-screen'
-				style={{
-					...orb1,
-					background:
-						'radial-gradient(closest-side, rgba(255,159,64,0.38), rgba(255,159,64,0) 65%)',
-				}}
-			/>
-			<motion.div
-				aria-hidden
-				className='absolute -bottom-40 -right-56 w-[90vw] h-[90vw] rounded-full blur-3xl mix-blend-screen'
-				style={{
-					...orb2,
-					background:
-						'radial-gradient(closest-side, rgba(255,111,0,0.32), rgba(255,111,0,0) 65%)',
-				}}
-			/>
-
-			{/* Content */}
-			<div className='relative z-10 mx-auto max-w-[1100px] px-6 text-center'>
-				<h1 className='text-[42px] leading-[1.05] sm:text-[64px] md:text-[88px] font-black tracking-[-0.025em]'>
-					Turn Your Vision Into an
-					<br className='hidden sm:block' />
-					Experience That Lasts
-				</h1>
-				<p className='mt-6 text-neutral-300 text-base sm:text-lg max-w-3xl mx-auto'>
-					You have a story worth sharing — let&#39;s shape it with
-					light, texture, and detail.
-				</p>
-
-				<div className='mt-10 flex items-center justify-center gap-4'>
-					<Button asChild variant='outlineInverted' size='lg'>
-						<a href='#contact'>
-							Let&#39;s Talk{' '}
-							<ArrowUpRight size={16} className='-mt-[2px]' />
-						</a>
-					</Button>
-				</div>
-			</div>
-		</section>
-	);
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import type { Photo } from "@/lib/photography";
+import { Arrow } from "./Arrow";
+export default function Hero({ photos }: { photos: Photo[] }) {
+  const [index, setIndex] = useState(0);
+  const photo = photos[index];
+  return (
+    <section className="hero" aria-label="Featured photography">
+      <div className="hero-image" key={photo.src}>
+        <Image
+          src={photo.src}
+          alt={photo.alt}
+          fill
+          sizes="(max-width: 700px) 160vh, 100vw"
+          quality={85}
+          preload={index === 0}
+        />
+      </div>
+      <div className="hero-shade" />
+      <div className="hero-content">
+        <h1>
+          Some places
+          <br />
+          <em>stay with you.</em>
+        </h1>
+        <Link href="/work" className="hero-link">
+          Explore the photographs <Arrow />
+        </Link>
+      </div>
+      <div className="hero-bottom">
+        <p aria-live="polite">
+          {photo.title}
+          <span>Photographed by Nicholas Gould</span>
+        </p>
+        <div className="hero-controls">
+          <span className="hero-count">
+            {String(index + 1).padStart(2, "0")} /{" "}
+            {String(photos.length).padStart(2, "0")}
+          </span>
+          <button
+            onClick={() =>
+              setIndex((index + photos.length - 1) % photos.length)
+            }
+            aria-label="Previous featured photograph"
+          >
+            <Arrow className="reverse" />
+          </button>
+          <button
+            onClick={() => setIndex((index + 1) % photos.length)}
+            aria-label="Next featured photograph"
+          >
+            <Arrow />
+          </button>
+        </div>
+      </div>
+    </section>
+  );
 }
