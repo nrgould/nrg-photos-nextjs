@@ -10,6 +10,12 @@ for (const item of manifest) {
     input = await fs.readFile(
       item.origin.replace("Repository at ade778d: ", ""),
     );
+  } else if (item.origin.startsWith("Stills: ")) {
+    if (!process.env.STILLS_DIR)
+      throw new Error("Set STILLS_DIR to the Stills archive folder");
+    input = await fs.readFile(
+      path.join(process.env.STILLS_DIR, item.origin.replace("Stills: ", "")),
+    );
   } else {
     const url = new URL(item.origin);
     if (url.origin !== "https://nicholasgouldphoto.com")

@@ -1,4 +1,5 @@
 "use client";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import type { TravelPlace } from "@/lib/places";
@@ -63,11 +64,14 @@ export default function PhotoStack({ place }: { place: TravelPlace }) {
           <span>{place.name}</span> · {active + 1} / {place.photos.length}
           <span className="sr-only">: {photo.title}</span>
         </p>
-        <button onClick={advance} className="text-link">
+        <Button variant="link" onClick={advance} className="text-[11px]">
           Next photograph
-        </button>
+        </Button>
         <Link
-          className="text-link"
+          className={buttonVariants({
+            variant: "link",
+            className: "text-[11px]",
+          })}
           href={`/work/${photo.collection}#${photo.src.split("/").pop()?.replace(".webp", "")}`}
         >
           View in collection

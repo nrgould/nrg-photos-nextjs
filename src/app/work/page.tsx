@@ -4,7 +4,7 @@ import { allPhotos, collections, getCollection } from "@/lib/photography";
 export const metadata = {
   title: "Selected work",
   description:
-    "Explore original landscape, nature, lifestyle and portrait photographs by Nicholas Gould.",
+    "Landscape, travel, lifestyle and portrait photographs by Nicholas Gould.",
   alternates: { canonical: "/work" },
 };
 export default async function WorkPage({
@@ -20,10 +20,10 @@ export default async function WorkPage({
   return (
     <main id="main" className="page-width work-page">
       <div className="page-heading">
-        <h1>
-          The way I <em>see it.</em>
-        </h1>
-        <p>A collection of places, people, and things worth a second look.</p>
+        <h1>Work</h1>
+        <p>
+          {allPhotos.length} photographs in {collections.length} collections
+        </p>
       </div>
       <nav className="collection-filters" aria-label="Filter photographs">
         <Link href="/work" aria-current={!selected ? "page" : undefined}>

@@ -241,7 +241,7 @@ export const collections: Collection[] = [
     title: "A study in green",
     category: "Nature",
     description:
-      "Small details, familiar paths, and all the shades you notice when you slow down.",
+      "Forests, gardens and close detail.",
     cover: green[0],
     photos: green,
   },
@@ -250,7 +250,7 @@ export const collections: Collection[] = [
     title: "Far from here",
     category: "Landscape & travel",
     description:
-      "Alpine mornings, northern waters, and the places that stay with you long after you leave.",
+      "Austria, Germany, Italy and Norway.",
     cover: travel[1],
     photos: travel,
   },
@@ -259,7 +259,7 @@ export const collections: Collection[] = [
     title: "Everyday stories",
     category: "Lifestyle & brands",
     description:
-      "People and the things they bring along. Photography for brands with a life outside the studio.",
+      "Lifestyle and product work for brands.",
     cover: lifestyle[0],
     photos: lifestyle,
   },
@@ -268,7 +268,7 @@ export const collections: Collection[] = [
     title: "People & places",
     category: "Portraits",
     description:
-      "A familiar face, a fleeting expression, a little of who you are. Portraits with room to be yourself.",
+      "Portraits and couples.",
     cover: people[0],
     photos: people,
   },

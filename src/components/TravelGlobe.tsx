@@ -4,6 +4,16 @@ import { Pause, Play } from "lucide-react";
 import { globeFrame, initialView, shortestTurn } from "@/lib/globe";
 import type { TravelPlace } from "@/lib/places";
 import PhotoStack from "./PhotoStack";
+const labelAt = (position: number[], place: TravelPlace) => [
+  position[0] + place.labelOffset[0],
+  position[1] + place.labelOffset[1],
+];
+// Leader lines start at the pin ring so they never cross the marker.
+const leaderStart = (place: TravelPlace, ring: number) => {
+  const [dx, dy] = place.labelOffset;
+  const length = Math.hypot(dx, dy) || 1;
+  return [(dx / length) * ring, (dy / length) * ring];
+};
 export default function TravelGlobe({ places }: { places: TravelPlace[] }) {
   const [selection, setSelection] = useState({ index: 0 });
   const selected = selection.index;
@@ -44,8 +54,9 @@ export default function TravelGlobe({ places }: { places: TravelPlace[] }) {
         pin.style.visibility = point.visible ? "visible" : "hidden";
         const marker = markerRefs.current[i];
         if (marker && point.position) {
-          marker.style.left = `${point.position[0] / 5.6}%`;
-          marker.style.top = `${point.position[1] / 5.6}%`;
+          const [x, y] = labelAt(point.position, places[i]);
+          marker.style.left = `${x / 5.6}%`;
+          marker.style.top = `${y / 5.6}%`;
           marker.style.visibility = point.visible ? "visible" : "hidden";
         }
       });
@@ -112,11 +123,7 @@ export default function TravelGlobe({ places }: { places: TravelPlace[] }) {
     >
       <div className="page-width">
         <div className="travel-heading">
-          <h2 id="places-heading">
-            The places behind
-            <br />
-            <em>the photographs.</em>
-          </h2>
+          <h2 id="places-heading">Places</h2>
         </div>
         <div className="travel-layout">
           <div className="globe-panel">
@@ -165,6 +172,13 @@ export default function TravelGlobe({ places }: { places: TravelPlace[] }) {
                       i === selected ? "globe-pin is-selected" : "globe-pin"
                     }
                   >
+                    <line
+                      x1={leaderStart(places[i], i === selected ? 12 : 6)[0]}
+                      y1={leaderStart(places[i], i === selected ? 12 : 6)[1]}
+                      x2={places[i].labelOffset[0]}
+                      y2={places[i].labelOffset[1]}
+                      className="pin-leader"
+                    />
                     <circle r={i === selected ? 12 : 6} className="pin-ring" />
                     <circle r={i === selected ? 4 : 2.5} className="pin-core" />
                   </g>
@@ -176,10 +190,14 @@ export default function TravelGlobe({ places }: { places: TravelPlace[] }) {
                   ref={(element) => {
                     markerRefs.current[i] = element;
                   }}
-                  className={`globe-marker marker-${places[i].id}`}
+                  className={
+                    places[i].labelOffset[0] < 0
+                      ? "globe-marker is-left"
+                      : "globe-marker"
+                  }
                   style={{
-                    left: `${(point.position?.[0] ?? 0) / 5.6}%`,
-                    top: `${(point.position?.[1] ?? 0) / 5.6}%`,
+                    left: `${labelAt(point.position ?? [0, 0], places[i])[0] / 5.6}%`,
+                    top: `${labelAt(point.position ?? [0, 0], places[i])[1] / 5.6}%`,
                     visibility: point.visible ? "visible" : "hidden",
                   }}
                   aria-label={`Show photographs from ${places[i].name}`}

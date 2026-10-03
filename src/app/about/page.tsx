@@ -1,3 +1,4 @@
+import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import PhotoImage from "@/components/PhotoImage";
 import { portrait, collections } from "@/lib/photography";
@@ -5,7 +6,7 @@ import { site } from "@/lib/site";
 export const metadata = {
   title: "About",
   description:
-    "Meet Nicholas Gould, a North Carolina photographer working with people, places and brands.",
+    "Nicholas Gould is a North Carolina photographer shooting brand, portrait and travel work.",
   alternates: { canonical: "/about" },
 };
 export default function AboutPage() {
@@ -17,70 +18,58 @@ export default function AboutPage() {
           <span>Nicholas Gould, photographer</span>
         </div>
         <div className="about-page-copy">
-          <h1>
-            Always
-            <br />
-            <em>looking closer.</em>
-          </h1>
+          <h1>About</h1>
           <p className="lead">
-            I’m Nicholas. I’m a lifestyle photographer based in North Carolina,
-            drawn to honest moments and the places that shape them.
+            I’m Nicholas Gould, a photographer based in North Carolina.
           </p>
           <p>
-            I photograph people, landscapes, and everyday experiences for brands
-            and individuals. My approach is relaxed, with careful attention to
-            the light, details, and small expressions that make a photograph
-            feel personal.
+            I shoot brand and lifestyle work, portraits and couples. Clients
+            include Smartwool, Raven’s Brew Coffee, Eight Angles and C2Life.
           </p>
           <p>
-            The same curiosity runs through my personal work. A window almost
-            hidden by ivy. A village across the water. A familiar trail seen in
-            a different light.
+            My personal work is mostly travel and landscape, from the Alps and
+            Dolomites to northern Norway and the mountains of western North
+            Carolina.
           </p>
-          <Link href="/contact" className="text-link">
-            Tell me what you have in mind
+          <Link
+            href="/contact"
+            className={buttonVariants({ variant: "link", className: "mt-2" })}
+          >
+            Contact
           </Link>
           <a
             href={site.instagram}
-            className="subtle-link"
+            className={buttonVariants({
+              variant: "quiet",
+              className: "mt-8 flex w-max",
+            })}
             target="_blank"
             rel="noreferrer"
           >
-            More from my days, @nicholasgould1
+            Instagram @nicholasgould1
           </a>
         </div>
       </section>
       <section className="approach page-width">
-        <h2>
-          How I <em>work.</em>
-        </h2>
+        <h2>Services</h2>
         <div>
           <article>
-            <h3>Start with the story.</h3>
-            <p>
-              Understand the people, place, or purpose behind a project before
-              deciding how it should look.
-            </p>
+            <h3>Brand & lifestyle</h3>
+            <p>Product and lifestyle photography on location.</p>
           </article>
           <article>
-            <h3>Leave room for the unexpected.</h3>
-            <p>
-              Make space for natural expressions and unplanned moments, with a
-              thoughtful eye on the details.
-            </p>
+            <h3>Portraits</h3>
+            <p>Individuals and couples.</p>
           </article>
           <article>
-            <h3>Make something useful.</h3>
-            <p>
-              Balance creative vision with photographs that serve the people and
-              brands they’re made for.
-            </p>
+            <h3>Travel & landscape</h3>
+            <p>Personal work from Europe and North Carolina.</p>
           </article>
         </div>
       </section>
       <div className="about-landscape">
         <PhotoImage photo={collections[1].photos[7]} sizes="100vw" />
-        <Link href="/work/far-from-here">A little further from home</Link>
+        <Link href="/work/far-from-here">Far from here</Link>
       </div>
     </main>
   );

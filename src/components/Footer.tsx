@@ -6,7 +6,7 @@ export default function Footer() {
     <footer className="site-footer">
       <div className="footer-top">
         <Link href="/contact">
-          Let’s make it happen.
+          Contact
           <Arrow diagonal />
         </Link>
       </div>
@@ -14,7 +14,7 @@ export default function Footer() {
         <Link href="/" className="footer-name">
           Nicholas Gould
         </Link>
-        <p>North Carolina & wherever the story goes.</p>
+        <p>North Carolina</p>
         <a href={site.instagram} target="_blank" rel="noreferrer">
           Instagram
         </a>

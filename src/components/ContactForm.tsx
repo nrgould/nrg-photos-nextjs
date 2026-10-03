@@ -8,6 +8,11 @@ import {
   type ContactInput,
 } from "@/lib/contact";
 import { site } from "@/lib/site";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Textarea } from "@/components/ui/textarea";
 export default function ContactForm({
   emailEnabled,
 }: {
@@ -60,30 +65,34 @@ export default function ContactForm({
   if (status === "sent")
     return (
       <div className="form-result" role="status">
-        <h2>Your note is on its way.</h2>
-        <p>
-          Thanks for getting in touch. I’ll reply to the email address you
-          shared.
-        </p>
-        <button className="text-link" onClick={() => setStatus("idle")}>
-          Write another note
-        </button>
+        <h2>Sent.</h2>
+        <p>I’ll reply to the email address you entered.</p>
+        <Button
+          variant="link"
+          className="mt-6 flex w-max"
+          onClick={() => setStatus("idle")}
+        >
+          Send another
+        </Button>
       </div>
     );
   if (status === "draft")
     return (
       <div className="form-result" role="status">
-        <h2>Your draft is ready.</h2>
+        <h2>Draft ready</h2>
         <p>
-          Open it in your email app, then press send. Your inquiry hasn’t been
-          sent yet.
+          Open it in your email app and press send. Nothing has been sent yet.
         </p>
-        <a className="solid-button" href={draft}>
+        <a className={buttonVariants()} href={draft}>
           Open email draft
         </a>
-        <button className="text-link" onClick={() => setStatus("idle")}>
-          Back to your note
-        </button>
+        <Button
+          variant="link"
+          className="mt-6 flex w-max"
+          onClick={() => setStatus("idle")}
+        >
+          Back
+        </Button>
       </div>
     );
   return (
@@ -95,9 +104,9 @@ export default function ContactForm({
       onSubmit={submit}
     >
       <div className="form-row">
-        <label htmlFor="name">
-          Your name
-          <input
+        <Label htmlFor="name" className="mb-[31px] max-sm:mb-6">
+          Name
+          <Input
             id="name"
             name="name"
             defaultValue={lastInput?.name}
@@ -106,10 +115,10 @@ export default function ContactForm({
             maxLength={100}
             placeholder="First and last name"
           />
-        </label>
-        <label htmlFor="email">
-          Email address
-          <input
+        </Label>
+        <Label htmlFor="email" className="mb-[31px] max-sm:mb-6">
+          Email
+          <Input
             id="email"
             name="email"
             defaultValue={lastInput?.email}
@@ -119,11 +128,11 @@ export default function ContactForm({
             maxLength={254}
             placeholder="you@example.com"
           />
-        </label>
+        </Label>
       </div>
-      <label htmlFor="interest">
-        What brings you here?
-        <select
+      <Label htmlFor="interest" className="mb-[31px] max-sm:mb-6">
+        Project type
+        <NativeSelect
           id="interest"
           name="interest"
           defaultValue={lastInput?.interest ?? "Brand & lifestyle"}
@@ -131,11 +140,11 @@ export default function ContactForm({
           {interests.map((interest) => (
             <option key={interest}>{interest}</option>
           ))}
-        </select>
-      </label>
-      <label htmlFor="message">
-        A little about your idea
-        <textarea
+        </NativeSelect>
+      </Label>
+      <Label htmlFor="message" className="mb-[31px] max-sm:mb-6">
+        Message
+        <Textarea
           id="message"
           name="message"
           rows={5}
@@ -143,9 +152,9 @@ export default function ContactForm({
           minLength={10}
           maxLength={5000}
           defaultValue={lastInput?.message ?? ""}
-          placeholder="The story, the place, the timing. Anything you’d like me to know."
+          placeholder="Dates, location and what you need"
         />
-      </label>
+      </Label>
       <div className="honeypot" aria-hidden="true">
         <label htmlFor="website">
           Leave this empty
@@ -158,17 +167,13 @@ export default function ContactForm({
         </p>
       )}
       <div className="form-submit">
-        <button
-          className="solid-button"
-          disabled={status === "sending"}
-          type="submit"
-        >
+        <Button disabled={status === "sending"} type="submit">
           {status === "sending"
-            ? "Sending your note…"
+            ? "Sending…"
             : emailEnabled
-              ? "Send your note"
-              : "Prepare an email"}
-        </button>
+              ? "Send"
+              : "Open email draft"}
+        </Button>
         <p>
           {emailEnabled
             ? "Your details are used only to reply to your inquiry."

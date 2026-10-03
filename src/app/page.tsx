@@ -1,8 +1,14 @@
+import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import Hero from "@/components/Hero";
 import CollectionCard from "@/components/CollectionCard";
 import PhotoImage from "@/components/PhotoImage";
-import { collections, heroPhotos, portrait } from "@/lib/photography";
+import {
+  allPhotos,
+  collections,
+  heroPhotos,
+  portrait,
+} from "@/lib/photography";
 import TravelGlobe from "@/components/TravelGlobe";
 import { travelPlaces } from "@/lib/places";
 import { site } from "@/lib/site";
@@ -12,16 +18,20 @@ export default function Home() {
     <main id="main">
       <Hero photos={heroPhotos} />
       <div className="intro-line">
-        <p>Landscape. Lifestyle. The moments in between.</p>
-        <span>Based in North Carolina</span>
+        <p>Landscape, travel, portraits and brand work.</p>
+        <span>North Carolina</span>
       </div>
       <section className="selected-work page-width">
         <div className="section-heading">
-          <h2>
-            A few ways of <em>seeing.</em>
-          </h2>
-          <Link href="/work" className="text-link">
-            All photographs
+          <h2>Work</h2>
+          <Link
+            href="/work"
+            className={buttonVariants({
+              variant: "link",
+              className: "mb-1.5 max-sm:mt-3.5",
+            })}
+          >
+            All {allPhotos.length} photographs
           </Link>
         </div>
         <div className="collection-grid">
@@ -35,27 +45,22 @@ export default function Home() {
           <PhotoImage photo={portrait} />
         </div>
         <div className="about-preview-copy">
-          <h2>
-            Curiosity first.
-            <br />
-            <em>Camera second.</em>
-          </h2>
+          <h2>About</h2>
           <p>
-            I’m Nicholas, a photographer based in North Carolina. I make
-            photographs of people, places, and the small things that give them
-            their character.
+            I’m Nicholas Gould, a photographer in North Carolina. I shoot brand
+            and lifestyle work, portraits, and landscapes from wherever I’m
+            traveling.
           </p>
-          <p>
-            My work brings a relaxed approach and a careful eye to portraits,
-            everyday experiences, and stories for brands.
-          </p>
-          <Link href="/about" className="text-link">
-            A little about me
+          <Link
+            href="/about"
+            className={buttonVariants({ variant: "link", className: "mt-2" })}
+          >
+            More about me
           </Link>
         </div>
       </section>
       <section className="client-line page-width">
-        <p>A few brands I’ve worked with</p>
+        <p>Clients</p>
         <div>
           <span>Smartwool</span>
           <span>Raven’s Brew Coffee</span>
@@ -65,9 +70,9 @@ export default function Home() {
       </section>
       <TravelGlobe places={travelPlaces} />
       <section className="instagram-note page-width">
-        <p>There’s more along the way.</p>
+        <p>Instagram</p>
         <a href={site.instagram} target="_blank" rel="noreferrer">
-          Follow @nicholasgould1
+          @nicholasgould1
         </a>
       </section>
     </main>

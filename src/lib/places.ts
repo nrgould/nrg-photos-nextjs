@@ -4,6 +4,8 @@ export type TravelPlace = {
   name: string;
   location: string;
   coordinates: [number, number];
+  /** Globe label position relative to the pin, in globe SVG units. */
+  labelOffset: [number, number];
   photos: Photo[];
 };
 const find = (title: string) => {
@@ -18,6 +20,7 @@ export const travelPlaces: TravelPlace[] = [
     name: "Austria",
     location: "Hallstatt",
     coordinates: [13.65, 47.56],
+    labelOffset: [30, -30],
     photos: [find("Scenes from Hallstatt"), find("Still water, Hallstatt")],
   },
   {
@@ -25,6 +28,7 @@ export const travelPlaces: TravelPlace[] = [
     name: "Italy",
     location: "Lago di Braies",
     coordinates: [12.09, 46.69],
+    labelOffset: [30, 26],
     photos: [
       find("Lago di Braies"),
       find("Seceda"),
@@ -37,6 +41,7 @@ export const travelPlaces: TravelPlace[] = [
     name: "Norway",
     location: "Above the Arctic Circle",
     coordinates: [18.96, 69.65],
+    labelOffset: [26, -12],
     photos: [
       find("Into the Arctic"),
       find("Out in the elements"),
@@ -48,6 +53,7 @@ export const travelPlaces: TravelPlace[] = [
     name: "North Carolina",
     location: "Lake James",
     coordinates: [-81.89, 35.75],
+    labelOffset: [22, -26],
     photos: [find("Lake James"), find("A new chapter")],
   },
 ];

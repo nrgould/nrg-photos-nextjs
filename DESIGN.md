@@ -2,13 +2,14 @@
 name: Nicholas Gould Photography
 description: A photographic journal of landscapes, people, and everyday moments.
 colors:
-  paper: "#f5f3ec"
-  ink: "#263d32"
-  muted: "#60695f"
-  line: "#d6d9cd"
-  forest: "#243c30"
-  pale: "#e9eadf"
-  white: "#fffef9"
+  paper: "{green.100} #f5f3ec"
+  ink: "{green.900} #243c30"
+  muted: "{green.600} #60695f"
+  line: "{green.200} #d6d9cd"
+  forest: "{green.900} #243c30"
+  pale: "{green.150} #e9eadf"
+  white: "{green.50} #fffef9"
+  clay: "#783e25"
 typography:
   display:
     fontFamily: "Cormorant Garamond, Georgia, serif"
@@ -55,6 +56,10 @@ components:
     textColor: "{colors.ink}"
     rounded: "{rounded.square}"
     padding: "15px 0 13px"
+  icon-button:
+    textColor: "{colors.paper}"
+    width: "48px"
+    height: "48px"
   hero-control:
     textColor: "{colors.paper}"
     rounded: "{rounded.circular}"
@@ -71,6 +76,16 @@ components:
 Original photographs set the pace. Warm paper, forest ink, restrained captions, and large serif headings make room for locations and people to carry the identity. Staggered spreads alternate with quieter introductions and geographic exploration.
 
 The system is built for a web experience: visitors browse photographs, open collections, and reach a direct inquiry. This document describes the implemented system in `src/app/globals.css` and the React components; the homepage strategy lives separately in `.impeccable/surfaces/`.
+
+## Tokens and primitives
+
+The system is Tailwind v4 plus shadcn (Base UI base, `components.json`). Read this section before writing UI.
+
+- **One color source.** Every color is a token in the `:root` block of `src/app/globals.css`: the `--green-50`…`--green-950` ramp and `--clay`, then the names components use (`--paper`, `--forest`, `--line`…), then shadcn's semantic slots (`--primary`, `--muted-foreground`, `--border`, `--ring`, `--destructive`…), then `--map-*` for the globe and map. Tailwind's default palette is removed (`--color-*: initial`), so `bg-blue-500` does not exist; use `bg-primary`, `text-muted-foreground`, `border-input`, `bg-green-800`. `tests/palette.test.ts` fails on a raw color outside `:root` or a default-palette class in `src/`. Never weaken it; add a token.
+- **Primitives live in `src/components/ui/`.** `Button` / `buttonVariants` (variants `solid`, `link`, `quiet`, `icon`, `round`; `press` adds the 0.96 press scale), `Input`, `Textarea`, `NativeSelect`, `Label`, `Dialog` (full-screen viewer), `Sheet` (top drop-down menu). Use `buttonVariants()` to style a `Link` or `<a>` as a button. Extend a variant before writing a one-off control; a new primitive needs a reason no variant covers it.
+- **Cascade.** Site CSS sits in `@layer components`, so Tailwind utilities on a primitive win over it. New page-level layout can stay in that layer; component styling goes on the primitive.
+- **Breakpoints** match the site's media queries: `xs` 381px, `sm` 701px, `md` 1051px, `xl` 1700px. `max-sm:` is the phone layout (≤700px).
+- **Radius** is `0` everywhere (`--radius`); only `round` buttons and map markers are circular.
 
 **Key Characteristics:**
 - Original photography at generous scale.
@@ -90,7 +105,7 @@ Forest and warm paper echo the botanical and alpine photographs without competin
 - **Soft divider:** one-pixel section and navigation rules.
 - **Warm white:** text over the hero photograph.
 
-Auxiliary states remain in CSS: focus uses `#768d55`; button hover uses `#395341`; error feedback uses `#f3e1d8` with `#783e25` text. The photo viewer uses `#18241e` so the image remains dominant.
+Auxiliary states are tokens too: focus uses `--ring` (green-500); filled-button hover uses green-800; errors use `--destructive` (clay) on a clay tint mixed from it. The photo viewer uses green-950 so the image remains dominant.
 
 ## Typography
 
@@ -112,22 +127,22 @@ The recovered portrait source is 300px square. Its final CSS treatment is a cent
 
 Most surfaces are flat. Pale backgrounds, spacing, and rules separate regions. The mobile menu has a faint lower shadow. Avoid introducing elevated card shells around photographic collections.
 
-Motion uses `cubic-bezier(0.22, 1, 0.36, 1)`: the hero settles once over 1.3s, collection images enlarge to 1.025 over 0.7s, and link arrows move 4px over 0.3s. The location globe starts still for selection, with optional rotation while visible; choosing a location turns toward its marker and pauses. Reduced-motion preference snaps to selected locations, suppresses automatic rotation, removes animation and transitions, and restores automatic scroll behavior.
+Motion uses three curves, exposed as `ease-out`, `ease-in-out` and `ease-drawer` utilities and `var(--ease-*)`: `--ease-out` `cubic-bezier(0.23, 1, 0.32, 1)` for enters, hovers and presses; `--ease-in-out` for things moving on screen; `--ease-drawer` for the mobile menu. Transitions name their properties, never `all`. UI motion stays under 300ms and exits run faster than enters: the viewer fades and scales from 0.96 in 200ms and out in 150ms; the menu drops from the top in 300ms and lifts in 200ms. Pressable controls scale to `--press` (0.96) on `:active`. Hover effects sit behind Tailwind's `hover:` variant, which only applies on devices that hover. Elsewhere: the hero settles once over 1.3s, collection images enlarge to 1.025 over 0.7s, and link arrows move 4px over 0.3s. The location globe starts still for selection, with optional rotation while visible; choosing a location turns toward its marker and pauses. Reduced-motion preference snaps to selected locations, suppresses automatic rotation, removes movement while keeping opacity fades, and restores automatic scroll behavior.
 
 ## Shapes
 
-Photographs, buttons, and form controls have square corners. Circular outlines identify manual hero controls and geographic markers. Arrows are simple 20px inline SVG strokes, with horizontal and diagonal variants. Fine borders and underlines supply definition without ornamental frames.
+Photographs, buttons, and form controls have square corners. Circular outlines identify manual hero controls and geographic markers. Arrows are simple 20px inline SVG strokes, with horizontal and diagonal variants. Lucide icons in primitives use a 1.5 stroke to match. Fine borders and underlines supply definition without ornamental frames.
 
 ## Components
 
-- **Primary button:** forest fill, paper text, 18px/24px padding, 54px minimum height, and a lighter forest hover. Disabled buttons show wait cursor and 0.65 opacity.
-- **Text link:** a one-pixel underline, generous vertical padding, and an underline on hover. Keep copy as the accessible link name.
+- **Primary button** (`Button`, `solid`): forest fill, paper text, 18px/24px padding, 54px minimum height, green-800 hover. Disabled buttons (only while sending) drop to 0.6 opacity with a wait cursor.
+- **Text link** (`variant="link"`): a one-pixel rule under the label, generous vertical padding, an underline and a 4px arrow nudge on hover. Keep copy as the accessible link name. `quiet` is the smaller muted link.
 - **Globe:** forest section, sage SVG land, subtle graticule, clickable labeled regional markers, four text location buttons, and a stack of original photographs from the selected location. Loose paper frames preserve natural photo proportions with modest rotation and soft offset shadows. Clicking the front card advances, clicking an exposed card brings it forward, and the collection link follows the front photo. Omit descriptive filler and image backplates. Pause when offscreen or the tab is hidden.
 - **Arrows:** keep only directional photo/collection controls and the main footer contact invitation. Ordinary links rely on typography and underlines.
-- **Navigation:** small sans-serif desktop links with an underline for hover/current route. Mobile uses an explicit Menu/Close disclosure with larger serif links, current-route semantics, and Escape support.
+- **Navigation:** small sans-serif desktop links with an underline for hover/current route. Mobile uses `Sheet`: an explicit Menu/Close control, larger serif links, current-route semantics, focus trap, Escape, and close on navigation.
 - **Collection entrance:** a large image above its title, category, and photo count. Hover or keyboard focus reveals a paper action strip. The strip is hidden on mobile; the whole entrance remains a link.
-- **Photo viewer:** full-screen dark native dialog, contained image, caption, count, and previous/next/close controls. Preserve keyboard operation and focus handling.
-- **Inquiry fields:** transparent controls with a single lower border, visible labels, 48px minimum height, and 16px input text on mobile. Error and completed states must reflect actual delivery; the mail draft fallback is an explicit action.
+- **Photo viewer** (`src/components/Lightbox.tsx` on `Dialog`): full-screen dark viewer, contained image, caption, count, `icon` buttons for previous/next/close, arrow keys and swipe. Any surface that opens photos reuses it.
+- **Inquiry fields** (`Input`, `Textarea`, `NativeSelect` inside `Label`): transparent controls with a single lower border, visible labels, 48px minimum height, and 16px input text on mobile. Error and completed states must reflect actual delivery; the mail draft fallback is an explicit action.
 
 All interactive elements use a 2px visible focus outline with 6px offset. Preserve the skip link and meaningful photo alternative text.
 

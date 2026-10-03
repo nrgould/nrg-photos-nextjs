@@ -12,19 +12,13 @@ export default function ContactPage() {
   return (
     <main id="main" className="contact-page page-width">
       <div className="page-heading">
-        <h1>
-          It starts with <em>a hello.</em>
-        </h1>
-        <p>
-          A project, a collaboration, or an idea you haven’t quite figured out
-          yet.
-        </p>
+        <h1>Contact</h1>
+        <p>Brand shoots, portraits and couples.</p>
       </div>
       <section className="contact-layout" aria-label="Contact Nicholas">
         <aside className="contact-postcard">
           <PhotoImage photo={heroPhotos[0]} priority />
           <div className="postcard-address">
-            <span>From wherever you are.</span>
             <p>
               To Nicholas,
               <br />

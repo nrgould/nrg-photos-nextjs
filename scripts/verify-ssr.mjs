@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 const base = process.env.PREVIEW_URL || "http://localhost:3107";
 const cases = [
-  ["/", "Some places", 0],
-  ["/about", "Always", 0],
-  ["/contact", "It starts with", 0],
-  ["/work", "The way I", 39],
-  ["/work?collection=a-study-in-green", "The way I", 7],
+  ["/", "<em>Photography</em></h1>", 0],
+  ["/about", "<h1>About</h1>", 0],
+  ["/contact", "<h1>Contact</h1>", 0],
+  ["/work", "<h1>Work</h1>", 39],
+  ["/work?collection=a-study-in-green", "<h1>Work</h1>", 7],
   ["/work/a-study-in-green", "A study in green", 7],
   ["/work/far-from-here", "Far from here", 12],
   ["/work/everyday-stories", "Everyday stories", 8],
@@ -49,7 +49,7 @@ for (const [path, text, count] of cases) {
 }
 const missing = await fetch(base + "/work/not-a-real-collection");
 const missingHtml = await missing.text();
-assert.ok(missingHtml.includes("A little off the map."));
+assert.ok(missingHtml.includes("Page not found"));
 assert.ok(missingHtml.includes("noindex"));
 console.log(
   `PASS unknown collection: not-found page and noindex (HTTP ${missing.status})`,

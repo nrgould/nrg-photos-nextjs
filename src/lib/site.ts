@@ -4,5 +4,5 @@ export const site = {
   email: "nicholas@nicholasgouldphoto.com",
   instagram: "https://www.instagram.com/nicholasgould1/",
   description:
-    "Landscape, lifestyle and portrait photography by Nicholas Gould. Based in North Carolina, with a curiosity for places near and far.",
+    "Landscape, travel, portrait and brand photography by Nicholas Gould, based in North Carolina.",
 };

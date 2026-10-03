@@ -9,13 +9,13 @@ const serif = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   style: ["normal", "italic"],
-  variable: "--font-serif",
+  variable: "--font-cormorant",
   display: "swap",
 });
 const sans = DM_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
-  variable: "--font-sans",
+  variable: "--font-dm-sans",
   display: "swap",
 });
 export const metadata: Metadata = {

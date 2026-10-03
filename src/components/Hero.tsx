@@ -22,19 +22,16 @@ export default function Hero({ photos }: { photos: Photo[] }) {
       <div className="hero-shade" />
       <div className="hero-content">
         <h1>
-          Some places
+          Nicholas Gould
           <br />
-          <em>stay with you.</em>
+          <em>Photography</em>
         </h1>
         <Link href="/work" className="hero-link">
-          Explore the photographs
+          View work
         </Link>
       </div>
       <div className="hero-bottom">
-        <p aria-live="polite">
-          {photo.title}
-          <span>Photographed by Nicholas Gould</span>
-        </p>
+        <p aria-live="polite">{photo.title}</p>
         <div className="hero-controls">
           <span className="hero-count">
             {String(index + 1).padStart(2, "0")} /{" "}
