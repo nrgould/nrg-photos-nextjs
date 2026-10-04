@@ -33,7 +33,7 @@ const order: Order = {
   id: "order-sdk-fixture",
   userId: "user-fixture",
   createdAt: Date.now(),
-  returnPath: "/presets",
+  returnPath: "/",
   sessionId: "cs_test_fixture",
   paymentIntentId: null,
   status: "pending",

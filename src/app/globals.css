@@ -2725,12 +2725,36 @@ html[data-photo-theme="dark"] {
     bottom: 24px;
     left: 20px;
   }
-  /* Desktop: inline in the command bar, matching its 44px controls. */
-  .explorer .zoom-control {
-    width: 188px;
-    height: 44px;
-    padding: 4px;
-    box-shadow: inset 0 1px 1px var(--neutral-500);
+  /* Desktop: a standalone vertical rail on the left edge; up zooms in. */
+  .map-zoom-rail {
+    position: absolute;
+    z-index: 5;
+    left: 16px;
+    top: 50%;
+    translate: 0 -50%;
+  }
+  .zoom-control[data-orientation="vertical"] {
+    width: 48px;
+    height: 236px;
+    padding: 5px;
+  }
+  .zoom-control[data-orientation="vertical"] .zoom-track {
+    width: 36px;
+    height: 100%;
+  }
+  .zoom-control[data-orientation="vertical"] .zoom-fill {
+    top: auto;
+    bottom: 0;
+    width: 36px;
+  }
+  .zoom-control[data-orientation="vertical"] .zoom-dot {
+    top: auto;
+    left: 50%;
+    transform: translate(-50%, 50%);
+  }
+  .zoom-control[data-orientation="vertical"] .zoom-thumb {
+    top: auto;
+    left: 2px;
   }
   .map-zoom-slider {
     position: absolute;
@@ -2850,6 +2874,16 @@ html[data-photo-theme="dark"] {
   .location-search {
     border-radius: 14px;
     padding: 8px;
+  }
+  .contact-dialog[data-slot="dialog-content"] {
+    top: max(16px, 8vh);
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+    border-radius: 14px;
+  }
+  .contact-dialog h2 {
+    margin: 0 0 16px;
+    font-size: 20px;
   }
   .location-search [cmdk-root] {
     background: var(--paper);
@@ -3529,6 +3563,19 @@ html[data-photo-theme="dark"] {
     min-width: 74px;
     padding: 0 8px;
     font-size: 12px;
+  }
+  /* Phones: two clusters of 44px targets share 390px. */
+  @media (max-width: 700px) {
+    .explorer .map-toolbar {
+      left: 12px;
+      gap: 4px;
+    }
+    .explorer .explorer-top {
+      right: 12px;
+    }
+    .explorer .map-toolbar > .explorer-presets-trigger {
+      min-width: 0;
+    }
   }
   .explorer-cart-trigger {
     position: relative;

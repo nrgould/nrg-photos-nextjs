@@ -7,9 +7,9 @@ export default function NotFound() {
       <p>This page doesn’t exist.</p>
       <Link
         className={buttonVariants({ variant: "link", className: "mt-2.5" })}
-        href="/work"
+        href="/"
       >
-        View work
+        Back to the map
       </Link>
     </main>
   );

@@ -7,19 +7,8 @@ const schemaOrigin = indexable
   ? canonicalOrigin
   : process.env.SEO_PUBLIC_ORIGIN;
 const cases = [
-  ["/", "<em>Photography</em></h1>", 0],
-  ["/explore", "Photographs on the map", 0],
-  ["/presets", "Preset catalog", 0],
-  ["/presets?preset=signature-01", "Alpine Light", 0],
-  ["/presets?query=nomatch", "Alpine Light", 0],
-  ["/about", "<h1>About</h1>", 0],
-  ["/contact", "<h1>Contact</h1>", 0],
-  ["/work", "<h1>Work</h1>", 39],
-  ["/work?collection=a-study-in-green", "<h1>Work</h1>", 7],
-  ["/work/a-study-in-green", "A study in green", 7],
-  ["/work/far-from-here", "Far from here", 12],
-  ["/work/everyday-stories", "Everyday stories", 8],
-  ["/work/people-and-places", "People &amp;", 12],
+  ["/", "Photographs on the map", 0],
+  ["/?view=catalog&preset=signature-01", "Photographs on the map", 0],
 ];
 for (const [path, text, count] of cases) {
   const response = await fetch(base + path);
@@ -30,8 +19,7 @@ for (const [path, text, count] of cases) {
   );
   assert.ok(html.includes(text), `${path}: server-rendered heading`);
   assert.ok(html.includes('id="main"'), `${path}: main content`);
-  if (!path.startsWith("/presets") || indexable)
-    assert.ok(html.includes('rel="canonical"'), `${path}: canonical metadata`);
+  assert.ok(html.includes('rel="canonical"'), `${path}: canonical metadata`);
   if (!indexable) {
     assert.match(
       response.headers.get("x-robots-tag") ?? "",
@@ -51,65 +39,30 @@ for (const [path, text, count] of cases) {
   );
   assert.ok(!html.includes("images.unsplash.com"), `${path}: no stock images`);
   assert.ok(!html.includes('href="/prints"'), `${path}: no print navigation`);
-  if (path === "/explore") {
+  if (path === "/") {
     assert.ok(html.includes("data-location"), "map locations in server HTML");
     assert.ok(
       !html.includes("location-drawer"),
       "photo drawer initially closed",
     );
-    assert.ok(!html.includes("Sample recipes"), "deferred preset UI absent");
-    assert.ok(
-      !html.includes('aria-label="Contact Nicholas"'),
-      "map contact control removed",
-    );
-    assert.ok(
-      !html.includes('aria-label="Filter photographs"'),
-      "map filter control removed",
-    );
-  }
-  if (path === "/presets" || path === "/presets?query=nomatch") {
-    assert.ok(!html.includes("Search presets"), "preset search removed");
-    assert.equal(
-      (html.match(/\. View details"/g) || []).length,
-      21,
-      "all 21 presets in server HTML",
-    );
-    assert.equal(
-      new Set(
-        [...html.matchAll(/href="(\/presets\/signature-\d+)"/g)].map(
-          (match) => match[1],
-        ),
-      ).size,
-      21,
-      "all 21 direct preset anchors in server HTML",
-    );
-    assert.ok(html.includes("$1.99"), "visible individual preset pricing");
-  }
-  if (path === "/") {
-    assert.ok(html.includes('id="places"'), "globe section in server HTML");
-    assert.ok(html.includes("data-land"), "globe geography in server HTML");
-    assert.ok(
-      html.includes("Show photographs from Italy"),
-      "clickable globe locations in server HTML",
-    );
-    assert.ok(html.includes("polaroid"), "photo stack in server HTML");
-    assert.ok(!html.includes("A few stops along the way"));
-    assert.ok(!html.includes("Near home. Far from familiar"));
-    assert.ok(
-      html.includes("North Carolina"),
-      "globe locations in server HTML",
-    );
+    assert.ok(!html.includes("site-header"), "no site header on the map");
   }
   console.log(
     `PASS ${path}: HTTP 200, server HTML, metadata${count ? `, ${count} photographs` : ""}`,
   );
 }
-const missing = await fetch(base + "/work/not-a-real-collection");
+for (const path of ["/explore", "/presets/signature-01", "/work", "/about"]) {
+  const response = await fetch(base + path, { redirect: "manual" });
+  assert.ok([307, 308].includes(response.status), `${path}: redirects`);
+  assert.equal(new URL(response.headers.get("location"), base).pathname, "/");
+}
+console.log("PASS retired pages redirect to the map");
+const missing = await fetch(base + "/not-a-real-page");
 const missingHtml = await missing.text();
 assert.ok(missingHtml.includes("Page not found"));
 assert.ok(missingHtml.includes("noindex"));
 console.log(
-  `PASS unknown collection: not-found page and noindex (HTTP ${missing.status})`,
+  `PASS unknown page: not-found page and noindex (HTTP ${missing.status})`,
 );
 for (const path of ["/robots.txt", "/sitemap.xml"]) {
   const response = await fetch(base + path);
@@ -120,19 +73,13 @@ for (const path of ["/robots.txt", "/sitemap.xml"]) {
     const urls = [...text.matchAll(/<loc>(.*?)<\/loc>/g)].map(
       (match) => match[1],
     );
-    assert.equal(urls.length, indexable ? 81 : 0, "launch-gated sitemap");
+    assert.equal(urls.length, indexable ? 1 : 0, "launch-gated sitemap");
     assert.ok(
       urls.every(
         (url) =>
           url.startsWith(canonicalOrigin + "/") || url === canonicalOrigin,
       ),
     );
-    if (indexable)
-      assert.equal(
-        (text.match(/<image:loc>/g) || []).length,
-        39,
-        "public photograph image sitemap",
-      );
   } else
     assert.equal(
       text.includes("Sitemap:"),
@@ -143,81 +90,6 @@ for (const path of ["/robots.txt", "/sitemap.xml"]) {
 }
 assert.equal((await fetch(base + "/prints")).status, 404);
 console.log("PASS removed prints route: HTTP 404");
-
-const publicRoutes = new Set();
-for (const [path, pattern, expected] of [
-  ["/locations", /href="(\/locations\/[^"?#]+)"/g, 9],
-  ["/photographs", /href="(\/photographs\/[^"?#]+)"/g, 39],
-  ["/presets", /href="(\/presets\/signature-\d+)"/g, 21],
-]) {
-  const response = await fetch(base + path);
-  assert.equal(response.status, 200, path);
-  const html = await response.text();
-  const routes = new Set([...html.matchAll(pattern)].map((match) => match[1]));
-  assert.equal(routes.size, expected, `${path}: crawlable direct links`);
-  routes.forEach((route) => publicRoutes.add(route));
-}
-for (const path of publicRoutes) {
-  const response = await fetch(base + path);
-  assert.equal(response.status, 200, path);
-  const raw = await response.text();
-  const html = raw.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "");
-  assert.match(html, /<h1[^>]*>.+?<\/h1>/s, `${path}: visible server heading`);
-  assert.match(
-    html,
-    /name="description" content="[^"]+"/,
-    `${path}: description`,
-  );
-  assert.equal(
-    html.includes('rel="canonical"'),
-    indexable,
-    `${path}: canonical gate`,
-  );
-  assert.equal(
-    /name="robots" content="[^"]*noindex/.test(html),
-    !indexable,
-    `${path}: indexing gate`,
-  );
-  const schemas = [
-    ...raw.matchAll(
-      /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g,
-    ),
-  ].map((match) => JSON.parse(match[1]));
-  if (schemaOrigin) {
-    assert.ok(
-      schemas.some((schema) => schema["@type"] === "BreadcrumbList"),
-      `${path}: breadcrumbs`,
-    );
-    const expectedType = path.startsWith("/presets/")
-      ? "Product"
-      : path.startsWith("/photographs/")
-        ? "ImageObject"
-        : "CollectionPage";
-    const schema = schemas.find((item) => item["@type"] === expectedType);
-    assert.ok(schema, `${path}: ${expectedType}`);
-    assert.ok(
-      JSON.stringify(schema).includes(schemaOrigin),
-      `${path}: current public origin`,
-    );
-    if (expectedType === "Product")
-      assert.ok(
-        !schema.offers && !schema.aggregateRating,
-        "no fabricated commerce claims",
-      );
-  } else assert.equal(schemas.length, 0, `${path}: no invented public origin`);
-}
-console.log(
-  `PASS ${publicRoutes.size} direct photo/location/preset routes: SSR, descriptions, links and SEO gates`,
-);
-for (const path of [
-  "/locations/not-a-location",
-  "/photographs/not-a-photo",
-  "/presets/not-a-preset",
-]) {
-  const response = await fetch(base + path);
-  assert.equal(response.status, 404, path);
-  assert.match(await response.text(), /noindex/, path);
-}
 const imageResponse = await fetch(base + "/photos/hallstatt-2.webp");
 assert.equal(imageResponse.status, 200);
 if (!indexable)

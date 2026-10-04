@@ -30,7 +30,7 @@ export const unavailablePresetCheckout = {
 
 export default function PresetCartPanel({
   onBack,
-  returnPath = "/presets",
+  returnPath = "/",
   checkout = unavailablePresetCheckout,
 }: {
   onBack: () => void;

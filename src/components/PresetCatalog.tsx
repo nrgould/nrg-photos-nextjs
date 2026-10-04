@@ -182,7 +182,7 @@ export default function PresetCatalog({
                 >
                   <ItemContent className={styles.itemContent}>
                     <Link
-                      href={`/presets/${preset.id}`}
+                      href={`/?view=catalog&preset=${preset.id}`}
                       prefetch={false}
                       data-preset-id={preset.id}
                       className={buttonVariants({
@@ -408,15 +408,6 @@ export function PresetDetail({
           Compatibility, included files and license details are not published
           yet.
         </p>
-        <Link
-          href={`/presets/${preset.id}`}
-          className={buttonVariants({
-            variant: "quiet",
-            className: styles.back,
-          })}
-        >
-          Open preset page
-        </Link>
       </div>
       <div className={styles.facts}>
         <h4>Photographs & locations</h4>

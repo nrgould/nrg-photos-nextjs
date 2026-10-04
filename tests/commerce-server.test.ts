@@ -108,20 +108,20 @@ test("server quote ignores no client prices and deduplicates before the ten-item
 test("checkout persists account-bound immutable intent; retries share session and reject tampering", async () => {
   const f = fixture();
   const [first, second] = await Promise.all([
-    f.service.checkout("user-A", [ids[0], ids[0]], requestId, "/explore"),
-    f.service.checkout("user-A", [ids[0]], requestId, "/explore"),
+    f.service.checkout("user-A", [ids[0], ids[0]], requestId, "/"),
+    f.service.checkout("user-A", [ids[0]], requestId, "/"),
   ]);
   assert.equal(first.orderId, second.orderId);
   assert.equal(f.sessions.size, 1);
   assert.equal(f.created[0].userId, "user-A");
-  assert.equal(f.created[0].returnPath, "/explore");
+  assert.equal(f.created[0].returnPath, "/");
   assert.deepEqual((await f.service.ownership("user-A")).presetIds, []);
   await assert.rejects(
-    f.service.checkout("user-A", [ids[1]], requestId, "/explore"),
+    f.service.checkout("user-A", [ids[1]], requestId, "/"),
     fails("request_id_reused"),
   );
   await assert.rejects(
-    f.service.checkout("user-A", [ids[0]], requestId, "/presets"),
+    f.service.checkout("user-A", [ids[0]], requestId, "/?view=cart"),
     fails("request_id_reused"),
   );
   await assert.rejects(
@@ -144,21 +144,21 @@ test("query-state Checkout retries normalize parameter order but reject a change
     "user-A",
     [ids[0]],
     requestId,
-    "/presets?view=cart&preset=signature-01&query=alpine",
+    "/?view=cart&preset=signature-01&query=alpine",
   );
   const second = await f.service.checkout(
     "user-A",
     [ids[0]],
     requestId,
-    "/presets?query=alpine&preset=signature-01&view=cart",
+    "/?query=alpine&preset=signature-01&view=cart",
   );
   assert.equal(first.orderId, second.orderId);
   assert.equal(
     f.created[0].returnPath,
-    "/presets?preset=signature-01&query=alpine&view=cart",
+    "/?preset=signature-01&query=alpine&view=cart",
   );
   await assert.rejects(
-    f.service.checkout("user-A", [ids[0]], requestId, "/presets?view=catalog"),
+    f.service.checkout("user-A", [ids[0]], requestId, "/?view=catalog"),
     fails("request_id_reused"),
   );
 });

@@ -8,7 +8,7 @@ import { CommerceError } from "../src/lib/server/commerce/types";
 
 test("checkout return keeps known catalog state and canonical location in fixed application origin", () => {
   const input =
-    "/presets?view=cart&query=alpine%20light&category=Landscape%20%26%20travel&preset=signature-01";
+    "/?view=cart&query=alpine%20light&category=Landscape%20%26%20travel&preset=signature-01";
   const normalized = normalizeCommerceReturnPath(input);
   assert.equal(normalizeCommerceReturnPath(normalized), normalized);
   for (const outcome of ["returned", "cancelled"] as const) {
@@ -16,7 +16,7 @@ test("checkout return keeps known catalog state and canonical location in fixed 
       checkoutReturnUrl("https://photo.example", input, outcome),
     );
     assert.equal(url.origin, "https://photo.example");
-    assert.equal(url.pathname, "/presets");
+    assert.equal(url.pathname, "/");
     assert.equal(url.searchParams.get("view"), "cart");
     assert.equal(url.searchParams.get("query"), "alpine light");
     assert.equal(url.searchParams.get("category"), "Landscape & travel");
@@ -27,21 +27,21 @@ test("checkout return keeps known catalog state and canonical location in fixed 
   const map = new URL(
     checkoutReturnUrl(
       "https://photo.example",
-      "/explore?location=location%3Aseceda&view=cart&query=alpine&category=Landscape%20%26%20travel&preset=signature-01",
+      "/?location=location%3Aseceda&view=cart&query=alpine&category=Landscape%20%26%20travel&preset=signature-01",
       "returned",
     ),
   );
-  assert.equal(map.pathname, "/explore");
+  assert.equal(map.pathname, "/");
   assert.equal(map.searchParams.get("location"), "location:seceda");
   assert.equal(map.searchParams.get("view"), "cart");
   assert.equal(map.searchParams.get("query"), "alpine");
   assert.equal(map.searchParams.get("category"), "Landscape & travel");
   assert.equal(map.searchParams.get("preset"), "signature-01");
   assert.equal(
-    normalizeCommerceReturnPath("/explore?location=country%3Aitaly"),
-    "/explore?location=country%3Aitaly",
+    normalizeCommerceReturnPath("/?location=country%3Aitaly"),
+    "/?location=country%3Aitaly",
   );
-  assert.equal(normalizeCommerceReturnPath(), "/presets");
+  assert.equal(normalizeCommerceReturnPath(), "/");
 });
 
 test("return paths reject redirect tricks, unknown or duplicated state, fragments and oversized queries", () => {
@@ -52,27 +52,27 @@ test("return paths reject redirect tricks, unknown or duplicated state, fragment
     "/\\evil.example/presets",
     "https://user:pass@photography.invalid/presets",
     "/other/../presets",
-    " /presets",
-    "/presets#main",
-    "/presets#",
-    "/presets?next=https://evil.example",
-    "/presets?checkout=returned",
-    "/presets?view=cart&view=catalog",
-    "/presets?view=photos",
-    "/presets?preset=signature-99",
-    "/presets?preset=alpine-soft",
-    "/presets?category=Other",
-    `/presets?query=${"x".repeat(201)}`,
-    `/presets?query=${"x".repeat(2048)}`,
-    "/presets?query=%00bad",
-    "/presets?query=%0abad",
-    "/presets?location=location%3Aseceda",
-    "/explore?view=photos",
-    "/explore?view=cart&view=catalog",
-    "/explore?query=alpine&next=https://evil.example",
-    "/explore?preset=signature-99",
-    "/explore?location=imaginary",
-    "/explore?location=location%3Aseceda&location=location%3Ab raies",
+    " /",
+    "/#main",
+    "/#",
+    "/?next=https://evil.example",
+    "/?checkout=returned",
+    "/?view=cart&view=catalog",
+    "/?view=photos",
+    "/?preset=signature-99",
+    "/?preset=alpine-soft",
+    "/?category=Other",
+    `/?query=${"x".repeat(201)}`,
+    `/?query=${"x".repeat(2048)}`,
+    "/?query=%00bad",
+    "/?query=%0abad",
+    "/?location=location%3Anowhere",
+    "/?view=photos",
+    "/?view=cart&view=catalog",
+    "/?query=alpine&next=https://evil.example",
+    "/?preset=signature-99",
+    "/?location=imaginary",
+    "/?location=location%3Aseceda&location=location%3Ab raies",
     null,
     42,
     {},
@@ -84,6 +84,6 @@ test("return paths reject redirect tricks, unknown or duplicated state, fragment
       String(input),
     );
   assert.doesNotThrow(() =>
-    normalizeCommerceReturnPath(`/presets?query=${"x".repeat(200)}`),
+    normalizeCommerceReturnPath(`/?query=${"x".repeat(200)}`),
   );
 });

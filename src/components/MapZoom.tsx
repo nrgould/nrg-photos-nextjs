@@ -30,13 +30,13 @@ export default function MapZoom({
   mode,
   zoom,
   onChange,
-  inline = false,
+  vertical = false,
 }: {
   mode: "globe" | "map";
   zoom: number;
   onChange: (mode: "globe" | "map", zoom: number) => void;
-  /** Desktop keeps the slider in the command bar instead of a popover. */
-  inline?: boolean;
+  /** Desktop shows a standalone vertical rail instead of a popover. */
+  vertical?: boolean;
 }) {
   const value = zoomStop(mode, zoom);
   const [draft, setDraft] = useState<number | null>(null);
@@ -48,8 +48,8 @@ export default function MapZoom({
   const boundedPosition = useTransform(visualPosition, (position) =>
     Math.max(0, Math.min(5, position)),
   );
-  const thumbLeft = useTransform(boundedPosition, zoomStopPosition);
-  const fillWidth = useTransform(
+  const thumbOffset = useTransform(boundedPosition, zoomStopPosition);
+  const fillLength = useTransform(
     boundedPosition,
     (position) => `calc(${36 * (1 - position / 5)}px + ${position * 20}%)`,
   );
@@ -67,24 +67,34 @@ export default function MapZoom({
     return () => animation.stop();
   }, [current, reduced, keyboardInteraction, visualPosition]);
   const control = (
-    <div className="zoom-control">
+    <div
+      className="zoom-control"
+      data-orientation={vertical ? "vertical" : "horizontal"}
+    >
       <div className="zoom-track">
-        <motion.div className="zoom-fill" style={{ width: fillWidth }} />
+        <motion.div
+          className="zoom-fill"
+          style={vertical ? { height: fillLength } : { width: fillLength }}
+        />
         {zoomLevels.map((_, index) => (
           <span
             key={index}
             className={`zoom-dot ${index <= current ? "is-filled" : ""}`}
-            style={{ left: zoomStopPosition(index) }}
+            style={{
+              [vertical ? "bottom" : "left"]: zoomStopPosition(index),
+            }}
           />
         ))}
         <motion.span
           className="zoom-thumb"
-          style={{
-            left: thumbLeft,
-            transform: "translateX(-50%)",
-          }}
+          style={
+            vertical
+              ? { bottom: thumbOffset, transform: "translateY(50%)" }
+              : { left: thumbOffset, transform: "translateX(-50%)" }
+          }
         />
         <Slider
+          orientation={vertical ? "vertical" : "horizontal"}
           className="map-zoom-slider [&_[data-slot=slider-thumb]]:size-9"
           aria-label="Map zoom level"
           aria-valuetext={zoomLabels[current]}
@@ -115,7 +125,7 @@ export default function MapZoom({
       </div>
     </div>
   );
-  if (inline) return control;
+  if (vertical) return control;
   return (
     <Popover
       onOpenChange={(open, details) => {

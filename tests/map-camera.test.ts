@@ -20,6 +20,7 @@ import {
   takeZoomIntent,
   settleProjection,
   uiZoom,
+  viewportZoomOffset,
 } from "../src/lib/map-camera";
 
 test("MapLibre projection follows explicit state, independent of raw zoom and latitude compensation", () => {
@@ -233,4 +234,48 @@ test("regional breakout has hysteresis during small pinch changes", () => {
     markerLevel(fittedZoom - 0.4, "location", fittedThreshold),
     "country",
   );
+});
+
+test("desktop globe spans 60% of the short side; phones keep the base zoom", () => {
+  assert.equal(viewportZoomOffset(390, 844), 0);
+  const offset = viewportZoomOffset(2000, 1258);
+  assert.ok(Math.abs((512 / Math.PI) * 2 ** offset - 0.6 * 1258) < 0.001);
+});
+
+test("a settled flat map never shows its top or bottom edge", () => {
+  const height = 1258;
+  for (const lat of [-85, -60, 0, 70, 85]) {
+    for (const zoom of [0, 1.5, 3]) {
+      const camera = constrainCamera(
+        { lng: 0, lat },
+        zoom,
+        1,
+        "map",
+        0,
+        height,
+      );
+      const world = 512 * 2 ** camera.zoom;
+      assert.ok(world >= height - 0.001);
+      const y =
+        (1 -
+          Math.log(Math.tan(Math.PI / 4 + (camera.latitude * Math.PI) / 360)) /
+            Math.PI) /
+        2;
+      assert.ok(y * world >= height / 2 - 0.001, `top edge at ${lat}, ${zoom}`);
+      assert.ok(
+        (1 - y) * world >= height / 2 - 0.001,
+        `bottom edge at ${lat}, ${zoom}`,
+      );
+    }
+  }
+  // The globe is a sphere: no flat-map clamp applies to it.
+  assert.equal(
+    constrainCamera({ lng: 0, lat: 80 }, 1, 0, "globe", 0, height).latitude,
+    80,
+  );
+});
+
+test("flat map returns to the globe at its fill floor", () => {
+  assert.equal(projectionMode(0.74, "map", 0.72), "globe");
+  assert.equal(projectionMode(0.9, "globe", 0.72), "map");
 });

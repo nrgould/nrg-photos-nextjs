@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Pause, Play } from "lucide-react";
 import { globeFrame, initialView, shortestTurn } from "@/lib/globe";
 import type { TravelPlace } from "@/lib/places";
@@ -124,9 +125,9 @@ export default function TravelGlobe({ places }: { places: TravelPlace[] }) {
       <div className="page-width">
         <div className="travel-heading">
           <h2 id="places-heading">Places</h2>
-          <a href="/explore" className="places-explore-link">
+          <Link href="/" className="places-explore-link">
             Explore places & presets
-          </a>
+          </Link>
         </div>
         <div className="travel-layout">
           <div className="globe-panel">

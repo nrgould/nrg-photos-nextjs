@@ -4,6 +4,18 @@ const config: NextConfig = {
   poweredByHeader: false,
   devIndicators: false,
   images: { formats: ["image/avif", "image/webp"], qualities: [75, 85] },
+  // The map is the whole site; retired pages land on it.
+  async redirects() {
+    return [
+      "/explore",
+      "/work/:path*",
+      "/about",
+      "/contact",
+      "/presets/:path*",
+      "/photographs/:path*",
+      "/locations/:path*",
+    ].map((source) => ({ source, destination: "/", permanent: false }));
+  },
   async headers() {
     return getSeoConfig().indexable
       ? []

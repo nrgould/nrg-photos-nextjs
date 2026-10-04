@@ -47,11 +47,11 @@ test("storage round trip preserves a custom pack and discards unverified free se
 
 test("checkout returns retain catalog context only on supported local routes", () => {
   const path =
-    "/presets?view=cart&query=alpine&category=Film&preset=signature-01#main";
+    "/?view=cart&query=alpine&category=Film&preset=signature-01#main";
   assert.equal(safePresetReturnPath(path), path);
   assert.equal(
-    safePresetReturnPath("/explore?location=italy&view=cart"),
-    "/explore?location=italy&view=cart",
+    safePresetReturnPath("/?location=italy&view=cart"),
+    "/?location=italy&view=cart",
   );
   for (const input of [
     null,
@@ -60,8 +60,8 @@ test("checkout returns retain catalog context only on supported local routes", (
     "javascript:alert(1)",
     "/account",
     "/presets/../../evil",
-    "/presets" + "x".repeat(2048),
+    "/" + "x".repeat(2048),
   ]) {
-    assert.equal(safePresetReturnPath(input), "/presets");
+    assert.equal(safePresetReturnPath(input), "/");
   }
 });

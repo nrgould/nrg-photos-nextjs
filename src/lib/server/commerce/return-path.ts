@@ -17,7 +17,7 @@ const hasControls = (value: string) =>
   );
 
 export function normalizeCommerceReturnPath(
-  value: unknown = "/presets",
+  value: unknown = "/",
 ): string {
   const invalid = () => new CommerceError("invalid_return_path");
   if (
@@ -28,7 +28,7 @@ export function normalizeCommerceReturnPath(
   )
     throw invalid();
   const rawPath = value.split("?", 1)[0];
-  if (rawPath !== "/presets" && rawPath !== "/explore") throw invalid();
+  if (rawPath !== "/") throw invalid();
   let url: URL;
   try {
     url = new URL(value, applicationOrigin);
@@ -42,7 +42,7 @@ export function normalizeCommerceReturnPath(
     if (keys.has(key) || hasControls(parameter)) throw invalid();
     keys.add(key);
     if (key === "location") {
-      if (rawPath !== "/explore" || !locationIds.has(parameter))
+      if (!locationIds.has(parameter))
         throw invalid();
     } else if (key === "view") {
       if (parameter !== "catalog" && parameter !== "cart") throw invalid();

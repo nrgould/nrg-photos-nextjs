@@ -13,14 +13,14 @@ test("checkout retry identity survives sorting, duplicate cart IDs and return qu
   const first = checkoutAttempt(
     "user-A",
     ["signature-01", "signature-02"],
-    "/presets?view=cart&query=travel",
+    "/?view=cart&query=travel",
     null,
     createId,
   );
   const retry = checkoutAttempt(
     "user-A",
     ["signature-02", "signature-01", "signature-01"],
-    "/presets?query=travel&view=cart&checkout=cancelled",
+    "/?query=travel&view=cart&checkout=cancelled",
     JSON.parse(JSON.stringify(first)),
     () => {
       throw new Error("Must reuse retry identity");
@@ -28,17 +28,13 @@ test("checkout retry identity survives sorting, duplicate cart IDs and return qu
   );
   assert.deepEqual(retry, first);
   assert.equal(
-    checkoutReturnPath("/presets?checkout=returned&view=cart#stale"),
-    "/presets?view=cart",
+    checkoutReturnPath("/?checkout=returned&view=cart#stale"),
+    "/?view=cart",
   );
   for (const [user, ids, path] of [
-    [
-      "user-B",
-      ["signature-01", "signature-02"],
-      "/presets?view=cart&query=travel",
-    ],
-    ["user-A", ["signature-01"], "/presets?view=cart&query=travel"],
-    ["user-A", ["signature-01", "signature-02"], "/explore"],
+    ["user-B", ["signature-01", "signature-02"], "/?view=cart&query=travel"],
+    ["user-A", ["signature-01"], "/?view=cart&query=travel"],
+    ["user-A", ["signature-01", "signature-02"], "/"],
   ] as const)
     assert.equal(
       checkoutAttempt(user, ids, path, first, () => "fixture-request-00002")
@@ -46,14 +42,12 @@ test("checkout retry identity survives sorting, duplicate cart IDs and return qu
       "fixture-request-00002",
     );
   for (const ids of [[], ["invented"], ["signature-01", "invented"]])
-    assert.throws(() =>
-      checkoutAttempt("user-A", ids, "/presets", null, createId),
-    );
+    assert.throws(() => checkoutAttempt("user-A", ids, "/", null, createId));
   assert.throws(() =>
-    checkoutAttempt("", ["signature-01"], "/presets", null, createId),
+    checkoutAttempt("", ["signature-01"], "/", null, createId),
   );
   assert.throws(() =>
-    checkoutAttempt("user-A", ["signature-01"], "/presets", null, () => "bad"),
+    checkoutAttempt("user-A", ["signature-01"], "/", null, () => "bad"),
   );
 });
 
@@ -61,7 +55,7 @@ test("malformed stored retry identity is replaced and external return URLs never
   const valid = checkoutAttempt(
     "user-A",
     ["signature-01"],
-    "/presets",
+    "/",
     null,
     createId,
   );
@@ -73,11 +67,11 @@ test("malformed stored retry identity is replaced and external return URLs never
     { ...valid, requestId: "x".repeat(101) },
   ])
     assert.equal(
-      checkoutAttempt("user-A", ["signature-01"], "/presets", prior, createId)
+      checkoutAttempt("user-A", ["signature-01"], "/", prior, createId)
         .requestId,
       createId(),
     );
-  assert.equal(checkoutReturnPath("https://evil.example/presets"), "/presets");
+  assert.equal(checkoutReturnPath("https://evil.example/presets"), "/");
 });
 
 test("only verified published ownership is accepted; account switch, sign-out and refresh immediately invalidate snapshots", () => {
@@ -132,7 +126,7 @@ test("checkout redirects allow only the exact HTTPS Stripe Checkout origin", () 
     "https://checkout.stripe.com.evil.example/x",
     "https://checkout.stripe.com:444/x",
     "https://user:pass@checkout.stripe.com/x",
-    "/presets",
+    "/",
   ])
     assert.equal(stripeCheckoutUrl({ url }), null);
   assert.equal(stripeCheckoutUrl({ status: "paid" }), null);

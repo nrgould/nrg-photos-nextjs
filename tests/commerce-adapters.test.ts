@@ -52,7 +52,7 @@ const order = (count = 1): Order => ({
   id: "order-fixture",
   userId: "user-A",
   createdAt: Date.now(),
-  returnPath: "/explore",
+  returnPath: "/",
   status: "pending",
   sessionId: null,
   paymentIntentId: null,
@@ -226,11 +226,11 @@ test("Stripe adapter validates server Price/coupon then emits only fixed test Ch
   ]);
   assert.equal(
     f.creations[0].params.success_url,
-    "http://localhost:3000/explore?checkout=returned",
+    "http://localhost:3000/?checkout=returned",
   );
   assert.equal(
     f.creations[0].params.cancel_url,
-    "http://localhost:3000/explore?checkout=cancelled",
+    "http://localhost:3000/?checkout=cancelled",
   );
   assert.equal(f.creations[0].params.allow_promotion_codes, false);
   assert.deepEqual(f.creations[0].params.automatic_tax, { enabled: false });
@@ -277,7 +277,7 @@ test("Stripe Checkout preserves approved catalog query state and appends one out
   const f = sdkFixture();
   await createStripeGateway(f.client, config).createCheckout({
     ...f.current,
-    returnPath: "/presets?view=cart&query=alpine&preset=signature-01",
+    returnPath: "/?view=cart&query=alpine&preset=signature-01",
   });
   for (const [key, outcome] of [
     ["success_url", "returned"],
@@ -285,7 +285,7 @@ test("Stripe Checkout preserves approved catalog query state and appends one out
   ] as const) {
     const url = new URL(f.creations[0].params[key]);
     assert.equal(url.origin, config.origin);
-    assert.equal(url.pathname, "/presets");
+    assert.equal(url.pathname, "/");
     assert.equal(url.searchParams.get("view"), "cart");
     assert.equal(url.searchParams.get("preset"), "signature-01");
     assert.equal(url.searchParams.get("query"), "alpine");
@@ -386,7 +386,7 @@ test("configured handler rejects forged account/price/reward fields, external or
   const cart = {
     paidPresetIds: [ids[0]],
     requestId: "http-request-000001",
-    returnPath: "/presets",
+    returnPath: "/",
   };
   for (const extra of [
     { userId: "victim" },

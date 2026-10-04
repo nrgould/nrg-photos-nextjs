@@ -56,14 +56,30 @@ export function settleProjection(
     zoom: cameraZoom(scale, latitude, endpoint),
   };
 }
+/** `mapFloor` is the lowest zoom where a flat map still covers the viewport. */
 export function projectionMode(
   scale: number,
   previous: ProjectionMode,
+  mapFloor = 0,
 ): ProjectionMode {
-  if (previous === "globe" && scale >= 0.9) return "map";
-  if (previous === "map" && scale <= 0.6) return "globe";
+  if (previous === "globe" && scale >= Math.max(0.9, mapFloor + 0.15))
+    return "map";
+  if (previous === "map" && scale <= Math.max(0.6, mapFloor + 0.02))
+    return "globe";
   return previous;
 }
+
+/** Desktop zooms in until the globe spans 60% of the viewport's short side. */
+export function viewportZoomOffset(width: number, height: number) {
+  if (width <= 700) return 0;
+  return Math.max(
+    0,
+    Math.log2((0.6 * Math.min(width, height) * Math.PI) / 512),
+  );
+}
+
+/** Zoom at which the flat map's full height fills the viewport. */
+export const mapFillZoom = (height: number) => Math.log2(height / 512);
 export function isZoomInput(
   event:
     { type: string; key?: string; touches?: { length: number } } | undefined,
@@ -89,27 +105,42 @@ export function isFlatFloorZoomOut(
   zoom: number,
   mix: number,
   mode: ProjectionMode,
+  floor = 0,
 ) {
-  return delta > 0 && mode === "map" && mix === 1 && zoom <= 0.0001;
+  return delta > 0 && mode === "map" && mix === 1 && zoom <= floor + 0.0001;
 }
 
+const mercatorY = (latitude: number) =>
+  (1 - Math.log(Math.tan(Math.PI / 4 + (latitude * Math.PI) / 360)) / Math.PI) /
+  2;
+const mercatorLatitude = (y: number) =>
+  (360 / Math.PI) * Math.atan(Math.exp(Math.PI * (1 - 2 * y))) - 90;
+
 // Keep the native latitude-adjusted globe minimum, without Mercator's viewport-height floor.
+// The flat map never shows its top or bottom edge: with `viewportHeight`, a
+// settled map keeps the world filling the viewport vertically.
 export function constrainCamera(
   center: { lng: number; lat: number },
   zoom: number,
   mix = 1,
   destination: ProjectionMode = mix === 0 ? "globe" : "map",
+  floor = 0,
+  viewportHeight?: number,
 ) {
-  const latitude = Math.max(-85, Math.min(85, center.lat));
-  return {
-    longitude: center.lng,
-    latitude,
+  let latitude = Math.max(-85, Math.min(85, center.lat));
+  let next = Math.max(
     // Mercator's camera helper constrains the animation target before the first blend frame.
-    zoom: Math.max(
-      cameraZoom(0, latitude, destination === "globe" ? 0 : mix),
-      Math.min(12, zoom),
-    ),
-  };
+    cameraZoom(floor, latitude, destination === "globe" ? 0 : mix),
+    Math.min(12 + floor, zoom),
+  );
+  if (viewportHeight && destination === "map" && mix === 1) {
+    next = Math.max(next, mapFillZoom(viewportHeight));
+    const half = viewportHeight / 2 / (512 * 2 ** next);
+    latitude = mercatorLatitude(
+      Math.max(half, Math.min(1 - half, mercatorY(latitude))),
+    );
+  }
+  return { longitude: center.lng, latitude, zoom: next };
 }
 
 // One native transform; explicit intent animates this state, never latitude-dependent raw zoom.

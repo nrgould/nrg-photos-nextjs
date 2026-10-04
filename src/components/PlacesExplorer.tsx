@@ -17,6 +17,7 @@ import {
   ChevronUp,
   Heart,
   Leaf,
+  Mail,
   Moon,
   Search,
   ShoppingBag,
@@ -39,6 +40,7 @@ import {
   TooltipTrigger,
 } from "./ui/tooltip";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
+import ContactForm from "./ContactForm";
 import {
   Command,
   CommandInput,
@@ -132,10 +134,12 @@ export default function PlacesExplorer({
   initialLocationId,
   initialCatalogState,
   initialView,
+  contactEmailEnabled = false,
 }: {
   initialLocationId?: string | null;
   initialCatalogState?: PresetCatalogState;
   initialView?: "catalog" | "cart";
+  contactEmailEnabled?: boolean;
 }) {
   const initialNode = useMemo(
     () => getMapNode(initialLocationId ?? null, travelPlaces),
@@ -235,6 +239,7 @@ export default function PlacesExplorer({
     initialView ? 0.75 : 0.25,
   );
   const [command, setCommand] = useState(false);
+  const [contact, setContact] = useState(false);
   const [viewer, setViewer] = useState<string | null>(null);
   const [drawerElement, setDrawerElement] = useState<HTMLDivElement | null>(
     null,
@@ -619,10 +624,26 @@ export default function PlacesExplorer({
       window.removeEventListener("keydown", listener);
     };
   }, []);
+  const zoomControl = (
+    <MapZoom
+      vertical={desktop}
+      mode={mode}
+      zoom={zoom}
+      onChange={(nextMode, nextZoom) => {
+        setZoomRevision((value) => value + 1);
+        setIntro(false);
+        setMode(nextMode);
+        setZoom(nextZoom);
+      }}
+    />
+  );
   return (
     <TooltipProvider delay={500}>
       <h1 className="sr-only">Photographs on the map</h1>
       <div className="explorer-top" data-drawer-open={open}>
+        <Control label="Contact" onClick={() => setContact(true)}>
+          <Mail size={18} />
+        </Control>
         <Control
           label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
           onClick={changeTheme}
@@ -673,7 +694,8 @@ export default function PlacesExplorer({
               aria-label="Browse all presets"
               onClick={(event) => showPanel("presets", event.currentTarget)}
             >
-              All presets
+              <span className="max-[700px]:hidden">All presets</span>
+              <span className="min-[701px]:hidden">Presets</span>
             </Button>
           </div>
           <PlacesMap
@@ -745,21 +767,16 @@ export default function PlacesExplorer({
             >
               <Shuffle size={18} />
             </Control>
-            <Separator orientation="vertical" style={separatorStyle} />
-            <MapZoom
-              inline={desktop}
-              mode={mode}
-              zoom={zoom}
-              onChange={(nextMode, nextZoom) => {
-                setZoomRevision((value) => value + 1);
-                setIntro(false);
-                setMode(nextMode);
-                setZoom(nextZoom);
-              }}
-            />
+            {!desktop && (
+              <>
+                <Separator orientation="vertical" style={separatorStyle} />
+                {zoomControl}
+              </>
+            )}
           </div>
         </div>
       </div>
+      {desktop && <div className="map-zoom-rail">{zoomControl}</div>}
       <Drawer
         open={open}
         onOpenChange={(next) => {
@@ -1251,7 +1268,7 @@ export default function PlacesExplorer({
             {nested === "cart" && (
               <PresetCartPanel
                 onBack={closeNested}
-                returnPath={`/explore?${checkoutParams}`}
+                returnPath={`/?${checkoutParams}`}
                 checkout={checkout}
               />
             )}
@@ -1287,6 +1304,15 @@ export default function PlacesExplorer({
           </div>
         </DrawerContent>
       </Drawer>
+      <Dialog open={contact} onOpenChange={setContact}>
+        <DialogContent
+          variant="panel"
+          className="contact-dialog explorer-overlay"
+        >
+          <DialogTitle>Contact</DialogTitle>
+          <ContactForm emailEnabled={contactEmailEnabled} />
+        </DialogContent>
+      </Dialog>
       <Dialog open={command} onOpenChange={setCommand}>
         <DialogContent
           variant="panel"

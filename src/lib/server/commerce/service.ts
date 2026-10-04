@@ -89,7 +89,7 @@ export function createCommerceService({
     userId: string,
     ids: unknown,
     requestId: unknown,
-    returnPath: unknown = "/presets",
+    returnPath: unknown = "/",
   ) {
     if (!userId) throw new CommerceError("unauthenticated", 401);
     if (

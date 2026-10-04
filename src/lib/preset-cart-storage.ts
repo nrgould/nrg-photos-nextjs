@@ -22,16 +22,16 @@ export function formatPresetPrice(cents: number): string {
 }
 
 export function safePresetReturnPath(value: unknown): string {
-  if (typeof value !== "string" || value.length > 2048) return "/presets";
+  if (typeof value !== "string" || value.length > 2048) return "/";
   try {
     const url = new URL(value, "https://photography.invalid");
     if (
       url.origin !== "https://photography.invalid" ||
-      !["/explore", "/presets"].includes(url.pathname)
+      url.pathname !== "/"
     )
-      return "/presets";
+      return "/";
     return `${url.pathname}${url.search}${url.hash}`;
   } catch {
-    return "/presets";
+    return "/";
   }
 }

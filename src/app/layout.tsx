@@ -6,8 +6,6 @@ import {
   Fraunces,
   Hanken_Grotesk,
 } from "next/font/google";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { CommerceCartProvider } from "@/components/CommerceCartProvider";
 import { CommerceProviders } from "@/components/CommerceProviders";
 import { getAccountPublicConfiguration } from "@/lib/server/commerce-runtime";
@@ -89,9 +87,7 @@ export default async function RootLayout({
         </a>
         <CommerceProviders publishableKey={account?.publishableKey ?? null}>
           <CommerceCartProvider>
-            <Header />
             {children}
-            <Footer />
           </CommerceCartProvider>
         </CommerceProviders>
       </body>

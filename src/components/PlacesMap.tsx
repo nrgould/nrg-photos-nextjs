@@ -24,11 +24,13 @@ import {
   markerLabels,
   isZoomInput,
   isFlatFloorZoomOut,
+  mapFillZoom,
   projectionDuration,
   projectionMode,
   projectionStateKey,
   takeZoomIntent,
   settleProjection,
+  viewportZoomOffset,
   uiZoom,
   type MarkerLevel,
 } from "@/lib/map-camera";
@@ -51,12 +53,11 @@ const introSettleDegrees =
 const desktopMarkerScale = 4 / 3;
 // A wide screen shows more map at the same engine zoom, so each desktop zoom
 // stop sits closer in.
-const desktopZoomOffset = 0.75;
 const zoomOffset = () =>
-  typeof window !== "undefined" &&
-  window.matchMedia("(min-width: 701px)").matches
-    ? desktopZoomOffset
-    : 0;
+  typeof window === "undefined"
+    ? 0
+    : viewportZoomOffset(window.innerWidth, window.innerHeight);
+const mapFloor = () => Math.max(zoomOffset(), mapFillZoom(window.innerHeight));
 const toEngineZoom = (scale: number) => engineZoom(scale) + zoomOffset();
 const toUiZoom = (zoom: number) => uiZoom(zoom - zoomOffset());
 
@@ -227,7 +228,7 @@ export default function PlacesMap(props: {
   const MarkerClass = useRef<typeof import("maplibre-gl").Marker | null>(null);
   const [level, setLevel] = useState<MarkerLevel>(() =>
     markerLevel(
-      mode === "globe" ? 0 : toEngineZoom(zoom),
+      toEngineZoom(mode === "globe" ? 0 : zoom),
       "country",
       toEngineZoom(3),
     ),
@@ -296,7 +297,7 @@ export default function PlacesMap(props: {
           style: style(projection.current.mix),
           center: initialCenter,
           zoom: cameraZoom(
-            initial.mode === "globe" ? 0 : toEngineZoom(initial.zoom),
+            toEngineZoom(initial.mode === "globe" ? 0 : initial.zoom),
             initialCenter[1],
             projection.current.mix,
           ),
@@ -308,6 +309,8 @@ export default function PlacesMap(props: {
               zoom,
               projection.current.mix,
               projection.current.mode,
+              zoomOffset(),
+              window.innerHeight,
             );
             return {
               center: new LngLat(camera.longitude, camera.latitude),
@@ -327,7 +330,12 @@ export default function PlacesMap(props: {
         ) => {
           nativeZoomIntent.current.active = false;
           const nextMode =
-            forcedMode ?? projectionMode(scale, projection.current.mode);
+            forcedMode ??
+            projectionMode(
+              scale - zoomOffset(),
+              projection.current.mode,
+              mapFillZoom(window.innerHeight) - zoomOffset(),
+            );
           const nextZoom = toUiZoom(scale);
           nativeSync.current = {
             mode: nextMode,
@@ -379,9 +387,10 @@ export default function PlacesMap(props: {
                 instance.getZoom(),
                 projection.current.mix,
                 projection.current.mode,
+                mapFloor(),
               )
             )
-              finishNativeZoom(0, "globe");
+              finishNativeZoom(zoomOffset(), "globe");
             else
               instance.zoomTo(
                 instance.getZoom() + direction,
@@ -586,6 +595,8 @@ export default function PlacesMap(props: {
                   rawZoom,
                   projection.current.mix,
                   projection.current.mode,
+                  zoomOffset(),
+                  window.innerHeight,
                 );
                 return {
                   center: new LngLat(camera.longitude, camera.latitude),
@@ -632,7 +643,7 @@ export default function PlacesMap(props: {
           if (!takeZoomIntent(nativeZoomIntent.current)) return;
           finishNativeZoom(
             Math.max(
-              0,
+              zoomOffset(),
               apparentZoom(
                 instance.getZoom(),
                 instance.getCenter().lat,
@@ -648,6 +659,7 @@ export default function PlacesMap(props: {
               instance.getZoom(),
               projection.current.mix,
               projection.current.mode,
+              mapFloor(),
             )
           )
             return;
@@ -663,10 +675,11 @@ export default function PlacesMap(props: {
                 instance.getZoom(),
                 projection.current.mix,
                 projection.current.mode,
+                mapFloor(),
               )
             )
               return;
-            finishNativeZoom(0, "globe");
+            finishNativeZoom(zoomOffset(), "globe");
           });
         });
         instance.on("error", (event) => {
@@ -886,7 +899,7 @@ export default function PlacesMap(props: {
     navigationTarget.current = null;
     const targetMix = mode === "globe" ? 0 : 1;
     const targetZoom = cameraZoom(
-      mode === "globe" ? 0 : toEngineZoom(zoom),
+      toEngineZoom(mode === "globe" ? 0 : zoom),
       recenter && targetCenter ? targetCenter[1] : instance.getCenter().lat,
       targetMix,
     );
