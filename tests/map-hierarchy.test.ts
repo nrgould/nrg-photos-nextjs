@@ -4,7 +4,12 @@ import countryLabels from "../src/data/country-labels.json";
 import manifest from "../src/lib/photo-manifest.json";
 import { travelPlaces } from "../src/lib/places";
 import { defaultMapFilters, filterPlaces } from "../src/lib/map-filters";
-import { getMapNode, getMapNodes } from "../src/lib/map-hierarchy";
+import {
+  getMapNode,
+  getMapNodes,
+  getCountryChildBounds,
+  getCoordinateBounds,
+} from "../src/lib/map-hierarchy";
 
 test("four country aggregates and nine real locations each partition the eleven map photos", () => {
   const sourcePhotos = travelPlaces.flatMap((place) => place.photos);
@@ -41,20 +46,160 @@ test("four country aggregates and nine real locations each partition the eleven 
   }
 });
 
-test("country pins use Natural Earth country label references while keeping legacy collection IDs", () => {
-  const nodes = getMapNodes(travelPlaces, "country");
-  for (const [i, code] of ["AUT", "ITA", "NOR", "USA"].entries()) {
-    const source = countryLabels.features.find(
-      (entry) => entry.properties.id === code,
+test("country photo stacks center the eligible photographed regions while preserving identity", () => {
+  const countries = getMapNodes(travelPlaces, "country");
+  const leaves = getMapNodes(travelPlaces, "location");
+  for (const [index, country] of countries.entries()) {
+    const bounds = getCountryChildBounds(country.id, travelPlaces);
+    assert.ok(bounds);
+    const children = leaves.filter(
+      (node) => node.countryId === country.id && node.precision === "regional",
     );
-    assert.ok(source);
-    assert.deepEqual(nodes[i].coordinates, source.geometry.coordinates);
-    assert.equal(nodes[i].countryId, nodes[i].id);
-    assert.equal(nodes[i].precision, "country");
-    assert.equal(nodes[i].collectionId, travelPlaces[i].id);
+    for (const child of children) {
+      assert.ok(
+        child.coordinates[0] >= bounds[0][0] &&
+          child.coordinates[0] <= bounds[1][0],
+      );
+      assert.ok(
+        child.coordinates[1] >= bounds[0][1] &&
+          child.coordinates[1] <= bounds[1][1],
+      );
+    }
+    assert.equal(country.coordinates[0], (bounds[0][0] + bounds[1][0]) / 2);
+    assert.equal(country.coordinates[1], (bounds[0][1] + bounds[1][1]) / 2);
+    assert.equal(country.countryId, country.id);
+    assert.equal(country.precision, "country");
+    assert.equal(country.collectionId, travelPlaces[index].id);
+    assert.match(
+      country.referenceLabel,
+      /photographed-region cluster reference/,
+    );
   }
-  assert.equal(nodes[3].label, "United States");
-  assert.equal(nodes[3].collectionId, "north-carolina");
+  assert.deepEqual(
+    getCountryChildBounds("country:united-states", travelPlaces),
+    [
+      [-81.89, 35.75],
+      [-78.68, 35.78],
+    ],
+  );
+  assert.deepEqual(countries[3].coordinates, [-80.285, 35.765]);
+  assert.equal(countries[3].label, "United States");
+  assert.equal(countries[3].collectionId, "north-carolina");
+  assert.deepEqual(getCountryChildBounds("country:italy", travelPlaces), [
+    [11.71, 46.59],
+    [12.29, 46.7],
+  ]);
+  assert.equal(countries[1].coordinates[0], 12);
+  assert.ok(Math.abs(countries[1].coordinates[1] - 46.645) < 1e-10);
+});
+
+test("single-child and filtered country anchors follow only remaining eligible photo locations", () => {
+  assert.deepEqual(getCountryChildBounds("country:austria", travelPlaces), [
+    [13.65, 47.56],
+    [13.65, 47.56],
+  ]);
+  const horizontal = filterPlaces(travelPlaces, {
+    ...defaultMapFilters(travelPlaces),
+    orientation: "horizontal",
+  });
+  const country = getMapNode("country:united-states", horizontal);
+  assert.deepEqual(country?.coordinates, [-78.68, 35.78]);
+  assert.deepEqual(getCountryChildBounds("country:united-states", horizontal), [
+    [-78.68, 35.78],
+    [-78.68, 35.78],
+  ]);
+  assert.equal(country?.photoCount, 1);
+  assert.equal(country?.cover.title, "A new chapter");
+  assert.equal(getCountryChildBounds("country:italy", horizontal), null);
+  assert.equal(getCountryChildBounds("country:united-states", []), null);
+  assert.equal(getCountryChildBounds("north-carolina", travelPlaces), null);
+  assert.equal(getCountryChildBounds("country:invented", travelPlaces), null);
+});
+
+test("wrapped child bounds use the small dateline extent instead of almost the whole world", () => {
+  assert.deepEqual(
+    getCoordinateBounds([
+      [179, 10],
+      [-179, 12],
+      [178, 11],
+    ]),
+    [
+      [178, 10],
+      [181, 12],
+    ],
+  );
+  assert.deepEqual(
+    getCoordinateBounds([
+      [-179, 12],
+      [178, 11],
+      [179, 10],
+    ]),
+    [
+      [178, 10],
+      [181, 12],
+    ],
+  );
+  assert.deepEqual(
+    getCoordinateBounds([
+      [181, 5],
+      [-179, 5],
+    ]),
+    [
+      [-179, 5],
+      [-179, 5],
+    ],
+  );
+  assert.deepEqual(
+    getCoordinateBounds([
+      [180, 1],
+      [-180, 2],
+    ]),
+    [
+      [-180, 1],
+      [-180, 2],
+    ],
+  );
+  assert.equal(getCoordinateBounds([]), null);
+});
+
+test("unknown future photos retain country reference without inflating verified child bounds", () => {
+  const norway = travelPlaces.find((place) => place.id === "norway")!;
+  const unknown = { ...norway.photos[0], src: "/photos/new-unlocated.webp" };
+  const reference = countryLabels.features.find(
+    (entry) => entry.properties.id === "NOR",
+  )!.geometry.coordinates;
+  const onlyUnknown = [{ ...norway, photos: [unknown] }];
+  assert.equal(getCountryChildBounds("country:norway", onlyUnknown), null);
+  assert.deepEqual(
+    getMapNode("country:norway", onlyUnknown)?.coordinates,
+    reference,
+  );
+  assert.match(
+    getMapNode("country:norway", onlyUnknown)!.referenceLabel,
+    /no verified photo locations/,
+  );
+  assert.deepEqual(
+    getMapNode("location:norway-unlocated", onlyUnknown)?.coordinates,
+    reference,
+  );
+  const mixed = [{ ...norway, photos: [norway.photos[0], unknown] }];
+  assert.deepEqual(getCountryChildBounds("country:norway", mixed), [
+    [18.96, 69.65],
+    [18.96, 69.65],
+  ]);
+  assert.deepEqual(
+    getMapNode("country:norway", mixed)?.coordinates,
+    [18.96, 69.65],
+  );
+  assert.equal(getMapNode("country:norway", mixed)?.photoCount, 2);
+  assert.match(
+    getMapNode("country:norway", mixed)!.referenceLabel,
+    /unknown photo locations excluded/,
+  );
+  assert.equal(
+    getMapNode("location:norway-unlocated", mixed)?.precision,
+    "unknown",
+  );
 });
 
 test("regional memberships distinguish the Dolomites, Tromsø, Lofoten and Raleigh", () => {

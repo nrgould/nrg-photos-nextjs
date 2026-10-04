@@ -1,25 +1,58 @@
 import { shuffleIndex, type TravelPlace } from "./places";
 
 export type PhotoOrientation = "any" | "horizontal" | "vertical";
+export type PhotoSubject = "all" | "places" | "people";
 export type MapFilters = {
   locationIds: string[];
   orientation: PhotoOrientation;
+  subject?: PhotoSubject;
 };
 
 export function defaultMapFilters(places: TravelPlace[]): MapFilters {
-  return { locationIds: places.map((place) => place.id), orientation: "any" };
+  return {
+    locationIds: places.map((place) => place.id),
+    orientation: "any",
+    subject: "all",
+  };
+}
+
+// Editorial subjects for the eleven map photographs, grounded in their existing
+// titles and alt text. New sources stay unclassified until explicitly reviewed.
+const photoSubjects: Readonly<Record<string, Exclude<PhotoSubject, "all">>> = {
+  "/photos/hallstatt-1.webp": "places",
+  "/photos/hallstatt-2.webp": "places",
+  "/photos/3_landscape_lago_di_braies.webp": "places",
+  "/photos/landscape_dolomites_seceda.webp": "places",
+  "/photos/landscape_dolomites_santa_magdalena.webp": "places",
+  "/photos/landscape_dolomites_cadini_di_misurina.webp": "places",
+  "/photos/landscape_sailboat_in_a_blizzard.webp": "places",
+  "/photos/landscape_lake_james.webp": "places",
+  "/photos/4_lifestyle_product_aileen_wearing_helly_hansen_jacket_lofoten_islands_norway.webp":
+    "people",
+  "/photos/lifestyle_portrait_emily_wearing_satila_beanie_lofoten_islands_norway.webp":
+    "people",
+  "/photos/portrait_ncsu_grad_photo_4.webp": "people",
+};
+
+export function getPhotoSubject(src: string) {
+  return photoSubjects[src];
 }
 
 export function filterPlaces(places: TravelPlace[], filters: MapFilters) {
   return places.flatMap((place) => {
     if (!filters.locationIds.includes(place.id)) return [];
-    const photos = place.photos.filter((photo) =>
-      filters.orientation === "any"
-        ? true
-        : filters.orientation === "horizontal"
+    const photos = place.photos.filter((photo) => {
+      const subjectMatches =
+        !filters.subject ||
+        filters.subject === "all" ||
+        getPhotoSubject(photo.src) === filters.subject;
+      const orientationMatches =
+        filters.orientation === "any" ||
+        (filters.orientation === "horizontal"
           ? photo.width > photo.height
-          : photo.height > photo.width,
-    );
+          : photo.height > photo.width);
+      return subjectMatches && orientationMatches;
+    });
     if (!photos.length) return [];
     return [
       photos.length === place.photos.length ? place : { ...place, photos },
@@ -30,8 +63,33 @@ export function filterPlaces(places: TravelPlace[], filters: MapFilters) {
 export function activeFilterCount(places: TravelPlace[], filters: MapFilters) {
   return (
     Number(places.some((place) => !filters.locationIds.includes(place.id))) +
-    Number(filters.orientation !== "any")
+    Number(filters.orientation !== "any") +
+    Number(Boolean(filters.subject && filters.subject !== "all"))
   );
+}
+
+/** Option counts respect the other facet, so they predict the next result set. */
+export function mapFilterFacetCounts(
+  places: TravelPlace[],
+  filters: MapFilters,
+) {
+  const count = (next: MapFilters) =>
+    filterPlaces(places, next).reduce(
+      (total, place) => total + place.photos.length,
+      0,
+    );
+  return {
+    subject: {
+      all: count({ ...filters, subject: "all" }),
+      places: count({ ...filters, subject: "places" }),
+      people: count({ ...filters, subject: "people" }),
+    },
+    orientation: {
+      any: count({ ...filters, orientation: "any" }),
+      horizontal: count({ ...filters, orientation: "horizontal" }),
+      vertical: count({ ...filters, orientation: "vertical" }),
+    },
+  };
 }
 
 export function retainSelection(

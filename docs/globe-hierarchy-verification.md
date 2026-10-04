@@ -1,3 +1,5 @@
+> Historical checkpoint. The October4 user-reported pan/filter/cluster regressions and their superseding verification are documented in [map-regression-verification.md](map-regression-verification.md).
+
 # Globe and location hierarchy checkpoint
 
 The fixed long diagonal thumbnail offsets in the supplied screenshots made pins look geographically displaced. Markers now retain true geographic anchors and use short callouts (28px normally, under 40px diagonally), with deterministic collision relaxation. The 48px photo targets remain separate in the verified Alpine and small-globe cases. Secondary labels choose an unobstructed side or defer to hover/focus; accessible names always retain location and count.

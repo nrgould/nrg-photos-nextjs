@@ -149,6 +149,72 @@ function countryCoordinates(country: CountryReference): [number, number] {
   return [feature.geometry.coordinates[0], feature.geometry.coordinates[1]];
 }
 
+export type MapChildBounds = [[number, number], [number, number]];
+
+/** Shortest wrapped longitude extent; east may exceed 180 across the dateline. */
+export function getCoordinateBounds(
+  coordinates: readonly (readonly [number, number])[],
+): MapChildBounds | null {
+  if (!coordinates.length) return null;
+  const longitude = (value: number) =>
+    value >= -180 && value < 180
+      ? value
+      : ((((value + 180) % 360) + 360) % 360) - 180;
+  const longitudes = coordinates
+    .map(([value]) => longitude(value))
+    .sort((a, b) => a - b);
+  let gapIndex = 0;
+  let largestGap = -1;
+  for (let index = 0; index < longitudes.length; index++) {
+    const next =
+      index === longitudes.length - 1
+        ? longitudes[0] + 360
+        : longitudes[index + 1];
+    const gap = next - longitudes[index];
+    if (gap > largestGap) {
+      largestGap = gap;
+      gapIndex = index;
+    }
+  }
+  const west = longitudes[(gapIndex + 1) % longitudes.length];
+  const east =
+    longitudes[gapIndex] < west
+      ? longitudes[gapIndex] + 360
+      : longitudes[gapIndex];
+  return [
+    [west, Math.min(...coordinates.map(([, latitude]) => latitude))],
+    [east, Math.max(...coordinates.map(([, latitude]) => latitude))],
+  ];
+}
+
+/** Eligible regional children only: country and unknown-location references do not fit the camera. */
+export function getCountryChildBounds(
+  countryId: string,
+  places: TravelPlace[],
+): MapChildBounds | null {
+  const country = countries.find((entry) => entry.id === countryId);
+  if (!country) return null;
+  const place = places.find((entry) => entry.id === country.collectionId);
+  if (!place?.photos.length) return null;
+  return getCoordinateBounds(
+    locations
+      .filter(
+        (reference) =>
+          reference.collectionId === country.collectionId &&
+          place.photos.some((photo) => reference.photoSrcs.includes(photo.src)),
+      )
+      .map((reference) => reference.coordinates),
+  );
+}
+
+function boundsCenter(bounds: MapChildBounds): [number, number] {
+  const longitude = (bounds[0][0] + bounds[1][0]) / 2;
+  return [
+    longitude >= 180 ? longitude - 360 : longitude,
+    (bounds[0][1] + bounds[1][1]) / 2,
+  ];
+}
+
 /** Derive every marker, count and cover from the same already-filtered collections. */
 export function getMapNodes(
   places: TravelPlace[],
@@ -159,18 +225,31 @@ export function getMapNodes(
     if (!place?.photos.length) return [];
     const base = { collectionId: place.id, countryId: country.id };
     if (kind === "country") {
+      const bounds = getCountryChildBounds(country.id, places);
+      const knownPhotoSrcs = new Set(
+        locations
+          .filter((reference) => reference.collectionId === place.id)
+          .flatMap((reference) => reference.photoSrcs),
+      );
+      const hasUnknownLocations = place.photos.some(
+        (photo) => !knownPhotoSrcs.has(photo.src),
+      );
       return [
         {
           ...base,
           id: country.id,
           kind,
           label: country.label,
-          coordinates: countryCoordinates(country),
+          coordinates: bounds
+            ? boundsCenter(bounds)
+            : countryCoordinates(country),
           photos: [...place.photos],
           photoCount: place.photos.length,
           cover: place.photos[0],
           precision: "country",
-          referenceLabel: `${country.label} country reference`,
+          referenceLabel: bounds
+            ? `${country.label} photographed-region cluster reference${hasUnknownLocations ? " · unknown photo locations excluded" : ""}`
+            : `${country.label} country reference · no verified photo locations`,
         } satisfies MapNode,
       ];
     }

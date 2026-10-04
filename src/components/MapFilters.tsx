@@ -1,16 +1,22 @@
 "use client";
 
-import { useId, useState, type RefObject } from "react";
-import { Checkbox } from "@base-ui/react/checkbox";
-import { Radio } from "@base-ui/react/radio";
-import { RadioGroup } from "@base-ui/react/radio-group";
-import { Check, SlidersHorizontal } from "lucide-react";
+import { useId, useRef, useState, type RefObject } from "react";
+import { SlidersHorizontal } from "lucide-react";
 import type { TravelPlace } from "@/lib/places";
 import type {
   MapFilters as FilterState,
   PhotoOrientation,
+  PhotoSubject,
 } from "@/lib/map-filters";
+import { mapFilterFacetCounts } from "@/lib/map-filters";
 import { Button } from "./ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import {
   Popover,
   PopoverContent,
@@ -20,9 +26,15 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 const orientations: { value: PhotoOrientation; label: string }[] = [
-  { value: "any", label: "Any" },
+  { value: "any", label: "All formats" },
   { value: "horizontal", label: "Horizontal" },
   { value: "vertical", label: "Vertical" },
+];
+
+const subjects: { value: PhotoSubject; label: string }[] = [
+  { value: "all", label: "All photos" },
+  { value: "places", label: "Places & landscapes" },
+  { value: "people", label: "People" },
 ];
 
 export default function MapFilters({
@@ -49,6 +61,8 @@ export default function MapFilters({
   triggerRef: RefObject<HTMLButtonElement | null>;
 }) {
   const id = useId();
+  const subjectTriggerRef = useRef<HTMLButtonElement>(null);
+  const counts = mapFilterFacetCounts(places, value);
   const [keyboardInteraction, setKeyboardInteraction] = useState(false);
   return (
     <Popover
@@ -100,64 +114,92 @@ export default function MapFilters({
       >
         <div className="map-filter-heading">
           <PopoverTitle>Filter photographs</PopoverTitle>
-          <Button variant="quiet" onClick={onClear} disabled={!activeCount}>
+          <Button
+            variant="quiet"
+            onClick={() => {
+              onClear();
+              requestAnimationFrame(() => subjectTriggerRef.current?.focus());
+            }}
+            disabled={!activeCount}
+          >
             Clear all
           </Button>
         </div>
         <div className="map-filter-options">
-          <fieldset>
-            <legend>Locations</legend>
-            {places.map((place) => (
-              <label className="map-filter-location" key={place.id}>
-                <Checkbox.Root
-                  className="map-filter-checkbox"
-                  checked={value.locationIds.includes(place.id)}
-                  onCheckedChange={(checked) =>
-                    onChange({
-                      ...value,
-                      locationIds: checked
-                        ? [...value.locationIds, place.id]
-                        : value.locationIds.filter(
-                            (location) => location !== place.id,
-                          ),
-                    })
-                  }
-                >
-                  <Checkbox.Indicator>
-                    <Check size={14} />
-                  </Checkbox.Indicator>
-                </Checkbox.Root>
-                <span>{place.name}</span>
-              </label>
-            ))}
-          </fieldset>
-          <fieldset>
-            <legend id={`${id}-orientation`}>Orientation</legend>
-            <RadioGroup<PhotoOrientation>
-              className="map-filter-orientation"
-              aria-labelledby={`${id}-orientation`}
-              value={value.orientation}
-              onValueChange={(orientation) =>
-                onChange({ ...value, orientation })
-              }
+          <div className="map-filter-field">
+            <label id={`${id}-subject`} htmlFor={`${id}-subject-control`}>
+              Subject
+            </label>
+            <Select<PhotoSubject>
+              items={subjects}
+              value={value.subject ?? "all"}
+              modal={false}
+              onValueChange={(subject) => {
+                if (subject) onChange({ ...value, subject });
+              }}
             >
-              {orientations.map((orientation) => (
-                <Radio.Root
-                  key={orientation.value}
-                  className="map-filter-radio"
-                  value={orientation.value}
-                  aria-label={orientation.label}
-                >
-                  {orientation.label}
-                </Radio.Root>
-              ))}
-            </RadioGroup>
-          </fieldset>
+              <SelectTrigger
+                ref={subjectTriggerRef}
+                id={`${id}-subject-control`}
+                aria-labelledby={`${id}-subject`}
+                className="map-filter-select"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent
+                alignItemWithTrigger={false}
+                className="map-filter-select-menu explorer-overlay data-open:animate-none data-closed:animate-none"
+              >
+                {subjects.map((subject) => (
+                  <SelectItem key={subject.value} value={subject.value}>
+                    <span>{subject.label}</span>
+                    <span className="map-filter-option-count">
+                      {counts.subject[subject.value]}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="map-filter-field">
+            <label id={`${id}-orientation`} htmlFor={`${id}-format-control`}>
+              Format
+            </label>
+            <Select<PhotoOrientation>
+              items={orientations}
+              value={value.orientation}
+              modal={false}
+              onValueChange={(orientation) => {
+                if (orientation) onChange({ ...value, orientation });
+              }}
+            >
+              <SelectTrigger
+                id={`${id}-format-control`}
+                aria-labelledby={`${id}-orientation`}
+                className="map-filter-select"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent
+                alignItemWithTrigger={false}
+                className="map-filter-select-menu explorer-overlay data-open:animate-none data-closed:animate-none"
+              >
+                {orientations.map((orientation) => (
+                  <SelectItem key={orientation.value} value={orientation.value}>
+                    <span>{orientation.label}</span>
+                    <span className="map-filter-option-count">
+                      {counts.orientation[orientation.value]}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <div className="map-filter-footer">
           <p>
             {photoCount === 0
-              ? "No photographs match these filters"
+              ? "No matching photos"
               : `${photoCount} ${photoCount === 1 ? "photograph" : "photographs"} · ${locationCount} ${locationCount === 1 ? "location" : "locations"}`}
           </p>
           <Button variant="control" onClick={() => onOpenChange(false)}>

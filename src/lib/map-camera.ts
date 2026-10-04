@@ -26,36 +26,113 @@ function interpolateZoom(value: number, input: 0 | 1) {
 export const engineZoom = (scale: number) => interpolateZoom(scale, 0);
 export const uiZoom = (zoom: number) => interpolateZoom(zoom, 1);
 
-// The default Mercator viewport-height minimum otherwise traps tall screens above the globe stop.
+export type ProjectionMode = "globe" | "map";
+export const projectionStateKey = "photoProjectionMix";
+export const projectionDuration = 0.24;
+
+/** MapLibre preserves globe radius by changing raw zoom as the center latitude changes. */
+export function globeLatitudeZoom(latitude: number) {
+  return Math.log2(
+    Math.cos((Math.max(-85, Math.min(85, latitude)) * Math.PI) / 180),
+  );
+}
+export function apparentZoom(rawZoom: number, latitude: number, mix: number) {
+  return rawZoom - (1 - mix) * globeLatitudeZoom(latitude);
+}
+export function cameraZoom(scale: number, latitude: number, mix: number) {
+  return scale + (1 - mix) * globeLatitudeZoom(latitude);
+}
+export function settleProjection(
+  rawZoom: number,
+  latitude: number,
+  mix: number,
+) {
+  const scale = Math.max(0, apparentZoom(rawZoom, latitude, mix));
+  const endpoint = mix < 0.5 ? 0 : 1;
+  return {
+    mode: endpoint === 0 ? ("globe" as const) : ("map" as const),
+    mix: endpoint,
+    scale,
+    zoom: cameraZoom(scale, latitude, endpoint),
+  };
+}
+export function projectionMode(
+  scale: number,
+  previous: ProjectionMode,
+): ProjectionMode {
+  if (previous === "globe" && scale >= 0.9) return "map";
+  if (previous === "map" && scale <= 0.6) return "globe";
+  return previous;
+}
+export function isZoomInput(
+  event:
+    { type: string; key?: string; touches?: { length: number } } | undefined,
+  scrollZooming = false,
+) {
+  // The delayed single-wheel path omits originalEvent; a known pan event never qualifies.
+  if (!event) return scrollZooming;
+  if (event.type === "wheel" || event.type === "dblclick") return true;
+  if (event.type === "keydown")
+    return ["+", "=", "-", "_"].includes(event.key ?? "");
+  return event.type === "touchmove" && (event.touches?.length ?? 0) >= 2;
+}
+
+/** Every end consumes the gesture, including an end caused by a camera interruption. */
+export function takeZoomIntent(intent: { active: boolean }) {
+  const active = intent.active;
+  intent.active = false;
+  return active;
+}
+
+export function isFlatFloorZoomOut(
+  delta: number,
+  zoom: number,
+  mix: number,
+  mode: ProjectionMode,
+) {
+  return delta > 0 && mode === "map" && mix === 1 && zoom <= 0.0001;
+}
+
+// Keep the native latitude-adjusted globe minimum, without Mercator's viewport-height floor.
 export function constrainCamera(
   center: { lng: number; lat: number },
   zoom: number,
+  mix = 1,
+  destination: ProjectionMode = mix === 0 ? "globe" : "map",
 ) {
+  const latitude = Math.max(-85, Math.min(85, center.lat));
   return {
     longitude: center.lng,
-    latitude: Math.max(-85, Math.min(85, center.lat)),
-    zoom: Math.max(0, Math.min(12, zoom)),
+    latitude,
+    // Mercator's camera helper constrains the animation target before the first blend frame.
+    zoom: Math.max(
+      cameraZoom(0, latitude, destination === "globe" ? 0 : mix),
+      Math.min(12, zoom),
+    ),
   };
 }
 
-// One transform owns both projections, including the intermediate pinch frames.
+// One native transform; explicit intent animates this state, never latitude-dependent raw zoom.
 export const continuousProjection: NonNullable<
   StyleSpecification["projection"]
 > = {
   type: [
     "interpolate",
     ["linear"],
-    ["zoom"],
+    ["number", ["global-state", projectionStateKey], 0],
     0,
     "vertical-perspective",
-    engineZoom(1),
+    1,
     "mercator",
   ],
 };
 
 export type MarkerLevel = "country" | "location";
-export function markerLevel(zoom: number, previous: MarkerLevel): MarkerLevel {
-  const threshold = engineZoom(3);
+export function markerLevel(
+  zoom: number,
+  previous: MarkerLevel,
+  threshold = engineZoom(3),
+): MarkerLevel {
   if (previous === "country" && zoom >= threshold + 0.12) return "location";
   if (previous === "location" && zoom < threshold - 0.12) return "country";
   return previous;
@@ -63,64 +140,6 @@ export function markerLevel(zoom: number, previous: MarkerLevel): MarkerLevel {
 
 type ScreenAnchor = { id: string; x: number; y: number; priority?: boolean };
 export type MarkerOffset = { x: number; y: number };
-
-const candidates: readonly MarkerOffset[] = [
-  { x: 0, y: -28 },
-  { x: 0, y: 28 },
-  { x: -28, y: 0 },
-  { x: 28, y: 0 },
-  { x: -28, y: -28 },
-  { x: 28, y: -28 },
-  { x: -28, y: 28 },
-  { x: 28, y: 28 },
-];
-
-/** Screen-space callouts never alter the geographic anchor or native occlusion. */
-export function markerOffsets(
-  anchors: readonly ScreenAnchor[],
-  viewport: { width: number; height: number },
-): Map<string, MarkerOffset> {
-  const result = new Map<string, MarkerOffset>();
-  const placed = new Map<string, { x: number; y: number }>();
-  const sorted = [...anchors].sort(
-    (a, b) =>
-      Number(Boolean(b.priority)) - Number(Boolean(a.priority)) ||
-      a.id.localeCompare(b.id),
-  );
-  function place(anchor: ScreenAnchor) {
-    let best = candidates[0];
-    let lowest = Infinity;
-    for (const offset of candidates) {
-      const x = anchor.x + offset.x;
-      const y = anchor.y + offset.y;
-      let overlap = 0;
-      for (const [id, other] of placed) {
-        if (id !== anchor.id)
-          overlap +=
-            Math.max(0, 52 - Math.abs(x - other.x)) *
-            Math.max(0, 52 - Math.abs(y - other.y));
-      }
-      const outside =
-        Math.max(0, 26 - x) +
-        Math.max(0, x + 26 - viewport.width) +
-        Math.max(0, 26 - y) +
-        Math.max(0, y + 26 - viewport.height);
-      const score =
-        overlap * 100 + outside * 1000 + Math.hypot(offset.x, offset.y);
-      if (score < lowest) {
-        lowest = score;
-        best = offset;
-      }
-    }
-    result.set(anchor.id, best);
-    placed.set(anchor.id, { x: anchor.x + best.x, y: anchor.y + best.y });
-  }
-  for (const anchor of sorted) place(anchor);
-  // Relax early choices after all neighbors are known, keeping every leader under 40px.
-  for (let pass = 0; pass < 2; pass++)
-    for (const anchor of sorted) place(anchor);
-  return result;
-}
 
 export function markerLabels(
   anchors: readonly ScreenAnchor[],

@@ -8,30 +8,193 @@ import {
 } from "@maplibre/maplibre-gl-style-spec";
 import {
   continuousProjection,
+  apparentZoom,
+  cameraZoom,
   constrainCamera,
   engineZoom,
   markerLevel,
-  markerOffsets,
+  isZoomInput,
+  isFlatFloorZoomOut,
+  projectionMode,
+  projectionStateKey,
+  takeZoomIntent,
+  settleProjection,
   uiZoom,
 } from "../src/lib/map-camera";
-import { getMapNodes } from "../src/lib/map-hierarchy";
-import { travelPlaces } from "../src/lib/places";
 
-test("MapLibre evaluates globe, intermediate projection, and flat World states", () => {
+test("MapLibre projection follows explicit state, independent of raw zoom and latitude compensation", () => {
+  const state = { [projectionStateKey]: 0 };
   const parsed = expression.createPropertyExpression(
     continuousProjection.type,
     "projection",
     latest.projection.type as StylePropertySpecification,
+    state,
   );
   assert.equal(parsed.result, "success");
   if (parsed.result !== "success") return;
   assert.equal(parsed.value.evaluate({ zoom: 0 }), "vertical-perspective");
-  const intermediate = parsed.value.evaluate({ zoom: 0.5 });
+  for (const zoom of [-3, 0, 0.5, 1, 5])
+    assert.equal(parsed.value.evaluate({ zoom }), "vertical-perspective");
+  state[projectionStateKey] = 0.5;
+  const intermediate = parsed.value.evaluate({ zoom: 5 });
   assert.ok(intermediate instanceof ProjectionDefinition);
   assert.equal(intermediate.from, "vertical-perspective");
   assert.equal(intermediate.to, "mercator");
   assert.equal(intermediate.transition, 0.5);
-  assert.equal(parsed.value.evaluate({ zoom: engineZoom(1) }), "mercator");
+  state[projectionStateKey] = 1;
+  for (const zoom of [-3, 0, 0.5, 1, 5])
+    assert.equal(parsed.value.evaluate({ zoom }), "mercator");
+  state[projectionStateKey] = 0;
+  assert.equal(parsed.value.evaluate({ zoom: 5 }), "vertical-perspective");
+});
+
+test("a latitude round trip preserves apparent sphere size and never crosses projection intent", () => {
+  let rawZoom = 0;
+  let latitude = 0;
+  let mode: "globe" | "map" = "globe";
+  for (const nextLatitude of [20, 47, 80, -80, 30, 0]) {
+    // Native globe panning multiplies scale by cos(new latitude) / cos(old latitude).
+    rawZoom += Math.log2(
+      Math.cos((nextLatitude * Math.PI) / 180) /
+        Math.cos((latitude * Math.PI) / 180),
+    );
+    latitude = nextLatitude;
+    const constrained = constrainCamera(
+      { lng: 370, lat: latitude },
+      rawZoom,
+      0,
+    );
+    const normalized = apparentZoom(constrained.zoom, latitude, 0);
+    assert.ok(Math.abs(normalized) < 1e-10);
+    mode = projectionMode(normalized, mode);
+    assert.equal(mode, "globe");
+    assert.equal(constrained.longitude, 370);
+    const radius =
+      (512 * 2 ** constrained.zoom) /
+      (2 * Math.PI * Math.cos((latitude * Math.PI) / 180));
+    assert.ok(Math.abs(radius - 512 / (2 * Math.PI)) < 1e-8);
+  }
+});
+
+test("globe limits compensate latitude while flat limits retain world wrapping", () => {
+  for (const latitude of [-85, -60, 0, 60, 85]) {
+    const zoom = cameraZoom(0, latitude, 0);
+    assert.equal(
+      constrainCamera({ lng: -730, lat: latitude }, zoom, 0).zoom,
+      zoom,
+    );
+    assert.equal(
+      constrainCamera({ lng: -730, lat: latitude }, -10, 0).zoom,
+      zoom,
+    );
+    assert.equal(constrainCamera({ lng: -730, lat: latitude }, -10, 1).zoom, 0);
+    assert.ok(
+      Math.abs(
+        apparentZoom(cameraZoom(0.8, latitude, 0.35), latitude, 0.35) - 0.8,
+      ) < 1e-10,
+    );
+  }
+});
+
+test("explicit zoom-out at the flat floor returns to globe without intercepting zoom-in or a blend", () => {
+  assert.equal(isFlatFloorZoomOut(100, 0, 1, "map"), true);
+  assert.equal(isFlatFloorZoomOut(-100, 0, 1, "map"), false);
+  assert.equal(isFlatFloorZoomOut(0, 0, 1, "map"), false);
+  assert.equal(isFlatFloorZoomOut(100, 0.2, 1, "map"), false);
+  assert.equal(isFlatFloorZoomOut(100, 0, 0.99, "map"), false);
+  assert.equal(isFlatFloorZoomOut(100, 0, 0, "globe"), false);
+});
+
+test("globe destination admits a negative raw target before the first blend frame and restores flat floor on interruption", () => {
+  const latitude = 80;
+  const target = cameraZoom(0, latitude, 0);
+  assert.equal(
+    constrainCamera({ lng: 0, lat: latitude }, target, 1, "globe").zoom,
+    target,
+  );
+  assert.equal(
+    constrainCamera({ lng: 0, lat: latitude }, target, 1, "map").zoom,
+    0,
+  );
+});
+
+test("projection intent has hysteresis and ignores drag, inertia, and arrow-key pan events", () => {
+  assert.equal(projectionMode(0.89, "globe"), "globe");
+  assert.equal(projectionMode(0.9, "globe"), "map");
+  assert.equal(projectionMode(0.61, "map"), "map");
+  assert.equal(projectionMode(0.6, "map"), "globe");
+  for (const type of ["mousemove", "mouseup", "touchend", "pointermove"])
+    assert.equal(isZoomInput({ type }), false);
+  assert.equal(isZoomInput({ type: "keydown", key: "ArrowUp" }), false);
+  assert.equal(
+    isZoomInput({ type: "touchmove", touches: { length: 1 } }),
+    false,
+  );
+  assert.equal(
+    isZoomInput({ type: "touchmove", touches: { length: 2 } }),
+    true,
+  );
+  assert.equal(isZoomInput({ type: "wheel" }), true);
+  assert.equal(isZoomInput({ type: "keydown", key: "+" }), true);
+});
+
+test("event-less wheel completion consumes intent once; cancellation prevents a later pan consuming it", () => {
+  const intent = { active: false };
+  // MapLibre's delayed isolated wheel omits originalEvent even on zoomstart.
+  intent.active = isZoomInput(undefined, true);
+  assert.equal(takeZoomIntent(intent), true);
+  assert.equal(takeZoomIntent(intent), false);
+
+  intent.active = isZoomInput({ type: "wheel" });
+  // Explicit camera requests and new pointer gestures cancel before native stop/end events.
+  intent.active = false;
+  assert.equal(takeZoomIntent(intent), false);
+  assert.equal(isZoomInput({ type: "mouseup" }), false);
+  assert.equal(isZoomInput({ type: "mouseup" }, true), false);
+  assert.equal(isZoomInput({ type: "keydown", key: "ArrowUp" }, true), false);
+  assert.equal(isZoomInput(undefined, false), false);
+  assert.equal(takeZoomIntent(intent), false);
+  intent.active = isZoomInput({ type: "touchmove", touches: { length: 2 } });
+  assert.equal(takeZoomIntent(intent), true);
+  assert.equal(takeZoomIntent(intent), false);
+});
+
+test("interrupting either projection direction preserves apparent zoom through subsequent latitude pans", () => {
+  for (const latitude of [-80, -60, 0, 60, 80]) {
+    for (const mix of [0.01, 0.49, 0.51, 0.99]) {
+      const scale = 0.8;
+      const settled = settleProjection(
+        cameraZoom(scale, latitude, mix),
+        latitude,
+        mix,
+      );
+      assert.ok(Math.abs(settled.scale - scale) < 1e-10);
+      assert.ok(
+        Math.abs(apparentZoom(settled.zoom, latitude, settled.mix) - scale) <
+          1e-10,
+      );
+      let rawZoom = settled.zoom;
+      let previousLatitude = latitude;
+      for (const nextLatitude of [30, -30, 75, latitude]) {
+        if (settled.mode === "globe")
+          rawZoom += Math.log2(
+            Math.cos((nextLatitude * Math.PI) / 180) /
+              Math.cos((previousLatitude * Math.PI) / 180),
+          );
+        previousLatitude = nextLatitude;
+        const camera = constrainCamera(
+          { lng: 370, lat: nextLatitude },
+          rawZoom,
+          settled.mix,
+        );
+        assert.ok(
+          Math.abs(
+            apparentZoom(camera.zoom, nextLatitude, settled.mix) - scale,
+          ) < 1e-10,
+        );
+      }
+    }
+  }
 });
 
 test("slider stops reach geographic detail and remain invertible between stops", () => {
@@ -59,82 +222,15 @@ test("regional breakout has hysteresis during small pinch changes", () => {
   assert.equal(markerLevel(threshold + 0.05, "country"), "country");
   assert.equal(markerLevel(threshold - 0.05, "location"), "location");
   assert.equal(markerLevel(threshold - 0.13, "location"), "country");
-});
-
-test("nearby Alpine markers separate their hit targets while retaining close geographic callouts", () => {
-  const anchors = [
-    { id: "austria", x: 180, y: 200 },
-    { id: "italy", x: 177, y: 209 },
-  ];
-  const offsets = markerOffsets(anchors, { width: 390, height: 800 });
-  const a = offsets.get("austria")!;
-  const b = offsets.get("italy")!;
-  assert.ok(Math.abs(anchors[0].y + a.y - anchors[1].y - b.y) >= 52);
-  for (const offset of offsets.values())
-    assert.ok(Math.hypot(offset.x, offset.y) < 40);
-  assert.deepEqual(
-    markerOffsets([...anchors].reverse(), { width: 390, height: 800 }),
-    offsets,
+  const fittedZoom = 3.2;
+  const fittedThreshold = fittedZoom - 0.2;
+  assert.equal(markerLevel(fittedZoom, "country", fittedThreshold), "location");
+  assert.equal(
+    markerLevel(fittedZoom - 0.25, "location", fittedThreshold),
+    "location",
   );
-});
-
-test("collision placement respects priority and viewport edges without mutating anchors", () => {
-  const anchors = [
-    { id: "a", x: 50, y: 30 },
-    { id: "b", x: 55, y: 30, priority: true },
-  ];
-  const original = structuredClone(anchors);
-  const offsets = markerOffsets(anchors, { width: 390, height: 800 });
-  assert.deepEqual(offsets.get("b"), { x: 0, y: 28 });
-  assert.deepEqual(anchors, original);
-  assert.equal(markerOffsets([], { width: 390, height: 800 }).size, 0);
-});
-
-test("three nearby European country stacks keep 48px targets apart on a small globe", () => {
-  const anchors = [
-    { id: "austria", x: 400, y: 125 },
-    { id: "italy", x: 397, y: 130 },
-    { id: "norway", x: 398, y: 112 },
-  ];
-  const offsets = markerOffsets(anchors, { width: 842, height: 390 });
-  const centers = anchors.map((anchor) => ({
-    x: anchor.x + offsets.get(anchor.id)!.x,
-    y: anchor.y + offsets.get(anchor.id)!.y,
-  }));
-  for (let a = 0; a < centers.length; a++)
-    for (let b = a + 1; b < centers.length; b++) {
-      assert.ok(
-        Math.abs(centers[a].x - centers[b].x) >= 48 ||
-          Math.abs(centers[a].y - centers[b].y) >= 48,
-      );
-    }
-});
-
-test("verified Dolomites nodes remain separately tappable at country-click zoom", () => {
-  const worldSize = 512 * 2 ** engineZoom(3.5);
-  const mercatorY = (latitude: number) =>
-    Math.log(Math.tan(Math.PI / 4 + (latitude * Math.PI) / 360));
-  const anchors = getMapNodes(travelPlaces, "location")
-    .filter((node) => node.collectionId === "italy")
-    .map((node) => ({
-      id: node.id,
-      x: 195 + ((node.coordinates[0] - 12.08) / 360) * worldSize,
-      y:
-        300 -
-        ((mercatorY(node.coordinates[1]) - mercatorY(46.7)) / (2 * Math.PI)) *
-          worldSize,
-    }));
-  const offsets = markerOffsets(anchors, { width: 390, height: 844 });
-  const centers = anchors.map((anchor) => ({
-    x: anchor.x + offsets.get(anchor.id)!.x,
-    y: anchor.y + offsets.get(anchor.id)!.y,
-  }));
-  assert.equal(centers.length, 4);
-  for (let a = 0; a < centers.length; a++)
-    for (let b = a + 1; b < centers.length; b++) {
-      assert.ok(
-        Math.abs(centers[a].x - centers[b].x) >= 48 ||
-          Math.abs(centers[a].y - centers[b].y) >= 48,
-      );
-    }
+  assert.equal(
+    markerLevel(fittedZoom - 0.4, "location", fittedThreshold),
+    "country",
+  );
 });
