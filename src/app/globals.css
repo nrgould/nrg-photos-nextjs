@@ -2935,6 +2935,36 @@ html[data-photo-theme="dark"] {
     margin: 0 0 16px;
     font-size: 20px;
   }
+  .account-dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-right: -12px;
+  }
+  .account-dialog-header h2 {
+    font-size: 20px;
+  }
+  .account-dialog-header button {
+    width: 44px;
+    height: 44px;
+    justify-content: center;
+  }
+  .account-dialog-sent {
+    margin-top: 4px;
+    color: var(--muted-foreground);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+  }
+  .account-dialog-sent strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .account-dialog-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 16px;
+  }
   .location-search [cmdk-root] {
     background: var(--paper);
     color: var(--ink);
@@ -3642,9 +3672,34 @@ html[data-photo-theme="dark"] {
     padding: 0 8px;
     font-size: 12px;
   }
-  .explorer .explorer-top > .explorer-account-trigger {
+  .explorer .explorer-top [data-slot="button-group"],
+  .explorer .explorer-utilities {
+    border-radius: 11px;
+    box-shadow: 0 3px 14px var(--surface-shadow);
+  }
+  /* Counts sit inline so they stay inside the attached group. */
+  .explorer .explorer-top .explorer-count-trigger:has(> span),
+  .explorer .explorer-top .explorer-account-trigger {
     width: auto;
     min-width: 44px;
+    padding: 0 12px;
+    gap: 6px;
+  }
+  .explorer-count-trigger > span {
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  /* Theme and contact: bottom-left, riding the phone drawer with the command bar. */
+  .explorer .explorer-bottom-controls > .explorer-utilities {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    pointer-events: auto;
+  }
+  .explorer .explorer-utilities button {
+    width: 44px;
+    height: 44px;
+    padding: 0;
   }
   /* Phones: two clusters of 44px targets share 390px. */
   @media (max-width: 700px) {
@@ -3658,25 +3713,9 @@ html[data-photo-theme="dark"] {
     .explorer .map-toolbar > .explorer-presets-trigger {
       min-width: 0;
     }
-  }
-  .explorer-cart-trigger {
-    position: relative;
-  }
-  .explorer-cart-trigger > span {
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    display: grid;
-    place-items: center;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 4px;
-    border-radius: 999px;
-    background: var(--ink);
-    color: var(--paper);
-    font-size: 10px;
-    font-variant-numeric: tabular-nums;
-    pointer-events: none;
+    .explorer .explorer-top .explorer-account-trigger {
+      padding: 0;
+    }
   }
   .photo-drawer-header > .drawer-presets-link {
     width: auto;

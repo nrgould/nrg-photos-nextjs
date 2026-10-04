@@ -6,7 +6,6 @@ import { ArrowLeft, Check, Leaf, LockKeyhole } from "lucide-react";
 import {
   createExplorationProgress,
   explorationChallenges,
-  explorationLocations,
   getExplorationSummary,
   type ExplorationMoment,
   type ExplorationProgress,
@@ -242,22 +241,6 @@ export default function ExploreChallenges({
             max={summary.requiredCount}
             aria-label="Places explored toward the free preset"
           />
-          <ul className={styles.locations} aria-label="Places">
-            {explorationLocations.map((location) => {
-              const visited = progress.visitedLocationIds.includes(location.id);
-              return (
-                <li key={location.id} data-visited={visited}>
-                  <span className={styles.check} aria-hidden="true">
-                    {visited && <Check size={12} strokeWidth={2} />}
-                  </span>
-                  <span>{location.label}</span>
-                  <span className="sr-only">
-                    {visited ? ", explored" : ", not explored"}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
           <Item className={styles.row}>
             <ItemContent className={styles.rowContent}>
               <ItemTitle>Free preset</ItemTitle>

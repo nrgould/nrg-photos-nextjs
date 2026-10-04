@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 const Dialog = DialogPrimitive.Root;
 const DialogClose = DialogPrimitive.Close;
 const DialogTitle = DialogPrimitive.Title;
+const DialogDescription = DialogPrimitive.Description;
 
 // Full-screen dark surface for viewing photographs. Modals scale from center.
 function DialogContent({
@@ -38,4 +39,4 @@ function DialogContent({
   );
 }
 
-export { Dialog, DialogClose, DialogContent, DialogTitle };
+export { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle };

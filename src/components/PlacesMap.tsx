@@ -76,6 +76,18 @@ function colors() {
   };
 }
 // Country stacks split into places, and merge back, across this many px and ms.
+// The map area left visible by the photo drawer.
+function framePadding(width: number, height: number, canvasOpen: boolean) {
+  return {
+    top: 72,
+    left: 64,
+    right: canvasOpen && width > 700 ? 430 : 64,
+    bottom:
+      canvasOpen && width <= 700
+        ? Math.min(height * 0.5, Math.max(height * 0.25, 180)) + 40
+        : 72,
+  };
+}
 const splitTravel = 160;
 const splitDuration = 260;
 // OpenStreetMap land detail fades in from this engine zoom; state lines start at 3.5.
@@ -1078,15 +1090,7 @@ export default function PlacesMap(props: {
         : null;
     const framed = childBounds
       ? instance.cameraForBounds(childBounds, {
-          padding: {
-            top: 72,
-            left: 64,
-            right: canvasOpen && width > 700 ? 430 : 64,
-            bottom:
-              canvasOpen && width <= 700
-                ? Math.min(height * 0.5, Math.max(height * 0.25, 180)) + 40
-                : 72,
-          },
+          padding: framePadding(width, height, canvasOpen),
           maxZoom: toEngineZoom(3.5),
         })
       : undefined;
@@ -1095,17 +1099,72 @@ export default function PlacesMap(props: {
         toEngineZoom(breakoutScale),
         framed.zoom - 0.2,
       );
+    // Previous, next and shuffle pick a collection, not a marker: aim at what the map draws for it.
+    let aim: import("maplibre-gl").LngLatLike | undefined = center;
+    const stack =
+      recenter && !selectedNode && mode === "map"
+        ? allNodes.find(
+            (node) => node.kind === "country" && node.collectionId === selected,
+          )
+        : undefined;
+    if (stack && aim) {
+      const bounds = getCountryChildBounds(
+        stack.countryId,
+        latest.current.places,
+      );
+      if (
+        markerLevel(targetZoom, liveLevel.current, breakoutZoom.current) ===
+        "country"
+      )
+        aim = stack.coordinates;
+      else if (
+        bounds &&
+        (instance.cameraForBounds(bounds, {
+          padding: framePadding(width, height, canvasOpen),
+          maxZoom: targetZoom,
+        })?.zoom ?? 0) >=
+          targetZoom - 0.01
+      ) {
+        const middle = instance.cameraForBounds(bounds)?.center;
+        if (middle) aim = middle;
+      }
+    }
+    // Photos hang above their coordinates and spread apart in clusters. The zoom is
+    // unchanged, so offset by how far the selection's photos sit from their anchors now.
+    const shift: [number, number] = [0, 0];
+    if (recenter && !framed) {
+      const box = instance.getContainer().getBoundingClientRect();
+      const drawn = [...markers.current.values()].filter(
+        (entry) =>
+          !entry.exiting &&
+          (selectedNode
+            ? entry.node.id === selectedNode.id
+            : entry.node.collectionId === selected),
+      );
+      for (const entry of drawn) {
+        const photo = entry.marker
+          .getElement()
+          .querySelector(".map-photo-marker")
+          ?.getBoundingClientRect();
+        if (!photo) continue;
+        const anchor = instance.project(entry.marker.getLngLat());
+        shift[0] -=
+          (photo.x + photo.width / 2 - box.x - anchor.x) / drawn.length;
+        shift[1] -=
+          (photo.y + photo.height / 2 - box.y - anchor.y) / drawn.length;
+      }
+    }
     const settle = () =>
       instance.easeTo({
-        ...(framed ? { center: framed.center } : center ? { center } : {}),
+        ...(framed ? { center: framed.center } : aim ? { center: aim } : {}),
         zoom: framed?.zoom ?? targetZoom,
         // Selection offsets frame the drawer without leaving projection-dependent padding behind.
         offset:
-          !framed && center && canvasOpen
+          !framed && aim && canvasOpen
             ? width > 700
-              ? [-205, 0]
-              : [0, -height * 0.125]
-            : [0, 0],
+              ? [shift[0] - 205, shift[1]]
+              : [shift[0], shift[1] - height * 0.125]
+            : shift,
         duration: instant
           ? 0
           : projectionChanged

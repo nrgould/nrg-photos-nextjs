@@ -3,6 +3,7 @@
 import { useId, useRef, useState } from "react";
 import { ArrowLeft, LockKeyhole, ShoppingBag, X } from "lucide-react";
 import { getCatalogPreset } from "@/lib/preset-commerce";
+import { cn } from "@/lib/utils";
 import { BULK_DISCOUNT_MINIMUM, UNIT_PRICE_CENTS } from "@/lib/preset-cart";
 import {
   formatPresetPrice,
@@ -119,8 +120,11 @@ export default function PresetCartPanel({
                         {formatPresetPrice(UNIT_PRICE_CENTS)}
                       </span>
                       <Button
-                        variant="control"
-                        className={styles.add}
+                        variant="quiet"
+                        className={cn(
+                          styles.add,
+                          "justify-center hover:text-foreground hover:no-underline",
+                        )}
                         data-remove-preset="true"
                         onClick={() => {
                           removePreset(presetId);
@@ -136,7 +140,7 @@ export default function PresetCartPanel({
                         }}
                         aria-label={`Remove ${preset.name} from cart`}
                       >
-                        <X size={16} aria-hidden="true" />
+                        <X size={16} strokeWidth={1.5} aria-hidden="true" />
                       </Button>
                     </ItemActions>
                   </Item>

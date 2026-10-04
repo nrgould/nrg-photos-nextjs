@@ -73,6 +73,7 @@ import { nodeForPhoto, placeNode } from "@/lib/favorites";
 import { usePresetCart } from "./PresetCartProvider";
 import { usePresetCommerceBoundary } from "./CommerceCartProvider";
 import { AccountControl } from "./AccountControl";
+import { ButtonGroup } from "./ui/button-group";
 import {
   createPresetCatalogState,
   getCatalogPreset,
@@ -754,47 +755,39 @@ export default function PlacesExplorer({
     <TooltipProvider delay={500}>
       <h1 className="sr-only">Photographs on the map</h1>
       <div className="explorer-top" data-drawer-open={open}>
-        <Control label="Contact" onClick={() => setContact(true)}>
-          <Mail size={18} />
-        </Control>
-        <Control
-          label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
-          onClick={changeTheme}
-        >
-          {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
-        </Control>
-        <ExploreChallengesTrigger
-          progress={explorationProgress}
-          expanded={topView === "challenges"}
-          triggerRef={challengesTrigger}
-          onClick={() => openPage("challenges", challengesTrigger.current)}
-        />
-        <Button
-          ref={savedTrigger}
-          variant="control"
-          className="explorer-cart-trigger"
-          aria-label={`Open saved, ${savedCount} saved`}
-          aria-expanded={topView === "saved"}
-          onClick={(event) => openPage("saved", event.currentTarget)}
-        >
-          <Heart size={18} aria-hidden="true" />
-          {savedCount > 0 && <span aria-hidden="true">{savedCount}</span>}
-        </Button>
-        <Button
-          ref={cartTrigger}
-          variant="control"
-          className="explorer-cart-trigger"
-          aria-label={`Open cart, ${cartIds.length} ${cartIds.length === 1 ? "preset" : "presets"}`}
-          aria-expanded={topView === "cart"}
-          onClick={(event) => openPage("cart", event.currentTarget)}
-        >
-          <ShoppingBag size={18} aria-hidden="true" />
-          {cartIds.length > 0 && (
-            <span aria-hidden="true">{cartIds.length}</span>
-          )}
-        </Button>
-        {/* Phones have no room in the top bar; the drawer header holds account there. */}
-        <AccountControl className="explorer-account-trigger max-[700px]:hidden" />
+        <ButtonGroup aria-label="Your exploration">
+          <ExploreChallengesTrigger
+            progress={explorationProgress}
+            expanded={topView === "challenges"}
+            triggerRef={challengesTrigger}
+            onClick={() => openPage("challenges", challengesTrigger.current)}
+          />
+          <Button
+            ref={savedTrigger}
+            variant="control"
+            className="explorer-count-trigger"
+            aria-label={`Open saved, ${savedCount} saved`}
+            aria-expanded={topView === "saved"}
+            onClick={(event) => openPage("saved", event.currentTarget)}
+          >
+            <Heart size={18} aria-hidden="true" />
+            {savedCount > 0 && <span aria-hidden="true">{savedCount}</span>}
+          </Button>
+          <Button
+            ref={cartTrigger}
+            variant="control"
+            className="explorer-count-trigger"
+            aria-label={`Open cart, ${cartIds.length} ${cartIds.length === 1 ? "preset" : "presets"}`}
+            aria-expanded={topView === "cart"}
+            onClick={(event) => openPage("cart", event.currentTarget)}
+          >
+            <ShoppingBag size={18} aria-hidden="true" />
+            {cartIds.length > 0 && (
+              <span aria-hidden="true">{cartIds.length}</span>
+            )}
+          </Button>
+          <AccountControl className="explorer-account-trigger" />
+        </ButtonGroup>
       </div>
       <div className="explorer-workspace">
         <div className="map-workspace">
@@ -856,6 +849,17 @@ export default function PlacesExplorer({
           } as CSSProperties
         }
       >
+        <ButtonGroup orientation="vertical" className="explorer-utilities">
+          <Control
+            label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+            onClick={changeTheme}
+          >
+            {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
+          </Control>
+          <Control label="Contact" onClick={() => setContact(true)}>
+            <Mail size={18} />
+          </Control>
+        </ButtonGroup>
         <div className="explorer-command-bar" aria-label="Location navigation">
           <div className="travel-commands">
             <Control
