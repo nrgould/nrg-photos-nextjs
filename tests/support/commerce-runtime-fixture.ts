@@ -6,7 +6,11 @@ import type { ConfigurationResult } from "../../src/lib/server/commerce/config";
 async function main() {
   const hook = registerHooks({
     resolve(specifier, context, next) {
-      if (specifier === "stripe" || specifier.startsWith("@clerk/nextjs"))
+      if (
+        specifier === "stripe" ||
+        specifier === "postgres" ||
+        specifier.startsWith("@supabase/")
+      )
         throw new Error(
           `Unconfigured runtime attempted provider import: ${specifier}`,
         );
@@ -26,8 +30,8 @@ async function main() {
           origin: "https://photography.example",
           stripeSecretKey: "sk_test_fixture",
           webhookSecret: "whsec_fixture",
-          clerkSecretKey: "sk_test_fixture",
-          clerkPublishableKey: "pk_test_fixture",
+          supabaseUrl: "https://fixture.supabase.co",
+          supabasePublishableKey: "sb_publishable_fixture",
           priceIds: { "signature-01": "price_fixture" },
           bulkCouponId: "coupon_fixture",
         },

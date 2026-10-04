@@ -20,17 +20,17 @@ test("account UI configuration stays absent for disabled, partial, live or unsaf
   const env = {
     COMMERCE_MODE: "stripe-test",
     COMMERCE_ORIGIN: "https://photography.example",
-    CLERK_SECRET_KEY: "sk_test_fixture",
-    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_fixture",
+    NEXT_PUBLIC_SUPABASE_URL: "https://fixture.supabase.co",
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_fixture",
   };
   assert.equal(readAccountConfiguration({}), null);
   assert.equal(readAccountConfiguration(env)?.origin, env.COMMERCE_ORIGIN);
   for (const patch of [
     { COMMERCE_MODE: "live" },
     { COMMERCE_MODE: "disabled" },
-    { CLERK_SECRET_KEY: "" },
-    { CLERK_SECRET_KEY: "sk_live_fixture" },
-    { NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_live_fixture" },
+    { NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "" },
+    { NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "eyJ.legacy-anon" },
+    { NEXT_PUBLIC_SUPABASE_URL: "http://fixture.supabase.co" },
     { COMMERCE_ORIGIN: "http://public.example" },
     { COMMERCE_ORIGIN: "https://user:pass@photography.example" },
     { COMMERCE_ORIGIN: "https://photography.example/path" },

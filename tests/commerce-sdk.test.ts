@@ -15,8 +15,8 @@ const configuration: TestCommerceConfiguration = {
   origin: "https://photography.example",
   stripeSecretKey: "sk_test_fixture_not_a_credential",
   webhookSecret: "whsec_fixture_not_a_credential",
-  clerkSecretKey: "sk_test_fixture_not_a_credential",
-  clerkPublishableKey: "pk_test_fixture_not_a_credential",
+  supabaseUrl: "https://fixture.supabase.co",
+  supabasePublishableKey: "sb_publishable_fixture_not_a_credential",
   priceIds: { "signature-01": "price_fixture" },
   bulkCouponId: "coupon_fixture",
 };

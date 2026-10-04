@@ -1,20 +1,72 @@
 "use client";
-import { createContext, useContext, type ReactNode } from "react";
-import { ClerkProvider, useAuth } from "@clerk/nextjs";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+import { createBrowserClient } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
-const AccountSession = createContext<{
+type Account = {
   enabled: boolean;
+  /** undefined while the stored session is still loading. */
   userId: string | null | undefined;
   sessionId: string | null | undefined;
-}>({ enabled: false, userId: null, sessionId: null });
-function ConfiguredSession({ children }: { children: ReactNode }) {
-  const { isLoaded, userId, sessionId } = useAuth();
+  email: string | null;
+  supabase: SupabaseClient | null;
+};
+const signedOut = { userId: null, sessionId: null, email: null };
+const AccountSession = createContext<Account>({
+  enabled: false,
+  supabase: null,
+  ...signedOut,
+});
+
+// The JWT's session_id stays stable across hourly token refreshes.
+const sessionIdOf = (token: string) =>
+  JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")))
+    .session_id as string;
+
+function ConfiguredSession({
+  account,
+  children,
+}: {
+  account: { supabaseUrl: string; publishableKey: string };
+  children: ReactNode;
+}) {
+  const [supabase] = useState(() =>
+    createBrowserClient(account.supabaseUrl, account.publishableKey),
+  );
+  const [session, setSession] = useState<Omit<
+    Account,
+    "enabled" | "supabase"
+  > | null>(null);
+  useEffect(() => {
+    const { data } = supabase.auth.onAuthStateChange((_event, next) =>
+      setSession(
+        next
+          ? {
+              userId: next.user.id,
+              sessionId: sessionIdOf(next.access_token),
+              email: next.user.email ?? null,
+            }
+          : signedOut,
+      ),
+    );
+    return () => data.subscription.unsubscribe();
+  }, [supabase]);
   return (
     <AccountSession
       value={{
         enabled: true,
-        userId: isLoaded ? userId : undefined,
-        sessionId: isLoaded ? sessionId : undefined,
+        supabase,
+        ...(session ?? {
+          userId: undefined,
+          sessionId: undefined,
+          email: null,
+        }),
       }}
     >
       {children}
@@ -23,17 +75,15 @@ function ConfiguredSession({ children }: { children: ReactNode }) {
 }
 export function CommerceProviders({
   children,
-  publishableKey,
+  account,
 }: {
   children: ReactNode;
-  publishableKey: string | null;
+  account: { supabaseUrl: string; publishableKey: string } | null;
 }) {
-  return publishableKey ? (
-    <ClerkProvider publishableKey={publishableKey}>
-      <ConfiguredSession>{children}</ConfiguredSession>
-    </ClerkProvider>
+  return account ? (
+    <ConfiguredSession account={account}>{children}</ConfiguredSession>
   ) : (
-    <AccountSession value={{ enabled: false, userId: null, sessionId: null }}>
+    <AccountSession value={{ enabled: false, supabase: null, ...signedOut }}>
       {children}
     </AccountSession>
   );

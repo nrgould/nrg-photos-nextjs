@@ -8,14 +8,19 @@ import {
 import { createCommerceHandlers } from "./commerce/http";
 import { createCommerceService } from "./commerce/service";
 import { createStripeGateway } from "./commerce/stripe";
-import { createClerkAuthenticator } from "./commerce/clerk";
+import { createSessionAuthenticator } from "./commerce/auth";
 import type { CommerceStore, PrivateDelivery } from "./commerce/types";
 
 const presetIds = presetCatalog.map(({ id }) => id);
 
 export function getAccountPublicConfiguration() {
   const account = readAccountConfiguration(process.env);
-  return account ? { publishableKey: account.publishableKey } : null;
+  return account
+    ? {
+        supabaseUrl: account.supabaseUrl,
+        publishableKey: account.publishableKey,
+      }
+    : null;
 }
 
 export async function composeCommerceRuntime(
@@ -28,10 +33,12 @@ export async function composeCommerceRuntime(
   )
     return createCommerceHandlers({ configuration });
 
-  const [{ default: Stripe }, { auth }] = await Promise.all([
-    import("stripe"),
-    import("@clerk/nextjs/server"),
-  ]);
+  const [{ default: Stripe }, { createServerClient }, { cookies }] =
+    await Promise.all([
+      import("stripe"),
+      import("@supabase/ssr"),
+      import("next/headers"),
+    ]);
   const payments = createStripeGateway(
     new Stripe(configuration.configuration.stripeSecretKey, {
       maxNetworkRetries: 2,
@@ -49,13 +56,48 @@ export async function composeCommerceRuntime(
     configuration,
     store: adapters.store,
     service,
-    authenticate: createClerkAuthenticator(auth),
+    authenticate: createSessionAuthenticator(async () => {
+      const cookieStore = await cookies();
+      const supabase = createServerClient(
+        configuration.configuration.supabaseUrl,
+        configuration.configuration.supabasePublishableKey,
+        {
+          cookies: {
+            getAll: () => cookieStore.getAll(),
+            setAll: (next) =>
+              next.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options),
+              ),
+          },
+        },
+      );
+      // getClaims verifies the JWT signature; getSession alone would trust the cookie.
+      const { data } = await supabase.auth.getClaims();
+      return { userId: data?.claims.sub ?? null };
+    }),
   });
 }
 
+let store: Promise<CommerceStore> | undefined;
+async function durableStore(url: string) {
+  store ??= Promise.all([
+    import("postgres"),
+    import("./commerce/postgres"),
+  ]).then(([{ default: postgres }, { createPostgresCommerceStore }]) =>
+    // Supabase's transaction pooler does not support prepared statements.
+    createPostgresCommerceStore(postgres(url, { prepare: false })),
+  );
+  return store;
+}
+
 export async function getCommerceHandlers() {
-  // Deliberately no persistence fallback. Wire an approved durable adapter here before enabling test checkout.
+  // Deliberately no persistence fallback: without DATABASE_URL every operation stays 503.
+  const configuration = readCommerceConfiguration(process.env, presetIds);
+  const url = process.env.DATABASE_URL;
   return composeCommerceRuntime(
-    readCommerceConfiguration(process.env, presetIds),
+    configuration,
+    configuration.status === "configured" && url
+      ? { store: await durableStore(url) }
+      : undefined,
   );
 }

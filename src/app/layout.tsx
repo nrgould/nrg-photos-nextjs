@@ -85,10 +85,8 @@ export default async function RootLayout({
         <a className="skip-link" href="#main">
           Skip to content
         </a>
-        <CommerceProviders publishableKey={account?.publishableKey ?? null}>
-          <CommerceCartProvider>
-            {children}
-          </CommerceCartProvider>
+        <CommerceProviders account={account}>
+          <CommerceCartProvider>{children}</CommerceCartProvider>
         </CommerceProviders>
       </body>
     </html>

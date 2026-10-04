@@ -1,5 +1,7 @@
 # Commerce server foundation
 
+> October 4, 2026 update: Clerk was replaced by Supabase Auth (email code sign-in) and the durable store is `commerce/postgres.ts`. Clerk mentions below in the integration order are historical.
+
 Staged October 4, 2026. This is test-only integration code, not an activated store. It creates no accounts, products, prices, coupons, webhooks, storage, emails, purchases or real entitlements by itself. No private preset bytes are included. The active repository is unchanged by staging.
 
 ## Delivered
@@ -9,7 +11,8 @@ Staged October 4, 2026. This is test-only integration code, not an activated sto
 | `config.ts`                              | Explicit `COMMERCE_MODE=stripe-test`; complete test-key/Price mapping; fixed application origin; live/partial configuration rejected. Defaults disabled. No environment-file reads or SDK side effects.                                                                                                                                                              |
 | `service.ts`                             | Server catalog allowlist, 199-cent USD prices, distinct paid-item counting, whole-subtotal 20% discount at ten items, deterministic cent rounding. Account-bound persistent Checkout intent and idempotent webhook/order/entitlement transitions.                                                                                                                    |
 | `stripe.ts`                              | Typed structural adapter for the official Stripe Node SDK. Retrieves/validates configured Prices and coupon; creates hosted Checkout with fixed return routes and idempotency key. Delegates raw-body signature verification to the SDK. Rejects live sessions/events and unexpected totals/tax/shipping.                                                            |
-| `clerk.ts`                               | Awaits the verified Clerk server `auth()` session; never accepts identity from request JSON.                                                                                                                                                                                                                                                                         |
+| `auth.ts`                                | Awaits a verified server session (Supabase `getClaims()`); never accepts identity from request JSON.                                                                                                                                                                                                                                                                 |
+| `postgres.ts`                            | Durable `CommerceStore` on Supabase Postgres: serializable transactions with conflict retry. Schema in `supabase/migrations/`.                                                                                                                                                                                                                                       |
 | `http.ts`                                | Request-body allowlist, bounded body reads, same-origin mutation checks, private/no-store responses, authenticated ownership/downloads and reward claims. Every operational route returns 503 before provider/auth calls unless configuration, durable store, service and auth adapter are supplied. Public availability reveals only `unavailable` or `test-ready`. |
 | `types.ts`                               | Transactional store and private delivery interfaces.                                                                                                                                                                                                                                                                                                                 |
 | `tests/support/commerce-memory-store.ts` | Serialized, rollback-capable fixture with uniqueness checks; explicitly `test-only`. Not application source and refused by HTTP readiness.                                                                                                                                                                                                                           |
@@ -41,8 +44,9 @@ STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 STRIPE_PRESET_PRICE_IDS=
 STRIPE_BULK_COUPON_ID=
-CLERK_SECRET_KEY=
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+DATABASE_URL=
 ```
 
 `STRIPE_PRESET_PRICE_IDS` is a JSON object mapping every published preset ID to a unique configured one-time test Price ID. Each Price must be active, USD and exactly 199 cents. The configured coupon must be valid, test-mode, unrestricted, once-only and exactly 20 percent off. The adapter does not create or modify provider objects. Confirm actual Checkout rounding against the server quote using sandbox fixtures before activation; any mismatch is rejected rather than charged through this app.
@@ -72,7 +76,7 @@ The conservative **test policy** suspends all grants from an order on any nonzer
 
 ## Rewards and downloads
 
-Reward configuration is absent by default. A claim accepts only a preset ID; account comes from Clerk and campaign/eligible IDs come from server configuration. Eligibility counts five distinct allowlisted locations in the store's independently verified evidence. The map now has nine verified regional nodes, but local visits do not establish server evidence. Service test fixtures use explicitly synthetic location IDs; none are added to production geography. The dog challenge still needs a verified photograph and an evidence policy. A browser event cannot prove human exploration; do not build a visit endpoint that blindly copies assertions into `verifiedLocations`.
+Reward configuration is absent by default. A claim accepts only a preset ID; account comes from the verified Supabase session and campaign/eligible IDs come from server configuration. Eligibility counts five distinct allowlisted locations in the store's independently verified evidence. The map now has nine verified regional nodes, but local visits do not establish server evidence. Service test fixtures use explicitly synthetic location IDs; none are added to production geography. The dog challenge still needs a verified photograph and an evidence policy. A browser event cannot prove human exploration; do not build a visit endpoint that blindly copies assertions into `verifiedLocations`.
 
 A reward claim and paid purchase are separate sources. Claim retries return the same existing claim; a different preset after claiming is rejected. Claiming an already owned preset or one reserved by a pending paid checkout is rejected. Account/email verification and abuse/rate controls must be established for the real reward workflow; this foundation does not fabricate that verification.
 

@@ -1,7 +1,7 @@
 import { CommerceError } from "./types";
 
-/** Inject `auth` from @clerk/nextjs/server after configured Clerk proxy setup. */
-export function createClerkAuthenticator(
+/** Inject a verified server session lookup; identity never comes from request JSON. */
+export function createSessionAuthenticator(
   auth: () => Promise<{ userId: string | null }>,
 ) {
   return async () => {

@@ -1,10 +1,12 @@
+import { readAccountConfiguration } from "../account-configuration";
+
 export type TestCommerceConfiguration = {
   mode: "stripe-test";
   origin: string;
   stripeSecretKey: string;
   webhookSecret: string;
-  clerkSecretKey: string;
-  clerkPublishableKey: string;
+  supabaseUrl: string;
+  supabasePublishableKey: string;
   priceIds: Readonly<Record<string, string>>;
   bulkCouponId: string;
 };
@@ -20,24 +22,12 @@ export function readCommerceConfiguration(
   if (!env.COMMERCE_MODE || env.COMMERCE_MODE === "disabled")
     return { status: "disabled" };
   if (env.COMMERCE_MODE !== "stripe-test") return { status: "invalid" };
+  const account = readAccountConfiguration(env);
+  if (!account) return { status: "invalid" };
   try {
-    const origin = new URL(env.COMMERCE_ORIGIN ?? "");
-    const local =
-      origin.hostname === "localhost" || origin.hostname === "127.0.0.1";
-    if (
-      origin.username ||
-      origin.password ||
-      origin.search ||
-      origin.hash ||
-      origin.pathname !== "/" ||
-      (origin.protocol !== "https:" && !(local && origin.protocol === "http:"))
-    )
-      return { status: "invalid" };
     if (
       !env.STRIPE_SECRET_KEY?.startsWith("sk_test_") ||
       !env.STRIPE_WEBHOOK_SECRET?.startsWith("whsec_") ||
-      !env.CLERK_SECRET_KEY?.startsWith("sk_test_") ||
-      !env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith("pk_test_") ||
       !env.STRIPE_BULK_COUPON_ID
     )
       return { status: "invalid" };
@@ -61,11 +51,11 @@ export function readCommerceConfiguration(
       status: "configured",
       configuration: {
         mode: "stripe-test",
-        origin: origin.origin,
+        origin: account.origin,
         stripeSecretKey: env.STRIPE_SECRET_KEY,
         webhookSecret: env.STRIPE_WEBHOOK_SECRET,
-        clerkSecretKey: env.CLERK_SECRET_KEY,
-        clerkPublishableKey: env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+        supabaseUrl: account.supabaseUrl,
+        supabasePublishableKey: account.publishableKey,
         priceIds: Object.freeze(
           Object.fromEntries(entries) as Record<string, string>,
         ),

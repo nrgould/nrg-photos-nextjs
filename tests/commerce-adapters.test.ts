@@ -4,7 +4,7 @@ import {
   readCommerceConfiguration,
   type TestCommerceConfiguration,
 } from "../src/lib/server/commerce/config";
-import { createClerkAuthenticator } from "../src/lib/server/commerce/clerk";
+import { createSessionAuthenticator } from "../src/lib/server/commerce/auth";
 import { createCommerceHandlers } from "../src/lib/server/commerce/http";
 import {
   createStripeGateway,
@@ -34,8 +34,8 @@ const env = {
   COMMERCE_ORIGIN: "http://localhost:3000",
   STRIPE_SECRET_KEY: "sk_test_fixture_not_a_credential",
   STRIPE_WEBHOOK_SECRET: "whsec_fixture_not_a_credential",
-  CLERK_SECRET_KEY: "sk_test_fixture_not_a_credential",
-  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_fixture_not_a_credential",
+  NEXT_PUBLIC_SUPABASE_URL: "https://fixture.supabase.co",
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_fixture",
   STRIPE_PRESET_PRICE_IDS: JSON.stringify(priceIds),
   STRIPE_BULK_COUPON_ID: "coupon_fixture",
 };
@@ -144,8 +144,8 @@ test("configuration is disabled by default and rejects live, partial or unsafe c
   for (const patch of [
     { COMMERCE_MODE: "live" },
     { STRIPE_SECRET_KEY: "sk_live_fixture" },
-    { CLERK_SECRET_KEY: "sk_live_fixture" },
-    { NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_live_fixture" },
+    { NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "" },
+    { NEXT_PUBLIC_SUPABASE_URL: "" },
     { STRIPE_WEBHOOK_SECRET: "" },
     { STRIPE_BULK_COUPON_ID: "" },
     { COMMERCE_ORIGIN: "http://public.example" },
@@ -343,13 +343,15 @@ test("webhook forwards exact raw body/signature to SDK and rejects invalid signa
   );
 });
 
-test("Clerk adapter awaits verified session identity, never a client-supplied account", async () => {
+test("session authenticator awaits verified session identity, never a client-supplied account", async () => {
   assert.equal(
-    await createClerkAuthenticator(async () => ({ userId: "verified-user" }))(),
+    await createSessionAuthenticator(async () => ({
+      userId: "verified-user",
+    }))(),
     "verified-user",
   );
   await assert.rejects(
-    createClerkAuthenticator(async () => ({ userId: null }))(),
+    createSessionAuthenticator(async () => ({ userId: null }))(),
     fails("unauthenticated"),
   );
 });
@@ -372,7 +374,9 @@ test("configured handler rejects forged account/price/reward fields, external or
     configuration: { status: "configured", configuration: config },
     store,
     service,
-    authenticate: createClerkAuthenticator(async () => ({ userId: "user-A" })),
+    authenticate: createSessionAuthenticator(async () => ({
+      userId: "user-A",
+    })),
   });
   assert.deepEqual(await handlers.availability().json(), {
     status: "test-ready",

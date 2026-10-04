@@ -1,5 +1,7 @@
 # Commerce SDK composition
 
+> October 4, 2026 update: `@clerk/nextjs` and `src/proxy.ts` are removed. Accounts use Supabase Auth: `CommerceProviders` creates one browser client, `AccountControl` signs in with an emailed code, and route handlers verify the session with `getClaims()`. `getCommerceHandlers()` builds the Postgres store when `DATABASE_URL` is set. The Clerk sections below are historical.
+
 October 4, 2026. Official `stripe` 23.0.0 and `@clerk/nextjs` 7.9.10 are installed. This checkpoint does not activate checkout, issue entitlements, expose private XMP, provision resources, or contact payment/account providers in tests.
 
 ## Wiring

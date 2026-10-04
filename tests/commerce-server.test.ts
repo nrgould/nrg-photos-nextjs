@@ -1,4 +1,4 @@
-import { test } from "node:test";
+import { after, test } from "node:test";
 import assert from "node:assert/strict";
 import {
   createCommerceService,
@@ -12,6 +12,9 @@ import {
   type PaymentGateway,
 } from "../src/lib/server/commerce/types";
 import { MemoryCommerceStore } from "./support/commerce-memory-store";
+import { dropStores, makeStore } from "./support/commerce-store";
+
+after(dropStores);
 
 const ids = Array.from(
   { length: 21 },
@@ -27,7 +30,7 @@ function deferred() {
   });
   return { promise, resolve };
 }
-function fixture(store = new MemoryCommerceStore()) {
+function fixture(store = makeStore()) {
   const created: Order[] = [];
   const sessions = new Map<string, CheckoutSession>();
   let incoming: PaymentEvent = { id: "evt_ignored", type: "ignored" };
@@ -495,7 +498,7 @@ test("mismatched amounts/session and invalid signatures fail before ownership; f
 });
 
 test("transaction rollback includes the event marker and grants", async () => {
-  const store = new MemoryCommerceStore();
+  const store = makeStore();
   await assert.rejects(
     store.transaction(async (tx) => {
       await tx.recordEvent("evt_atomic");
