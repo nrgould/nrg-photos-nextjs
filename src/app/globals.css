@@ -2005,7 +2005,8 @@
   }
   .has-glass .map-toolbar button,
   .has-glass .map-controls > button,
-  .has-glass .zoom-control {
+  .has-glass .zoom-control,
+  .has-glass .map-zoom-cap {
     background-color: color-mix(in srgb, var(--paper), transparent 15%);
     backdrop-filter: blur(12px);
   }
@@ -2609,6 +2610,9 @@ html[data-photo-theme="dark"] {
     width: 236px;
     height: 60px;
     padding: 11px;
+  }
+  .zoom-control,
+  .map-zoom-cap {
     border-radius: 999px;
     border: 1px solid var(--neutral-500);
     background: linear-gradient(145deg, var(--neutral-700), var(--neutral-800));
@@ -2734,26 +2738,27 @@ html[data-photo-theme="dark"] {
     left: 16px;
     top: 50%;
     translate: 0 -50%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
   .zoom-control[data-orientation="vertical"] {
     display: flex;
     flex-direction: column;
-    gap: 6px;
     width: 48px;
-    height: 284px;
+    height: 242px;
     padding: 5px;
   }
   .zoom-control[data-orientation="vertical"] .zoom-track {
     flex: 1;
     width: 36px;
   }
-  /* The rail's cap shows the same globe/map icon as the phone trigger. */
+  /* The cap above the rail shows the same globe/map icon as the phone trigger. */
   .map-zoom-cap {
     display: grid;
-    flex: 0 0 36px;
     place-items: center;
-    height: 36px;
-    border-bottom: 1px solid var(--neutral-600);
+    width: 48px;
+    height: 48px;
     color: var(--neutral-0);
   }
   .zoom-stage-label {
@@ -3359,8 +3364,15 @@ html[data-photo-theme="dark"] {
   }
   .map-thumbnail-host[data-marker-phase="exiting"] .map-marker-content {
     opacity: 0;
-    transform: translate(0, -4px) scale(0.98);
+    transform: translate(var(--marker-exit-x, 0px), var(--marker-exit-y, -4px))
+      scale(0.96);
     transition-duration: 120ms;
+  }
+  /* Places fan out of their country stack and fold back into it. */
+  .map-thumbnail-host[data-split="true"] .map-marker-content {
+    transition:
+      opacity 160ms var(--ease-out),
+      transform 260ms var(--ease-out);
   }
   .map-thumbnail-host[data-marker-phase="entering"] .map-marker-leader,
   .map-thumbnail-host[data-marker-phase="exiting"] .map-marker-leader {

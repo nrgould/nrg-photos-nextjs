@@ -41,6 +41,7 @@ import {
   type MarkerLayout,
 } from "@/lib/map-marker-layout";
 import { Button } from "./ui/button";
+import { zoomPosition } from "@/lib/map-zoom-stops";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 // Intro: an ease-in spin hands off to the ease-out settle at equal speed
@@ -74,7 +75,10 @@ function colors() {
     label: token(dark ? "--neutral-300" : "--neutral-600"),
   };
 }
-// OpenStreetMap detail fades in from this engine zoom; no tiles load below it.
+// Country stacks split into places, and merge back, across this many px and ms.
+const splitTravel = 160;
+const splitDuration = 260;
+// OpenStreetMap land detail fades in from this engine zoom; state lines start at 3.5.
 const detailZoom = 5;
 const fadeIn = (from: number, to: number, max = 1) =>
   [
@@ -193,6 +197,25 @@ function style(mix: number): StyleSpecification {
         },
       },
       {
+        // State and province lines; tiles carry them from zoom 2.
+        id: "osm-states",
+        type: "line",
+        source: "osm",
+        "source-layer": "boundary",
+        minzoom: 3.5,
+        filter: [
+          "all",
+          ["==", ["get", "admin_level"], 4],
+          ["!=", ["get", "maritime"], 1],
+        ],
+        paint: {
+          "line-color": color.edge,
+          "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.4, 10, 1],
+          "line-dasharray": [2, 2],
+          "line-opacity": fadeIn(3.5, 4.5, 0.55),
+        },
+      },
+      {
         id: "boundaries",
         type: "line",
         source: "boundaries",
@@ -256,6 +279,8 @@ export default function PlacesMap(props: {
   onChooseNode?: (node: MapNode) => void;
   onIntroEnd: () => void;
   onZoomChange: (zoom: number, mode: "globe" | "map") => void;
+  /** Continuous zoom-rail position while a wheel or pinch zoom is in progress. */
+  onZoomFrame?: (position: number) => void;
 }) {
   const {
     selected,
@@ -524,18 +549,22 @@ export default function PlacesMap(props: {
           }
         });
         instance.on("render", () => {
+          const apparent = apparentZoom(
+            instance.getZoom(),
+            instance.getCenter().lat,
+            projection.current.mix,
+          );
+          if (nativeZoomIntent.current.active)
+            latest.current.onZoomFrame?.(
+              projection.current.mix *
+                zoomPosition("map", toUiZoom(Math.max(zoomOffset(), apparent))),
+            );
           if (container.current) {
             container.current.dataset.mapProjection = String(
               projection.current.mix,
             );
             container.current.dataset.mapMode = projection.current.mode;
-            container.current.dataset.mapApparentZoom = String(
-              apparentZoom(
-                instance.getZoom(),
-                instance.getCenter().lat,
-                projection.current.mix,
-              ),
-            );
+            container.current.dataset.mapApparentZoom = String(apparent);
             container.current.dataset.mapRawZoom = String(instance.getZoom());
             container.current.dataset.mapLatitude = String(
               instance.getCenter().lat,
@@ -828,6 +857,32 @@ export default function PlacesMap(props: {
           { element: entry.marker.getElement(), node: entry.node },
         ]),
       );
+    // Split and merge travel the full screen distance, in the content's scaled space.
+    const markerScale =
+      Number(
+        instance.getContainer().style.getPropertyValue("--marker-scale"),
+      ) || 1;
+    const travel = (
+      element: HTMLElement,
+      name: "entry" | "exit",
+      from: import("maplibre-gl").LngLatLike,
+      to: import("maplibre-gl").LngLatLike,
+    ) => {
+      const a = instance.project(from);
+      const b = instance.project(to);
+      const distance = Math.hypot(b.x - a.x, b.y - a.y);
+      if (!Number.isFinite(distance) || distance === 0) return;
+      const ratio = Math.min(splitTravel, distance) / distance / markerScale;
+      element.dataset.split = "true";
+      element.style.setProperty(
+        `--marker-${name}-x`,
+        `${(b.x - a.x) * ratio}px`,
+      );
+      element.style.setProperty(
+        `--marker-${name}-y`,
+        `${(b.y - a.y) * ratio}px`,
+      );
+    };
     const ids = new Set(nodes.map((node) => node.id));
     for (const [id, entry] of markers.current) {
       if (!ids.has(id) && !entry.exiting) {
@@ -842,6 +897,15 @@ export default function PlacesMap(props: {
         element.inert = true;
         element.setAttribute("aria-hidden", "true");
         element.dataset.entryMotion = "true";
+        const stack =
+          entry.node.kind !== "country" &&
+          nodes.find(
+            (node) =>
+              node.kind === "country" &&
+              node.countryId === entry.node.countryId,
+          );
+        if (stack)
+          travel(element, "exit", entry.node.coordinates, stack.coordinates);
         element.dataset.markerPhase = "exiting";
         const exitTimer = window.setTimeout(() => {
           entry.marker.remove();
@@ -849,7 +913,7 @@ export default function PlacesMap(props: {
           setHosts(snapshot());
           markerLayoutDirty.current = true;
           instance.triggerRepaint();
-        }, 120);
+        }, splitDuration);
         markers.current.set(id, { ...entry, exiting: true, exitTimer });
       }
     }
@@ -864,7 +928,9 @@ export default function PlacesMap(props: {
           exitTimer: undefined,
           exiting: false,
         });
-        existing.marker.getElement().dataset.markerPhase = "active";
+        const element = existing.marker.getElement();
+        element.dataset.markerPhase = "active";
+        delete element.dataset.split;
         existing.marker.setLngLat(node.coordinates);
         continue;
       }
@@ -878,26 +944,14 @@ export default function PlacesMap(props: {
       element.dataset.markerPhase = motion ? "entering" : "active";
       element.dataset.entryMotion = String(motion);
       element.dataset.layoutMotion = "false";
-      const parent = previousEntries.find(
-        (entry) =>
-          entry.countryId === node.countryId && entry.kind !== node.kind,
-      );
-      if (motion && parent) {
-        const origin = instance.project(parent.coordinates);
-        const point = instance.project(node.coordinates);
-        const distance = Math.hypot(origin.x - point.x, origin.y - point.y);
-        if (Number.isFinite(distance) && distance > 0) {
-          const scale = Math.min(12, distance) / distance;
-          element.style.setProperty(
-            "--marker-entry-x",
-            `${(origin.x - point.x) * scale}px`,
-          );
-          element.style.setProperty(
-            "--marker-entry-y",
-            `${(origin.y - point.y) * scale}px`,
-          );
-        }
-      }
+      const parent =
+        node.kind !== "country" &&
+        previousEntries.find(
+          (entry) =>
+            entry.kind === "country" && entry.countryId === node.countryId,
+        );
+      if (motion && parent)
+        travel(element, "entry", node.coordinates, parent.coordinates);
       const marker = new Constructor({
         element,
         anchor: "center",
@@ -925,6 +979,7 @@ export default function PlacesMap(props: {
     instance.setPaintProperty("osm-water", "fill-color", color.water);
     instance.setPaintProperty("osm-waterway", "line-color", color.water);
     instance.setPaintProperty("osm-roads", "line-color", color.edge);
+    instance.setPaintProperty("osm-states", "line-color", color.edge);
     instance.setPaintProperty("boundaries", "line-color", color.edge);
     for (const layer of ["countries-labels", "cities-labels"]) {
       instance.setPaintProperty(layer, "text-color", color.label);

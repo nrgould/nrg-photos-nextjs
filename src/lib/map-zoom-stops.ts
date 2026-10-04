@@ -8,18 +8,25 @@ export const zoomLabels = [
   "Local",
 ] as const;
 
-// Quantize only the control. Native map camera values remain continuous.
-export function zoomStop(mode: "globe" | "map", zoom: number) {
+/** Continuous rail position (0-5): globe is 0, map zoom maps onto stops 1-5. */
+export function zoomPosition(mode: "globe" | "map", zoom: number) {
   if (mode === "globe") return 0;
   if (!Number.isFinite(zoom) || zoom <= 1) return 1;
   if (zoom >= zoomLevels[5]) return 5;
   const upper = zoomLevels.findIndex(
     (value, index) => index > 0 && value >= zoom,
   );
-  const fraction =
+  return (
+    upper -
+    1 +
     Math.log(zoom / zoomLevels[upper - 1]) /
-    Math.log(zoomLevels[upper] / zoomLevels[upper - 1]);
-  return Math.round(upper - 1 + fraction);
+      Math.log(zoomLevels[upper] / zoomLevels[upper - 1])
+  );
+}
+
+// Quantize only the control. Native map camera values remain continuous.
+export function zoomStop(mode: "globe" | "map", zoom: number) {
+  return Math.round(zoomPosition(mode, zoom));
 }
 
 export function zoomStopPosition(stop: number) {

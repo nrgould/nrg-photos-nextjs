@@ -5,7 +5,9 @@ import {
   AnimatePresence,
   motion,
   useMotionValue,
+  useMotionValueEvent,
   useReducedMotion,
+  type MotionValue,
   useTransform,
 } from "motion/react";
 import { Globe2, Map as MapIcon } from "lucide-react";
@@ -21,7 +23,7 @@ import {
 import {
   zoomLevels,
   zoomLabels,
-  zoomStop,
+  zoomPosition,
   zoomStopPosition,
 } from "@/lib/map-zoom-stops";
 import { selectionFeedback } from "@/lib/haptics";
@@ -31,20 +33,28 @@ export default function MapZoom({
   zoom,
   onChange,
   vertical = false,
+  live,
 }: {
   mode: "globe" | "map";
   zoom: number;
   onChange: (mode: "globe" | "map", zoom: number) => void;
   /** Desktop shows a standalone vertical rail instead of a popover. */
   vertical?: boolean;
+  /** Rail position written by the map on every frame of a wheel or pinch zoom. */
+  live?: MotionValue<number>;
 }) {
-  const value = zoomStop(mode, zoom);
+  const position = zoomPosition(mode, zoom);
+  const value = Math.round(position);
   const [draft, setDraft] = useState<number | null>(null);
+  const dragging = useRef(false);
+  const sent = useRef<number | null>(null);
   const trigger = useRef<HTMLButtonElement | null>(null);
   const [keyboardInteraction, setKeyboardInteraction] = useState(false);
   const reduced = useReducedMotion();
   const current = draft ?? value;
-  const visualPosition = useMotionValue(value);
+  // At rest the thumb sits at the real zoom, which a gesture can leave between stops.
+  const target = draft ?? position;
+  const visualPosition = useMotionValue(position);
   const boundedPosition = useTransform(visualPosition, (position) =>
     Math.max(0, Math.min(5, position)),
   );
@@ -55,17 +65,25 @@ export default function MapZoom({
   );
   useEffect(() => {
     if (reduced || keyboardInteraction) {
-      visualPosition.jump(current);
+      visualPosition.jump(target);
       return;
     }
-    const animation = animate(visualPosition, current, {
+    const animation = animate(visualPosition, target, {
       type: "spring",
       duration: 0.28,
       bounce: 0.12,
-      onComplete: () => visualPosition.jump(current),
+      onComplete: () => visualPosition.jump(target),
     });
     return () => animation.stop();
-  }, [current, reduced, keyboardInteraction, visualPosition]);
+  }, [target, reduced, keyboardInteraction, visualPosition]);
+  useMotionValueEvent(live ?? visualPosition, "change", (next) => {
+    if (live && !dragging.current) visualPosition.jump(next);
+  });
+  const send = (stop: number) => {
+    if (sent.current === stop) return;
+    sent.current = stop;
+    onChange(stop === 0 ? "globe" : "map", zoomLevels[stop] || 1);
+  };
   const modeIcon = (
     <span className="map-zoom-icon" aria-hidden="true">
       <AnimatePresence initial={false}>
@@ -98,7 +116,6 @@ export default function MapZoom({
       className="zoom-control"
       data-orientation={vertical ? "vertical" : "horizontal"}
     >
-      {vertical && <span className="map-zoom-cap">{modeIcon}</span>}
       <div className="zoom-track">
         <motion.div
           className="zoom-fill"
@@ -141,10 +158,15 @@ export default function MapZoom({
           max={5}
           step={1}
           largeStep={1}
-          onPointerDownCapture={() => visualPosition.jump(current)}
+          onPointerDownCapture={() => {
+            dragging.current = true;
+            sent.current = value;
+            visualPosition.jump(current);
+          }}
           onKeyDownCapture={() => visualPosition.jump(current)}
           onPointerCancel={() => {
-            visualPosition.jump(value);
+            dragging.current = false;
+            visualPosition.jump(position);
             setDraft(null);
           }}
           onValueChange={(next, details) => {
@@ -153,17 +175,28 @@ export default function MapZoom({
             if (stop !== current && details.reason !== "none")
               selectionFeedback();
             setDraft(stop);
+            // The map follows the drag instead of waiting for release.
+            if (details.reason !== "keyboard" && details.reason !== "none")
+              send(stop);
           }}
           onValueCommitted={(next) => {
             const stop = Math.round(Array.isArray(next) ? next[0] : next);
+            dragging.current = false;
             setDraft(null);
-            onChange(stop === 0 ? "globe" : "map", zoomLevels[stop] || 1);
+            send(stop);
+            sent.current = null;
           }}
         />
       </div>
     </div>
   );
-  if (vertical) return control;
+  if (vertical)
+    return (
+      <>
+        <span className="map-zoom-cap">{modeIcon}</span>
+        {control}
+      </>
+    );
   return (
     <Popover
       onOpenChange={(open, details) => {
@@ -174,7 +207,7 @@ export default function MapZoom({
               details.event.detail === 0),
         );
         if (!open) {
-          visualPosition.jump(value);
+          visualPosition.jump(position);
           setDraft(null);
         }
       }}

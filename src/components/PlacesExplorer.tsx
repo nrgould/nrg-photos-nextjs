@@ -9,7 +9,7 @@ import {
   type ReactNode,
   type CSSProperties,
 } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion, useMotionValue, useReducedMotion } from "motion/react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -184,6 +184,7 @@ export default function PlacesExplorer({
     initialNode ? "map" : "globe",
   );
   const [zoom, setZoom] = useState(initialNode ? 3.5 : 3);
+  const liveZoom = useMotionValue(0);
   const [intro, setIntro] = useState(!initialNode && !initialView);
   const [revision, setRevision] = useState(0);
   const [zoomRevision, setZoomRevision] = useState(0);
@@ -648,6 +649,7 @@ export default function PlacesExplorer({
       vertical={desktop}
       mode={mode}
       zoom={zoom}
+      live={liveZoom}
       onChange={(nextMode, nextZoom) => {
         setZoomRevision((value) => value + 1);
         setIntro(false);
@@ -823,6 +825,7 @@ export default function PlacesExplorer({
               setMode(nextMode);
               setIntro(false);
             }}
+            onZoomFrame={(position) => liveZoom.set(position)}
             theme={theme}
             intro={intro}
             revision={revision}

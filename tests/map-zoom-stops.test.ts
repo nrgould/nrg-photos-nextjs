@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { zoomLevels, zoomStop } from "../src/lib/map-zoom-stops";
+import { zoomLevels, zoomPosition, zoomStop } from "../src/lib/map-zoom-stops";
 
 test("every explicit zoom level round-trips to its discrete stop", () => {
   zoomLevels.forEach((zoom, stop) =>
@@ -23,4 +23,10 @@ test("out-of-range and invalid zoom cannot wrap the slider back from Local to Wo
   assert.equal(zoomStop("map", 100), 5);
   assert.equal(zoomStop("map", -1), 1);
   assert.equal(zoomStop("map", NaN), 1);
+});
+
+test("rail position is continuous between stops", () => {
+  assert.equal(zoomPosition("map", 5), 4);
+  assert.ok(zoomPosition("map", 4) > 3 && zoomPosition("map", 4) < 4);
+  assert.equal(zoomPosition("globe", 4), 0);
 });
