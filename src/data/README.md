@@ -21,6 +21,10 @@ The committed `country-labels.json` and `city-labels.json` are reduced, allowlis
 
 Refresh the committed labels by downloading those exact two GeoJSON files, then running `node scripts/import-map-labels.mjs <countries.geojson> <cities.geojson>`. Normal `npm run dev` / `npm run build` uses committed labels and installed dependencies only; no geography service, token, paid tile endpoint, or network import runs at build time.
 
+## Close-zoom detail
+
+From engine zoom 5, the map fades in OpenStreetMap water, woods, rivers and major roads from [OpenFreeMap](https://openfreemap.org) vector tiles (`https://tiles.openfreemap.org/planet`, free, no key). The browser fetches them at runtime only for the zoom and area on screen; nothing loads below zoom 5, and the build stays offline. The map credits OpenFreeMap, OpenMapTiles and OpenStreetMap (ODbL) beside Natural Earth.
+
 Generated assets and their local gzip sizes:
 
 | URL | Shape | Raw bytes | Gzip bytes |

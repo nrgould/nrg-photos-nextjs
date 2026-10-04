@@ -32,6 +32,8 @@
   --explorer-land-light: #eeede8;
   --explorer-water-dark: #192125;
   --explorer-land-dark: #2b2d2c;
+  --explorer-wood-light: #e3e7dc;
+  --explorer-wood-dark: #273029;
   --clay: #783e25;
   --favorite: #d93a3a;
   --image-outline: oklch(0 0 0 / 0.1);
@@ -3436,6 +3438,10 @@ html[data-photo-theme="dark"] {
     font-size: 9px;
     color: var(--muted-foreground);
     pointer-events: none;
+  }
+  .map-attribution a {
+    color: inherit;
+    pointer-events: auto;
   }
 }
 

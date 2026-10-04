@@ -68,10 +68,23 @@ function colors() {
   return {
     water: token(dark ? "--explorer-water-dark" : "--explorer-water-light"),
     land: token(dark ? "--explorer-land-dark" : "--explorer-land-light"),
+    wood: token(dark ? "--explorer-wood-dark" : "--explorer-wood-light"),
     edge: token(dark ? "--neutral-600" : "--neutral-500"),
     label: token(dark ? "--neutral-300" : "--neutral-600"),
   };
 }
+// OpenStreetMap detail fades in from this engine zoom; no tiles load below it.
+const detailZoom = 5;
+const fadeIn = (from: number, to: number, max = 1) =>
+  [
+    "interpolate",
+    ["linear"],
+    ["zoom"],
+    from,
+    0,
+    to,
+    max,
+  ] as import("maplibre-gl").ExpressionSpecification;
 function style(mix: number): StyleSpecification {
   const color = colors();
   const font = getComputedStyle(document.documentElement)
@@ -92,6 +105,7 @@ function style(mix: number): StyleSpecification {
       boundaries: { type: "geojson", data: "/maps/boundaries.json" },
       countries: { type: "geojson", data: "/maps/country-labels.json" },
       cities: { type: "geojson", data: "/maps/city-labels.json" },
+      osm: { type: "vector", url: "https://tiles.openfreemap.org/planet" },
     },
     layers: [
       {
@@ -106,10 +120,76 @@ function style(mix: number): StyleSpecification {
         paint: { "fill-color": color.land },
       },
       {
+        id: "osm-landcover",
+        type: "fill",
+        source: "osm",
+        "source-layer": "landcover",
+        minzoom: detailZoom,
+        filter: ["==", ["get", "class"], "wood"],
+        paint: {
+          "fill-color": color.wood,
+          "fill-opacity": fadeIn(detailZoom, detailZoom + 1.5),
+        },
+      },
+      {
+        id: "osm-water",
+        type: "fill",
+        source: "osm",
+        "source-layer": "water",
+        minzoom: detailZoom,
+        paint: {
+          "fill-color": color.water,
+          "fill-opacity": fadeIn(detailZoom, detailZoom + 1.5),
+        },
+      },
+      {
+        id: "osm-waterway",
+        type: "line",
+        source: "osm",
+        "source-layer": "waterway",
+        minzoom: 7,
+        filter: ["==", ["get", "class"], "river"],
+        paint: {
+          "line-color": color.water,
+          "line-width": ["interpolate", ["linear"], ["zoom"], 7, 0.6, 12, 2],
+          "line-opacity": fadeIn(7, 8),
+        },
+      },
+      {
+        id: "osm-roads",
+        type: "line",
+        source: "osm",
+        "source-layer": "transportation",
+        minzoom: 7,
+        filter: [
+          "in",
+          ["get", "class"],
+          ["literal", ["motorway", "trunk", "primary"]],
+        ],
+        paint: {
+          "line-color": color.edge,
+          "line-width": ["interpolate", ["linear"], ["zoom"], 7, 0.4, 12, 1.2],
+          "line-opacity": fadeIn(7, 8, 0.35),
+        },
+      },
+      {
         id: "edge",
         type: "line",
         source: "land",
-        paint: { "line-color": color.edge, "line-width": 0.6 },
+        paint: {
+          "line-color": color.edge,
+          "line-width": 0.6,
+          // OpenStreetMap water draws the coastline once it has faded in.
+          "line-opacity": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            detailZoom,
+            1,
+            detailZoom + 1.5,
+            0,
+          ],
+        },
       },
       {
         id: "boundaries",
@@ -839,6 +919,10 @@ export default function PlacesMap(props: {
     instance.setPaintProperty("water", "background-color", color.water);
     instance.setPaintProperty("land", "fill-color", color.land);
     instance.setPaintProperty("edge", "line-color", color.edge);
+    instance.setPaintProperty("osm-landcover", "fill-color", color.wood);
+    instance.setPaintProperty("osm-water", "fill-color", color.water);
+    instance.setPaintProperty("osm-waterway", "line-color", color.water);
+    instance.setPaintProperty("osm-roads", "line-color", color.edge);
     instance.setPaintProperty("boundaries", "line-color", color.edge);
     for (const layer of ["countries-labels", "cities-labels"]) {
       instance.setPaintProperty(layer, "text-color", color.label);
@@ -1188,7 +1272,26 @@ export default function PlacesMap(props: {
           node.id,
         );
       })}
-      <span className="map-attribution">Natural Earth</span>
+      <span className="map-attribution">
+        Natural Earth ·{" "}
+        <a href="https://openfreemap.org" target="_blank" rel="noreferrer">
+          OpenFreeMap
+        </a>{" "}
+        <a
+          href="https://www.openmaptiles.org/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          © OpenMapTiles
+        </a>{" "}
+        <a
+          href="https://www.openstreetmap.org/copyright"
+          target="_blank"
+          rel="noreferrer"
+        >
+          © OpenStreetMap
+        </a>
+      </span>
     </div>
   );
 }
