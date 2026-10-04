@@ -897,10 +897,26 @@ export default function PlacesMap(props: {
       selectedNode?.coordinates ??
       selectedPlace?.coordinates;
     navigationTarget.current = null;
+    // Zooming in heads for the selection, else the photographed place nearest the view's center.
+    const middle = instance.project(instance.getCenter());
+    const snapCenter =
+      !recenter &&
+      mode === "map" &&
+      (previous.mode === "globe" || zoom > previous.zoom)
+        ? (targetCenter ??
+          latest.current.places
+            .map((place) => place.coordinates)
+            .sort(
+              (a, b) =>
+                instance.project(a).dist(middle) -
+                instance.project(b).dist(middle),
+            )[0])
+        : undefined;
+    const center = recenter ? targetCenter : snapCenter;
     const targetMix = mode === "globe" ? 0 : 1;
     const targetZoom = cameraZoom(
       toEngineZoom(mode === "globe" ? 0 : zoom),
-      recenter && targetCenter ? targetCenter[1] : instance.getCenter().lat,
+      center ? center[1] : instance.getCenter().lat,
       targetMix,
     );
     if (
@@ -937,15 +953,11 @@ export default function PlacesMap(props: {
       breakoutZoom.current = Math.min(toEngineZoom(3), framed.zoom - 0.2);
     const settle = () =>
       instance.easeTo({
-        ...(framed
-          ? { center: framed.center }
-          : recenter && targetCenter
-            ? { center: targetCenter }
-            : {}),
+        ...(framed ? { center: framed.center } : center ? { center } : {}),
         zoom: framed?.zoom ?? targetZoom,
         // Selection offsets frame the drawer without leaving projection-dependent padding behind.
         offset:
-          !framed && recenter && canvasOpen
+          !framed && center && canvasOpen
             ? width > 700
               ? [-205, 0]
               : [0, -height * 0.125]
