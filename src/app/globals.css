@@ -3231,7 +3231,8 @@ html[data-photo-theme="dark"] {
     font: 500 calc(11px / var(--marker-scale, 1)) / 1.3 var(--sans);
     color: var(--ink);
     background: var(--paper);
-    padding: calc(2px / var(--marker-scale, 1)) calc(5px / var(--marker-scale, 1));
+    padding: calc(2px / var(--marker-scale, 1))
+      calc(5px / var(--marker-scale, 1));
     border-radius: calc(4px / var(--marker-scale, 1));
     pointer-events: none;
     white-space: nowrap;
@@ -3239,6 +3240,8 @@ html[data-photo-theme="dark"] {
   .map-marker-cover {
     position: relative;
     z-index: 1;
+    /* Frames the cover like the layers behind it. */
+    box-shadow: 0 0 0 2px var(--paper);
   }
   .map-marker-stack-layer {
     position: absolute;
@@ -3248,9 +3251,23 @@ html[data-photo-theme="dark"] {
     background: var(--paper);
     pointer-events: none;
     transform: translate(3px, -3px) rotate(4deg);
+    transition: transform 200ms cubic-bezier(0.2, 0, 0, 1);
   }
   .map-marker-stack-layer[data-layer="0"] {
     transform: translate(-3px, -5px) rotate(-5deg);
+  }
+  @media (hover: hover) {
+    .map-photo-marker:hover .map-marker-stack-layer {
+      transform: translate(7px, -5px) rotate(8deg);
+    }
+    .map-photo-marker:hover .map-marker-stack-layer[data-layer="0"] {
+      transform: translate(-7px, -8px) rotate(-9deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .map-marker-stack-layer {
+      transition: none;
+    }
   }
   .map-marker-count {
     position: absolute;

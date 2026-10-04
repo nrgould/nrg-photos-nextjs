@@ -1,6 +1,5 @@
 "use client";
 import { useState, type FormEvent } from "react";
-import { UserRound } from "lucide-react";
 import { useCommerceAccount } from "./CommerceProviders";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -38,9 +37,15 @@ export function AccountControl() {
     return (
       <Popover>
         <PopoverTrigger
-          render={<Button variant="control" aria-label={`Account, ${email}`} />}
+          render={
+            <Button
+              variant="control"
+              className="size-11 rounded-full p-0 font-medium"
+              aria-label={`Account, ${email}`}
+            />
+          }
         >
-          <UserRound size={16} strokeWidth={1.5} aria-hidden="true" />
+          {email?.[0]?.toUpperCase()}
         </PopoverTrigger>
         <PopoverContent align="end" className="explorer-overlay w-64 gap-3 p-4">
           <p className="truncate text-sm text-muted-foreground">{email}</p>
