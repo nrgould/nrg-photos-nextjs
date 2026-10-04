@@ -21,23 +21,19 @@ export const explorationChallenges = [
     id: "find-red-boat",
     title: "Find the red boat",
     clue: "A small flash of red, surrounded by Arctic water and snow.",
-    hint: "Look through the photographs around Tromsø, Norway.",
     photoSrc: "/photos/landscape_sailboat_in_a_blizzard.webp",
     photoTitle: "Into the Arctic",
   },
 ] as const;
-const challengeIds = explorationChallenges.map((challenge) => challenge.id);
 
 export type ExplorationProgress = {
   version: 1;
   visitedLocationIds: string[];
   openedPhotoSrcs: string[];
-  revealedHintIds: string[];
 };
 export type ExplorationEvent =
   | { type: "location-opened"; locationId: string }
-  | { type: "photo-opened"; photoSrc: string }
-  | { type: "hint-revealed"; challengeId: string };
+  | { type: "photo-opened"; photoSrc: string };
 
 function knownIds(value: unknown, known: readonly string[]): string[] {
   const requested = new Set(
@@ -60,7 +56,6 @@ export function createExplorationProgress(
     version: 1,
     visitedLocationIds: knownIds(record.visitedLocationIds, locationIds),
     openedPhotoSrcs: knownIds(record.openedPhotoSrcs, photoSrcs),
-    revealedHintIds: knownIds(record.revealedHintIds, challengeIds),
   };
 }
 
@@ -93,12 +88,6 @@ export function recordExplorationEvent(
     typeof event.photoSrc === "string"
   )
     next.openedPhotoSrcs = [...current.openedPhotoSrcs, event.photoSrc];
-  if (
-    event.type === "hint-revealed" &&
-    "challengeId" in event &&
-    typeof event.challengeId === "string"
-  )
-    next.revealedHintIds = [...current.revealedHintIds, event.challengeId];
   return createExplorationProgress(next);
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useId } from "react";
-import { ArrowLeft, Heart, X } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 import {
   nodeForPhoto,
   placeNode,
@@ -10,6 +10,15 @@ import {
 } from "@/lib/favorites";
 import type { MapNode } from "@/lib/map-hierarchy";
 import { Button } from "@/components/ui/button";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "@/components/ui/item";
 import PhotoImage from "./PhotoImage";
 import styles from "./ExploreChallenges.module.css";
 
@@ -49,10 +58,9 @@ export default function SavedPanel({
             <ArrowLeft size={16} aria-hidden="true" /> {backLabel}
           </Button>
         )}
-        <div className={styles.heading}>
-          <Heart size={22} strokeWidth={1.5} aria-hidden="true" />
-          <h2 id={`${id}-heading`}>Saved</h2>
-        </div>
+        <h2 id={`${id}-heading`} className={styles.heading}>
+          Saved
+        </h2>
       </header>
       <div className={styles.content}>
         {!places.length && !photos.length && (
@@ -63,34 +71,44 @@ export default function SavedPanel({
             <h3 id={`${id}-places`} className={styles.savedHeading}>
               Places <span>{places.length}</span>
             </h3>
-            <ul className={styles.savedPlaces}>
+            <ItemGroup className={styles.rows}>
               {places.map((node) => (
-                <li key={node.id}>
-                  <Button
-                    variant="quiet"
-                    className={styles.savedPlace}
-                    onClick={() => onOpenPlace(node)}
-                  >
+                <Item
+                  key={node.id}
+                  role="listitem"
+                  className={styles.savedPlace}
+                >
+                  <ItemMedia variant="image" className={styles.savedMedia}>
                     <PhotoImage photo={node.cover} sizes="48px" />
-                    <span>
-                      <strong>{node.label}</strong>
-                      <span>
-                        {node.photoCount}{" "}
-                        {node.photoCount === 1 ? "photograph" : "photographs"}
-                      </span>
-                    </span>
-                  </Button>
-                  <Button
-                    variant="quiet"
-                    className={styles.savedRemove}
-                    aria-label={`Remove ${node.label} from saved`}
-                    onClick={() => onToggle("placeIds", node.id)}
-                  >
-                    <X size={16} aria-hidden="true" />
-                  </Button>
-                </li>
+                  </ItemMedia>
+                  <ItemContent className={styles.rowContent}>
+                    <ItemTitle>
+                      <button
+                        type="button"
+                        className={styles.savedOpen}
+                        onClick={() => onOpenPlace(node)}
+                      >
+                        {node.label}
+                      </button>
+                    </ItemTitle>
+                    <ItemDescription className={styles.rowDescription}>
+                      {node.photoCount}{" "}
+                      {node.photoCount === 1 ? "photograph" : "photographs"}
+                    </ItemDescription>
+                  </ItemContent>
+                  <ItemActions>
+                    <Button
+                      variant="quiet"
+                      className={styles.savedRemove}
+                      aria-label={`Remove ${node.label} from saved`}
+                      onClick={() => onToggle("placeIds", node.id)}
+                    >
+                      <X size={16} strokeWidth={1.5} aria-hidden="true" />
+                    </Button>
+                  </ItemActions>
+                </Item>
               ))}
-            </ul>
+            </ItemGroup>
           </section>
         )}
         {photos.length > 0 && (

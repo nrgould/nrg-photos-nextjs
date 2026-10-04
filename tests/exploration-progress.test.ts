@@ -63,7 +63,7 @@ test("replayed visits, countries, unknown fallback leaves and collection IDs can
   assert.equal(getExplorationSummary(progress).visitedCount, 1);
 });
 
-test("red-boat completion requires the exact actual opened photograph; visits and hints do not complete it", () => {
+test("red-boat completion requires the exact actual opened photograph; visits do not complete it", () => {
   const actual = travelPlaces
     .flatMap((place) => place.photos)
     .find((photo) => photo.src === boat);
@@ -71,10 +71,6 @@ test("red-boat completion requires the exact actual opened photograph; visits an
   assert.equal(actual.title, "Into the Arctic");
   assert.match(actual.alt, /red boat/i);
   let progress = visit(empty, "location:tromso");
-  progress = recordExplorationEvent(progress, {
-    type: "hint-revealed",
-    challengeId: "find-red-boat",
-  });
   progress = recordExplorationEvent(progress, {
     type: "photo-opened",
     photoSrc: boat + "?fake",
@@ -107,13 +103,6 @@ test("only challenges with a published photograph are listed", () => {
   assert.deepEqual(
     explorationChallenges.map((challenge) => challenge.id),
     ["find-red-boat"],
-  );
-  assert.deepEqual(
-    recordExplorationEvent(empty, {
-      type: "hint-revealed",
-      challengeId: "find-the-dog",
-    }),
-    empty,
   );
 });
 
@@ -152,7 +141,7 @@ test("storage accepts only versioned known IDs and derives completions instead o
     version: 1,
     visitedLocationIds: [ids[0], ids[0], "country:italy", null],
     openedPhotoSrcs: [boat, boat, "/private"],
-    revealedHintIds: ["find-red-boat", "invented"],
+    revealedHintIds: ["find-red-boat"],
     completedChallengeIds: ["find-the-dog"],
     ownedPresetIds: ["signature-01"],
     rewardEntitlement: true,
@@ -162,7 +151,6 @@ test("storage accepts only versioned known IDs and derives completions instead o
     version: 1,
     visitedLocationIds: [ids[0]],
     openedPhotoSrcs: [boat],
-    revealedHintIds: ["find-red-boat"],
   });
   assert.equal(getExplorationSummary(progress).entitlement, "not-verified");
   for (const bad of [
@@ -186,7 +174,7 @@ test("malformed and unrecognized events do not change progress or assert complet
     { type: "complete-challenge", id: "find-red-boat" },
     { type: "location-opened", locationId: 3 },
     { type: "photo-opened", photoSrc: {} },
-    { type: "hint-revealed", challengeId: null },
+    { type: "hint-revealed", challengeId: "find-red-boat" },
   ])
     assert.deepEqual(recordExplorationEvent(empty, event), empty);
   assert.deepEqual(Object.keys(getExplorationSummary(empty)).sort(), [

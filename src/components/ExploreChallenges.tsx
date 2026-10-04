@@ -12,6 +12,15 @@ import {
   type ExplorationProgress,
 } from "@/lib/exploration-progress";
 import { Button } from "@/components/ui/button";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "@/components/ui/item";
 import styles from "./ExploreChallenges.module.css";
 
 export type ExplorationClaimBoundary =
@@ -167,13 +176,11 @@ export function ExploreChallengesTrigger({
 
 export default function ExploreChallenges({
   progress: input,
-  onRevealHint,
   onBack,
   backLabel = "Back to photographs",
   claimBoundary = unavailableClaim,
 }: {
   progress: ExplorationProgress;
-  onRevealHint: (challengeId: string) => void;
   onBack?: () => void;
   backLabel?: string;
   claimBoundary?: ExplorationClaimBoundary;
@@ -185,14 +192,12 @@ export default function ExploreChallenges({
   const [claimMessage, setClaimMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const completed = new Set<string>(summary.completedChallengeIds);
+  const remaining = summary.requiredCount - summary.visitedCount;
+  const claimable =
+    claimBoundary.status === "ready" && summary.milestoneComplete;
 
   async function claimReward() {
-    if (
-      claimBoundary.status !== "ready" ||
-      !summary.milestoneComplete ||
-      pending
-    )
-      return;
+    if (claimBoundary.status !== "ready" || !claimable || pending) return;
     setPending(true);
     setError(null);
     try {
@@ -200,9 +205,7 @@ export default function ExploreChallenges({
       if (result.status !== "confirmed") throw new Error("Unconfirmed reward");
       setClaimMessage(result.message);
     } catch {
-      setError(
-        "The reward could not be confirmed. Your exploration progress is still here.",
-      );
+      setError("The reward could not be confirmed. Try again.");
     } finally {
       setPending(false);
     }
@@ -220,144 +223,112 @@ export default function ExploreChallenges({
             <ArrowLeft size={16} aria-hidden="true" /> {backLabel}
           </Button>
         )}
-        <div className={styles.heading}>
-          <Leaf size={23} strokeWidth={1.5} aria-hidden="true" />
-          <h2 id={`${id}-heading`}>Challenges</h2>
-        </div>
+        <h2 id={`${id}-heading`} className={styles.heading}>
+          Challenges
+        </h2>
       </header>
       <div className={styles.content}>
-        <section
-          className={styles.milestone}
-          aria-labelledby={`${id}-milestone`}
-          data-complete={summary.milestoneComplete}
-        >
+        <section aria-labelledby={`${id}-places`}>
           <div className={styles.sectionHeading}>
-            <h3 id={`${id}-milestone`}>Visit five places</h3>
-            {summary.milestoneComplete && (
-              <Check size={18} aria-hidden="true" />
-            )}
+            <h3 id={`${id}-places`}>Places</h3>
+            <span className={styles.count}>
+              {Math.min(summary.visitedCount, summary.requiredCount)} of{" "}
+              {summary.requiredCount}
+            </span>
           </div>
           <progress
             className={styles.progress}
             value={Math.min(summary.visitedCount, summary.requiredCount)}
             max={summary.requiredCount}
-            aria-label="Locations explored toward the five-place milestone"
+            aria-label="Places explored toward the free preset"
           />
-          <p className={styles.progressLabel} role="status">
-            {summary.milestoneComplete
-              ? `${summary.visitedCount} places explored · milestone complete`
-              : `${summary.visitedCount} of ${summary.requiredCount} places explored`}
-          </p>
-          <ul className={styles.locations} aria-label="Exploration locations">
+          <ul className={styles.locations} aria-label="Places">
             {explorationLocations.map((location) => {
               const visited = progress.visitedLocationIds.includes(location.id);
               return (
                 <li key={location.id} data-visited={visited}>
-                  <span className={styles.locationCheck} aria-hidden="true">
-                    {visited && <Check size={12} />}
+                  <span className={styles.check} aria-hidden="true">
+                    {visited && <Check size={12} strokeWidth={2} />}
                   </span>
                   <span>{location.label}</span>
                   <span className="sr-only">
-                    {visited ? ", explored" : ", not explored yet"}
+                    {visited ? ", explored" : ", not explored"}
                   </span>
                 </li>
               );
             })}
           </ul>
-          <div className={styles.reward}>
-            <Button
-              variant="control"
-              className={styles.claim}
-              disabled={
-                claimBoundary.status === "unavailable" ||
-                !summary.milestoneComplete ||
-                pending ||
-                claimMessage !== null
-              }
-              aria-busy={pending}
-              onClick={claimReward}
-            >
-              <LockKeyhole size={16} aria-hidden="true" />
-              {pending
-                ? "Checking reward…"
-                : claimMessage
-                  ? "Reward confirmed"
-                  : "Claim a free preset"}
-            </Button>
-            <p className={styles.notice}>
-              {claimBoundary.status === "unavailable"
-                ? (claimBoundary.message ??
-                  "Rewards unavailable. Progress is saved in this browser.")
-                : "Sign in to claim your reward."}
+          <Item className={styles.row}>
+            <ItemContent className={styles.rowContent}>
+              <ItemTitle>Free preset</ItemTitle>
+              <ItemDescription className={styles.rowDescription}>
+                {claimMessage ??
+                  (!summary.milestoneComplete
+                    ? `${remaining} more ${remaining === 1 ? "place" : "places"}`
+                    : claimBoundary.status === "unavailable"
+                      ? (claimBoundary.message ?? "Unavailable")
+                      : "Ready")}
+              </ItemDescription>
+            </ItemContent>
+            <ItemActions>
+              <Button
+                variant="control"
+                className={styles.claim}
+                disabled={!claimable || pending || claimMessage !== null}
+                aria-busy={pending}
+                onClick={claimReward}
+              >
+                {!claimable && (
+                  <LockKeyhole size={14} strokeWidth={1.5} aria-hidden="true" />
+                )}
+                {pending ? "Claiming…" : claimMessage ? "Claimed" : "Claim"}
+              </Button>
+            </ItemActions>
+          </Item>
+          {error && (
+            <p className={styles.error} role="alert">
+              {error}
             </p>
-            {claimMessage && (
-              <p className={styles.notice} role="status">
-                {claimMessage}
-              </p>
-            )}
-            {error && (
-              <p className={styles.error} role="alert">
-                {error}
-              </p>
-            )}
-          </div>
+          )}
         </section>
         <section
           className={styles.challenges}
           aria-labelledby={`${id}-challenges`}
         >
-          <h3 id={`${id}-challenges`}>Photo challenges</h3>
-          {explorationChallenges.map((challenge) => {
-            const found = completed.has(challenge.id);
-            const hintRevealed = progress.revealedHintIds.includes(
-              challenge.id,
-            );
-            return (
-              <article
-                key={challenge.id}
-                className={styles.challenge}
-                data-complete={found}
-              >
-                <div className={styles.sectionHeading}>
-                  <h4>{challenge.title}</h4>
-                  {found && (
-                    <span className={styles.found}>
-                      <Check size={14} aria-hidden="true" /> Found
-                    </span>
-                  )}
-                </div>
-                <p>
-                  {found ? `Found in ${challenge.photoTitle}.` : challenge.clue}
-                </p>
-                {!found && (
-                  <>
-                    <Button
-                      variant="quiet"
-                      className={styles.hintButton}
-                      aria-expanded={hintRevealed}
-                      aria-controls={`${id}-${challenge.id}-hint`}
-                      disabled={hintRevealed}
-                      onClick={() => onRevealHint(challenge.id)}
-                    >
-                      {hintRevealed ? "Hint revealed" : "Show a hint"}
-                    </Button>
-                    <p
-                      id={`${id}-${challenge.id}-hint`}
-                      className={styles.hint}
-                      hidden={!hintRevealed}
-                    >
-                      {challenge.hint}
-                    </p>
-                  </>
-                )}
-                <p className={styles.caption}>
-                  {found
-                    ? "Saved in this browser."
-                    : "Open the photo to complete."}
-                </p>
-              </article>
-            );
-          })}
+          <div className={styles.sectionHeading}>
+            <h3 id={`${id}-challenges`}>Photographs</h3>
+            <span className={styles.count}>
+              {completed.size} of {explorationChallenges.length}
+            </span>
+          </div>
+          <ItemGroup className={styles.rows}>
+            {explorationChallenges.map((challenge) => {
+              const found = completed.has(challenge.id);
+              return (
+                <Item
+                  key={challenge.id}
+                  role="listitem"
+                  className={styles.row}
+                  data-complete={found}
+                >
+                  <ItemMedia className={styles.check} aria-hidden="true">
+                    {found && <Check size={12} strokeWidth={2} />}
+                  </ItemMedia>
+                  <ItemContent className={styles.rowContent}>
+                    <ItemTitle>
+                      {challenge.title}
+                      <span className="sr-only">
+                        {found ? ", found" : ", not found"}
+                      </span>
+                    </ItemTitle>
+                    <ItemDescription className={styles.rowDescription}>
+                      {found ? challenge.photoTitle : challenge.clue}
+                    </ItemDescription>
+                  </ItemContent>
+                </Item>
+              );
+            })}
+          </ItemGroup>
         </section>
       </div>
     </section>

@@ -730,9 +730,6 @@ export default function PlacesExplorer({
           progress={explorationProgress}
           backLabel={backLabel}
           onBack={onBack}
-          onRevealHint={(challengeId) =>
-            recordExploration({ type: "hint-revealed", challengeId })
-          }
         />
       );
     return (
