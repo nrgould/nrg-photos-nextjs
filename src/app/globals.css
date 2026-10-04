@@ -2830,8 +2830,8 @@ html[data-photo-theme="dark"] {
     flex-shrink: 0;
     align-items: center;
     justify-content: space-between;
-    padding: 0 12px 8px 16px;
-    gap: 2px;
+    /* Icon boxes are 36px, so the X glyph lands on the 16px gutter. */
+    padding: 0 4px 8px 16px;
   }
   .photo-drawer-header > div {
     flex: 1;
@@ -2849,8 +2849,9 @@ html[data-photo-theme="dark"] {
     margin-top: 2px;
   }
   .photo-drawer-header > button {
-    width: 44px;
+    width: 36px;
     min-height: 44px;
+    justify-content: center;
     padding: 0;
     border: 0;
     color: var(--ink);
@@ -3640,8 +3641,7 @@ html[data-photo-theme="dark"] {
   }
   .photo-drawer-header > .drawer-presets-link {
     width: auto;
-    min-width: 52px;
-    padding: 0 6px;
+    padding: 0 14px;
     color: var(--ink);
     background: transparent;
     font-size: 12px;
