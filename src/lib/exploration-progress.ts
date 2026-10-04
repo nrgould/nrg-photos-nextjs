@@ -15,29 +15,18 @@ const photoSrcs = [
   ),
 ];
 
+// Only challenges whose photograph is published. Add one when its photo ships.
 export const explorationChallenges = [
   {
     id: "find-red-boat",
     title: "Find the red boat",
-    status: "available" as const,
     clue: "A small flash of red, surrounded by Arctic water and snow.",
     hint: "Look through the photographs around Tromsø, Norway.",
     photoSrc: "/photos/landscape_sailboat_in_a_blizzard.webp",
     photoTitle: "Into the Arctic",
   },
-  {
-    id: "find-the-dog",
-    title: "Find the dog",
-    status: "planned" as const,
-    clue: "A little companion, somewhere along the way.",
-    unavailableReason:
-      "Coming later. The photograph for this challenge has not been confirmed yet.",
-  },
 ] as const;
-const availableChallenges = explorationChallenges.filter(
-  (challenge) => challenge.status === "available",
-);
-const challengeIds = availableChallenges.map((challenge) => challenge.id);
+const challengeIds = explorationChallenges.map((challenge) => challenge.id);
 
 export type ExplorationProgress = {
   version: 1;
@@ -85,20 +74,6 @@ export function restoreExplorationProgress(
   }
 }
 
-export function mergeExplorationProgress(
-  left: unknown,
-  right: unknown,
-): ExplorationProgress {
-  const a = createExplorationProgress(left);
-  const b = createExplorationProgress(right);
-  return createExplorationProgress({
-    version: 1,
-    visitedLocationIds: [...a.visitedLocationIds, ...b.visitedLocationIds],
-    openedPhotoSrcs: [...a.openedPhotoSrcs, ...b.openedPhotoSrcs],
-    revealedHintIds: [...a.revealedHintIds, ...b.revealedHintIds],
-  });
-}
-
 export function recordExplorationEvent(
   progress: unknown,
   event: unknown,
@@ -129,7 +104,7 @@ export function recordExplorationEvent(
 
 export function getExplorationSummary(input: unknown) {
   const progress = createExplorationProgress(input);
-  const completedChallengeIds = availableChallenges
+  const completedChallengeIds = explorationChallenges
     .filter((challenge) =>
       progress.openedPhotoSrcs.includes(challenge.photoSrc),
     )
@@ -142,5 +117,38 @@ export function getExplorationSummary(input: unknown) {
       progress.visitedLocationIds.length >= EXPLORATION_LOCATION_GOAL,
     completedChallengeIds,
     entitlement: "not-verified" as const,
+  };
+}
+
+export type ExplorationMoment =
+  | { kind: "location"; label: string; count: number; goal: number }
+  | { kind: "challenge"; title: string };
+
+/** What a single recorded event just advanced, for the progress toast. */
+export function describeExplorationProgress(
+  before: unknown,
+  after: unknown,
+): ExplorationMoment | null {
+  const a = getExplorationSummary(before);
+  const b = getExplorationSummary(after);
+  const found = b.completedChallengeIds.find(
+    (id) => !a.completedChallengeIds.includes(id),
+  );
+  if (found)
+    return {
+      kind: "challenge",
+      title: explorationChallenges.find((c) => c.id === found)!.title,
+    };
+  if (b.visitedCount <= a.visitedCount || a.milestoneComplete) return null;
+  const visited = createExplorationProgress(after).visitedLocationIds;
+  const id = visited.find(
+    (location) =>
+      !createExplorationProgress(before).visitedLocationIds.includes(location),
+  );
+  return {
+    kind: "location",
+    label: explorationLocations.find((l) => l.id === id)?.label ?? "",
+    count: Math.min(b.visitedCount, b.requiredCount),
+    goal: b.requiredCount,
   };
 }

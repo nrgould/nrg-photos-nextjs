@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useMemo,
-  useSyncExternalStore,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
 import {
   addCartPreset,
   createPresetCart,
@@ -21,49 +15,16 @@ import {
   restorePresetCart,
   serializePresetCart,
 } from "@/lib/preset-cart-storage";
+import { createStoredSnapshot } from "./storedSnapshot";
 
-const emptySnapshot = serializePresetCart(createPresetCart());
-const changeEvent = "photography-preset-cart-change";
-let memorySnapshot: string | null = null;
-
-function getSnapshot() {
-  if (memorySnapshot !== null) return memorySnapshot;
-  try {
-    return (
-      window.localStorage.getItem(PRESET_CART_STORAGE_KEY) ?? emptySnapshot
-    );
-  } catch {
-    return emptySnapshot;
-  }
-}
-
-function subscribe(onChange: () => void) {
-  function onStorage(event: StorageEvent) {
-    if (event.key === PRESET_CART_STORAGE_KEY || event.key === null) {
-      memorySnapshot = null;
-      onChange();
-    }
-  }
-  window.addEventListener(changeEvent, onChange);
-  window.addEventListener("storage", onStorage);
-  return () => {
-    window.removeEventListener(changeEvent, onChange);
-    window.removeEventListener("storage", onStorage);
-  };
-}
+const cartStore = createStoredSnapshot(
+  PRESET_CART_STORAGE_KEY,
+  serializePresetCart(createPresetCart()),
+);
 
 function updateStoredCart(update: (cart: PresetCartState) => PresetCartState) {
-  const previous = getSnapshot();
-  const next = serializePresetCart(update(restorePresetCart(previous)));
-  if (next === previous) return;
-  memorySnapshot = next;
-  try {
-    window.localStorage.setItem(PRESET_CART_STORAGE_KEY, next);
-  } catch {
-    // The current session remains usable when browser storage is unavailable.
-  }
-  window.dispatchEvent(new Event(changeEvent));
-  selectionFeedback();
+  const next = serializePresetCart(update(restorePresetCart(cartStore.get())));
+  if (cartStore.set(next)) selectionFeedback();
 }
 
 type PresetCartContextValue = {
@@ -86,11 +47,7 @@ export function PresetCartProvider({
   /** Server-confirmed entitlements only. Never restore ownership from browser storage. */
   ownedPresetIds?: readonly string[];
 }) {
-  const snapshot = useSyncExternalStore(
-    subscribe,
-    getSnapshot,
-    () => emptySnapshot,
-  );
+  const snapshot = cartStore.use();
   const value = useMemo(() => {
     const owned = [
       ...new Set(ownedPresetIds.filter((id) => getCatalogPreset(id))),

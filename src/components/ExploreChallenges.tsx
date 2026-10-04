@@ -1,12 +1,14 @@
 "use client";
 
-import { useId, useState, type Ref } from "react";
+import { useEffect, useId, useState, type Ref } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArrowLeft, Check, Leaf, LockKeyhole } from "lucide-react";
 import {
   createExplorationProgress,
   explorationChallenges,
   explorationLocations,
   getExplorationSummary,
+  type ExplorationMoment,
   type ExplorationProgress,
 } from "@/lib/exploration-progress";
 import { Button } from "@/components/ui/button";
@@ -19,6 +21,113 @@ export type ExplorationClaimBoundary =
       claim: () => Promise<{ status: "confirmed"; message: string }>;
     };
 const unavailableClaim: ExplorationClaimBoundary = { status: "unavailable" };
+
+const toastSpring = { type: "spring", duration: 0.45, bounce: 0.3 } as const;
+
+function DrawnCheck({ delay = 0 }: { delay?: number }) {
+  const reducedMotion = useReducedMotion();
+  return (
+    <motion.svg
+      className={styles.toastCheck}
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      initial={reducedMotion ? false : { scale: 0.4 }}
+      animate={{ scale: 1 }}
+      transition={{ ...toastSpring, delay }}
+    >
+      <motion.path
+        d="M6 12.5l4 4 8-9"
+        fill="none"
+        strokeWidth={2.25}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        initial={reducedMotion ? false : { pathLength: 0 }}
+        animate={{ pathLength: 1 }}
+        transition={{ duration: 0.3, ease: "easeOut", delay: delay + 0.12 }}
+      />
+    </motion.svg>
+  );
+}
+
+export type ExplorationToastMoment = ExplorationMoment & { key: number };
+
+export function ExplorationToast({
+  moment,
+  onOpen,
+  onDismiss,
+}: {
+  moment: ExplorationToastMoment | null;
+  onOpen: () => void;
+  onDismiss: () => void;
+}) {
+  const reducedMotion = useReducedMotion();
+  useEffect(() => {
+    if (!moment) return;
+    const timer = window.setTimeout(onDismiss, 3200);
+    return () => window.clearTimeout(timer);
+  }, [moment, onDismiss]);
+  const complete =
+    moment?.kind === "challenge" ||
+    (moment?.kind === "location" && moment.count === moment.goal);
+  return (
+    <div className={styles.toastRegion} role="status" aria-live="polite">
+      <AnimatePresence>
+        {moment && (
+          <motion.button
+            key={moment.key}
+            type="button"
+            className={styles.toast}
+            data-complete={complete}
+            onClick={onOpen}
+            initial={
+              reducedMotion
+                ? { opacity: 0 }
+                : { opacity: 0, y: -14, scale: 0.94 }
+            }
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{
+              opacity: 0,
+              y: reducedMotion ? 0 : -8,
+              transition: { duration: 0.15 },
+            }}
+            transition={toastSpring}
+          >
+            {complete ? (
+              <DrawnCheck delay={moment.kind === "location" ? 0.35 : 0.05} />
+            ) : (
+              <span className={styles.toastIcon} aria-hidden="true">
+                <Leaf size={16} strokeWidth={1.5} />
+              </span>
+            )}
+            <span className={styles.toastText}>
+              <strong>
+                {moment.kind === "location" ? moment.label : moment.title}
+              </strong>
+              <span>
+                {moment.kind === "location"
+                  ? `${moment.count} of ${moment.goal} places`
+                  : "Found"}
+              </span>
+            </span>
+            {moment.kind === "location" && (
+              <span className={styles.toastTrack} aria-hidden="true">
+                <motion.span
+                  initial={{
+                    scaleX: reducedMotion
+                      ? moment.count / moment.goal
+                      : (moment.count - 1) / moment.goal,
+                  }}
+                  animate={{ scaleX: moment.count / moment.goal }}
+                  transition={{ ...toastSpring, duration: 0.6, delay: 0.15 }}
+                />
+              </span>
+            )}
+          </motion.button>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export function ExploreChallengesTrigger({
   progress,
@@ -212,47 +321,36 @@ export default function ExploreChallenges({
                       <Check size={14} aria-hidden="true" /> Found
                     </span>
                   )}
-                  {challenge.status === "planned" && (
-                    <span className={styles.planned}>Planned</span>
-                  )}
                 </div>
-                {challenge.status === "planned" ? (
-                  <p>{challenge.unavailableReason}</p>
-                ) : (
+                <p>
+                  {found ? `Found in ${challenge.photoTitle}.` : challenge.clue}
+                </p>
+                {!found && (
                   <>
-                    <p>
-                      {found
-                        ? `Found in ${challenge.photoTitle}.`
-                        : challenge.clue}
-                    </p>
-                    {!found && (
-                      <>
-                        <Button
-                          variant="quiet"
-                          className={styles.hintButton}
-                          aria-expanded={hintRevealed}
-                          aria-controls={`${id}-${challenge.id}-hint`}
-                          disabled={hintRevealed}
-                          onClick={() => onRevealHint(challenge.id)}
-                        >
-                          {hintRevealed ? "Hint revealed" : "Show a hint"}
-                        </Button>
-                        <p
-                          id={`${id}-${challenge.id}-hint`}
-                          className={styles.hint}
-                          hidden={!hintRevealed}
-                        >
-                          {challenge.hint}
-                        </p>
-                      </>
-                    )}
-                    <p className={styles.caption}>
-                      {found
-                        ? "Saved in this browser."
-                        : "Open the photo to complete."}
+                    <Button
+                      variant="quiet"
+                      className={styles.hintButton}
+                      aria-expanded={hintRevealed}
+                      aria-controls={`${id}-${challenge.id}-hint`}
+                      disabled={hintRevealed}
+                      onClick={() => onRevealHint(challenge.id)}
+                    >
+                      {hintRevealed ? "Hint revealed" : "Show a hint"}
+                    </Button>
+                    <p
+                      id={`${id}-${challenge.id}-hint`}
+                      className={styles.hint}
+                      hidden={!hintRevealed}
+                    >
+                      {challenge.hint}
                     </p>
                   </>
                 )}
+                <p className={styles.caption}>
+                  {found
+                    ? "Saved in this browser."
+                    : "Open the photo to complete."}
+                </p>
               </article>
             );
           })}

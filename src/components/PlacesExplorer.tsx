@@ -1,9 +1,11 @@
 "use client";
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type ReactNode,
   type CSSProperties,
 } from "react";
@@ -13,6 +15,7 @@ import {
   ArrowRight,
   ChevronDown,
   ChevronUp,
+  Heart,
   Leaf,
   Moon,
   Search,
@@ -55,9 +58,15 @@ import PlacesMap from "./PlacesMap";
 import PresetCatalog from "./PresetCatalog";
 import ExploreChallenges, {
   ExploreChallengesTrigger,
+  ExplorationToast,
+  type ExplorationToastMoment,
 } from "./ExploreChallenges";
 import { useExplorationProgress } from "./useExplorationProgress";
+import type { ExplorationEvent } from "@/lib/exploration-progress";
 import PresetCartPanel from "./PresetCartPanel";
+import SavedPanel from "./SavedPanel";
+import { useFavorites } from "./useFavorites";
+import { nodeForPhoto } from "@/lib/favorites";
 import { usePresetCart } from "./PresetCartProvider";
 import { usePresetCommerceBoundary } from "./CommerceCartProvider";
 import { AccountControl } from "./AccountControl";
@@ -66,7 +75,7 @@ import {
   type PresetCatalogState,
 } from "@/lib/preset-commerce";
 
-type DrawerMode = "photos" | "presets" | "cart" | "challenges";
+type DrawerMode = "photos" | "presets" | "cart" | "challenges" | "saved";
 
 const MotionButton = motion.create(Button);
 const separatorStyle: CSSProperties = {
@@ -75,6 +84,15 @@ const separatorStyle: CSSProperties = {
   alignSelf: "center",
   flex: "0 0 1px",
 };
+
+// Desktop gets a full-height side drawer; phones keep the bottom sheet.
+const desktopQuery = "(min-width: 701px)";
+function subscribeDesktop(onChange: () => void) {
+  const query = window.matchMedia(desktopQuery);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+const isDesktop = () => window.matchMedia(desktopQuery).matches;
 
 function Control({
   label,
@@ -121,6 +139,11 @@ export default function PlacesExplorer({
     [initialLocationId],
   );
   const reducedMotion = useReducedMotion();
+  const desktop = useSyncExternalStore(
+    subscribeDesktop,
+    isDesktop,
+    () => false,
+  );
   const [selected, setSelected] = useState<string | null>(
     initialNode?.collectionId ?? travelPlaces[0].id,
   );
@@ -154,6 +177,14 @@ export default function PlacesExplorer({
   const [photoFocusOpen, setPhotoFocusOpen] = useState(Boolean(initialNode));
   const { progress: explorationProgress, record: recordExploration } =
     useExplorationProgress();
+  const { favorites, toggle: toggleFavorite } = useFavorites();
+  const [toast, setToast] = useState<ExplorationToastMoment | null>(null);
+  const toastKey = useRef(0);
+  const dismissToast = useCallback(() => setToast(null), []);
+  function explore(event: ExplorationEvent) {
+    const moment = recordExploration(event);
+    if (moment) setToast({ ...moment, key: ++toastKey.current });
+  }
   useEffect(() => {
     if (
       !initialView &&
@@ -217,6 +248,7 @@ export default function PlacesExplorer({
   const presetsTrigger = useRef<HTMLButtonElement | null>(null);
   const cartTrigger = useRef<HTMLButtonElement | null>(null);
   const challengesTrigger = useRef<HTMLButtonElement | null>(null);
+  const savedTrigger = useRef<HTMLButtonElement | null>(null);
   function changeSnap(next: number | string | null) {
     const value = drawerMode === "photos" ? next : Math.max(0.75, Number(next));
     setSnap(value);
@@ -250,7 +282,9 @@ export default function PlacesExplorer({
         ? cartTrigger.current
         : next === "challenges"
           ? challengesTrigger.current
-          : presetsTrigger.current);
+          : next === "saved"
+            ? savedTrigger.current
+            : presetsTrigger.current);
     setViewer(null);
     setDrawerMode(next);
     setSnap(0.75);
@@ -263,7 +297,7 @@ export default function PlacesExplorer({
     selectionFeedback();
     const node = getMapNode(selectedNodeId, filteredPlaces);
     if (node?.kind === "location" && node.precision === "regional")
-      recordExploration({ type: "location-opened", locationId: node.id });
+      explore({ type: "location-opened", locationId: node.id });
     pendingPhotoScroll.current = photoScroll.current;
     drawerOrigin.current = photoOrigin.current ?? presetsTrigger.current;
     setDrawerMode("photos");
@@ -290,6 +324,14 @@ export default function PlacesExplorer({
         }
       : collection;
   }, [filteredPlaces, selected, selectedNodeId]);
+  const placeId =
+    selectedNodeId ??
+    getMapNodes(filteredPlaces, "country").find(
+      (node) => node.collectionId === selected,
+    )?.id ??
+    null;
+  const placeSaved = placeId !== null && favorites.placeIds.includes(placeId);
+  const savedCount = favorites.placeIds.length + favorites.photoSrcs.length;
   const searchNodes = useMemo(
     () => [
       ...getMapNodes(filteredPlaces, "country"),
@@ -302,7 +344,7 @@ export default function PlacesExplorer({
   ).length;
   const viewerIndex =
     place?.photos.findIndex((photo) => photo.src === viewer) ?? -1;
-  const expanded = Number(snap) >= 0.75;
+  const expanded = desktop || Number(snap) >= 0.75;
   function navigate(direction: "back" | "next" | "shuffle") {
     const id = navigatePlaces(filteredPlaces, selected, direction);
     if (id !== null) choose(id);
@@ -487,7 +529,7 @@ export default function PlacesExplorer({
   }
   function chooseNode(node: MapNode) {
     if (node.kind === "location" && node.precision === "regional")
-      recordExploration({ type: "location-opened", locationId: node.id });
+      explore({ type: "location-opened", locationId: node.id });
     choose(node.collectionId, true);
     setSelectedNodeId(node.id);
     setMode("map");
@@ -497,7 +539,7 @@ export default function PlacesExplorer({
     setViewer(photoSrc);
     if (photoSrc !== null) {
       selectionFeedback();
-      recordExploration({ type: "photo-opened", photoSrc });
+      explore({ type: "photo-opened", photoSrc });
     }
   }
   function changeTheme() {
@@ -555,7 +597,7 @@ export default function PlacesExplorer({
   return (
     <TooltipProvider delay={500}>
       <h1 className="sr-only">Photographs on the map</h1>
-      <div className="explorer-top">
+      <div className="explorer-top" data-drawer-open={open}>
         <Control
           label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
           onClick={changeTheme}
@@ -568,6 +610,17 @@ export default function PlacesExplorer({
           triggerRef={challengesTrigger}
           onClick={() => showPanel("challenges")}
         />
+        <Button
+          ref={savedTrigger}
+          variant="control"
+          className="explorer-cart-trigger"
+          aria-label={`Open saved, ${savedCount} saved`}
+          aria-expanded={open && drawerMode === "saved"}
+          onClick={(event) => showPanel("saved", event.currentTarget)}
+        >
+          <Heart size={18} aria-hidden="true" />
+          {savedCount > 0 && <span aria-hidden="true">{savedCount}</span>}
+        </Button>
         <Button
           ref={cartTrigger}
           variant="control"
@@ -631,8 +684,8 @@ export default function PlacesExplorer({
       <div
         className="explorer-bottom-controls"
         data-drawer-open={open}
-        data-drawer-snap={open ? snap : 0}
-        inert={open && expanded}
+        data-drawer-snap={open ? (desktop ? "side" : snap) : 0}
+        inert={open && expanded && !desktop}
         style={
           {
             "--drawer-compact-height": `${compactFraction * 100}dvh`,
@@ -689,13 +742,14 @@ export default function PlacesExplorer({
           }
         }}
         modal={false}
-        snapPoints={
-          drawerMode === "photos" ? [compactFraction, 0.75, 1] : [0.75, 1]
-        }
-        activeSnapPoint={snap === 0.25 ? compactFraction : snap}
-        setActiveSnapPoint={(value) =>
-          changeSnap(value === compactFraction ? 0.25 : value)
-        }
+        direction={desktop ? "right" : "bottom"}
+        {...(!desktop && {
+          snapPoints:
+            drawerMode === "photos" ? [compactFraction, 0.75, 1] : [0.75, 1],
+          activeSnapPoint: snap === 0.25 ? compactFraction : snap,
+          setActiveSnapPoint: (value: number | string | null) =>
+            changeSnap(value === compactFraction ? 0.25 : value),
+        })}
         scrollLockTimeout={0}
         onRelease={() => {
           if (dismissOnRelease.current) closeDrawer();
@@ -821,47 +875,20 @@ export default function PlacesExplorer({
             ref={drawerViewport}
             className="drawer-visible-content"
             style={{
-              height: `${(snap === 0.25 ? compactFraction : Number(snap)) * 100}dvh`,
+              height: desktop
+                ? "100%"
+                : `${(snap === 0.25 ? compactFraction : Number(snap)) * 100}dvh`,
             }}
           >
-            <MotionButton
-              variant="quiet"
-              press={false}
-              whileTap={reducedMotion ? undefined : { scaleX: 0.96 }}
-              transition={{ type: "spring", stiffness: 500, damping: 28 }}
-              ref={drawerHandle}
-              onClick={(event) => {
-                if (event.detail === 0 || !dragged.current)
-                  changeSnap(
-                    Number(snap) === 0.25
-                      ? 0.75
-                      : Number(snap) === 0.75
-                        ? 1
-                        : 0.25,
-                  );
-              }}
-              className="photo-drawer-grip"
-              aria-label={`Resize ${drawerMode === "photos" ? "photo" : drawerMode === "cart" ? "cart" : drawerMode === "challenges" ? "challenge" : "preset"} drawer, ${Number(snap) * 100} percent open`}
-              aria-hidden={false}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(event) => {
-                if (
-                  [
-                    "Enter",
-                    " ",
-                    "ArrowUp",
-                    "ArrowDown",
-                    "Home",
-                    "End",
-                  ].includes(event.key)
-                ) {
-                  event.preventDefault();
-                  if (event.key === "Home") changeSnap(0.25);
-                  else if (event.key === "End") changeSnap(1);
-                  else if (event.key === "ArrowDown")
-                    changeSnap(Number(snap) === 1 ? 0.75 : 0.25);
-                  else
+            {!desktop && (
+              <MotionButton
+                variant="quiet"
+                press={false}
+                whileTap={reducedMotion ? undefined : { scaleX: 0.96 }}
+                transition={{ type: "spring", stiffness: 500, damping: 28 }}
+                ref={drawerHandle}
+                onClick={(event) => {
+                  if (event.detail === 0 || !dragged.current)
                     changeSnap(
                       Number(snap) === 0.25
                         ? 0.75
@@ -869,9 +896,40 @@ export default function PlacesExplorer({
                           ? 1
                           : 0.25,
                     );
-                }
-              }}
-            />
+                }}
+                className="photo-drawer-grip"
+                aria-label={`Resize ${drawerMode === "photos" ? "photo" : drawerMode === "challenges" ? "challenge" : drawerMode === "presets" ? "preset" : drawerMode} drawer, ${Number(snap) * 100} percent open`}
+                aria-hidden={false}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(event) => {
+                  if (
+                    [
+                      "Enter",
+                      " ",
+                      "ArrowUp",
+                      "ArrowDown",
+                      "Home",
+                      "End",
+                    ].includes(event.key)
+                  ) {
+                    event.preventDefault();
+                    if (event.key === "Home") changeSnap(0.25);
+                    else if (event.key === "End") changeSnap(1);
+                    else if (event.key === "ArrowDown")
+                      changeSnap(Number(snap) === 1 ? 0.75 : 0.25);
+                    else
+                      changeSnap(
+                        Number(snap) === 0.25
+                          ? 0.75
+                          : Number(snap) === 0.75
+                            ? 1
+                            : 0.25,
+                      );
+                  }
+                }}
+              />
+            )}
             {drawerMode === "photos" ? (
               <div className="photo-drawer-header">
                 <div>
@@ -886,6 +944,21 @@ export default function PlacesExplorer({
                     </span>
                   </DrawerDescription>
                 </div>
+                {placeId && (
+                  <Button
+                    variant="quiet"
+                    className="drawer-save"
+                    aria-label={`Save ${place?.name ?? "place"}`}
+                    aria-pressed={placeSaved}
+                    onClick={() => toggleFavorite("placeIds", placeId)}
+                  >
+                    <Heart
+                      size={18}
+                      fill={placeSaved ? "currentColor" : "none"}
+                      aria-hidden="true"
+                    />
+                  </Button>
+                )}
                 <Button
                   variant="quiet"
                   className="drawer-presets-link"
@@ -893,22 +966,25 @@ export default function PlacesExplorer({
                 >
                   Presets
                 </Button>
+                {!desktop && (
+                  <Button
+                    variant="quiet"
+                    className="drawer-browse"
+                    aria-label={
+                      expanded ? "Collapse photographs" : "Browse photographs"
+                    }
+                    onClick={() => changeSnap(expanded ? 0.25 : 0.75)}
+                  >
+                    {!expanded && <span>Browse</span>}
+                    {expanded ? (
+                      <ChevronDown size={16} />
+                    ) : (
+                      <ChevronUp size={16} />
+                    )}
+                  </Button>
+                )}
                 <Button
-                  variant="quiet"
-                  className="drawer-browse"
-                  aria-label={
-                    expanded ? "Collapse photographs" : "Browse photographs"
-                  }
-                  onClick={() => changeSnap(expanded ? 0.25 : 0.75)}
-                >
-                  {!expanded && <span>Browse</span>}
-                  {expanded ? (
-                    <ChevronDown size={16} />
-                  ) : (
-                    <ChevronUp size={16} />
-                  )}
-                </Button>
-                <Button
+                  ref={desktop ? drawerHandle : undefined}
                   variant="control"
                   aria-label="Close photographs"
                   onClick={closeDrawer}
@@ -923,7 +999,9 @@ export default function PlacesExplorer({
                     ? "Your preset cart"
                     : drawerMode === "challenges"
                       ? "Exploration challenges"
-                      : "All presets"}
+                      : drawerMode === "saved"
+                        ? "Saved places and photographs"
+                        : "All presets"}
                 </DrawerTitle>
                 <DrawerDescription
                   id="drawer-panel-description"
@@ -931,7 +1009,9 @@ export default function PlacesExplorer({
                 >
                   {drawerMode === "challenges"
                     ? "Location and photo challenges."
-                    : "Presets and cart."}
+                    : drawerMode === "saved"
+                      ? "Saved places and photographs."
+                      : "Presets and cart."}
                 </DrawerDescription>
                 <div
                   className="drawer-mode-controls"
@@ -963,6 +1043,14 @@ export default function PlacesExplorer({
                   </Button>
                   <Button
                     variant="quiet"
+                    aria-label={`Saved, ${savedCount}`}
+                    aria-pressed={drawerMode === "saved"}
+                    onClick={() => showPanel("saved")}
+                  >
+                    <Heart size={16} aria-hidden="true" />
+                  </Button>
+                  <Button
+                    variant="quiet"
                     aria-label={`Cart, ${cartIds.length} presets`}
                     aria-pressed={drawerMode === "cart"}
                     onClick={() => showPanel("cart")}
@@ -972,6 +1060,7 @@ export default function PlacesExplorer({
                   </Button>
                 </div>
                 <Button
+                  ref={desktop ? drawerHandle : undefined}
                   variant="control"
                   aria-label="Close drawer"
                   onClick={closeDrawer}
@@ -1070,6 +1159,23 @@ export default function PlacesExplorer({
                 />
               </div>
             )}
+            {drawerMode === "saved" && (
+              <div className="drawer-commerce-pane">
+                <SavedPanel
+                  favorites={favorites}
+                  onBack={() => (place ? showPhotos() : closeDrawer())}
+                  onToggle={toggleFavorite}
+                  onOpenPlace={chooseNode}
+                  onOpenPhoto={(src, trigger) => {
+                    const node = nodeForPhoto(src);
+                    if (!node) return;
+                    photoFocus.current = trigger;
+                    chooseNode(node);
+                    openPhotograph(src);
+                  }}
+                />
+              </div>
+            )}
             {drawerMode === "cart" && (
               <div className="drawer-commerce-pane">
                 <PresetCartPanel
@@ -1116,12 +1222,37 @@ export default function PlacesExplorer({
       </Dialog>
       <Lightbox
         finalFocus={photoFocus}
+        action={(photo) => {
+          const saved = favorites.photoSrcs.includes(photo.src);
+          return (
+            <Button
+              variant="icon"
+              aria-label={`Save ${photo.title}`}
+              aria-pressed={saved}
+              onClick={() => toggleFavorite("photoSrcs", photo.src)}
+            >
+              <Heart
+                size={22}
+                strokeWidth={1.5}
+                fill={saved ? "currentColor" : "none"}
+              />
+            </Button>
+          );
+        }}
         photos={place?.photos ?? []}
         index={viewerIndex < 0 ? null : viewerIndex}
         onIndexChange={(index) => {
           openPhotograph(
             index === null ? null : (place?.photos[index]?.src ?? null),
           );
+        }}
+      />
+      <ExplorationToast
+        moment={toast}
+        onDismiss={dismissToast}
+        onOpen={() => {
+          dismissToast();
+          showPanel("challenges");
         }}
       />
       <span className="sr-only" aria-live="polite">

@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState, type RefObject } from "react";
+import { useRef, useState, type ReactNode, type RefObject } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
@@ -16,8 +16,11 @@ export default function Lightbox({
   index,
   onIndexChange,
   finalFocus,
+  action,
 }: {
   finalFocus?: RefObject<HTMLElement | null>;
+  /** Extra control beside Close, for the photo on screen. */
+  action?: (photo: Photo) => ReactNode;
   photos: Photo[];
   index: number | null;
   onIndexChange: (index: number | null) => void;
@@ -52,12 +55,15 @@ export default function Lightbox({
               <span aria-live="polite">
                 {index! + 1} / {photos.length}
               </span>
-              <DialogClose
-                render={<Button variant="icon" />}
-                aria-label="Close photograph viewer"
-              >
-                <X size={24} strokeWidth={1.5} />
-              </DialogClose>
+              <span className="lightbox-actions">
+                {action?.(current)}
+                <DialogClose
+                  render={<Button variant="icon" />}
+                  aria-label="Close photograph viewer"
+                >
+                  <X size={24} strokeWidth={1.5} />
+                </DialogClose>
+              </span>
             </div>
             <div
               className="lightbox-image"

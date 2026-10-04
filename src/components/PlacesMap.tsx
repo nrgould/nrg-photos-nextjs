@@ -40,6 +40,14 @@ import {
 import { Button } from "./ui/button";
 import "maplibre-gl/dist/maplibre-gl.css";
 
+// Intro: an ease-in spin hands off to the ease-out settle at equal speed
+// (2·spin/spinMs = 3·settle/settleMs), so the globe never jerks.
+const introSpinMs = 1600;
+const introSpinDegrees = 110;
+const introSettleMs = 2200;
+const introSettleDegrees =
+  (2 * introSpinDegrees * introSettleMs) / (3 * introSpinMs);
+
 function colors() {
   const css = getComputedStyle(document.documentElement);
   const token = (name: string) => css.getPropertyValue(name).trim();
@@ -260,10 +268,13 @@ export default function PlacesMap(props: {
         setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
         MarkerClass.current = Marker;
         const initial = latest.current;
-        const initialCenter = initial.intro
-          ? ([-30, 20] as [number, number])
-          : ((travelPlaces.find((place) => place.id === initial.selected)
-              ?.coordinates ?? [-30, 20]) as [number, number]);
+        const selectedCenter = (travelPlaces.find(
+          (place) => place.id === initial.selected,
+        )?.coordinates ?? [-30, 20]) as [number, number];
+        // The intro spins in from the far side of the globe.
+        const initialCenter: [number, number] = initial.intro
+          ? [selectedCenter[0] - introSpinDegrees - introSettleDegrees, 20]
+          : selectedCenter;
         const instance = new MapConstructor({
           container: container.current,
           style: style(projection.current.mix),
@@ -843,7 +854,6 @@ export default function PlacesMap(props: {
     ).matches;
     const { width, height } = container.current.getBoundingClientRect();
     const finish = () => latest.current.onIntroEnd();
-    if (intro) instance.once("moveend", finish);
     const targetCenter =
       navigationTarget.current ??
       selectedNode?.coordinates ??
@@ -887,34 +897,63 @@ export default function PlacesMap(props: {
       : undefined;
     if (framed?.zoom !== undefined)
       breakoutZoom.current = Math.min(engineZoom(3), framed.zoom - 0.2);
-    instance.easeTo({
-      ...(framed
-        ? { center: framed.center }
-        : recenter && targetCenter
-          ? { center: targetCenter }
-          : {}),
-      zoom: framed?.zoom ?? targetZoom,
-      // Selection offsets frame the drawer without leaving projection-dependent padding behind.
-      offset:
-        !framed && recenter && canvasOpen
-          ? width > 700
-            ? [-205, 0]
-            : [0, -height * 0.125]
-          : [0, 0],
-      duration: instant
-        ? 0
-        : projectionChanged
-          ? projectionDuration * 1000
-          : intro
-            ? 2200
-            : 650,
-      easing: (t) => 1 - (1 - t) ** 3,
-    });
-    if (intro) {
-      return () => {
-        instance.off("moveend", finish);
-      };
+    const settle = () =>
+      instance.easeTo({
+        ...(framed
+          ? { center: framed.center }
+          : recenter && targetCenter
+            ? { center: targetCenter }
+            : {}),
+        zoom: framed?.zoom ?? targetZoom,
+        // Selection offsets frame the drawer without leaving projection-dependent padding behind.
+        offset:
+          !framed && recenter && canvasOpen
+            ? width > 700
+              ? [-205, 0]
+              : [0, -height * 0.125]
+            : [0, 0],
+        duration: instant
+          ? 0
+          : projectionChanged
+            ? projectionDuration * 1000
+            : intro
+              ? introSettleMs
+              : 650,
+        easing: (t) => 1 - (1 - t) ** 3,
+      });
+    if (!intro) {
+      settle();
+      return;
     }
+    if (instant || !recenter) {
+      instance.once("moveend", finish);
+      settle();
+      return () => instance.off("moveend", finish);
+    }
+    // Spin up (ease-in), then hand off at the same speed to the ease-out settle.
+    let touched = false;
+    const touch = () => {
+      touched = true;
+    };
+    const userEvents = ["mousedown", "touchstart", "wheel"] as const;
+    for (const type of userEvents) instance.once(type, touch);
+    const afterSpin = () => {
+      if (touched) return finish();
+      instance.once("moveend", finish);
+      settle();
+    };
+    const start = instance.getCenter();
+    instance.once("moveend", afterSpin);
+    instance.easeTo({
+      center: [start.lng + introSpinDegrees, start.lat],
+      duration: introSpinMs,
+      easing: (t) => t * t,
+    });
+    return () => {
+      for (const type of userEvents) instance.off(type, touch);
+      instance.off("moveend", afterSpin);
+      instance.off("moveend", finish);
+    };
   }, [
     selected,
     selectedNodeId,

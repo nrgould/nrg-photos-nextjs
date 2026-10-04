@@ -7,7 +7,7 @@ import {
   explorationChallenges,
   explorationLocations,
   getExplorationSummary,
-  mergeExplorationProgress,
+  describeExplorationProgress,
   recordExplorationEvent,
   restoreExplorationProgress,
 } from "../src/lib/exploration-progress";
@@ -103,18 +103,48 @@ test("red-boat completion requires the exact actual opened photograph; visits an
   );
 });
 
-test("unverified dog challenge stays planned and cannot be completed or reveal a fabricated hint", () => {
-  const dog = explorationChallenges.find(
-    (challenge) => challenge.id === "find-the-dog",
+test("only challenges with a published photograph are listed", () => {
+  assert.deepEqual(
+    explorationChallenges.map((challenge) => challenge.id),
+    ["find-red-boat"],
   );
-  assert.ok(dog);
-  assert.equal(dog.status, "planned");
-  assert.equal("photoSrc" in dog, false);
-  const progress = recordExplorationEvent(empty, {
-    type: "hint-revealed",
-    challengeId: "find-the-dog",
+  assert.deepEqual(
+    recordExplorationEvent(empty, {
+      type: "hint-revealed",
+      challengeId: "find-the-dog",
+    }),
+    empty,
+  );
+});
+
+test("each new place up to the goal and each found photo describe one toast", () => {
+  let progress = empty;
+  for (const [index, id] of ids.slice(0, 5).entries()) {
+    const next = visit(progress, id);
+    assert.deepEqual(describeExplorationProgress(progress, next), {
+      kind: "location",
+      label: explorationLocations[index].label,
+      count: index + 1,
+      goal: 5,
+    });
+    progress = next;
+  }
+  assert.equal(
+    describeExplorationProgress(progress, visit(progress, ids[5])),
+    null,
+  );
+  assert.equal(
+    describeExplorationProgress(progress, visit(progress, ids[0])),
+    null,
+  );
+  const found = recordExplorationEvent(progress, {
+    type: "photo-opened",
+    photoSrc: boat,
   });
-  assert.deepEqual(progress, empty);
+  assert.deepEqual(describeExplorationProgress(progress, found), {
+    kind: "challenge",
+    title: "Find the red boat",
+  });
 });
 
 test("storage accepts only versioned known IDs and derives completions instead of trusting claimed rewards", () => {
@@ -145,27 +175,6 @@ test("storage accepts only versioned known IDs and derives completions instead o
     '{"version":1,"visitedLocationIds":{}}',
   ])
     assert.deepEqual(restoreExplorationProgress(bad), empty);
-});
-
-test("merges converge across browser tabs regardless of event order, without duplicates or mutation", () => {
-  const a = visit(visit(empty, ids[3]), ids[0]);
-  const b = recordExplorationEvent(visit(empty, ids[4]), {
-    type: "photo-opened",
-    photoSrc: boat,
-  });
-  const c = visit(empty, ids[1]);
-  const snapshot = structuredClone(a);
-  assert.deepEqual(
-    mergeExplorationProgress(a, b),
-    mergeExplorationProgress(b, a),
-  );
-  assert.deepEqual(mergeExplorationProgress(a, a), a);
-  assert.deepEqual(
-    mergeExplorationProgress(mergeExplorationProgress(a, b), c),
-    mergeExplorationProgress(a, mergeExplorationProgress(b, c)),
-  );
-  assert.deepEqual(a, snapshot);
-  assert.deepEqual(mergeExplorationProgress(a, null), a);
 });
 
 test("malformed and unrecognized events do not change progress or assert completion", () => {
