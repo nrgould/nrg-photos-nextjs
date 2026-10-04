@@ -955,6 +955,7 @@ export default function PlacesExplorer({
                     <Heart
                       size={18}
                       fill={placeSaved ? "currentColor" : "none"}
+                      className={placeSaved ? "text-favorite" : undefined}
                       aria-hidden="true"
                     />
                   </Button>
@@ -1235,6 +1236,7 @@ export default function PlacesExplorer({
                 size={22}
                 strokeWidth={1.5}
                 fill={saved ? "currentColor" : "none"}
+                className={saved ? "text-favorite" : undefined}
               />
             </Button>
           );

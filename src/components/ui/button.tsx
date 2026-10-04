@@ -14,7 +14,7 @@ const variants = cva(
           "min-h-[54px] justify-between gap-6 bg-primary px-6 py-[18px] text-sm text-primary-foreground hover:bg-primary/90",
         link: "justify-between gap-7 border-b border-current py-[13px] text-[13px] leading-normal hover:underline [&_svg]:transition-transform [&_svg]:duration-300 [&_svg]:ease-out hover:[&_svg]:translate-x-1",
         quiet: "gap-2.5 text-[13px] text-muted-foreground hover:underline",
-        icon: "size-12 justify-center text-paper hover:bg-green-800",
+        icon: "size-12 justify-center rounded-[12px] text-paper hover:bg-paper/10",
         round:
           "size-11 justify-center rounded-full border border-green-400 text-primary-foreground hover:bg-paper/20 [&_svg]:size-5",
       },

@@ -47,6 +47,8 @@ const introSpinDegrees = 110;
 const introSettleMs = 2200;
 const introSettleDegrees =
   (2 * introSpinDegrees * introSettleMs) / (3 * introSpinMs);
+// Desktop thumbnails render larger; marker layout runs in 48px marker units.
+const desktopMarkerScale = 4 / 3;
 
 function colors() {
   const css = getComputedStyle(document.documentElement);
@@ -440,8 +442,15 @@ export default function PlacesMap(props: {
           const instant =
             keyboardIntent.current ||
             window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-          const { clientWidth: width, clientHeight: height } =
-            instance.getCanvas();
+          const scale = window.matchMedia("(min-width: 701px)").matches
+            ? desktopMarkerScale
+            : 1;
+          instance
+            .getContainer()
+            .style.setProperty("--marker-scale", String(scale));
+          const canvas = instance.getCanvas();
+          const width = canvas.clientWidth / scale;
+          const height = canvas.clientHeight / scale;
           const anchors = [...markers.current].flatMap(
             ([id, { marker, node, exiting }]) => {
               if (exiting) return [];
@@ -452,8 +461,8 @@ export default function PlacesMap(props: {
               return [
                 {
                   id,
-                  x: point.x,
-                  y: point.y,
+                  x: point.x / scale,
+                  y: point.y / scale,
                   visible: !element.classList.contains(
                     "maplibregl-marker-covered",
                   ),
@@ -500,10 +509,12 @@ export default function PlacesMap(props: {
             const element = entry.marker.getElement();
             element.dataset.layoutMotion = String(entry.placed && !instant);
             entry.placed = true;
-            const key = `${offset.x},${offset.y}`;
+            const x = offset.x * scale;
+            const y = offset.y * scale;
+            const key = `${x},${y}`;
             if (element.dataset.callout !== key) {
-              element.style.setProperty("--callout-x", `${offset.x}px`);
-              element.style.setProperty("--callout-y", `${offset.y}px`);
+              element.style.setProperty("--callout-x", `${x}px`);
+              element.style.setProperty("--callout-y", `${y}px`);
               element.dataset.callout = key;
             }
             const label = labels.get(id);
@@ -514,7 +525,7 @@ export default function PlacesMap(props: {
                 element.dataset.labelHidden = String(label.hidden);
             }
             const path = element.querySelector("path");
-            const line = `M0 0L${offset.x} ${offset.y}`;
+            const line = `M0 0L${x} ${y}`;
             if (path?.getAttribute("d") !== line) path?.setAttribute("d", line);
           }
           const viewport = instance.getCanvas().getBoundingClientRect();

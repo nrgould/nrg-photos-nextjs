@@ -33,6 +33,7 @@
   --explorer-water-dark: #192125;
   --explorer-land-dark: #2b2d2c;
   --clay: #783e25;
+  --favorite: #d93a3a;
   --image-outline: oklch(0 0 0 / 0.1);
   --image-outline-dark: oklch(1 0 0 / 0.1);
 
@@ -124,6 +125,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-favorite: var(--favorite);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -2940,8 +2942,13 @@ html[data-photo-theme="dark"] {
     visibility: hidden;
   }
   @media (min-width: 701px) {
-    .explorer-bottom-controls[data-drawer-open="true"],
     .explorer .explorer-top[data-drawer-open="true"] {
+      right: 424px;
+    }
+  }
+  /* The command bar stays centered unless the side drawer would cover it. */
+  @media (min-width: 701px) and (max-width: 1039px) {
+    .explorer-bottom-controls[data-drawer-open="true"] {
       right: 424px;
     }
   }
@@ -3117,11 +3124,12 @@ html[data-photo-theme="dark"] {
     top: 52px;
     left: 50%;
     transform: translateX(-50%);
-    font: 500 11px/1.3 var(--sans);
+    /* Divided by the marker scale so labels keep their size on desktop. */
+    font: 500 calc(11px / var(--marker-scale, 1)) / 1.3 var(--sans);
     color: var(--ink);
     background: var(--paper);
-    padding: 2px 5px;
-    border-radius: 4px;
+    padding: calc(2px / var(--marker-scale, 1)) calc(5px / var(--marker-scale, 1));
+    border-radius: calc(4px / var(--marker-scale, 1));
     pointer-events: none;
     white-space: nowrap;
   }
@@ -3213,6 +3221,7 @@ html[data-photo-theme="dark"] {
   .map-marker-content {
     width: 0;
     height: 0;
+    scale: var(--marker-scale, 1);
     opacity: 1;
     transform: translate(0, 0) scale(1);
   }
