@@ -15,9 +15,16 @@ type Account = {
   userId: string | null | undefined;
   sessionId: string | null | undefined;
   email: string | null;
+  /** A guest session from checkout; it becomes permanent once an email is linked. */
+  anonymous: boolean;
   supabase: SupabaseClient | null;
 };
-const signedOut = { userId: null, sessionId: null, email: null };
+const signedOut = {
+  userId: null,
+  sessionId: null,
+  email: null,
+  anonymous: false,
+};
 const AccountSession = createContext<Account>({
   enabled: false,
   supabase: null,
@@ -51,6 +58,7 @@ function ConfiguredSession({
               userId: next.user.id,
               sessionId: sessionIdOf(next.access_token),
               email: next.user.email ?? null,
+              anonymous: next.user.is_anonymous ?? false,
             }
           : signedOut,
       ),
@@ -66,6 +74,7 @@ function ConfiguredSession({
           userId: undefined,
           sessionId: undefined,
           email: null,
+          anonymous: false,
         }),
       }}
     >

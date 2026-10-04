@@ -198,26 +198,66 @@ export function useCommerceBoundary() {
     revision,
     availability === "test-ready",
   );
+  const ready = Boolean(
+    availability === "test-ready" && account.userId && sessionKey && owned,
+  );
+
+  // Signed-out checkout starts a guest session, then resumes once its ownership is confirmed.
+  const guest = useRef<{
+    request: PresetCheckoutRequest;
+    resolve: () => void;
+    reject: (error: unknown) => void;
+  } | null>(null);
+  const startGuestCheckout = useCallback(
+    (request: PresetCheckoutRequest) =>
+      new Promise<void>((resolve, reject) => {
+        const supabase = account.supabase;
+        if (!supabase || guest.current)
+          return reject(new Error("Checkout unavailable"));
+        const queued = { request, resolve, reject };
+        guest.current = queued;
+        const fail = (error: unknown) => {
+          if (guest.current !== queued) return;
+          guest.current = null;
+          reject(error);
+        };
+        setTimeout(() => fail(new Error("Checkout unavailable")), 15000);
+        supabase.auth
+          .signInAnonymously()
+          .then(({ error }) => error && fail(error), fail);
+      }),
+    [account.supabase],
+  );
+  useEffect(() => {
+    const queued = guest.current;
+    if (!queued || !ready) return;
+    guest.current = null;
+    startCheckout(queued.request).then(queued.resolve, queued.reject);
+  }, [ready, startCheckout]);
+
   const checkout = useMemo<PresetCheckoutBoundary>(
     () =>
-      availability === "test-ready" && account.userId && sessionKey && owned
+      ready
         ? { status: "test-ready", startCheckout }
-        : {
-            status: "unavailable",
-            message:
-              availability === "test-ready" && sessionKey
-                ? "Confirming your account’s presets before checkout."
-                : availability === "test-ready" && account.enabled
-                  ? "Sign in to continue to test checkout."
+        : availability === "test-ready" &&
+            account.supabase &&
+            account.userId === null
+          ? { status: "test-ready", startCheckout: startGuestCheckout }
+          : {
+              status: "unavailable",
+              message:
+                availability === "test-ready" && sessionKey
+                  ? "Confirming your account’s presets before checkout."
                   : "Cart saved.",
-          },
+            },
     [
       availability,
-      account.enabled,
+      account.supabase,
       account.userId,
+      ready,
       sessionKey,
-      owned,
       startCheckout,
+      startGuestCheckout,
     ],
   );
   return {

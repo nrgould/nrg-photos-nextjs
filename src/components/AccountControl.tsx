@@ -16,9 +16,11 @@ import { Label } from "./ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 export function AccountControl({ className }: { className?: string }) {
-  const { enabled, supabase, userId, email } = useCommerceAccount();
+  const { enabled, supabase, userId, email, anonymous } = useCommerceAccount();
   const [open, setOpen] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
+  // A guest links the email to keep its purchases; "email_change" is that code's type.
+  const [codeType, setCodeType] = useState<"email" | "email_change">("email");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const field = useRef<HTMLInputElement>(null);
@@ -30,19 +32,32 @@ export function AccountControl({ className }: { className?: string }) {
     const value = String(new FormData(event.currentTarget).get("value")).trim();
     setPending(true);
     setError(null);
-    const { error } = sentTo
-      ? await supabase.auth.verifyOtp({
-          email: sentTo,
-          token: value,
-          type: "email",
-        })
-      : await supabase.auth.signInWithOtp({
+    const redirect = window.location.origin + window.location.pathname;
+    let error;
+    if (sentTo)
+      ({ error } = await supabase.auth.verifyOtp({
+        email: sentTo,
+        token: value,
+        type: codeType,
+      }));
+    else {
+      let type: typeof codeType = "email";
+      if (anonymous) {
+        ({ error } = await supabase.auth.updateUser(
+          { email: value },
+          { emailRedirectTo: redirect },
+        ));
+        if (!error) type = "email_change";
+      }
+      // ponytail: an email that already has an account signs into it, leaving guest
+      // purchases on the guest id; merging them needs a server endpoint that checks both sessions.
+      if (!anonymous || error?.code === "email_exists")
+        ({ error } = await supabase.auth.signInWithOtp({
           email: value,
-          // The email's link signs in here too, when this origin is in Supabase's Redirect URLs.
-          options: {
-            emailRedirectTo: window.location.origin + window.location.pathname,
-          },
-        });
+          options: { emailRedirectTo: redirect },
+        }));
+      setCodeType(type);
+    }
     setPending(false);
     if (error) return setError(error.message);
     if (sentTo) setOpen(false);
@@ -51,7 +66,7 @@ export function AccountControl({ className }: { className?: string }) {
 
   return (
     <>
-      {userId ? (
+      {userId && !anonymous ? (
         <Popover>
           <PopoverTrigger
             render={
@@ -91,9 +106,9 @@ export function AccountControl({ className }: { className?: string }) {
           <span className="max-[700px]:hidden">Sign in</span>
         </Button>
       )}
-      {/* Closed by `!userId` too, so a verified code exits with the dialog's animation. */}
+      {/* Also closes when the account turns permanent, so a verified code exits with the dialog's animation. */}
       <Dialog
-        open={open && !userId}
+        open={open && (!userId || anonymous)}
         onOpenChange={(next) => {
           setOpen(next);
           if (!next) setError(null);
