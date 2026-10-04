@@ -12,6 +12,7 @@ import {
   cameraZoom,
   constrainCamera,
   engineZoom,
+  breakoutScale,
   markerLevel,
   isZoomInput,
   isFlatFloorZoomOut,
@@ -218,7 +219,7 @@ test("explicit camera constraints always allow the globe stop and preserve longi
 });
 
 test("regional breakout has hysteresis during small pinch changes", () => {
-  const threshold = engineZoom(3);
+  const threshold = engineZoom(breakoutScale);
   assert.equal(markerLevel(threshold + 0.13, "country"), "location");
   assert.equal(markerLevel(threshold + 0.05, "country"), "country");
   assert.equal(markerLevel(threshold - 0.05, "location"), "location");

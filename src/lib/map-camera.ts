@@ -159,10 +159,12 @@ export const continuousProjection: NonNullable<
 };
 
 export type MarkerLevel = "country" | "location";
+// UI scale where country stacks split into places: halfway from Continent to Region.
+export const breakoutScale = 2.5;
 export function markerLevel(
   zoom: number,
   previous: MarkerLevel,
-  threshold = engineZoom(3),
+  threshold = engineZoom(breakoutScale),
 ): MarkerLevel {
   if (previous === "country" && zoom >= threshold + 0.12) return "location";
   if (previous === "location" && zoom < threshold - 0.12) return "country";

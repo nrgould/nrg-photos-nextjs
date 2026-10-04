@@ -20,6 +20,7 @@ import {
   cameraZoom,
   constrainCamera,
   engineZoom,
+  breakoutScale,
   markerLevel,
   markerLabels,
   isZoomInput,
@@ -310,11 +311,11 @@ export default function PlacesMap(props: {
     markerLevel(
       toEngineZoom(mode === "globe" ? 0 : zoom),
       "country",
-      toEngineZoom(3),
+      toEngineZoom(breakoutScale),
     ),
   );
   const liveLevel = useRef(level);
-  const breakoutZoom = useRef(toEngineZoom(3));
+  const breakoutZoom = useRef(toEngineZoom(breakoutScale));
   const nodes = useMemo(
     () => getMapNodes(props.places, level),
     [props.places, level],
@@ -518,7 +519,8 @@ export default function PlacesMap(props: {
           if (next !== liveLevel.current) {
             liveLevel.current = next;
             setLevel(next);
-            if (next === "country") breakoutZoom.current = toEngineZoom(3);
+            if (next === "country")
+              breakoutZoom.current = toEngineZoom(breakoutScale);
           }
         });
         instance.on("render", () => {
@@ -1034,7 +1036,10 @@ export default function PlacesMap(props: {
         })
       : undefined;
     if (framed?.zoom !== undefined)
-      breakoutZoom.current = Math.min(toEngineZoom(3), framed.zoom - 0.2);
+      breakoutZoom.current = Math.min(
+        toEngineZoom(breakoutScale),
+        framed.zoom - 0.2,
+      );
     const settle = () =>
       instance.easeTo({
         ...(framed ? { center: framed.center } : center ? { center } : {}),
