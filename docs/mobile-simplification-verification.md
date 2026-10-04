@@ -1,6 +1,6 @@
 # Mobile simplification verification
 
-October 4, 2026. Bounded follow-up on the existing draft PR. Nicholas's three Library screenshots were downloaded through the authorized Library transfer helper and inspected as pixels before editing. Originals and browser captures remain outside Git in `../references/mobile-simplification/`.
+October 4, 2026. Bounded follow-up on the existing draft PR. Nicholas's three Library screenshots were downloaded through the authorized Library transfer helper and inspected as pixels before editing. Original Library screenshots remain outside Git in `../references/mobile-simplification/`. Three generated after screenshots containing only the public prototype are included in `docs/screenshots/mobile-simplified-{globe,presets,cart}.png`.
 
 ## Before and after
 
@@ -22,7 +22,7 @@ October 4, 2026. Bounded follow-up on the existing draft PR. Nicholas's three Li
 - Cart's 21 selections remain $41.79 subtotal, $8.36 discount, $33.43 total. Native scrolling reaches totals and disabled checkout. No payment attempted.
 - Screenshots inspected: grid-free globe in light/dark themes, dark flat map retaining borders, catalog, cart, 320×640 narrow phone and 842×390 landscape. No horizontal overflow at 320px. Landscape content scrolls past its header.
 - React review: gesture transients remain refs; no per-frame React state or new network work; Vaul owns drawer transforms; SSR links, keyboard controls and real error states remain.
-- `git diff --check` passed. Changes contain no private screenshots, preset payloads, credentials or dependency additions.
+- `git diff --check` passed. Changes contain no private source screenshots, preset payloads, credentials or dependency additions.
 
 ## Limits
 
