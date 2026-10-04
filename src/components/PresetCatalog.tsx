@@ -9,7 +9,6 @@ import {
   Check,
   ChevronRight,
   Plus,
-  Search,
 } from "lucide-react";
 import {
   filterPresetCatalog,
@@ -22,7 +21,6 @@ import {
 } from "@/lib/preset-commerce";
 import { Button, buttonVariants } from "./ui/button";
 import { PresetDownloadButton } from "./PresetDownloadButton";
-import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { NativeSelect } from "./ui/native-select";
 import { Item, ItemActions, ItemContent, ItemGroup } from "./ui/item";
@@ -60,7 +58,7 @@ export default function PresetCatalog({
   const reducedMotion = useReducedMotion();
   const [keyboardInteraction, setKeyboardInteraction] = useState(false);
   const selected = getCatalogPreset(state.selectedPresetId);
-  const results = filterPresetCatalog(state);
+  const results = filterPresetCatalog({ ...state, query: "" });
   const locations = getVerifiedPresetLocations(selected?.id);
   const cart = new Set(
     cartIds.filter((presetId) => getCatalogPreset(presetId)),
@@ -81,14 +79,12 @@ export default function PresetCatalog({
       if (catalogElement.current) catalogElement.current.scrollTop = 0;
       return;
     }
-    const container = window.matchMedia("(max-height: 700px)").matches
-      ? catalogElement.current
-      : resultsElement.current;
+    const container = catalogElement.current;
     if (container)
       container.scrollTop = scrollMemory?.get() ?? localScroll.current;
   }, [selected, scrollMemory]);
   const detailBack = useRef<HTMLButtonElement | null>(null);
-  const searchInput = useRef<HTMLInputElement>(null);
+  const categoryInput = useRef<HTMLSelectElement>(null);
 
   function update(next: Partial<PresetCatalogState>) {
     onStateChange({ ...state, ...next });
@@ -98,6 +94,7 @@ export default function PresetCatalog({
     <section
       ref={catalogElement}
       className={styles.catalog}
+      data-drawer-scroll
       onScroll={(event) => {
         if (!selected) {
           localScroll.current = event.currentTarget.scrollTop;
@@ -117,49 +114,18 @@ export default function PresetCatalog({
         )}
         <div className={styles.heading}>
           <div>
-            <p className={styles.eyebrow}>2026 Signature Collection</p>
-            <h2 id={`${id}-heading`}>All presets</h2>
+            <h2 id={`${id}-heading`}>Presets</h2>
           </div>
-          <span className={styles.total}>{presetCatalog.length} presets</span>
+          <span className={styles.total}>$1.99 each · 20% off 10+</span>
         </div>
-        <p className={styles.availability} aria-live="polite">
-          $1.99 each · {cart.size} in cart
-          {owned.size > 0 && <span> · {owned.size} owned</span>}
-        </p>
-        {onAddCollection && (
-          <Button
-            variant="control"
-            className={styles.collectionAction}
-            disabled={remainingCollectionIds.length === 0}
-            onClick={() => onAddCollection(remainingCollectionIds)}
-          >
-            {remainingCollectionIds.length === 0
-              ? "Collection selected"
-              : "Add complete collection"}
-            <span>21 presets · save 20% on 10+</span>
-          </Button>
-        )}
       </header>
 
       <div className={styles.listPane} hidden={Boolean(selected)}>
         <div className={styles.filters}>
-          <Label htmlFor={`${id}-search`} className={styles.searchLabel}>
-            <span className="sr-only">Search presets</span>
-            <Search size={17} aria-hidden="true" />
-            <Input
-              ref={searchInput}
-              id={`${id}-search`}
-              className={styles.search}
-              placeholder="Search presets"
-              value={state.query}
-              onChange={(event) => update({ query: event.target.value })}
-              type="search"
-              autoComplete="off"
-            />
-          </Label>
           <Label htmlFor={`${id}-category`} className={styles.categoryLabel}>
-            Category
+            <span className="sr-only">Category</span>
             <NativeSelect
+              ref={categoryInput}
               id={`${id}-category`}
               className={styles.category}
               value={state.category}
@@ -169,28 +135,35 @@ export default function PresetCatalog({
             >
               {presetCategories.map((category) => (
                 <option key={category} value={category}>
-                  {category}
+                  {category === "All" ? "All categories" : category}
                 </option>
               ))}
             </NativeSelect>
           </Label>
+          {onAddCollection && (
+            <Button
+              variant="control"
+              className={styles.collectionAction}
+              disabled={remainingCollectionIds.length === 0}
+              onClick={() => onAddCollection(remainingCollectionIds)}
+              aria-label={
+                remainingCollectionIds.length === 0
+                  ? "All presets selected"
+                  : "Add all 21 presets to cart"
+              }
+            >
+              {remainingCollectionIds.length === 0 ? "All selected" : "Add all"}
+            </Button>
+          )}
         </div>
-        <p className={styles.resultCount} role="status">
+        <p className="sr-only" role="status">
           {results.length} {results.length === 1 ? "preset" : "presets"}
-          {state.query || state.category !== "All"
-            ? " found"
-            : " in collection"}
+          {state.category !== "All" ? " found" : " in collection"}
         </p>
         <div
           ref={resultsElement}
           className={styles.results}
           aria-label="Preset catalog"
-          onScroll={(event) => {
-            if (!selected) {
-              localScroll.current = event.currentTarget.scrollTop;
-              scrollMemory?.set(event.currentTarget.scrollTop);
-            }
-          }}
         >
           <ItemGroup className={styles.items}>
             {results.map((preset) => {
@@ -313,7 +286,7 @@ export default function PresetCatalog({
                 className={styles.action}
                 onClick={() => {
                   update({ query: "", category: "All" });
-                  requestAnimationFrame(() => searchInput.current?.focus());
+                  requestAnimationFrame(() => categoryInput.current?.focus());
                 }}
               >
                 Clear filters
@@ -336,12 +309,14 @@ export default function PresetCatalog({
                   resultsElement.current?.querySelector<HTMLElement>(
                     `[data-preset-id="${selected.id}"]`,
                   );
-                (result ?? searchInput.current)?.focus({ preventScroll: true });
+                (result ?? categoryInput.current)?.focus({
+                  preventScroll: true,
+                });
               });
             }}
           >
             <ArrowLeft size={16} aria-hidden="true" />
-            Back to results
+            All presets
           </Button>
           <div className={styles.productHeading}>
             <span className={styles.productNumber} aria-hidden="true">
@@ -377,21 +352,13 @@ export default function PresetCatalog({
                 <Plus size={18} aria-hidden="true" />
               )}
             </Button>
-            <p className={styles.notice} role="status">
-              {selectedOwned
-                ? "This preset is already in your collection."
-                : selectedInCart
-                  ? "Added to your cart."
-                  : "Select individual presets to build your collection."}
-            </p>
             {selectedOwned && <PresetDownloadButton presetId={selected.id} />}
           </div>
           <div className={styles.facts}>
             <h4>About this preset</h4>
             <p>
-              Part of the 2026 Signature Collection. Product details, software
-              compatibility, included files, and license terms are not published
-              here yet.
+              Compatibility, included files and license details are not
+              published yet.
             </p>
             <Link
               href={`/presets/${selected.id}`}
@@ -427,11 +394,9 @@ export default function PresetCatalog({
                 ))}
               </ul>
             ) : (
-              <p>
-                No verified photo or location associations are available yet.
-              </p>
+              <p>Photo and location links are not available yet.</p>
             )}
-            <p>Authentic before-and-after previews are not available yet.</p>
+            <p>Before-and-after previews are not available yet.</p>
           </div>
         </div>
       )}

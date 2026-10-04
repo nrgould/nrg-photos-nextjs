@@ -7,14 +7,12 @@ import {
   type ReactNode,
   type CSSProperties,
 } from "react";
-import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import {
   ArrowLeft,
   ArrowRight,
   ChevronDown,
   ChevronUp,
-  Mail,
   Leaf,
   Moon,
   Search,
@@ -24,18 +22,11 @@ import {
   X,
 } from "lucide-react";
 import { travelPlaces } from "@/lib/places";
+import { drawerOwnsGesture, shouldDismissDrawer } from "@/lib/drawer-gesture";
 import { getMapNode, getMapNodes, type MapNode } from "@/lib/map-hierarchy";
-import {
-  activeFilterCount,
-  defaultMapFilters,
-  filterPlaces,
-  navigatePlaces,
-  retainSelection,
-  type MapFilters as FilterState,
-} from "@/lib/map-filters";
+import { navigatePlaces } from "@/lib/map-filters";
 import { Button } from "./ui/button";
 import MapZoom from "./MapZoom";
-import MapFilters from "./MapFilters";
 import { Separator } from "./ui/separator";
 import {
   Tooltip,
@@ -135,13 +126,7 @@ export default function PlacesExplorer({
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(
     initialNode?.id ?? null,
   );
-  const [filters, setFilters] = useState(() => defaultMapFilters(travelPlaces));
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  const filteredPlaces = useMemo(
-    () => filterPlaces(travelPlaces, filters),
-    [filters],
-  );
-  const activeCount = activeFilterCount(travelPlaces, filters);
+  const filteredPlaces = travelPlaces;
   const photoCount = filteredPlaces.reduce(
     (count, place) => count + place.photos.length,
     0,
@@ -180,7 +165,7 @@ export default function PlacesExplorer({
       });
   }, [initialNode, initialView, recordExploration]);
   const [catalogState, setCatalogState] = useState(() =>
-    createPresetCatalogState(initialCatalogState),
+    createPresetCatalogState({ ...initialCatalogState, query: "" }),
   );
   const { checkout } = usePresetCommerceBoundary();
   const { cartIds, ownedPresetIds, addPreset, addPresets, removePreset } =
@@ -212,7 +197,15 @@ export default function PlacesExplorer({
     null,
   );
   const dragged = useRef(false);
-  const gestureStart = useRef<[number, number] | null>(null);
+  const gestureStart = useRef<{
+    x: number;
+    y: number;
+    height: number;
+    scrollTop: number;
+    canScroll: boolean;
+    owner: "drawer" | "scroll" | null;
+  } | null>(null);
+  const dismissOnRelease = useRef(false);
   const gallery = useRef<HTMLDivElement>(null);
   const drawerViewport = useRef<HTMLDivElement>(null);
   const photoLayout = useRef<HTMLDivElement>(null);
@@ -220,7 +213,6 @@ export default function PlacesExplorer({
   const photoOrigin = useRef<HTMLElement | SVGElement | null>(null);
   const drawerHandle = useRef<HTMLButtonElement>(null);
   const photoFocus = useRef<HTMLButtonElement | null>(null);
-  const filterTrigger = useRef<HTMLButtonElement | null>(null);
   const presetsTrigger = useRef<HTMLButtonElement | null>(null);
   const cartTrigger = useRef<HTMLButtonElement | null>(null);
   const challengesTrigger = useRef<HTMLButtonElement | null>(null);
@@ -308,50 +300,6 @@ export default function PlacesExplorer({
   const viewerIndex =
     place?.photos.findIndex((photo) => photo.src === viewer) ?? -1;
   const expanded = Number(snap) >= 0.75;
-  function updateFilters(next: FilterState) {
-    const nextPlaces = filterPlaces(travelPlaces, next);
-    const nextNode = selectedNodeId
-      ? getMapNode(selectedNodeId, nextPlaces)
-      : null;
-    const nextSelected =
-      selectedNodeId && !nextNode
-        ? null
-        : retainSelection(nextPlaces, selected);
-    const nextCollection = nextPlaces.find(
-      (candidate) => candidate.id === nextSelected,
-    );
-    const nextPlace = nextNode ?? nextCollection;
-    setFilters(next);
-    setSelected(nextSelected);
-    setIntro(false);
-    if (!nextPlace) {
-      setSelectedNodeId(null);
-      drawerOrigin.current = filterTrigger.current;
-      setOpen(false);
-      setPhotoFocusOpen(false);
-      setViewer(null);
-      photoFocus.current = filterTrigger.current;
-    } else {
-      if (
-        place?.photos.map((photo) => photo.src).join() !==
-        nextPlace.photos.map((photo) => photo.src).join()
-      ) {
-        photoScroll.current = 0;
-        pendingPhotoScroll.current = null;
-        gallery.current?.scrollTo(0, 0);
-      }
-      if (
-        viewer !== null &&
-        !nextPlace.photos.some((photo) => photo.src === viewer)
-      ) {
-        setViewer(null);
-        photoFocus.current = drawerHandle.current ?? filterTrigger.current;
-      }
-    }
-  }
-  function clearFilters() {
-    updateFilters(defaultMapFilters(travelPlaces));
-  }
   function navigate(direction: "back" | "next" | "shuffle") {
     const id = navigatePlaces(filteredPlaces, selected, direction);
     if (id !== null) choose(id);
@@ -674,14 +622,6 @@ export default function PlacesExplorer({
           )}
         </div>
       </div>
-      {photoCount === 0 && (
-        <div className="map-filter-empty explorer-overlay">
-          <p>No photographs match these filters</p>
-          <Button variant="control" onClick={clearFilters}>
-            Clear all
-          </Button>
-        </div>
-      )}
       <div
         className="explorer-bottom-controls"
         data-drawer-open={open}
@@ -693,24 +633,6 @@ export default function PlacesExplorer({
           } as CSSProperties
         }
       >
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <Button
-                variant="control"
-                nativeButton={false}
-                render={<Link href="/contact" />}
-                className="floating-contact"
-                aria-label="Contact Nicholas"
-              />
-            }
-          >
-            <Mail size={18} />
-          </TooltipTrigger>
-          <TooltipContent className="explorer-overlay">
-            Contact Nicholas
-          </TooltipContent>
-        </Tooltip>
         <div className="explorer-command-bar" aria-label="Location navigation">
           <div className="travel-commands">
             <Control
@@ -750,19 +672,6 @@ export default function PlacesExplorer({
                 setZoom(nextZoom);
               }}
             />
-            <Separator orientation="vertical" style={separatorStyle} />
-            <MapFilters
-              places={travelPlaces}
-              value={filters}
-              onChange={updateFilters}
-              onClear={clearFilters}
-              activeCount={activeCount}
-              photoCount={photoCount}
-              locationCount={locationCount}
-              open={filtersOpen}
-              onOpenChange={setFiltersOpen}
-              triggerRef={filterTrigger}
-            />
           </div>
         </div>
       </div>
@@ -782,7 +691,11 @@ export default function PlacesExplorer({
         setActiveSnapPoint={(value) =>
           changeSnap(value === compactFraction ? 0.25 : value)
         }
-        snapToSequentialPoint
+        scrollLockTimeout={0}
+        onRelease={() => {
+          if (dismissOnRelease.current) closeDrawer();
+          dismissOnRelease.current = false;
+        }}
         repositionInputs={false}
       >
         <DrawerContent
@@ -807,7 +720,6 @@ export default function PlacesExplorer({
           }}
           onCloseAutoFocus={(event) => {
             event.preventDefault();
-            if (filtersOpen) return;
             const origin = drawerOrigin.current;
             if (origin?.isConnected) origin.focus({ preventScroll: true });
             else
@@ -822,29 +734,79 @@ export default function PlacesExplorer({
             if (event.buttons !== 0) event.stopPropagation();
           }}
           onPointerDownCapture={(event) => {
+            if (!event.isPrimary) {
+              event.stopPropagation();
+              return;
+            }
             dragged.current = false;
-            gestureStart.current = [event.clientX, event.clientY];
+            dismissOnRelease.current = false;
+            const scroller = (event.target as HTMLElement).closest<HTMLElement>(
+              "[data-drawer-scroll]",
+            );
+            gestureStart.current = {
+              x: event.clientX,
+              y: event.clientY,
+              height: drawerViewport.current?.clientHeight ?? 0,
+              scrollTop: scroller?.scrollTop ?? 0,
+              canScroll: Boolean(
+                scroller && scroller.scrollHeight > scroller.clientHeight + 1,
+              ),
+              owner: null,
+            };
           }}
-          onPointerUpCapture={() => {
-            gestureStart.current = null;
+          onScrollCapture={(event) => {
+            const scroller = event.target as HTMLElement;
+            if (scroller.hasAttribute("data-drawer-scroll"))
+              scroller.dataset.scrolled = String(scroller.scrollTop > 0);
           }}
-          onPointerCancelCapture={() => {
+          onPointerUpCapture={(event) => {
+            if (!event.isPrimary) {
+              event.stopPropagation();
+              return;
+            }
+            const start = gestureStart.current;
+            dismissOnRelease.current = Boolean(
+              start?.owner === "drawer" &&
+              event.currentTarget.classList.contains("vaul-dragging") &&
+              shouldDismissDrawer(event.clientY - start.y, start.height),
+            );
             gestureStart.current = null;
+            const element = event.currentTarget;
+            queueMicrotask(() => delete element.dataset.vaulNoDrag);
+          }}
+          onPointerCancelCapture={(event) => {
+            gestureStart.current = null;
+            dismissOnRelease.current = false;
+            delete event.currentTarget.dataset.vaulNoDrag;
           }}
           onPointerMoveCapture={(event) => {
             const start = gestureStart.current;
-            if (
-              start &&
-              Math.hypot(event.clientX - start[0], event.clientY - start[1]) > 8
-            )
-              dragged.current = true;
+            if (!event.isPrimary) {
+              event.stopPropagation();
+              return;
+            }
+            if (!start) return;
+            const distanceY = event.clientY - start.y;
+            if (Math.hypot(event.clientX - start.x, distanceY) <= 8) return;
+            dragged.current = true;
+            if (start.owner === null)
+              start.owner = drawerOwnsGesture({ ...start, distanceY, expanded })
+                ? "drawer"
+                : "scroll";
+            if (start.owner === "scroll")
+              event.currentTarget.dataset.vaulNoDrag = "";
+          }}
+          onClickCapture={(event) => {
+            if (event.detail > 0 && dragged.current) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
           }}
           onInteractOutside={(event) => event.preventDefault()}
           onEscapeKeyDown={(event) => {
             if (
               viewer !== null ||
               command ||
-              filtersOpen ||
               document.querySelector(".map-zoom-popover[data-open]")
             )
               event.preventDefault();
@@ -906,7 +868,7 @@ export default function PlacesExplorer({
               }}
             />
             {drawerMode === "photos" ? (
-              <div className="photo-drawer-header" data-vaul-no-drag>
+              <div className="photo-drawer-header">
                 <div>
                   <DrawerTitle>{place?.name ?? "Photographs"}</DrawerTitle>
                   <DrawerDescription id="location-photo-description">
@@ -950,7 +912,7 @@ export default function PlacesExplorer({
                 </Button>
               </div>
             ) : (
-              <div className="drawer-commerce-header" data-vaul-no-drag>
+              <div className="drawer-commerce-header">
                 <DrawerTitle className="sr-only">
                   {drawerMode === "cart"
                     ? "Your preset cart"
@@ -963,8 +925,8 @@ export default function PlacesExplorer({
                   className="sr-only"
                 >
                   {drawerMode === "challenges"
-                    ? "Explore verified locations and find details in photographs. Local progress does not grant a reward."
-                    : "Browse the Signature Collection and manage your cart."}
+                    ? "Location and photo challenges."
+                    : "Presets and cart."}
                 </DrawerDescription>
                 <div
                   className="drawer-mode-controls"
@@ -1016,9 +978,9 @@ export default function PlacesExplorer({
             <div
               ref={gallery}
               className="drawer-gallery"
+              data-drawer-scroll
               hidden={drawerMode !== "photos"}
               data-photo-count={place?.photos.length ?? 0}
-              data-vaul-no-drag={expanded ? "" : undefined}
               tabIndex={0}
               aria-label={place ? `${place.name} photographs` : "Photographs"}
               onScroll={(event) => {
@@ -1080,7 +1042,6 @@ export default function PlacesExplorer({
             <div
               className="drawer-commerce-pane"
               hidden={drawerMode !== "presets"}
-              data-vaul-no-drag
             >
               <PresetCatalog
                 state={catalogState}
@@ -1094,7 +1055,7 @@ export default function PlacesExplorer({
               />
             </div>
             {drawerMode === "challenges" && (
-              <div className="drawer-commerce-pane" data-vaul-no-drag>
+              <div className="drawer-commerce-pane">
                 <ExploreChallenges
                   progress={explorationProgress}
                   onBack={() => (place ? showPhotos() : closeDrawer())}
@@ -1105,7 +1066,7 @@ export default function PlacesExplorer({
               </div>
             )}
             {drawerMode === "cart" && (
-              <div className="drawer-commerce-pane" data-vaul-no-drag>
+              <div className="drawer-commerce-pane">
                 <PresetCartPanel
                   onBack={() => showPanel("presets")}
                   returnPath={`/explore?${checkoutParams}`}
@@ -1126,9 +1087,7 @@ export default function PlacesExplorer({
           <Command>
             <CommandInput placeholder="Find a place…" />
             <CommandList>
-              <CommandEmpty>
-                No places found{activeCount ? " within these filters" : ""}.
-              </CommandEmpty>
+              <CommandEmpty>No places found.</CommandEmpty>
               {searchNodes.map((node) => (
                 <CommandItem
                   key={node.id}

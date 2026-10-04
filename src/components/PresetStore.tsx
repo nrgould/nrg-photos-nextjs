@@ -27,7 +27,7 @@ export default function PresetStore({
   checkout?: PresetCheckoutBoundary;
 }) {
   const [state, setState] = useState(() =>
-    createPresetCatalogState(initialState),
+    createPresetCatalogState({ ...initialState, query: "" }),
   );
   const [view, setView] = useState(initialView);
   const commerce = usePresetCommerceBoundary();

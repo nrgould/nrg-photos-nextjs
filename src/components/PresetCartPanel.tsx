@@ -25,7 +25,7 @@ export type PresetCheckoutBoundary =
     };
 export const unavailablePresetCheckout = {
   status: "unavailable",
-  message: "Checkout is not available yet. Your selection stays in this cart.",
+  message: "Cart saved.",
 } satisfies PresetCheckoutBoundary;
 
 export default function PresetCartPanel({
@@ -56,16 +56,18 @@ export default function PresetCartPanel({
         returnPath: safePresetReturnPath(returnPath),
       });
     } catch {
-      setError(
-        "Checkout could not open. Your selection is still here; please try again.",
-      );
+      setError("Checkout could not open. Try again.");
     } finally {
       setPending(false);
     }
   }
 
   return (
-    <section className={styles.cartPanel} aria-labelledby={`${id}-heading`}>
+    <section
+      className={styles.cartPanel}
+      data-drawer-scroll
+      aria-labelledby={`${id}-heading`}
+    >
       <header className={styles.header}>
         <Button
           ref={backButton}
@@ -73,21 +75,17 @@ export default function PresetCartPanel({
           className={styles.back}
           onClick={onBack}
         >
-          <ArrowLeft size={16} aria-hidden="true" /> Continue browsing
+          <ArrowLeft size={16} aria-hidden="true" /> Presets
         </Button>
         <div className={styles.heading}>
-          <h2 id={`${id}-heading`}>Your collection</h2>
+          <h2 id={`${id}-heading`}>Cart</h2>
           <span className={styles.total}>{quote.paidCount} in cart</span>
         </div>
-        <p className={styles.availability}>
-          Selected presets become yours after a confirmed purchase.
-        </p>
       </header>
       {cartIds.length === 0 ? (
         <div className={styles.cartEmpty}>
           <ShoppingBag size={28} strokeWidth={1.5} aria-hidden="true" />
-          <h3>Start with a favorite</h3>
-          <p>Choose individual presets, or build a set of ten for 20% off.</p>
+          <h3>Your cart is empty</h3>
           <Button variant="control" className={styles.action} onClick={onBack}>
             Browse presets
           </Button>
@@ -147,11 +145,11 @@ export default function PresetCartPanel({
             </Button>
           </div>
           <footer className={styles.cartSummary}>
-            <p className={styles.discountHint} role="status">
-              {remaining > 0
-                ? `Add ${remaining} more ${remaining === 1 ? "preset" : "presets"} for 20% off your paid selection.`
-                : "20% collection discount applied."}
-            </p>
+            {remaining > 0 && (
+              <p className={styles.discountHint} role="status">
+                {remaining} more for 20% off
+              </p>
+            )}
             <dl className={styles.totals}>
               <div>
                 <dt>Subtotal</dt>
@@ -159,7 +157,7 @@ export default function PresetCartPanel({
               </div>
               {quote.discountCents > 0 && (
                 <div>
-                  <dt>Collection discount (20%)</dt>
+                  <dt>20% discount</dt>
                   <dd>−{formatPresetPrice(quote.discountCents)}</dd>
                 </div>
               )}
@@ -184,7 +182,7 @@ export default function PresetCartPanel({
             </Button>
             <p className={styles.notice}>
               {checkout.status === "test-ready"
-                ? "Test checkout only. No live payment is collected. Final pricing is verified by the server."
+                ? "Test mode. No live payment."
                 : (checkout.message ?? unavailablePresetCheckout.message)}
             </p>
             {error && (

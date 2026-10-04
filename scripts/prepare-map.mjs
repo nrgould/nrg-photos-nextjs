@@ -1,7 +1,6 @@
 import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { geoGraticule10 } from "d3-geo";
 import { prepareCountryContext } from "./lib/map-context.mjs";
 
 function unwrapRing(ring) {
@@ -99,7 +98,6 @@ async function prepareMapAssets() {
   );
   for (const name of ["country-labels", "city-labels"])
     await copyFile(`src/data/${name}.json`, `public/maps/${name}.json`);
-  await writeFile("public/maps/grid.json", JSON.stringify(geoGraticule10()));
 }
 
 if (

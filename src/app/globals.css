@@ -3575,3 +3575,15 @@ html[data-photo-theme="dark"] {
     }
   }
 }
+
+/* At the scroll boundary, upward swipes scroll content and downward swipes pull
+   the Vaul drawer. Away from the boundary the browser owns both directions. */
+.location-drawer [data-drawer-scroll] {
+  touch-action: pan-down;
+}
+.location-drawer [data-drawer-scroll][data-scrolled="true"] {
+  touch-action: pan-y;
+}
+.location-drawer[data-expanded="false"] .drawer-gallery {
+  touch-action: none;
+}

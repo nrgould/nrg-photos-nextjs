@@ -48,7 +48,6 @@ function colors() {
     water: token(dark ? "--explorer-water-dark" : "--explorer-water-light"),
     land: token(dark ? "--explorer-land-dark" : "--explorer-land-light"),
     edge: token(dark ? "--neutral-600" : "--neutral-500"),
-    grid: token(dark ? "--neutral-700" : "--neutral-200"),
     label: token(dark ? "--neutral-300" : "--neutral-600"),
   };
 }
@@ -69,7 +68,6 @@ function style(mix: number): StyleSpecification {
         data: "/maps/land.json",
         attribution: "Natural Earth",
       },
-      grid: { type: "geojson", data: "/maps/grid.json" },
       boundaries: { type: "geojson", data: "/maps/boundaries.json" },
       countries: { type: "geojson", data: "/maps/country-labels.json" },
       cities: { type: "geojson", data: "/maps/city-labels.json" },
@@ -79,12 +77,6 @@ function style(mix: number): StyleSpecification {
         id: "water",
         type: "background",
         paint: { "background-color": color.water },
-      },
-      {
-        id: "grid",
-        type: "line",
-        source: "grid",
-        paint: { "line-color": color.grid, "line-width": 0.6 },
       },
       {
         id: "land",
@@ -798,7 +790,6 @@ export default function PlacesMap(props: {
     instance.setPaintProperty("water", "background-color", color.water);
     instance.setPaintProperty("land", "fill-color", color.land);
     instance.setPaintProperty("edge", "line-color", color.edge);
-    instance.setPaintProperty("grid", "line-color", color.grid);
     instance.setPaintProperty("boundaries", "line-color", color.edge);
     for (const layer of ["countries-labels", "cities-labels"]) {
       instance.setPaintProperty(layer, "text-color", color.label);

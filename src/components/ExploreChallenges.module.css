@@ -1,6 +1,6 @@
 .panel {
-  display: flex;
-  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   height: 100%;
   min-height: 0;
   background: var(--paper);
@@ -42,8 +42,6 @@
 .content {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
   padding: 8px 16px max(24px, env(safe-area-inset-bottom));
 }
 .sectionHeading {

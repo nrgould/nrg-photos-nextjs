@@ -98,16 +98,19 @@ export default function ExploreChallenges({
   }
 
   return (
-    <section className={styles.panel} aria-labelledby={`${id}-heading`}>
+    <section
+      className={styles.panel}
+      data-drawer-scroll
+      aria-labelledby={`${id}-heading`}
+    >
       <header className={styles.header}>
         <Button variant="quiet" className={styles.back} onClick={onBack}>
           <ArrowLeft size={16} aria-hidden="true" /> Back to photographs
         </Button>
         <div className={styles.heading}>
           <Leaf size={23} strokeWidth={1.5} aria-hidden="true" />
-          <h2 id={`${id}-heading`}>A little further</h2>
+          <h2 id={`${id}-heading`}>Challenges</h2>
         </div>
-        <p>Explore places. Notice the small things.</p>
       </header>
       <div className={styles.content}>
         <section
@@ -121,10 +124,6 @@ export default function ExploreChallenges({
               <Check size={18} aria-hidden="true" />
             )}
           </div>
-          <p>
-            Open five different locations on the map to complete this
-            exploration milestone.
-          </p>
           <progress
             className={styles.progress}
             value={Math.min(summary.visitedCount, summary.requiredCount)}
@@ -175,8 +174,8 @@ export default function ExploreChallenges({
             <p className={styles.notice}>
               {claimBoundary.status === "unavailable"
                 ? (claimBoundary.message ??
-                  "Rewards are unavailable in this preview. Exploration progress is local; it does not grant a preset or purchase entitlement.")
-                : "Your account and reward eligibility must be confirmed by the server before a preset is granted."}
+                  "Rewards unavailable. Progress is saved in this browser.")
+                : "Sign in to claim your reward."}
             </p>
             {claimMessage && (
               <p className={styles.notice} role="status">
@@ -194,7 +193,7 @@ export default function ExploreChallenges({
           className={styles.challenges}
           aria-labelledby={`${id}-challenges`}
         >
-          <h3 id={`${id}-challenges`}>Look a little closer</h3>
+          <h3 id={`${id}-challenges`}>Photo challenges</h3>
           {explorationChallenges.map((challenge) => {
             const found = completed.has(challenge.id);
             const hintRevealed = progress.revealedHintIds.includes(
@@ -223,7 +222,7 @@ export default function ExploreChallenges({
                   <>
                     <p>
                       {found
-                        ? `You opened “${challenge.photoTitle}.” A small detail, found.`
+                        ? `Found in ${challenge.photoTitle}.`
                         : challenge.clue}
                     </p>
                     {!found && (
@@ -249,8 +248,8 @@ export default function ExploreChallenges({
                     )}
                     <p className={styles.caption}>
                       {found
-                        ? "Completed in this browser. No purchase or reward was granted."
-                        : "Open the photograph to complete this challenge."}
+                        ? "Saved in this browser."
+                        : "Open the photo to complete."}
                     </p>
                   </>
                 )}

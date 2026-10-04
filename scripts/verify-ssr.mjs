@@ -11,6 +11,7 @@ const cases = [
   ["/explore", "Photographs on the map", 0],
   ["/presets", "Preset catalog", 0],
   ["/presets?preset=signature-01", "Alpine Light", 0],
+  ["/presets?query=nomatch", "Alpine Light", 0],
   ["/about", "<h1>About</h1>", 0],
   ["/contact", "<h1>Contact</h1>", 0],
   ["/work", "<h1>Work</h1>", 39],
@@ -57,8 +58,17 @@ for (const [path, text, count] of cases) {
       "photo drawer initially closed",
     );
     assert.ok(!html.includes("Sample recipes"), "deferred preset UI absent");
+    assert.ok(
+      !html.includes('aria-label="Contact Nicholas"'),
+      "map contact control removed",
+    );
+    assert.ok(
+      !html.includes('aria-label="Filter photographs"'),
+      "map filter control removed",
+    );
   }
-  if (path === "/presets") {
+  if (path === "/presets" || path === "/presets?query=nomatch") {
+    assert.ok(!html.includes("Search presets"), "preset search removed");
     assert.equal(
       (html.match(/\. View details"/g) || []).length,
       21,

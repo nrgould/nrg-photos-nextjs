@@ -1,8 +1,8 @@
 .catalog {
-  display: flex;
-  flex-direction: column;
   min-height: 0;
   height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   color: var(--ink);
   background: var(--paper);
   font-family: var(--font-explorer-sans), sans-serif;
@@ -57,29 +57,9 @@
 }
 .filters {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
   padding: 0 16px;
-}
-.searchLabel {
-  position: relative;
-  display: block;
-}
-.searchLabel > svg {
-  position: absolute;
-  top: 15px;
-  left: 12px;
-  margin: 0;
-  color: var(--muted-foreground);
-}
-.search {
-  margin: 0;
-  min-height: 46px;
-  padding: 10px 12px 10px 38px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--paper);
-  font-size: 16px;
 }
 .categoryLabel {
   color: var(--muted-foreground);
@@ -105,9 +85,7 @@
 }
 .results {
   min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 0 12px 20px;
+  padding: 8px 12px 20px;
 }
 .items {
   gap: 0;
@@ -206,8 +184,6 @@
 }
 .detail {
   min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
   padding: 0 16px 24px;
 }
 .productHeading {
@@ -276,19 +252,12 @@
     text-decoration: none;
   }
 }
-@media (min-width: 540px) {
-  .filters {
-    grid-template-columns: minmax(0, 1fr) 180px;
-    align-items: end;
-  }
-}
 .collectionAction {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  width: 100%;
   min-height: 44px;
-  margin-top: 12px;
+  margin: 0;
   gap: 4px 12px;
   border-radius: 10px;
   white-space: normal;
@@ -312,8 +281,8 @@
   place-items: center;
 }
 .cartPanel {
-  display: flex;
-  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   min-height: 0;
   height: 100%;
   color: var(--ink);
@@ -323,11 +292,7 @@
   line-height: 1.5;
 }
 .cartResults {
-  flex: 1;
-  min-height: 72px;
   padding: 0 16px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
 }
 .cartName {
   font-size: 14px;
@@ -432,19 +397,6 @@
 .store .catalog {
   font-family: var(--font-explorer-sans), sans-serif;
 }
-@media (max-height: 550px) {
-  .cartPanel {
-    overflow-y: auto;
-    overscroll-behavior: contain;
-  }
-  .cartResults {
-    flex: none;
-    overflow: visible;
-  }
-  .cartSummary {
-    flex: none;
-  }
-}
 @media (prefers-reduced-motion: reduce) {
   .catalog button,
   .cartPanel button,
@@ -475,29 +427,4 @@
   --muted-foreground: var(--neutral-300);
   --input: var(--neutral-500);
   --ring: var(--neutral-300);
-}
-
-@media (max-height: 700px) {
-  .catalog {
-    display: block;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-  }
-  .listPane {
-    min-height: auto;
-  }
-  .results,
-  .detail {
-    overflow: visible;
-  }
-  .header {
-    padding-top: 8px;
-    padding-bottom: 8px;
-  }
-  .collectionAction {
-    margin-top: 8px;
-  }
-  .filters {
-    gap: 6px;
-  }
 }

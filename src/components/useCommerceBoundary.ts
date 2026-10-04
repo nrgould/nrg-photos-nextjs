@@ -209,7 +209,7 @@ export function useCommerceBoundary() {
                 ? "Confirming your account’s presets before checkout."
                 : availability === "test-ready" && account.enabled
                   ? "Sign in to continue to test checkout."
-                  : "Checkout is not available yet. Your selection stays in this cart.",
+                  : "Cart saved.",
           },
     [
       availability,
