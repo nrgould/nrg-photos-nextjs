@@ -1,6 +1,13 @@
 "use client";
-import { useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
+import {
+  animate,
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useTransform,
+} from "motion/react";
 import { Globe2, Map as MapIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { Slider } from "./ui/slider";
@@ -34,6 +41,28 @@ export default function MapZoom({
   const [keyboardInteraction, setKeyboardInteraction] = useState(false);
   const reduced = useReducedMotion();
   const current = draft ?? value;
+  const visualPosition = useMotionValue(value);
+  const boundedPosition = useTransform(visualPosition, (position) =>
+    Math.max(0, Math.min(5, position)),
+  );
+  const thumbLeft = useTransform(boundedPosition, zoomStopPosition);
+  const fillWidth = useTransform(
+    boundedPosition,
+    (position) => `calc(${36 * (1 - position / 5)}px + ${position * 20}%)`,
+  );
+  useEffect(() => {
+    if (reduced || keyboardInteraction) {
+      visualPosition.jump(current);
+      return;
+    }
+    const animation = animate(visualPosition, current, {
+      type: "spring",
+      duration: 0.28,
+      bounce: 0.12,
+      onComplete: () => visualPosition.jump(current),
+    });
+    return () => animation.stop();
+  }, [current, reduced, keyboardInteraction, visualPosition]);
   return (
     <Popover
       onOpenChange={(open, details) => {
@@ -44,6 +73,7 @@ export default function MapZoom({
               details.event.detail === 0),
         );
         if (!open) {
+          visualPosition.jump(value);
           setDraft(null);
         }
       }}
@@ -91,12 +121,7 @@ export default function MapZoom({
         <PopoverTitle className="sr-only">Map zoom</PopoverTitle>
         <div className="zoom-control">
           <div className="zoom-track">
-            <div
-              className="zoom-fill"
-              style={{
-                width: `calc(${36 * (1 - current / 5)}px + ${current * 20}%)`,
-              }}
-            />
+            <motion.div className="zoom-fill" style={{ width: fillWidth }} />
             {zoomLevels.map((_, index) => (
               <span
                 key={index}
@@ -104,10 +129,10 @@ export default function MapZoom({
                 style={{ left: zoomStopPosition(index) }}
               />
             ))}
-            <span
+            <motion.span
               className="zoom-thumb"
               style={{
-                left: zoomStopPosition(current),
+                left: thumbLeft,
                 transform: "translateX(-50%)",
               }}
             />
@@ -120,7 +145,12 @@ export default function MapZoom({
               max={5}
               step={1}
               largeStep={1}
-              onPointerCancel={() => setDraft(null)}
+              onPointerDownCapture={() => visualPosition.jump(current)}
+              onKeyDownCapture={() => visualPosition.jump(current)}
+              onPointerCancel={() => {
+                visualPosition.jump(value);
+                setDraft(null);
+              }}
               onValueChange={(next, details) => {
                 setKeyboardInteraction(details.reason === "keyboard");
                 const stop = Math.round(Array.isArray(next) ? next[0] : next);
