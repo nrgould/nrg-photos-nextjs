@@ -1,6 +1,7 @@
 "use client";
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
@@ -20,9 +21,18 @@ import {
   Sun,
   X,
 } from "lucide-react";
-import { travelPlaces, shuffleIndex } from "@/lib/places";
+import { travelPlaces } from "@/lib/places";
+import {
+  activeFilterCount,
+  defaultMapFilters,
+  filterPlaces,
+  navigatePlaces,
+  retainSelection,
+  type MapFilters as FilterState,
+} from "@/lib/map-filters";
 import { Button } from "./ui/button";
 import MapZoom from "./MapZoom";
+import MapFilters from "./MapFilters";
 import { Separator } from "./ui/separator";
 import {
   Tooltip,
@@ -61,17 +71,24 @@ function Control({
   children,
   onClick,
   variant = "control",
+  disabled = false,
 }: {
   variant?: "control" | "quiet";
   label: string;
   children: ReactNode;
   onClick: () => void;
+  disabled?: boolean;
 }) {
   return (
     <Tooltip>
       <TooltipTrigger
         render={
-          <Button variant={variant} aria-label={label} onClick={onClick} />
+          <Button
+            variant={variant}
+            aria-label={label}
+            onClick={onClick}
+            disabled={disabled}
+          />
         }
       >
         {children}
@@ -82,7 +99,21 @@ function Control({
 }
 export default function PlacesExplorer() {
   const reducedMotion = useReducedMotion();
-  const [selected, setSelected] = useState(0);
+  const [selected, setSelected] = useState<string | null>(travelPlaces[0].id);
+  const [filters, setFilters] = useState(() => defaultMapFilters(travelPlaces));
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const filteredPlaces = useMemo(
+    () => filterPlaces(travelPlaces, filters),
+    [filters],
+  );
+  const activeCount = activeFilterCount(travelPlaces, filters);
+  const photoCount = filteredPlaces.reduce(
+    (count, place) => count + place.photos.length,
+    0,
+  );
+  const navigationDisabled =
+    filteredPlaces.length === 0 ||
+    (filteredPlaces.length === 1 && filteredPlaces[0].id === selected);
   const [mode, setMode] = useState<"globe" | "map">("globe");
   const [zoom, setZoom] = useState(3);
   const [intro, setIntro] = useState(true);
@@ -93,7 +124,7 @@ export default function PlacesExplorer() {
   const [compactFraction, setCompactFraction] = useState(0.25);
   const [snap, setSnap] = useState<number | string | null>(0.25);
   const [command, setCommand] = useState(false);
-  const [viewer, setViewer] = useState<number | null>(null);
+  const [viewer, setViewer] = useState<string | null>(null);
   const [drawerElement, setDrawerElement] = useState<HTMLDivElement | null>(
     null,
   );
@@ -105,17 +136,57 @@ export default function PlacesExplorer() {
   const drawerOrigin = useRef<HTMLElement | SVGElement | null>(null);
   const drawerHandle = useRef<HTMLButtonElement>(null);
   const photoFocus = useRef<HTMLButtonElement | null>(null);
+  const filterTrigger = useRef<HTMLButtonElement | null>(null);
   function changeSnap(next: number | string | null) {
     setSnap(next);
     if (next === 0.25) gallery.current?.scrollTo(0, 0);
   }
-  const place = travelPlaces[selected];
+  const place = filteredPlaces.find((candidate) => candidate.id === selected);
+  const viewerIndex =
+    place?.photos.findIndex((photo) => photo.src === viewer) ?? -1;
   const expanded = Number(snap) >= 0.75;
+  function updateFilters(next: FilterState) {
+    const nextPlaces = filterPlaces(travelPlaces, next);
+    const nextSelected = retainSelection(nextPlaces, selected);
+    const nextPlace = nextPlaces.find(
+      (candidate) => candidate.id === nextSelected,
+    );
+    setFilters(next);
+    setSelected(nextSelected);
+    setIntro(false);
+    if (!nextPlace) {
+      drawerOrigin.current = filterTrigger.current;
+      setOpen(false);
+      setViewer(null);
+      photoFocus.current = filterTrigger.current;
+    } else {
+      if (
+        place?.photos.map((photo) => photo.src).join() !==
+        nextPlace.photos.map((photo) => photo.src).join()
+      )
+        gallery.current?.scrollTo(0, 0);
+      if (
+        viewer !== null &&
+        !nextPlace.photos.some((photo) => photo.src === viewer)
+      ) {
+        setViewer(null);
+        photoFocus.current = drawerHandle.current ?? filterTrigger.current;
+      }
+    }
+  }
+  function clearFilters() {
+    updateFilters(defaultMapFilters(travelPlaces));
+  }
+  function navigate(direction: "back" | "next" | "shuffle") {
+    const id = navigatePlaces(filteredPlaces, selected, direction);
+    if (id !== null) choose(id);
+  }
   useEffect(() => {
     const viewport = drawerViewport.current;
     const scroller = gallery.current;
     const layout = photoLayout.current;
-    if (!drawerElement || !viewport || !scroller || !layout) return;
+    if (!drawerElement || !viewport || !scroller || !layout || !place) return;
+    const photos = place.photos;
     const figures = Array.from(layout.children) as HTMLElement[];
     const images = figures.map((figure) =>
       figure.querySelector<HTMLElement>(".gallery-photo")!,
@@ -164,8 +235,8 @@ export default function PlacesExplorer() {
         const captionHeight = 38 * growth;
         const halfWidth = (width - 12) / 2;
         const firstTargetHeight =
-          count === 2
-            ? (width * place.photos[0].height) / place.photos[0].width
+          count <= 2
+            ? (width * photos[0].height) / photos[0].width
             : count === 3
               ? width * 0.75
               : halfWidth * 1.25;
@@ -175,14 +246,14 @@ export default function PlacesExplorer() {
         figures.forEach((figure, index) => {
           const lowerRow =
             count === 2 ? index > 0 : count === 3 ? index > 0 : index > 1;
-          const fullWidth = count === 2 || (count === 3 && index === 0);
+          const fullWidth = count <= 2 || (count === 3 && index === 0);
           const targetWidth = fullWidth ? width : halfWidth;
           const targetX = fullWidth
             ? 0
             : ((count === 3 ? index - 1 : index) % 2) * (halfWidth + 12);
           const targetHeight =
-            count === 2
-              ? (width * place.photos[index].height) / place.photos[index].width
+            count <= 2
+              ? (width * photos[index].height) / photos[index].width
               : count === 3 && index === 0
                 ? width * 0.75
                 : halfWidth * 1.25;
@@ -234,7 +305,7 @@ export default function PlacesExplorer() {
       drawerElement.removeEventListener("transitionend", transition);
       drawerElement.removeEventListener("transitioncancel", transition);
     };
-  }, [drawerElement, compactFraction, place.photos]);
+  }, [drawerElement, compactFraction, place]);
   function finishIntro() {
     setIntro(false);
     setMode("map");
@@ -242,9 +313,9 @@ export default function PlacesExplorer() {
       sessionStorage.setItem("photo-map-intro", "seen");
     } catch {}
   }
-  function choose(index: number, showPhotos = false) {
+  function choose(id: string, showPhotos = false) {
     gallery.current?.scrollTo(0, 0);
-    setSelected(index);
+    setSelected(id);
     setViewer(null);
     setIntro(false);
     setRevision((r) => r + 1);
@@ -333,6 +404,7 @@ export default function PlacesExplorer() {
             </Control>
           </div>
           <PlacesMap
+            places={filteredPlaces}
             canvasOpen={open}
             selected={selected}
             mode={mode}
@@ -346,7 +418,7 @@ export default function PlacesExplorer() {
             intro={intro}
             revision={revision}
             zoomRevision={zoomRevision}
-            onChoose={(index) => choose(index, true)}
+            onChoose={(id) => choose(id, true)}
             onIntroEnd={finishIntro}
           />
           {intro && (
@@ -360,6 +432,14 @@ export default function PlacesExplorer() {
           )}
         </div>
       </div>
+      {photoCount === 0 && (
+        <div className="map-filter-empty explorer-overlay">
+          <p>No photographs match these filters</p>
+          <Button variant="control" onClick={clearFilters}>
+            Clear all
+          </Button>
+        </div>
+      )}
       <div
         className="explorer-bottom-controls"
         data-drawer-open={open}
@@ -394,11 +474,8 @@ export default function PlacesExplorer() {
             <Control
               variant="quiet"
               label="Back"
-              onClick={() =>
-                choose(
-                  (selected - 1 + travelPlaces.length) % travelPlaces.length,
-                )
-              }
+              disabled={navigationDisabled}
+              onClick={() => navigate("back")}
             >
               <ArrowLeft size={18} />
             </Control>
@@ -406,9 +483,8 @@ export default function PlacesExplorer() {
             <Control
               variant="quiet"
               label="Shuffle"
-              onClick={() =>
-                choose(shuffleIndex(selected, travelPlaces.length))
-              }
+              disabled={navigationDisabled}
+              onClick={() => navigate("shuffle")}
             >
               <Shuffle size={18} />
             </Control>
@@ -416,7 +492,8 @@ export default function PlacesExplorer() {
             <Control
               variant="quiet"
               label="Next"
-              onClick={() => choose((selected + 1) % travelPlaces.length)}
+              disabled={navigationDisabled}
+              onClick={() => navigate("next")}
             >
               <ArrowRight size={18} />
             </Control>
@@ -430,6 +507,19 @@ export default function PlacesExplorer() {
                 setMode(nextMode);
                 setZoom(nextZoom);
               }}
+            />
+            <Separator orientation="vertical" style={separatorStyle} />
+            <MapFilters
+              places={travelPlaces}
+              value={filters}
+              onChange={updateFilters}
+              onClear={clearFilters}
+              activeCount={activeCount}
+              photoCount={photoCount}
+              locationCount={filteredPlaces.length}
+              open={filtersOpen}
+              onOpenChange={setFiltersOpen}
+              triggerRef={filterTrigger}
             />
           </div>
         </div>
@@ -465,6 +555,7 @@ export default function PlacesExplorer() {
           }}
           onCloseAutoFocus={(event) => {
             event.preventDefault();
+            if (filtersOpen) return;
             const origin = drawerOrigin.current;
             if (origin?.isConnected) origin.focus({ preventScroll: true });
             else
@@ -501,6 +592,7 @@ export default function PlacesExplorer() {
             if (
               viewer !== null ||
               command ||
+              filtersOpen ||
               document.querySelector(".map-zoom-popover[data-open]")
             )
               event.preventDefault();
@@ -563,11 +655,14 @@ export default function PlacesExplorer() {
             />
             <div className="photo-drawer-header" data-vaul-no-drag>
               <div>
-                <DrawerTitle>{place.name}</DrawerTitle>
+                <DrawerTitle>{place?.name ?? "Photographs"}</DrawerTitle>
                 <DrawerDescription id="location-photo-description">
-                  {place.photos.length} photographs
+                  {place?.photos.length ?? 0}{" "}
+                  {(place?.photos.length ?? 0) === 1
+                    ? "photograph"
+                    : "photographs"}
                   <span className="sr-only">
-                    . Map reference: {place.referenceLabel}.
+                    . Map reference: {place?.referenceLabel}.
                   </span>
                 </DrawerDescription>
               </div>
@@ -593,10 +688,10 @@ export default function PlacesExplorer() {
             <div
               ref={gallery}
               className="drawer-gallery"
-              data-photo-count={place.photos.length}
+              data-photo-count={place?.photos.length ?? 0}
               data-vaul-no-drag={expanded ? "" : undefined}
               tabIndex={0}
-              aria-label={`${place.name} photographs`}
+              aria-label={place ? `${place.name} photographs` : "Photographs"}
               onWheel={(event) => {
                 if (!expanded && event.deltaY > 0) changeSnap(0.75);
               }}
@@ -612,7 +707,7 @@ export default function PlacesExplorer() {
               }}
             >
               <div ref={photoLayout} className="drawer-photo-layout">
-                {place.photos.map((photo, index) => (
+                {place?.photos.map((photo, index) => (
                   <figure key={photo.src}>
                     <MotionButton
                       variant="quiet"
@@ -628,13 +723,13 @@ export default function PlacesExplorer() {
                       onClick={(event) => {
                         if (event.detail > 0 && dragged.current) return;
                         photoFocus.current = event.currentTarget;
-                        setViewer(index);
+                        setViewer(photo.src);
                       }}
                     >
                       <PhotoImage
                         photo={photo}
                         sizes={
-                          place.photos.length === 2 ||
+                          place.photos.length <= 2 ||
                           (place.photos.length === 3 && index === 0)
                             ? "(max-width: 700px) calc(100vw - 32px), 358px"
                             : "(max-width: 700px) calc(50vw - 22px), 173px"
@@ -659,13 +754,15 @@ export default function PlacesExplorer() {
           <Command>
             <CommandInput placeholder="Find a place…" />
             <CommandList>
-              <CommandEmpty>No places found.</CommandEmpty>
-              {travelPlaces.map((p, index) => (
+              <CommandEmpty>
+                No places found{activeCount ? " within these filters" : ""}.
+              </CommandEmpty>
+              {filteredPlaces.map((p) => (
                 <CommandItem
                   key={p.id}
                   value={`${p.name} ${p.location}`}
                   onSelect={() => {
-                    choose(index, true);
+                    choose(p.id, true);
                     setCommand(false);
                   }}
                 >
@@ -679,14 +776,19 @@ export default function PlacesExplorer() {
       </Dialog>
       <Lightbox
         finalFocus={photoFocus}
-        photos={place.photos}
-        index={viewer}
+        photos={place?.photos ?? []}
+        index={viewerIndex < 0 ? null : viewerIndex}
         onIndexChange={(index) => {
-          setViewer(index);
+          setViewer(
+            index === null ? null : (place?.photos[index]?.src ?? null),
+          );
         }}
       />
       <span className="sr-only" aria-live="polite">
-        {place.name}
+        {place?.name ?? "No location selected"}. {photoCount}{" "}
+        {photoCount === 1 ? "photograph" : "photographs"} in{" "}
+        {filteredPlaces.length}{" "}
+        {filteredPlaces.length === 1 ? "location" : "locations"}.
       </span>
     </TooltipProvider>
   );

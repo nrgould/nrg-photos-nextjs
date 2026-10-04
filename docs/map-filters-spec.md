@@ -1,6 +1,6 @@
-# Map filters proposal
+# Map filters
 
-Proposal only, 2026-10-04. No implementation in this pass. The current correction preview remains independent of this feature.
+Implemented October 4, 2026. Location and orientation filters share one eligible result set across browsing surfaces.
 
 ## Metadata audit
 
@@ -43,8 +43,10 @@ Acceptance checks: default 11/4; Horizontal 3/2; Vertical 8/3; Austria + Vertica
 
 ## Design guidance applied
 
-[Better UI](../../../../../../.agents/skills/better-ui/SKILL.md): keep existing components/tokens; one contextual icon library; static active-state cues; immediate or at most 150ms color/opacity feedback for frequent changes; interruptible transitions with named properties.
+Better UI: keep existing components/tokens; one contextual icon library; static active-state cues; immediate or at most 150ms color/opacity feedback for frequent changes; interruptible transitions with named properties.
 
-[Emil Design Engineering](../../../../../../.agents/skills/emil-design-eng/SKILL.md): decide whether motion serves a purpose; keyboard filtering is immediate; an optional pointer-open popover transition is brief and uses the primitive's trigger-based transform origin; reduced motion removes position/scale changes. Do not stagger filter rows or animate every result out and back in.
+Emil Design Engineering: decide whether motion serves a purpose; keyboard filtering is immediate; an optional pointer-open popover transition is brief and uses the primitive's trigger-based transform origin; reduced motion removes position/scale changes. Do not stagger filter rows or animate every result out and back in.
 
-Metadata counts were calculated from the current exported `travelPlaces` with Node 24. UI behavior above is proposed, **not browser-verified or implemented**.
+Metadata counts were calculated from the current exported `travelPlaces` with Node 24. `npm run lint`, `npm run typecheck`, and all 28 tests passed, including five filter tests for actual dimensions/counts, source identity/order, active groups, selection reconciliation and eligible navigation. Supported Mac Chrome verification passed: default 11/4; Horizontal 3/2 with Austria/NC search results; Vertical 8/3; Austria + Vertical 0/0; Norway + Vertical 3/1 and disabled navigation after selection; empty location selection 0/0; Clear all 11/4 without automatic drawer opening. North Carolina retains selection while switching orientation, updates its single photo, and opens the correct 1/1 lightbox. Escape closes filters without closing the drawer; Done restores trigger focus. At 320×640 there is no horizontal overflow; the 842×390 panel stays within the viewport and scrolls internally. Both themes were inspected. Physical iPhone/Safari and an actual reduced-motion setting were not exercised; reduced-motion behavior is covered by source inspection. Final production checks are recorded with the checkpoint.
+
+Final checkpoint checks: lint, typecheck, all 28 tests, production build and all SSR routes passed. In the production browser, excluding the open Austria collection kept the surviving Italy marker at exactly the same measured CSS coordinates (0px delta in both axes), closed the drawer and retained filter focus. Mercator clears obsolete drawer padding by rebasing to the physical canvas center; globe stays unpadded. Screenshots: `screenshots/map-filters-dark.png`, `screenshots/map-filters-empty.png`.

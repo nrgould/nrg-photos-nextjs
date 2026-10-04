@@ -7,7 +7,7 @@ import type {
   Marker,
   StyleSpecification,
 } from "maplibre-gl";
-import { travelPlaces } from "@/lib/places";
+import { travelPlaces, type TravelPlace } from "@/lib/places";
 import { Button } from "./ui/button";
 import "maplibre-gl/dist/maplibre-gl.css";
 
@@ -123,7 +123,8 @@ function style(): StyleSpecification {
   };
 }
 export default function PlacesMap(props: {
-  selected: number;
+  selected: string | null;
+  places: TravelPlace[];
   canvasOpen: boolean;
   mode: "globe" | "map";
   zoom: number;
@@ -131,7 +132,7 @@ export default function PlacesMap(props: {
   revision: number;
   zoomRevision: number;
   theme: "light" | "dark";
-  onChoose: (index: number) => void;
+  onChoose: (id: string) => void;
   onIntroEnd: () => void;
   onZoomChange: (zoom: number, mode: "globe" | "map") => void;
 }) {
@@ -174,7 +175,8 @@ export default function PlacesMap(props: {
           style: style(),
           center: initial.intro
             ? [-30, 20]
-            : travelPlaces[initial.selected].coordinates,
+            : (travelPlaces.find((place) => place.id === initial.selected)
+                ?.coordinates ?? [-30, 20]),
           zoom: initial.mode === "globe" ? 0 : engineZoom(initial.zoom),
           minZoom: 0,
           maxZoom: engineZoom(10),
@@ -237,6 +239,16 @@ export default function PlacesMap(props: {
           instance.setProjection({
             type: nextMode === "globe" ? "globe" : "mercator",
           });
+          if (container.current) {
+            const { width, height } = container.current.getBoundingClientRect();
+            const padDrawer = nextMode === "map" && latest.current.canvasOpen;
+            instance.setPadding({
+              top: 0,
+              left: 0,
+              right: padDrawer && width > 700 ? 410 : 0,
+              bottom: padDrawer && width <= 700 ? height * 0.25 : 0,
+            });
+          }
           latest.current.onZoomChange(uiZoom(instance.getZoom()), nextMode);
         });
         instance.on("error", (event) => {
@@ -255,12 +267,12 @@ export default function PlacesMap(props: {
           instance.resize();
           if (!container.current) return;
           const { width, height } = container.current.getBoundingClientRect();
+          const padDrawer = latest.current.mode === "map" && latest.current.canvasOpen;
           instance.setPadding({
             top: 0,
             left: 0,
-            right: latest.current.canvasOpen && width > 700 ? 410 : 0,
-            bottom:
-              latest.current.canvasOpen && width <= 700 ? height * 0.25 : 0,
+            right: padDrawer && width > 700 ? 410 : 0,
+            bottom: padDrawer && width <= 700 ? height * 0.25 : 0,
           });
         });
         observer.observe(container.current);
@@ -299,6 +311,24 @@ export default function PlacesMap(props: {
     if (!ready || !instance || !container.current) return;
     const previous = focus.current;
     focus.current = { selected, revision, canvasOpen, mode };
+    if (selected === null && previous.selected !== null) {
+      instance.stop();
+      if (mode === "map") {
+        const canvas = instance.getCanvas();
+        const center = instance.unproject([
+          canvas.clientWidth / 2,
+          canvas.clientHeight / 2,
+        ]);
+        // Rebase the padded Mercator view without moving its visible pixels.
+        instance.jumpTo({
+          center,
+          padding: { top: 0, left: 0, right: 0, bottom: 0 },
+        });
+      }
+      nativeSync.current = null;
+      return;
+    }
+    const selectedPlace = travelPlaces.find((place) => place.id === selected);
     const recenter =
       previous.selected !== selected ||
       previous.revision !== revision ||
@@ -320,17 +350,23 @@ export default function PlacesMap(props: {
     ).matches;
     instance.stop();
     instance.setProjection({ type: mode === "globe" ? "globe" : "mercator" });
+    // Globe padding changes perspective, so it cannot be rebased like Mercator.
+    if (mode === "globe")
+      instance.setPadding({ top: 0, left: 0, right: 0, bottom: 0 });
     const { width, height } = container.current.getBoundingClientRect();
+    const padDrawer = mode === "map" && canvasOpen;
     const finish = () => latest.current.onIntroEnd();
     if (intro) instance.once("moveend", finish);
     instance.easeTo({
-      ...(recenter ? { center: travelPlaces[selected].coordinates } : {}),
+      ...(recenter && selectedPlace
+        ? { center: selectedPlace.coordinates }
+        : {}),
       zoom: targetZoom,
       padding: {
         top: 0,
         left: 0,
-        right: canvasOpen && width > 700 ? 410 : 0,
-        bottom: canvasOpen && width <= 700 ? height * 0.25 : 0,
+        right: padDrawer && width > 700 ? 410 : 0,
+        bottom: padDrawer && width <= 700 ? height * 0.25 : 0,
       },
       duration: reduced ? 0 : intro ? 2200 : 650,
       easing: (t) => 1 - (1 - t) ** 3,
@@ -367,20 +403,24 @@ export default function PlacesMap(props: {
         aria-label="Photographed places"
         aria-hidden={!failed}
       >
-        {travelPlaces.map((place, index) => (
+        {props.places.map((place) => (
           <Button
             key={place.id}
             variant="control"
             data-location={place.id}
             tabIndex={failed ? 0 : -1}
-            onClick={() => props.onChoose(index)}
+            onClick={() => props.onChoose(place.id)}
           >
             {place.name}
           </Button>
         ))}
       </div>
-      {hosts.map((host, index) =>
-        createPortal(
+      {hosts.map((host, index) => {
+        const place = props.places.find(
+          (place) => place.id === travelPlaces[index].id,
+        );
+        if (!place) return null;
+        return createPortal(
           <>
             <svg
               className="map-marker-leader"
@@ -394,17 +434,17 @@ export default function PlacesMap(props: {
               variant="quiet"
               press={false}
               className="map-photo-marker"
-              data-location={travelPlaces[index].id}
-              aria-label={`Explore ${travelPlaces[index].name}`}
-              title={`${travelPlaces[index].referenceLabel} · Regional collection, not camera GPS`}
-              aria-pressed={props.selected === index}
+              data-location={place.id}
+              aria-label={`Explore ${place.name}`}
+              title={`${place.referenceLabel} · Regional collection, not camera GPS`}
+              aria-pressed={props.selected === place.id}
               onClick={(event) => {
                 if (event.detail === 0 || !gestureMoved.current)
-                  props.onChoose(index);
+                  props.onChoose(place.id);
               }}
             >
               <Image
-                src={travelPlaces[index].photos[0].src}
+                src={place.photos[0].src}
                 alt=""
                 width={44}
                 height={44}
@@ -412,15 +452,13 @@ export default function PlacesMap(props: {
                 quality={75}
                 draggable={false}
               />
-              <span className="map-marker-label">
-                {travelPlaces[index].name}
-              </span>
+              <span className="map-marker-label">{place.name}</span>
             </Button>
           </>,
           host,
-          travelPlaces[index].id,
-        ),
-      )}
+          place.id,
+        );
+      })}
       <span className="map-attribution">Natural Earth</span>
     </div>
   );
