@@ -1,70 +1,76 @@
-# Places & presets — prototype specification
+# Places and presets specification
 
-Source: Nicholas's October 3, 2026 daily note, task “Add presets to map locations, connect to edits that I used”; fetched live October 3, including all 13 nested subtasks and two reference images. Source URL: https://app.notion.com/p/3ee16e8b0b9b817abb0cd59004f002de
+Authoritative scope: October 3 daily note task “Add presets to map locations, connect to edits that I used”, all nested items, plus Nicholas's subsequent corrections. The current acceptance criteria below supersede earlier screenshots and layout drafts.
 
-## Foundation and preservation
+## Foundation
 
-Continue `nrgould/nrg-photos-nextjs`, existing worktree `/Users/nicholas/Desktop/dev/NRG_PHOTO_NEXTJS/photo_portfolio-redesign`, branch `codex/photography-redesign`, commit `f078128`. Preserve the current uncommitted shadcn/palette/lightbox/photo refinements in a separate baseline commit in an isolated checkout. Do not mutate that worktree. Keep request-time SSR, all 39 original photographs and their provenance, collections, polaroid stacks, viewer, and contact behavior. The supported task tools did not return the original photography session; git confirms the implementation and worktree independently.
+Continue `nrgould/nrg-photos-nextjs` from the existing `photo_portfolio-redesign` worktree, branch `codex/photography-redesign`, head `f078128`. Its local refinements are preserved in baseline commit `4909bd9` in an isolated checkout. The original worktree is untouched. Supported Codex task discovery did not return the original photography session; filesystem and git independently confirmed its worktree. Preserve all original photos, provenance, SSR via `connection()`, original routes and contact behavior.
 
-## Outcome
+## Current experience
 
-A dedicated `/explore` experience connected from the existing header and Places section. Visitors move around a photographic map, inspect photographs and associated edit recipes, save places/photos, and assemble a preset pack. Keep the existing portfolio routes and functions accessible.
+- `/explore` is an edge-to-edge, full-viewport map. No visible page title, promotional copy, page header/footer, permanent navigation sidebar or below-map sections. All controls float over the map.
+- Desktop: an inset, nonmodal photo canvas floats on the right. Mobile: the same photo content becomes a bottom sheet with expand/collapse and close/reopen. The map remains usable. The selected location is projected into unobscured space.
+- No Polaroid treatment or stacked-photo decoration in the explorer. Rounded, stable-aspect Next.js Images with responsive sizes. The photo is primary inside that canvas: original full-color image, thumbnail selection, save action, fullscreen viewer and associated edit details. Favorites and preset browsing use intentional, bounded overlays. No competing permanent sections.
+- Black/white/neutral gray map, backgrounds, cards and controls in both themes. Dark green is reserved for restrained core/primary/selected accents. No light green accent or green wash. Preserve photograph colors.
+- Minimal, cohesive shadcn controls. Use actual Better UI and Emil skill guidance: 44px touch targets, visible keyboard focus, suitable contrast, reduced motion, instant theme switching, subtle press feedback. Optional glass/texture from the original note is subordinate to this clean treatment; no faux tactile/ribbed zoom widget.
+- Zoom follows the latest explicitly exact slider attachment: dark rounded capsule, inset white filled track, black circular thumb with white rim and six evenly spaced snap dots. Six functional steps (World, Continent, Region, Area, Near, Local), native keyboard support, center maintained. This latest reference supersedes the temporary minus/range/plus direction.
+- Otium product typography: actual Hanken Grotesk and Fraunces configuration and relevant tokens, described below. No hero title on the map.
 
-## Complete requirement mapping and acceptance
+## Original nested Notion requirements, verbatim
 
-1. **Presets at locations and top CTA:** location detail shows linked sample edit recipes and their specific original photograph; “Build a preset pack” at the top opens the same centered collection dialog. Actual Lightroom/XMP history is absent: never claim the samples are the presets Nicholas used.
-2. **Custom and pre-curated packs:** add/remove individual recipes at each location; add curated Alpine / Northern / Complete selections; deduplicate shared recipes; review contents and export a sample pack manifest. Purchase preview explicitly has no payment or download entitlement. Real checkout waits for preset assets, prices, license and payment configuration.
-3. **Cadence/Otium fonts:** reuse Otium's Fraunces + Hanken Grotesk pairing, scoped to the explorer; existing portfolio typography stays intact. Grounded in `reskill/otium/app/layout.tsx`.
-4. **radiocast.co:** clean, pannable geographic canvas with compact persistent controls and a location/photo detail surface. The user prefers its earlier restrained map treatment; do not copy the newer glass-heavy design. Public URL inspected; original version is not available as an exact visual source.
-5. **Command bar:** Back, Next and Shuffle operate on locations; shuffle never returns the current location when alternatives exist. Keyboard-operable buttons and a searchable command dialog (Cmd/Ctrl K) navigate places and packs. Do not hijack typing or dialog arrow keys.
-6. **Cheap storage, not Supabase:** prototype uses existing local optimized assets. Production proposal: S3-compatible Cloudflare R2, separate private originals/preset assets and public approved derivatives; stable object keys, signed short-lived downloads after entitlement; no buckets, paid resources or credentials created. Include a validated manifest planning script, dry-run only.
-7. **JEV classification at scale:** reviewable queue fixture driven by the existing photo manifest; batch planning and result validation with photo identity, tags, confidence and review status. Keep provider adapter unconfigured until JEV's image-capable contract, credentials and costs are confirmed. No private original uploaded; do not relabel deterministic fixtures as model inference. Human-approved geography and preset provenance are distinct from inferred visual tags.
-8. **Globe and flat map:** first visit begins with a brief spinning globe, eases toward the first location, transitions to a flat map centered there. Skip on interaction, reduced motion or repeat visit. Both modes remain selectable. Drag and keyboard pan flat map; maintain location selection while switching modes.
-9. **Contact preserved:** existing contact route/form plus direct explorer contact link.
-10. **Liquid Glass?** optional glass control treatment, opaque default, with strong contrast and solid fallback. No glass over important image content.
-11. **Zoom slider with snap points:** labeled World / Region / Local discrete steps, native keyboard-operable range, visible ticks; selected location stays centered when zoom changes, reset/recenter available.
-12. **Favorites cart / shadcn collection dialog:** reuse the existing Base UI/shadcn Dialog primitive with a centered panel variant (later no-sidebar instruction supersedes the original sidebar reference). Separate Saved places/photos from selected presets in the same collection dialog. Persist IDs locally, validate restored state, remove items, return to selected place/photo. Empty and unavailable-storage states are usable.
-13. **Texture:** restrained CSS grain/ribbing on the zoom/control surface, using design tokens, no external texture dependency. Honor the reference's tactile surface without compromising contrast.
+1. Presets used at that location linked at that location, but also linked somehow at the top in a CTA
+2. Custom build a preset pack through each location or buy pre-curated packs
+3. Pull fonts from cadence or otium
+4. Reference that fm app I found a while back - radiocast.co
+5. Command bar with next, back, and random (shuffle)
+6. Cheap storage bucket (not supabase)
+7. JEV for classifying large image dataset
+8. Globe and flat map modes - loads as a spinning globe then zooms and eases into a location on the map, so users get a feel for the point of the app and how to use it immediately
+9. Contact button preserved somewhere
+10. Liquid Glass controls?
+11. Slider with snap points for zoom: [reference image inspected locally]
+12. Favorite certain locations or photos and see it like a “cart” - shadcn sidebar
+13. Texture on certain components/controls [reference image inspected locally]
 
-## Model and implementation plan
+The original sidebar reference is superseded by the later full-screen map, no navigation sidebar, and explicitly requested contextual right photo canvas/mobile bottom sheet. The original texture/glass suggestions do not override the latest neutral shadcn styling and restrained zoom direction.
 
-1. Reuse `travelPlaces`, `Photo`, `photo-manifest.json`, `globeFrame` and local geography; extend globe geometry with flat projection rather than adding a map library/provider. Add one explorer composition because the homepage `TravelGlobe` is an embedded polaroid section, not a full browsing workspace; preserve and link it. Reuse `PhotoImage`, `Lightbox`, `Button` and `Dialog`.
-2. Add one typed preset catalog: stable recipe IDs, photo references, place references, honest sample provenance, curated pack membership. Store only user-selected IDs and preferences; derive counts and contents.
-3. Add explorer route, map component and client composition. Use localStorage only for favorites/selection preferences; no backend or global state framework.
-4. Add manifest-only storage/JEV planning and validation CLI; never perform network uploads or inference. Document the live service boundary clearly.
-5. Verify catalog integrity, deduplication, malformed persistence, shuffle, flat projection, batch idempotence; run lint/typecheck/test/build and SSR script. Browser-test globe/flat, zoom/pan, search, favorites persistence/removal, pack assembly/export, viewer, responsive layout and contact navigation. Screenshots go only to the authorized repository.
+## Functional acceptance
 
-## Plan integration audit
+1. Map locations expose photo-linked edit recipes and a top Presets action. Original recipe associations remain labeled samples until actual edit history is verified.
+2. Select individual sample recipes or curated sets; deduplicate; remove; review; export an explicitly non-purchasable sample manifest. Real sales need approved assets, prices/license, checkout and entitlement. The 21-item real catalog is distinct from sample map recipes.
+3. A small pill floats at bottom center with Back / Shuffle / Next buttons and dividers between them. Back/Next and Shuffle change the location and photographs. Shuffle avoids the current location. Cmd/Ctrl K opens searchable location/pack navigation, with usable empty results. Native buttons remain keyboard operable.
+4. Brief first-visit globe animation eases toward the initial location, then becomes a flat map. Interaction skips intro; reduced motion/repeat visits skip it. Globe and flat modes remain selectable. Flat map supports drag and arrow-key pan, discrete zoom and recenter.
+5. Save/remove photo and place IDs locally; restore validated state; use a centered collection overlay. Storage failure preserves in-memory usability. No preset payload in localStorage.
+6. Contact remains available from the canvas and desktop floating control, leading to the preserved contact form/draft fallback.
+7. Existing optimized derivatives remain local. A deterministic R2-oriented manifest/batch plan demonstrates a cheap non-Supabase storage boundary, without provisioning or transmitting photos. Private originals/presets stay private; approved derivatives and signed entitled downloads are the proposed production split.
+8. JEV remains an unconfigured adapter until its actual image endpoint, contract, limits, cost and retention are confirmed. Working batch plan/result validation includes stable photo identity, tags, confidence and pending human review. Do not represent fixtures as inference or infer edit usage from appearance. See `photo-pipeline.md`.
 
-### Scope
+## Real pack and before/after
 
-Photography project; five steps above, pre-implementation. Reviewed PRODUCT.md, DESIGN.md, AGENTS.md, map/place/photo models, Header, homepage, PhotoImage, Lightbox, Button and Sheet. QMD index unavailable (read-only database error); repository contracts are the ground truth, not Cadence/Otium architecture.
+The read-only Desktop discovery found **2026 Signature Collection**: 21 numbered XMP presets, PDF/HTML install guide, buyer ZIP and handoff. All XMP files parsed successfully. Public catalog exports only name, order, category and a stable public ID; no raw preset settings, private source names, contact metadata or buyer ZIP.
 
-### Red flags
+List all 21 presets, filter by Landscape & travel / Nature / Film / Portrait, select a preset and open its comparison. A draggable line must reveal aligned exports of the same photograph before and after that named preset. Support pointer/touch, arrows, Home/End and visible focus; preserve image color and crop alignment.
 
-No unresolved A/B/C/D issues in the proposed plan. Existing primitives and their reasons for extension are named above. No new persistence/service infrastructure, duplicate gallery or photo data, runtime classifier claim, or payment flow.
+The pack's own handoff states before/after exports are missing; the folder has no paired images. Current comparison is an opt-in, explicitly labeled same-image interaction demo. No CSS filter pretends to be a Lightroom render. Enable real comparison only with approved same-photo, same-crop exports and verified preset/source IDs in `verifiedPairs`. The sample JSON selection is not an XMP/Lightroom preset.
 
-### Recommendation
+## Reference and typography evidence
 
-Proceed with repository-grounded coverage. Reuse the current components and canonical data; keep the new composition and domain catalog focused. Vault coverage remains unavailable.
+Initially only the Notion screenshots were visually inspected and the Radio Cast URL fetched as text. That was insufficient composition analysis. Subsequently the live Radio Cast site was rendered in Chrome on desktop and at 390×844, and its welcome dismissal plus player minimize/expand were exercised. Observed: full-viewport geography, floating top search/corner actions, and a contextual player that collapses to a slim bottom strip; no scrolling page sections. Adopt that spatial behavior with the requested right photo canvas/mobile sheet, not its newer glass treatment or promotional text. No audio playback started.
 
-## Release limits
+Otium sources read: `reskill/otium/app/layout.tsx`, `app/globals.css`, `DESIGN.md`. Product register, not the marketing Jost register:
 
-This is a working interaction prototype, not a commercial preset launch. Missing: verified photo-to-edit provenance and paired exports, approved preset delivery and pricing/licensing/payment setup, provisioned storage, JEV API contract/credentials and evaluated classification results. No merge, production deployment, purchase, paid cloud provisioning or bulk image transmission is authorized in this task.
+- Hanken body: 14px / 1.5, weight 400, kern/liga/calt, base tracking −0.01em.
+- Hanken block headings: 17px / 1.3, weight 600, tracking −0.005em.
+- Hanken labels: 11.5px / 1.4, weight 600, tracking 0.11em, uppercase.
+- Fraunces surface titles: 22px / 1.15, weight 450 light and 520 dark, tracking −0.012em; opsz 48, SOFT 0, WONK 0; loaded variable axes and normal/italic.
+- Otium's 14px container / 11px control radii inform the shared surfaces. No Hack font is needed because this UI contains no code/trace content.
 
-## Subsequent user requirements
+Earlier implementation matched the two families only. The final pass applies these exact relevant source tokens, while adapting responsive composition to this map product.
 
-- Light and dark modes with a visible persisted toggle; check map, detail, dialogs and mobile contrast in both.
-- Prioritize shadcn functionality; apply local `better-ui` and `emil-design-eng` skills. Retain token-only styling, 0.96 button press, named transitions, reduced motion, and instant theme switching.
-- A Vercel **preview** is authorized, using the newly approved `nrg-photos-nextjs` Vercel project/integration. No production promotion, paid service or security changes. Verify the branch/commit and actual browser accessibility.
-- Reference images inspected locally: discrete slider dots on a tactile track; Radio Cast search/map/favorites controls with a textured player surface. No private source screenshots are committed.
+## Integration and verification
 
-- Latest direction supersedes the original sidebar subtask: **no sidebar**, permanent or slide-out. The map fills the content width; selected photography and edits form an inline section below it. Saved items and packs use a centered, bounded dialog. Transparent top map controls are acceptable.
+Reuse `travelPlaces`, `Photo`, `photo-manifest.json`, local geography, `globeFrame`, `PhotoImage`, `Lightbox`, `Button` and Base UI Dialog. Extend flat projection with focus offsets instead of adding a provider. Keep the separate homepage globe linked to `/explore`. No global store, duplicated image manifest or live billing/classifier framework.
 
-## Signature Collection follow-up
+Pre-implementation slop audit reviewed repository contracts; no unresolved A/B/C/D duplication issues. QMD was unavailable because its database was read-only. Later layout corrections are reflected above rather than treated as additional sections.
 
-The Desktop pack was inspected read-only after Nicholas identified it. All 21 XMP documents parsed successfully. The public catalog contains only preset names, order and categories from the pack listing. Raw XMP files, buyer ZIP, ownership/contact metadata and private source names are excluded from this public repository.
-
-The full collection is browsable below the location story, with category filters and a selected-preset preview. This real catalog is distinct from the explicitly illustrative map recipes and custom-pack experiment. The source handoff confirms that before/after exports have not been made; no matching pairs exist in that pack. Do not infer editing history from file names or apply CSS filters to fabricate it.
-
-The split viewer uses a native range input (pointer/touch, arrows, Home/End), a 44px visual handle, visible keyboard focus, readable labels and a responsive uncropped image stage. Its current opt-in interaction demo shows the exact same portfolio photograph on both sides. To enable an actual preview, supply same-photo, same-crop before and preset-applied exports plus a verified preset ID and source-photo ID in `verifiedPairs` in `SignatureCollection.tsx`. Publish only approved image derivatives, never the commercial preset payload. Before/after rendering remains blocked on those genuine exports.
+Run lint/typecheck/tests/build and SSR checks. Browser verify fullscreen bounds, no page overflow, canvas/sheet close/reopen/expand/collapse, map while canvas open, both themes, zoom/search/favorites/packs, real catalog, comparison, lightbox and contact. Capture final desktop/mobile screenshots. Use a draft PR and babysit CI/review without merging. Vercel preview is authorized; no production promotion, purchases, security weakening or private-image transmission.

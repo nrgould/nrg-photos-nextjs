@@ -18,6 +18,7 @@ import {
   X,
 } from "lucide-react";
 import { travelPlaces } from "@/lib/places";
+import { zoomStops, zoomLabels } from "@/lib/globe";
 import {
   addPack,
   curatedPacks,
@@ -42,7 +43,7 @@ export default function PlacesExplorer() {
   const [selected, setSelected] = useState(0);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [mode, setMode] = useState<"globe" | "map">("globe");
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(2);
   const [intro, setIntro] = useState(true);
   const [revision, setRevision] = useState(0);
   const [theme, setTheme] = useState<"light" | "dark">("light");
@@ -50,8 +51,17 @@ export default function PlacesExplorer() {
   const [collection, setCollection] =
     useState<CollectionState>(emptyCollection);
   const [collectionView, setCollectionView] = useState<
-    "saved" | "presets" | null
+    "saved" | "presets" | "catalog" | null
   >(null);
+  const [detailsOpen, setDetailsOpen] = useState(true);
+  const [detailsExpanded, setDetailsExpanded] = useState(false);
+  const sheetDrag = useRef<number | null>(null);
+  const sheetMoved = useRef(false);
+  const photoLauncher = useRef<HTMLButtonElement>(null);
+  function closeCanvas() {
+    setDetailsOpen(false);
+    photoLauncher.current?.focus();
+  }
   const [command, setCommand] = useState(false);
   const [query, setQuery] = useState("");
   const [viewer, setViewer] = useState<number | null>(null);
@@ -168,10 +178,7 @@ export default function PlacesExplorer() {
   return (
     <>
       <div className="explorer-top">
-        <div>
-          <p className="eyebrow">A photographic atlas</p>
-          <h1>Places & presets</h1>
-        </div>
+        <h1 className="sr-only">Places &amp; presets</h1>
         <div className="explorer-actions">
           <Button
             variant="control"
@@ -180,16 +187,20 @@ export default function PlacesExplorer() {
           >
             {theme === "light" ? <Moon size={17} /> : <Sun size={17} />}
           </Button>
-          <Button variant="control" onClick={() => setCollectionView("saved")}>
-            <Heart size={16} /> Saved{" "}
+          <Button
+            variant="control"
+            aria-label="Saved collection"
+            onClick={() => setCollectionView("saved")}
+          >
+            <Heart size={16} /> <span className="action-label">Saved</span>{" "}
             <span className="count">{savedCount}</span>
           </Button>
           <Button
-            variant="solid"
+            variant="control"
             className="explorer-pack-cta"
-            onClick={() => setCollectionView("presets")}
+            onClick={() => setCollectionView("catalog")}
           >
-            <Layers size={16} /> Build a preset pack{" "}
+            <Layers size={16} /> Presets{" "}
             <span className="count">{collection.presets.length}</span>
           </Button>
         </div>
@@ -199,12 +210,14 @@ export default function PlacesExplorer() {
           <div className="map-toolbar">
             <Button
               variant="control"
+              aria-label="Find a place"
               onClick={() => {
                 setQuery("");
                 setCommand(true);
               }}
             >
-              <Search size={16} /> Find a place <kbd>⌘ K</kbd>
+              <Search size={16} />{" "}
+              <span className="search-label">Find a place</span> <kbd>⌘ K</kbd>
             </Button>
             <div className="segmented" aria-label="Map projection">
               <Button
@@ -230,12 +243,16 @@ export default function PlacesExplorer() {
             </div>
           </div>
           <PlacesMap
+            canvasOpen={detailsOpen}
             selected={selected}
             mode={mode}
             zoom={zoom}
             intro={intro}
             revision={revision}
-            onChoose={choose}
+            onChoose={(index) => {
+              choose(index);
+              setDetailsOpen(true);
+            }}
             onIntroEnd={finishIntro}
           />
           {intro && (
@@ -248,41 +265,58 @@ export default function PlacesExplorer() {
             </Button>
           )}
           <div className="map-controls">
-            <div className="zoom-control tactile">
-              <label htmlFor="map-zoom">
-                Zoom <span>{["World", "Region", "Local"][zoom]}</span>
+            <div className="zoom-control" data-disabled={mode === "globe"}>
+              <label className="sr-only" htmlFor="map-zoom">
+                Map zoom
               </label>
-              <input
-                id="map-zoom"
-                type="range"
-                min="0"
-                max="2"
-                step="1"
-                value={zoom}
-                aria-valuetext={["World", "Region", "Local"][zoom]}
-                disabled={mode === "globe"}
-                onChange={(e) => {
-                  setIntro(false);
-                  setZoom(Number(e.target.value));
-                }}
-                list="zoom-stops"
-              />
-              <datalist id="zoom-stops">
-                <option value="0" label="World" />
-                <option value="1" label="Region" />
-                <option value="2" label="Local" />
-              </datalist>
-              <div className="zoom-labels">
-                <span>World</span>
-                <span>Region</span>
-                <span>Local</span>
+              <div className="zoom-track">
+                <div
+                  className="zoom-fill"
+                  style={{
+                    width: `calc(36px + (100% - 36px) * ${zoom / (zoomStops.length - 1)})`,
+                  }}
+                />
+                {zoomStops.map((_, index) => (
+                  <span
+                    key={index}
+                    className={`zoom-dot ${index <= zoom ? "is-filled" : ""}`}
+                    style={{
+                      left: `calc(18px + (100% - 36px) * ${index / (zoomStops.length - 1)})`,
+                    }}
+                  />
+                ))}
+                <span
+                  className="zoom-thumb"
+                  style={{
+                    left: `calc(18px + (100% - 36px) * ${zoom / (zoomStops.length - 1)})`,
+                  }}
+                />
+                <input
+                  id="map-zoom"
+                  type="range"
+                  min="0"
+                  max={zoomStops.length - 1}
+                  step="1"
+                  value={zoom}
+                  aria-valuetext={zoomLabels[zoom]}
+                  disabled={mode === "globe"}
+                  onChange={(event) => {
+                    setIntro(false);
+                    setZoom(Number(event.target.value));
+                  }}
+                />
               </div>
             </div>
-            <Button variant="control" onClick={() => setRevision((r) => r + 1)}>
+            <Button
+              variant="control"
+              className="hidden md:inline-flex"
+              onClick={() => setRevision((r) => r + 1)}
+            >
               Recenter
             </Button>
             <Button
               variant="control"
+              className="hidden md:inline-flex"
               aria-label="Glass controls"
               aria-pressed={glass}
               onClick={() => setGlass((v) => !v)}
@@ -293,185 +327,264 @@ export default function PlacesExplorer() {
           </div>
         </div>
       </div>
-      <div
-        className="explorer-command-bar tactile"
-        aria-label="Location navigation"
+      <button
+        ref={photoLauncher}
+        className="floating-photo"
+        onClick={() => setDetailsOpen(true)}
+        aria-label={`View photographs and edits from ${place.name}`}
       >
-        <div className="location-tabs">
-          {travelPlaces.map((p, i) => (
-            <button
-              key={p.id}
-              aria-pressed={selected === i}
-              onClick={() => choose(i)}
-            >
-              {p.name}
-            </button>
-          ))}
-        </div>
+        <PhotoImage photo={photo} sizes="60px" />
+        <span>
+          <strong>{place.location}</strong>
+          <small>{place.name}</small>
+        </span>
+      </button>
+      <div className="explorer-command-bar" aria-label="Location navigation">
         <div className="travel-commands">
           <Button
-            variant="control"
+            variant="quiet"
+            className="justify-center"
             onClick={() =>
               choose((selected - 1 + travelPlaces.length) % travelPlaces.length)
             }
           >
-            <ArrowLeft size={16} /> Back
+            <ArrowLeft size={18} />
+            <span className="sr-only">Back</span>
           </Button>
           <Button
-            variant="control"
+            variant="quiet"
+            className="justify-center"
             onClick={() => choose(shuffleIndex(selected, travelPlaces.length))}
           >
-            <Shuffle size={16} /> Shuffle
+            <Shuffle size={18} />
+            <span className="sr-only">Shuffle</span>
           </Button>
           <Button
-            variant="control"
+            variant="quiet"
+            className="justify-center"
             onClick={() => choose((selected + 1) % travelPlaces.length)}
           >
-            Next <ArrowRight size={16} />
+            <ArrowRight size={18} />
+            <span className="sr-only">Next</span>
           </Button>
         </div>
       </div>
-      <section className="place-story" aria-label="Selected location">
-        <div className="place-heading">
-          <div>
-            <p className="eyebrow">
-              {String(selected + 1).padStart(2, "0")} /{" "}
-              {String(travelPlaces.length).padStart(2, "0")}
-            </p>
-            <h2>{place.location}</h2>
-            <p>{place.name}</p>
-          </div>
-          <Button
-            variant="control"
-            aria-label={`${collection.places.includes(place.id) ? "Unsave" : "Save"} ${place.name}`}
-            aria-pressed={collection.places.includes(place.id)}
-            onClick={() => toggle("places", place.id)}
-          >
-            <Heart
-              size={18}
-              fill={
-                collection.places.includes(place.id) ? "currentColor" : "none"
+      <Link className="floating-contact" href="/contact">
+        Contact
+      </Link>
+      {detailsOpen && (
+        <aside
+          className={`photo-canvas explorer-overlay ${detailsExpanded ? "is-expanded" : ""}`}
+          aria-label="Location photographs"
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              event.stopPropagation();
+              closeCanvas();
+            }
+          }}
+        >
+          <button
+            className="canvas-grip"
+            aria-label={
+              detailsExpanded ? "Collapse photo sheet" : "Expand photo sheet"
+            }
+            aria-expanded={detailsExpanded}
+            onClick={() => {
+              if (sheetMoved.current) {
+                sheetMoved.current = false;
+                return;
               }
-            />
-          </Button>
-        </div>
-        <div className="place-story-body">
-          <div className="place-story-photo">
-            {" "}
-            <button
-              className="explorer-photo"
-              onClick={() => setViewer(photoIndex)}
-              aria-label={`View ${photo.title}`}
+              setDetailsExpanded(!detailsExpanded);
+            }}
+            onPointerDown={(event) => {
+              sheetDrag.current = event.clientY;
+              sheetMoved.current = false;
+              event.currentTarget.setPointerCapture(event.pointerId);
+            }}
+            onPointerUp={(event) => {
+              const start = sheetDrag.current;
+              sheetDrag.current = null;
+              if (start !== null && Math.abs(event.clientY - start) > 24) {
+                sheetMoved.current = true;
+                setDetailsExpanded(event.clientY < start);
+                event.preventDefault();
+              }
+            }}
+          >
+            <span />
+          </button>
+          <div className="canvas-heading">
+            <span>{place.name}</span>
+            <Button
+              variant="control"
+              aria-label={`${collection.places.includes(place.id) ? "Unsave" : "Save"} ${place.name}`}
+              aria-pressed={collection.places.includes(place.id)}
+              onClick={() => toggle("places", place.id)}
             >
-              <PhotoImage
-                photo={photo}
-                priority
-                sizes="(max-width: 700px) 90vw, 55vw"
+              <Heart
+                size={16}
+                fill={
+                  collection.places.includes(place.id) ? "currentColor" : "none"
+                }
               />
-              <span>View photograph</span>
-            </button>
-            <div className="photo-caption">
-              <span>{photo.title}</span>
+            </Button>
+            <Button
+              variant="control"
+              aria-label="Close photographs"
+              onClick={closeCanvas}
+            >
+              <X size={18} />
+            </Button>
+          </div>
+          <section className="place-story" aria-label="Selected location">
+            <div className="place-heading">
+              <div>
+                <p className="eyebrow">
+                  {String(selected + 1).padStart(2, "0")} /{" "}
+                  {String(travelPlaces.length).padStart(2, "0")}
+                </p>
+                <h2>{place.location}</h2>
+                <p>{place.name}</p>
+              </div>
               <Button
                 variant="control"
-                aria-label={`${collection.photos.includes(photo.src) ? "Unsave" : "Save"} photograph`}
-                aria-pressed={collection.photos.includes(photo.src)}
-                onClick={() => toggle("photos", photo.src)}
+                aria-label={`${collection.places.includes(place.id) ? "Unsave" : "Save"} ${place.name}`}
+                aria-pressed={collection.places.includes(place.id)}
+                onClick={() => toggle("places", place.id)}
               >
                 <Heart
-                  size={15}
+                  size={18}
                   fill={
-                    collection.photos.includes(photo.src)
+                    collection.places.includes(place.id)
                       ? "currentColor"
                       : "none"
                   }
                 />
               </Button>
             </div>
-            <div className="photo-strip">
-              {place.photos.map((item, i) => (
+            <div className="place-story-body">
+              <div className="place-story-photo">
+                {" "}
                 <button
-                  key={item.src}
-                  aria-label={`Show ${item.title}`}
-                  aria-pressed={i === photoIndex}
-                  onClick={() => setPhotoIndex(i)}
+                  className="explorer-photo"
+                  onClick={() => {
+                    setDetailsOpen(false);
+                    setViewer(photoIndex);
+                  }}
+                  aria-label={`View ${photo.title}`}
                 >
-                  <PhotoImage photo={item} sizes="80px" />
+                  <PhotoImage
+                    photo={photo}
+                    priority
+                    sizes="(max-width: 700px) calc(100vw - 48px), 326px"
+                  />
+                  <span>View photograph</span>
                 </button>
-              ))}
-            </div>
-          </div>
-          <div className="place-story-edits">
-            {" "}
-            <div className="preset-heading">
-              <h3>The edits</h3>
-              <span className="sample-label">Sample recipes</span>
-            </div>
-            {recipes.map((preset) => (
-              <div key={preset.id} className="preset-row">
-                <div>
-                  <h4>{preset.name}</h4>
-                  <p>{preset.note}</p>
-                  <details>
-                    <summary>Recipe & photograph</summary>
-                    <dl>
-                      {preset.adjustments.map((a) => (
-                        <div key={a.label}>
-                          <dt>{a.label}</dt>
-                          <dd>{a.value}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                    <button
-                      className="recipe-photo-link"
-                      onClick={() => {
-                        const pi = travelPlaces.findIndex((p) =>
-                          p.photos.some(
-                            (photo) => photo.src === preset.photoSrc,
-                          ),
-                        );
-                        const fi = travelPlaces[pi].photos.findIndex(
-                          (photo) => photo.src === preset.photoSrc,
-                        );
-                        choose(pi, fi);
-                      }}
-                    >
-                      View linked photograph
-                    </button>
-                    <p>Illustrative association, not verified edit history.</p>
-                  </details>
+                <div className="photo-caption">
+                  <span>{photo.title}</span>
+                  <Button
+                    variant="control"
+                    aria-label={`${collection.photos.includes(photo.src) ? "Unsave" : "Save"} photograph`}
+                    aria-pressed={collection.photos.includes(photo.src)}
+                    onClick={() => toggle("photos", photo.src)}
+                  >
+                    <Heart
+                      size={15}
+                      fill={
+                        collection.photos.includes(photo.src)
+                          ? "currentColor"
+                          : "none"
+                      }
+                    />
+                  </Button>
                 </div>
-                <Button
-                  variant="control"
-                  aria-label={`${collection.presets.includes(preset.id) ? "Remove" : "Add"} ${preset.name}`}
-                  aria-pressed={collection.presets.includes(preset.id)}
-                  onClick={() => toggle("presets", preset.id)}
-                >
-                  {collection.presets.includes(preset.id) ? (
-                    <Check size={16} />
-                  ) : (
-                    "+"
-                  )}
-                </Button>
+                <div className="photo-strip">
+                  {place.photos.map((item, i) => (
+                    <button
+                      key={item.src}
+                      aria-label={`Show ${item.title}`}
+                      aria-pressed={i === photoIndex}
+                      onClick={() => setPhotoIndex(i)}
+                    >
+                      <PhotoImage photo={item} sizes="80px" />
+                    </button>
+                  ))}
+                </div>
               </div>
-            ))}
-            <button
-              className="browse-packs"
-              onClick={() => setCollectionView("presets")}
-            >
-              Browse curated packs <Layers size={15} />
-            </button>
-          </div>
-        </div>
-      </section>
-      <SignatureCollection photo={photo} />
-      <div className="explorer-foot">
-        <p>
-          Original photographs. Real collection catalog. Sample map recipes.
-        </p>
-        <Link href="/contact">Contact Nicholas</Link>
-      </div>
-      <p role="status" className="explorer-status">
+              <div className="place-story-edits">
+                {" "}
+                <div className="preset-heading">
+                  <h3>The edits</h3>
+                  <span className="sample-label">Sample recipes</span>
+                </div>
+                {recipes.map((preset) => (
+                  <div key={preset.id} className="preset-row">
+                    <div>
+                      <h4>{preset.name}</h4>
+                      <p>{preset.note}</p>
+                      <details>
+                        <summary>Recipe & photograph</summary>
+                        <dl>
+                          {preset.adjustments.map((a) => (
+                            <div key={a.label}>
+                              <dt>{a.label}</dt>
+                              <dd>{a.value}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                        <button
+                          className="recipe-photo-link"
+                          onClick={() => {
+                            const pi = travelPlaces.findIndex((p) =>
+                              p.photos.some(
+                                (photo) => photo.src === preset.photoSrc,
+                              ),
+                            );
+                            const fi = travelPlaces[pi].photos.findIndex(
+                              (photo) => photo.src === preset.photoSrc,
+                            );
+                            choose(pi, fi);
+                          }}
+                        >
+                          View linked photograph
+                        </button>
+                        <p>
+                          Illustrative association, not verified edit history.
+                        </p>
+                      </details>
+                    </div>
+                    <Button
+                      variant="control"
+                      aria-label={`${collection.presets.includes(preset.id) ? "Remove" : "Add"} ${preset.name}`}
+                      aria-pressed={collection.presets.includes(preset.id)}
+                      onClick={() => toggle("presets", preset.id)}
+                    >
+                      {collection.presets.includes(preset.id) ? (
+                        <Check size={16} />
+                      ) : (
+                        "+"
+                      )}
+                    </Button>
+                  </div>
+                ))}
+                <button
+                  className="browse-packs"
+                  onClick={() => {
+                    setDetailsOpen(false);
+                    setCollectionView("presets");
+                  }}
+                >
+                  Browse curated packs <Layers size={15} />
+                </button>
+              </div>
+            </div>
+          </section>
+          <Link className="canvas-contact" href="/contact">
+            Contact Nicholas
+          </Link>
+        </aside>
+      )}
+      <p role="status" className="sr-only">
         {message}
       </p>
       <Lightbox
@@ -487,7 +600,7 @@ export default function PlacesExplorer() {
       >
         <DialogContent
           variant="panel"
-          className="collection-dialog explorer-overlay top-[7vh] max-h-[86dvh] overflow-y-auto"
+          className={`collection-dialog explorer-overlay top-[7vh] max-h-[86dvh] overflow-y-auto ${collectionView === "catalog" ? "catalog-dialog" : ""}`}
         >
           <div className="dialog-heading">
             <DialogTitle>Your collection</DialogTitle>
@@ -513,8 +626,17 @@ export default function PlacesExplorer() {
             >
               Preset pack ({collection.presets.length})
             </Button>
+            <Button
+              variant="control"
+              aria-pressed={collectionView === "catalog"}
+              onClick={() => setCollectionView("catalog")}
+            >
+              All 21
+            </Button>
           </div>
-          {collectionView === "saved" ? (
+          {collectionView === "catalog" ? (
+            <SignatureCollection photo={photo} />
+          ) : collectionView === "saved" ? (
             <div className="collection-body">
               {savedCount === 0 && (
                 <p className="empty-collection">
@@ -530,6 +652,7 @@ export default function PlacesExplorer() {
                       onClick={() => {
                         choose(index);
                         setCollectionView(null);
+                        setDetailsOpen(true);
                       }}
                     >
                       <span>Place</span>
@@ -558,6 +681,7 @@ export default function PlacesExplorer() {
                       onClick={() => {
                         choose(index, fi);
                         setCollectionView(null);
+                        setDetailsOpen(true);
                       }}
                     >
                       <PhotoImage photo={p.photos[fi]} sizes="100px" />
@@ -577,16 +701,15 @@ export default function PlacesExplorer() {
           ) : (
             <div className="collection-body">
               <p className="sample-notice">
-                Prototype catalog · sample recipes only. Preset files, verified
-                edits and prices are not available yet.
+                Sample map recipes. Verified edit links and checkout are not
+                connected in this preview.
               </p>
-              <a
+              <button
                 className="browse-packs"
-                href="#signature-collection"
-                onClick={() => setCollectionView(null)}
+                onClick={() => setCollectionView("catalog")}
               >
                 View all 21 Signature Collection presets
-              </a>
+              </button>
               <h3>Your custom pack</h3>
               {collection.presets.length === 0 && (
                 <p className="empty-collection">

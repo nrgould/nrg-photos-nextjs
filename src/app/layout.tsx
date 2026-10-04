@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
-import { Cormorant_Garamond, DM_Sans } from "next/font/google";
+import {
+  Cormorant_Garamond,
+  DM_Sans,
+  Fraunces,
+  Hanken_Grotesk,
+} from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { site } from "@/lib/site";
@@ -16,6 +21,18 @@ const sans = DM_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   variable: "--font-dm-sans",
+  display: "swap",
+});
+const explorerDisplay = Fraunces({
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  axes: ["opsz", "SOFT", "WONK"],
+  variable: "--font-explorer-display",
+  display: "swap",
+});
+const explorerSans = Hanken_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-explorer-sans",
   display: "swap",
 });
 export const metadata: Metadata = {
@@ -50,7 +67,7 @@ export default async function RootLayout({
       lang="en"
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={`${serif.variable} ${sans.variable}`}
+      className={`${serif.variable} ${sans.variable} ${explorerDisplay.variable} ${explorerSans.variable}`}
     >
       <head>
         <script

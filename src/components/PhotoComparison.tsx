@@ -19,14 +19,17 @@ export default function PhotoComparison({ pair }: { pair: ComparisonPair }) {
   return (
     <figure className="photo-comparison">
       <div className="comparison-stage">
-        <PhotoImage photo={pair.after} sizes="(max-width: 700px) 100vw, 80vw" />
+        <PhotoImage
+          photo={pair.after}
+          sizes="(max-width: 700px) calc(100vw - 64px), 832px"
+        />
         <div
           className="comparison-before"
           style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
         >
           <PhotoImage
             photo={pair.before}
-            sizes="(max-width: 700px) 100vw, 80vw"
+            sizes="(max-width: 700px) calc(100vw - 64px), 832px"
           />
         </div>
         <span className="comparison-label before">

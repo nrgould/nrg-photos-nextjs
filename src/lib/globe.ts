@@ -33,15 +33,24 @@ export function shortestTurn(current: number, destination: number) {
   return ((destination - current + 540) % 360) - 180;
 }
 
-export const zoomStops = [1, 3, 9] as const;
+export const zoomStops = [1, 2, 3, 5, 7, 10] as const;
+export const zoomLabels = [
+  "World",
+  "Continent",
+  "Region",
+  "Area",
+  "Near",
+  "Local",
+] as const;
 export function flatFrame(
   center: [number, number],
   zoom: number,
   points: [number, number][],
   size: [number, number] = [840, 560],
+  offset: [number, number] = [0, 0],
 ) {
   const projection = geoMercator()
-    .translate([size[0] / 2, size[1] / 2])
+    .translate([size[0] / 2 + offset[0], size[1] / 2 + offset[1]])
     .scale(125 * zoom)
     .center([center[0], Math.max(-75, Math.min(75, center[1]))])
     .clipExtent([

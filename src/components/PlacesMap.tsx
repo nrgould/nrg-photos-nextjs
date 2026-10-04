@@ -5,6 +5,7 @@ import { travelPlaces } from "@/lib/places";
 
 export default function PlacesMap({
   selected,
+  canvasOpen,
   mode,
   zoom,
   intro,
@@ -13,6 +14,7 @@ export default function PlacesMap({
   revision,
 }: {
   selected: number;
+  canvasOpen: boolean;
   mode: "globe" | "map";
   zoom: number;
   intro: boolean;
@@ -97,7 +99,17 @@ export default function PlacesMap({
   const geometry =
     mode === "globe"
       ? globeFrame(view, points)
-      : flatFrame(center, arrivalZoom ?? zoomStops[zoom], points, size);
+      : flatFrame(
+          center,
+          arrivalZoom ?? zoomStops[zoom],
+          points,
+          size,
+          canvasOpen
+            ? size[0] <= 700
+              ? [0, -size[1] * 0.21]
+              : [-150, 0]
+            : [0, 0],
+        );
   const width = mode === "globe" ? 560 : size[0];
   const height = mode === "globe" ? 560 : size[1];
   function pan(dx: number, dy: number) {
@@ -221,14 +233,6 @@ export default function PlacesMap({
             ),
         )}
       </svg>
-      <div className="map-index">
-        <span>FIELD NOTES / 01—04</span>
-        <span>
-          {mode === "map"
-            ? "Drag to explore · arrow keys to pan"
-            : "A few places, a different perspective"}
-        </span>
-      </div>
     </div>
   );
 }

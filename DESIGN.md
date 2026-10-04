@@ -88,6 +88,7 @@ The system is Tailwind v4 plus shadcn (Base UI base, `components.json`). Read th
 - **Radius** is `0` everywhere (`--radius`); only `round` buttons and map markers are circular.
 
 **Key Characteristics:**
+
 - Original photography at generous scale.
 - Literary headings with small, clear sans-serif navigation and captions.
 - Square image edges, fine rules, and pale regional backgrounds.
@@ -158,6 +159,8 @@ All interactive elements use a 2px visible focus outline with 6px offset. Preser
 
 ## Places & presets prototype
 
-`/explore` composes the existing local photo/place/geography models and shadcn Base UI primitives. Fraunces + Hanken Grotesk follow Otium's font pairing on the atlas surface. Flat map is the browsing default after the brief globe introduction; opaque controls are default and glass is optional. A native three-stop range exposes World / Region / Local. The Dialog primitive's centered `panel` variant contains favorites, pack assembly and search. No sidebar: location photography and edits sit in an inline section below the full-width map. Counts derive from deduplicated IDs.
+`/explore` is a fixed full-viewport map with floating controls. Its contextual photo canvas sits on the right on desktop and becomes an expandable bottom sheet on mobile. No visible page title, portfolio chrome, below-map sections or navigation sidebar. Original routes remain available separately. Use rounded Next.js Images, never Polaroid stacks, in this experience.
 
-The persisted light/dark toggle changes the shared semantic tokens; photographs, the dark viewer and intentionally dark portfolio sections retain their original contrast. Suppress transitions during theme swaps. All recipes and purchases are explicitly prototypes; no image edit attribution is asserted without evidence. `better-ui` and `emil-design-eng` informed control hit areas, motion restraint, 0.96 press scale, token use and image outlines. See `docs/location-presets-spec.md` for the full source requirements.
+Neutral black/white/gray surfaces and geography in both themes; dark green only for restrained primary and selected accents. The bottom command bar is a small pill with dividers. The latest exact slider reference has six dot stops, a white filled track and black circular thumb inside a dark capsule. Native range semantics provide keyboard access.
+
+Otium product-register typography is sourced from its layout, global CSS and DESIGN.md, including Hanken body/block/label steps and Fraunces title axes/weights. Variables are loaded at the root so portaled dialogs inherit them. The map itself has no display headline. Contextual pack/favorites/search dialogs reuse the existing Base UI primitive. Recipe/demo provenance stays explicit; raw commercial preset files are excluded. See `docs/location-presets-spec.md` and `docs/location-presets-verification.md`.

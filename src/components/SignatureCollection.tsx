@@ -24,10 +24,6 @@ export default function SignatureCollection({ photo }: { photo: Photo }) {
           <p className="eyebrow">The full collection · 21 Lightroom presets</p>
           <h2 id="signature-title">2026 Signature Collection</h2>
         </div>
-        <p>
-          Landscape, travel, nature and a few portrait tones. The complete
-          catalog from Nicholas’s preset pack.
-        </p>
       </div>
       <div className="signature-filters" aria-label="Preset categories">
         {categories.map((item) => (
@@ -80,8 +76,8 @@ export default function SignatureCollection({ photo }: { photo: Photo }) {
         {!pair && (
           <p className="sample-notice">
             Before / after exports are still to come. This preset has not been
-            matched to the photographs above. Preset files are not available for
-            download here.
+            matched to a photograph. Preset files are not available for download
+            here.
           </p>
         )}
         {(pair || demo) && (

@@ -18,7 +18,9 @@ function DialogContent({
       <DialogPrimitive.Backdrop
         className={cn(
           "fixed inset-0 z-50 transition-opacity duration-200 ease-out data-ending-style:opacity-0 data-ending-style:duration-150 data-starting-style:opacity-0",
-          variant === "viewer" ? "bg-green-950" : "bg-green-950/40",
+          variant === "viewer"
+            ? "bg-[var(--neutral-950)]"
+            : "bg-[var(--neutral-950)]/40",
         )}
       />
       <DialogPrimitive.Popup

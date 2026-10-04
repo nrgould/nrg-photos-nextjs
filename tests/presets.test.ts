@@ -71,3 +71,12 @@ test("all map zoom stops center the selected place and produce valid local geogr
       assert.ok(Math.abs(map.points[0].position[1] - 280) < 0.001);
     }
 });
+
+test("map focus remains in the visible area beside a photo canvas", () => {
+  const center: [number, number] = [13.65, 47.56];
+  const desktop = flatFrame(center, 3, [center], [1327, 1030], [-150, 0]);
+  assert.deepEqual(desktop.points[0].position, [513.5, 515]);
+  const mobile = flatFrame(center, 3, [center], [390, 844], [0, -177.24]);
+  assert.equal(mobile.points[0].position[0], 195);
+  assert.ok(Math.abs(mobile.points[0].position[1] - 244.76) < 1e-8);
+});
