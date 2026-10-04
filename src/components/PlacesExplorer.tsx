@@ -791,6 +791,8 @@ export default function PlacesExplorer({
             <span aria-hidden="true">{cartIds.length}</span>
           )}
         </Button>
+        {/* Phones have no room in the top bar; the drawer header holds account there. */}
+        <AccountControl className="explorer-account-trigger max-[700px]:hidden" />
       </div>
       <div className="explorer-workspace">
         <div className="map-workspace">
@@ -1168,7 +1170,7 @@ export default function PlacesExplorer({
                   role="group"
                   aria-label="Drawer view"
                 >
-                  <AccountControl />
+                  <AccountControl className="min-[701px]:hidden" />
                   <Button
                     variant="quiet"
                     disabled={!place}

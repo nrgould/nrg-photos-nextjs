@@ -1,12 +1,13 @@
 "use client";
 import { useState, type FormEvent } from "react";
+import { cn } from "@/lib/utils";
 import { useCommerceAccount } from "./CommerceProviders";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
-export function AccountControl() {
+export function AccountControl({ className }: { className?: string }) {
   const { enabled, supabase, userId, email } = useCommerceAccount();
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +41,7 @@ export function AccountControl() {
           render={
             <Button
               variant="control"
-              className="size-11 rounded-full p-0 font-medium"
+              className={cn("size-11 rounded-full p-0 font-medium", className)}
               aria-label={`Account, ${email}`}
             />
           }
@@ -68,7 +69,9 @@ export function AccountControl() {
         if (!open) setError(null);
       }}
     >
-      <PopoverTrigger render={<Button variant="control" />}>
+      <PopoverTrigger
+        render={<Button variant="control" className={className} />}
+      >
         Sign in
       </PopoverTrigger>
       <PopoverContent align="end" className="explorer-overlay w-72 p-4">
