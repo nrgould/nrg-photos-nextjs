@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { selectionFeedback } from "@/lib/haptics";
 import { travelPlaces } from "@/lib/places";
+import { takenLabel } from "@/lib/photography";
 import { drawerOwnsGesture, shouldDismissDrawer } from "@/lib/drawer-gesture";
 import { getMapNode, getMapNodes, type MapNode } from "@/lib/map-hierarchy";
 import { navigatePlaces } from "@/lib/map-filters";
@@ -68,19 +69,33 @@ import type { ExplorationEvent } from "@/lib/exploration-progress";
 import PresetCartPanel from "./PresetCartPanel";
 import SavedPanel from "./SavedPanel";
 import { useFavorites } from "./useFavorites";
-import { nodeForPhoto } from "@/lib/favorites";
+import { nodeForPhoto, placeNode } from "@/lib/favorites";
 import { usePresetCart } from "./PresetCartProvider";
 import { usePresetCommerceBoundary } from "./CommerceCartProvider";
 import { AccountControl } from "./AccountControl";
 import {
   createPresetCatalogState,
   getCatalogPreset,
+  getVerifiedPresetLocations,
   type PresetCatalogState,
 } from "@/lib/preset-commerce";
 
-type DrawerMode = "photos" | "presets" | "saved";
-// Cart, challenges and a single preset stack above the drawer.
-type NestedView = "cart" | "challenges" | "preset";
+type DrawerView =
+  "photos" | "presets" | "saved" | "cart" | "challenges" | "preset";
+// Pages nest above an open photo drawer; otherwise a page is the drawer.
+type PageView = Exclude<DrawerView, "photos">;
+const pageBackLabels: Record<DrawerView, string> = {
+  photos: "Back to photographs",
+  presets: "All presets",
+  saved: "Saved",
+  cart: "Cart",
+  challenges: "Challenges",
+  preset: "Preset",
+};
+function stepTo<T>(stack: T[], view: T) {
+  const index = stack.indexOf(view);
+  return index < 0 ? [...stack, view] : stack.slice(0, index + 1);
+}
 
 const MotionButton = motion.create(Button);
 const separatorStyle: CSSProperties = {
@@ -174,9 +189,6 @@ export default function PlacesExplorer({
   const [zoomRevision, setZoomRevision] = useState(0);
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [open, setOpen] = useState(Boolean(initialNode || initialView));
-  const [drawerMode, setDrawerMode] = useState<DrawerMode>(
-    initialView ? "presets" : "photos",
-  );
   const [photoFocusOpen, setPhotoFocusOpen] = useState(Boolean(initialNode));
   const { progress: explorationProgress, record: recordExploration } =
     useExplorationProgress();
@@ -202,18 +214,25 @@ export default function PlacesExplorer({
   const [catalogState, setCatalogState] = useState(() =>
     createPresetCatalogState({ ...initialCatalogState, query: "" }),
   );
-  const [nested, setNested] = useState<NestedView | null>(
+  const [initialPages] = useState<PageView[]>(() =>
     initialView === "cart"
-      ? "cart"
-      : initialView === "catalog" &&
-          getCatalogPreset(catalogState.selectedPresetId)
-        ? "preset"
-        : null,
+      ? ["cart"]
+      : initialView === "catalog"
+        ? getCatalogPreset(catalogState.selectedPresetId)
+          ? ["presets", "preset"]
+          : ["presets"]
+        : [],
   );
-  const nestedPreset =
-    nested === "preset"
-      ? getCatalogPreset(catalogState.selectedPresetId)
-      : null;
+  const [baseStack, setBaseStack] = useState<DrawerView[]>(
+    initialNode || !initialPages.length ? ["photos"] : initialPages,
+  );
+  const [nestedStack, setNestedStack] = useState<PageView[]>(
+    initialNode ? initialPages : [],
+  );
+  const drawerMode = baseStack.at(-1) ?? "photos";
+  const nested = nestedStack.at(-1) ?? null;
+  const topView = nested ?? (open ? drawerMode : null);
+  const selectedPreset = getCatalogPreset(catalogState.selectedPresetId);
   const { checkout } = usePresetCommerceBoundary();
   const { cartIds, ownedPresetIds, addPreset, addPresets, removePreset } =
     usePresetCart();
@@ -285,42 +304,36 @@ export default function PlacesExplorer({
     closeNested();
     setOpen(false);
   }
-  function openNested(view: NestedView, trigger?: HTMLElement | null) {
-    if (nested !== view) selectionFeedback();
-    nestedOrigin.current = trigger ?? null;
-    setViewer(null);
-    // The cart belongs to presets, so its back button always returns there.
-    if (view === "cart" && (!open || drawerMode !== "presets"))
-      showPanel("presets", trigger ?? undefined, false);
-    setNested(view);
-  }
-  function closeNested() {
-    setNested(null);
+  function clearPresetSelection() {
     if (catalogState.selectedPresetId)
       setCatalogState((state) => ({ ...state, selectedPresetId: null }));
   }
-  function showPanel(
-    next: Exclude<DrawerMode, "photos">,
-    trigger?: HTMLElement,
-    focusHandle = true,
-  ) {
-    if (!open || drawerMode !== next) selectionFeedback();
-    closeNested();
-    if (drawerMode === "photos") {
-      photoSnap.current = snap;
-      photoScroll.current = gallery.current?.scrollTop ?? photoScroll.current;
-    }
-    drawerOrigin.current =
-      trigger ??
-      (next === "saved" ? savedTrigger.current : presetsTrigger.current);
+  function closeNested() {
+    setNestedStack([]);
+    clearPresetSelection();
+  }
+  function openPage(view: PageView, trigger?: HTMLElement | null) {
+    if (topView !== view) selectionFeedback();
     setViewer(null);
-    setDrawerMode(next);
+    if (open && drawerMode === "photos") {
+      if (!nested) nestedOrigin.current = trigger ?? null;
+      setNestedStack((stack) => stepTo(stack, view));
+      return;
+    }
+    setBaseStack((stack) => (open ? stepTo(stack, view) : [view]));
+    if (open) return;
+    drawerOrigin.current = trigger ?? presetsTrigger.current;
     setSnap(0.75);
     setOpen(true);
-    if (focusHandle)
-      requestAnimationFrame(() =>
-        (drawerHandle.current ?? drawerElement)?.focus({ preventScroll: true }),
-      );
+    requestAnimationFrame(() =>
+      (drawerHandle.current ?? drawerElement)?.focus({ preventScroll: true }),
+    );
+  }
+  function back() {
+    if ((nested ?? drawerMode) === "preset") clearPresetSelection();
+    if (nested) setNestedStack((stack) => stack.slice(0, -1));
+    else if (baseStack.length > 1) setBaseStack((stack) => stack.slice(0, -1));
+    else closeDrawer();
   }
   function showPhotos() {
     selectionFeedback();
@@ -330,7 +343,7 @@ export default function PlacesExplorer({
     pendingPhotoScroll.current = photoScroll.current;
     drawerOrigin.current = photoOrigin.current ?? presetsTrigger.current;
     closeNested();
-    setDrawerMode("photos");
+    setBaseStack(["photos"]);
     setSnap(photoSnap.current);
     setOpen(true);
     requestAnimationFrame(() => {
@@ -533,7 +546,7 @@ export default function PlacesExplorer({
     gallery.current?.scrollTo(0, 0);
     photoScroll.current = 0;
     pendingPhotoScroll.current = null;
-    setDrawerMode("photos");
+    setBaseStack(["photos"]);
     if (drawerMode !== "photos") setSnap(photoSnap.current);
     setSelected(id);
     setSelectedNodeId(null);
@@ -564,6 +577,12 @@ export default function PlacesExplorer({
     setSelectedNodeId(node.id);
     setMode("map");
     setZoom((current) => Math.max(current, 3.5));
+  }
+  function showLocation(locationId: string) {
+    const node = placeNode(locationId);
+    if (!node) return;
+    closeNested();
+    chooseNode(node);
   }
   function openPhotograph(photoSrc: string | null) {
     setViewer(photoSrc);
@@ -637,6 +656,101 @@ export default function PlacesExplorer({
       }}
     />
   );
+  function pageTitle(view: DrawerView) {
+    return view === "preset"
+      ? (selectedPreset?.name ?? "Preset")
+      : view === "saved"
+        ? "Saved places and photographs"
+        : view === "cart"
+          ? "Your preset cart"
+          : view === "challenges"
+            ? "Exploration challenges"
+            : "All presets";
+  }
+  // Pages nest only above photos, so at most one layer shows a page.
+  const pageView = nested ?? (drawerMode === "photos" ? null : drawerMode);
+  const pageStack: DrawerView[] = nested ? nestedStack : baseStack;
+  const page = pageView && renderPage(pageView);
+  function renderPage(view: PageView) {
+    const previous = pageStack.at(-2) ?? (nested ? "photos" : null);
+    // A lone page in the drawer has the close button instead of a back button.
+    const onBack = previous ? back : undefined;
+    const backLabel = previous ? pageBackLabels[previous] : undefined;
+    if (view === "presets")
+      return (
+        <PresetCatalog
+          state={catalogState}
+          onStateChange={setCatalogState}
+          cartIds={cartIds}
+          ownedPresetIds={ownedPresetIds}
+          onAddPreset={addPreset}
+          onAddCollection={addPresets}
+          onRemovePreset={removePreset}
+          scrollMemory={catalogScrollMemory}
+          onBack={onBack}
+          backLabel={backLabel}
+          onOpenPreset={(id, trigger) => {
+            const location = getVerifiedPresetLocations(id)[0];
+            if (location) return showLocation(location.locationId);
+            setCatalogState((state) => ({ ...state, selectedPresetId: id }));
+            openPage("preset", trigger);
+          }}
+        />
+      );
+    if (view === "saved")
+      return (
+        <SavedPanel
+          favorites={favorites}
+          backLabel={backLabel}
+          onBack={onBack}
+          onToggle={toggleFavorite}
+          onOpenPlace={chooseNode}
+          onOpenPhoto={(src, trigger) => {
+            const node = nodeForPhoto(src);
+            if (!node) return;
+            photoFocus.current = trigger;
+            chooseNode(node);
+            openPhotograph(src);
+          }}
+        />
+      );
+    if (view === "cart")
+      return (
+        <PresetCartPanel
+          backLabel={backLabel}
+          onBack={onBack}
+          onBrowse={() => openPage("presets")}
+          returnPath={`/?${checkoutParams}`}
+          checkout={checkout}
+        />
+      );
+    if (view === "challenges")
+      return (
+        <ExploreChallenges
+          progress={explorationProgress}
+          backLabel={backLabel}
+          onBack={onBack}
+          onRevealHint={(challengeId) =>
+            recordExploration({ type: "hint-revealed", challengeId })
+          }
+        />
+      );
+    return (
+      selectedPreset && (
+        <PresetDetail
+          standalone
+          preset={selectedPreset}
+          inCart={cartIds.includes(selectedPreset.id)}
+          owned={ownedPresetIds.includes(selectedPreset.id)}
+          onAddPreset={addPreset}
+          onRemovePreset={removePreset}
+          onSelectLocation={showLocation}
+          backLabel={backLabel ?? pageBackLabels.presets}
+          onBack={back}
+        />
+      )
+    );
+  }
   return (
     <TooltipProvider delay={500}>
       <h1 className="sr-only">Photographs on the map</h1>
@@ -652,17 +766,17 @@ export default function PlacesExplorer({
         </Control>
         <ExploreChallengesTrigger
           progress={explorationProgress}
-          expanded={nested === "challenges"}
+          expanded={topView === "challenges"}
           triggerRef={challengesTrigger}
-          onClick={() => openNested("challenges", challengesTrigger.current)}
+          onClick={() => openPage("challenges", challengesTrigger.current)}
         />
         <Button
           ref={savedTrigger}
           variant="control"
           className="explorer-cart-trigger"
           aria-label={`Open saved, ${savedCount} saved`}
-          aria-expanded={open && drawerMode === "saved"}
-          onClick={(event) => showPanel("saved", event.currentTarget)}
+          aria-expanded={topView === "saved"}
+          onClick={(event) => openPage("saved", event.currentTarget)}
         >
           <Heart size={18} aria-hidden="true" />
           {savedCount > 0 && <span aria-hidden="true">{savedCount}</span>}
@@ -672,8 +786,8 @@ export default function PlacesExplorer({
           variant="control"
           className="explorer-cart-trigger"
           aria-label={`Open cart, ${cartIds.length} ${cartIds.length === 1 ? "preset" : "presets"}`}
-          aria-expanded={nested === "cart"}
-          onClick={(event) => openNested("cart", event.currentTarget)}
+          aria-expanded={topView === "cart"}
+          onClick={(event) => openPage("cart", event.currentTarget)}
         >
           <ShoppingBag size={18} aria-hidden="true" />
           {cartIds.length > 0 && (
@@ -692,7 +806,7 @@ export default function PlacesExplorer({
               variant="control"
               className="explorer-presets-trigger"
               aria-label="Browse all presets"
-              onClick={(event) => showPanel("presets", event.currentTarget)}
+              onClick={(event) => openPage("presets", event.currentTarget)}
             >
               <span className="max-[700px]:hidden">All presets</span>
               <span className="min-[701px]:hidden">Presets</span>
@@ -996,7 +1110,7 @@ export default function PlacesExplorer({
                 <Button
                   variant="quiet"
                   className="drawer-presets-link"
-                  onClick={() => showPanel("presets")}
+                  onClick={(event) => openPage("presets", event.currentTarget)}
                 >
                   Presets
                 </Button>
@@ -1044,17 +1158,13 @@ export default function PlacesExplorer({
             ) : (
               <div className="drawer-commerce-header">
                 <DrawerTitle className="sr-only">
-                  {drawerMode === "saved"
-                    ? "Saved places and photographs"
-                    : "All presets"}
+                  {pageTitle(drawerMode)}
                 </DrawerTitle>
                 <DrawerDescription
                   id="drawer-panel-description"
                   className="sr-only"
                 >
-                  {drawerMode === "saved"
-                    ? "Saved places and photographs."
-                    : "Presets and cart."}
+                  {pageTitle(drawerMode)}.
                 </DrawerDescription>
                 <div
                   className="drawer-mode-controls"
@@ -1072,17 +1182,15 @@ export default function PlacesExplorer({
                   <Button
                     variant="quiet"
                     aria-pressed={drawerMode === "presets"}
-                    onClick={() => showPanel("presets")}
+                    onClick={() => openPage("presets")}
                   >
                     Presets
                   </Button>
                   <Button
                     variant="quiet"
                     aria-label="Explore challenges"
-                    aria-pressed={nested === "challenges"}
-                    onClick={(event) =>
-                      openNested("challenges", event.currentTarget)
-                    }
+                    aria-pressed={drawerMode === "challenges"}
+                    onClick={() => openPage("challenges")}
                   >
                     <Leaf size={16} aria-hidden="true" />
                   </Button>
@@ -1090,15 +1198,15 @@ export default function PlacesExplorer({
                     variant="quiet"
                     aria-label={`Saved, ${savedCount}`}
                     aria-pressed={drawerMode === "saved"}
-                    onClick={() => showPanel("saved")}
+                    onClick={() => openPage("saved")}
                   >
                     <Heart size={16} aria-hidden="true" />
                   </Button>
                   <Button
                     variant="quiet"
                     aria-label={`Cart, ${cartIds.length} presets`}
-                    aria-pressed={nested === "cart"}
-                    onClick={(event) => openNested("cart", event.currentTarget)}
+                    aria-pressed={drawerMode === "cart"}
+                    onClick={() => openPage("cart")}
                   >
                     <ShoppingBag size={16} aria-hidden="true" />
                     <span>{cartIds.length}</span>
@@ -1172,49 +1280,20 @@ export default function PlacesExplorer({
                         }
                       />
                     </MotionButton>
-                    <figcaption>{photo.title}</figcaption>
+                    <figcaption>
+                      <span>{photo.title}</span>
+                      {photo.taken && (
+                        <time dateTime={photo.taken}>
+                          {takenLabel(photo.taken)}
+                        </time>
+                      )}
+                    </figcaption>
                   </figure>
                 ))}
               </div>
             </div>
-            <div
-              className="drawer-commerce-pane"
-              hidden={drawerMode !== "presets"}
-            >
-              <PresetCatalog
-                state={catalogState}
-                onStateChange={setCatalogState}
-                cartIds={cartIds}
-                ownedPresetIds={ownedPresetIds}
-                onAddPreset={addPreset}
-                onAddCollection={addPresets}
-                onRemovePreset={removePreset}
-                scrollMemory={catalogScrollMemory}
-                onOpenPreset={(id, trigger) => {
-                  setCatalogState((state) => ({
-                    ...state,
-                    selectedPresetId: id,
-                  }));
-                  openNested("preset", trigger);
-                }}
-              />
-            </div>
-            {drawerMode === "saved" && (
-              <div className="drawer-commerce-pane">
-                <SavedPanel
-                  favorites={favorites}
-                  onBack={() => (place ? showPhotos() : closeDrawer())}
-                  onToggle={toggleFavorite}
-                  onOpenPlace={chooseNode}
-                  onOpenPhoto={(src, trigger) => {
-                    const node = nodeForPhoto(src);
-                    if (!node) return;
-                    photoFocus.current = trigger;
-                    chooseNode(node);
-                    openPhotograph(src);
-                  }}
-                />
-              </div>
+            {drawerMode !== "photos" && (
+              <div className="drawer-commerce-pane">{page}</div>
             )}
           </div>
         </DrawerContent>
@@ -1258,55 +1337,12 @@ export default function PlacesExplorer({
           onInteractOutside={(event) => event.preventDefault()}
         >
           <DrawerTitle className="sr-only">
-            {nested === "cart"
-              ? "Your preset cart"
-              : nested === "challenges"
-                ? "Exploration challenges"
-                : (nestedPreset?.name ?? "Preset")}
+            {nested ? pageTitle(nested) : "Page"}
           </DrawerTitle>
           <DrawerDescription className="sr-only">
-            {nested === "challenges"
-              ? "Location and photo challenges."
-              : "Presets and cart."}
+            {nested ? pageTitle(nested) : "Page"}.
           </DrawerDescription>
-          <div className="drawer-commerce-pane">
-            {nested === "cart" && (
-              <PresetCartPanel
-                onBack={closeNested}
-                returnPath={`/?${checkoutParams}`}
-                checkout={checkout}
-              />
-            )}
-            {nested === "challenges" && (
-              <ExploreChallenges
-                progress={explorationProgress}
-                backLabel={
-                  !open
-                    ? "Map"
-                    : drawerMode === "photos"
-                      ? "Back to photographs"
-                      : drawerMode === "saved"
-                        ? "Saved"
-                        : "Presets"
-                }
-                onBack={closeNested}
-                onRevealHint={(challengeId) =>
-                  recordExploration({ type: "hint-revealed", challengeId })
-                }
-              />
-            )}
-            {nestedPreset && (
-              <PresetDetail
-                standalone
-                preset={nestedPreset}
-                inCart={cartIds.includes(nestedPreset.id)}
-                owned={ownedPresetIds.includes(nestedPreset.id)}
-                onAddPreset={addPreset}
-                onRemovePreset={removePreset}
-                onBack={closeNested}
-              />
-            )}
-          </div>
+          <div className="drawer-commerce-pane">{nested && page}</div>
         </DrawerContent>
       </Drawer>
       <Dialog open={contact} onOpenChange={setContact}>
@@ -1385,7 +1421,7 @@ export default function PlacesExplorer({
         onDismiss={dismissToast}
         onOpen={() => {
           dismissToast();
-          openNested("challenges", challengesTrigger.current);
+          openPage("challenges", challengesTrigger.current);
         }}
       />
       <span className="sr-only" aria-live="polite">

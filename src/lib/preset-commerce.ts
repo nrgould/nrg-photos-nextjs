@@ -65,6 +65,7 @@ export function filterPresetCatalog({
 
 export type VerifiedPresetLocation = Readonly<{
   presetId: string;
+  /** A map node id (e.g. "location:hallstatt"); tapping the preset flies there. */
   locationId: string;
   locationName: string;
   photoIds: readonly string[];

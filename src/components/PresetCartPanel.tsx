@@ -30,10 +30,14 @@ export const unavailablePresetCheckout = {
 
 export default function PresetCartPanel({
   onBack,
+  onBrowse = onBack,
+  backLabel = "Presets",
   returnPath = "/",
   checkout = unavailablePresetCheckout,
 }: {
-  onBack: () => void;
+  onBack?: () => void;
+  onBrowse?: () => void;
+  backLabel?: string;
   returnPath?: string;
   checkout?: PresetCheckoutBoundary;
 }) {
@@ -69,14 +73,16 @@ export default function PresetCartPanel({
       aria-labelledby={`${id}-heading`}
     >
       <header className={styles.header}>
-        <Button
-          ref={backButton}
-          variant="quiet"
-          className={styles.back}
-          onClick={onBack}
-        >
-          <ArrowLeft size={16} aria-hidden="true" /> Presets
-        </Button>
+        {onBack && (
+          <Button
+            ref={backButton}
+            variant="quiet"
+            className={styles.back}
+            onClick={onBack}
+          >
+            <ArrowLeft size={16} aria-hidden="true" /> {backLabel}
+          </Button>
+        )}
         <div className={styles.heading}>
           <h2 id={`${id}-heading`}>Cart</h2>
           <span className={styles.total}>{quote.paidCount} in cart</span>
@@ -86,7 +92,11 @@ export default function PresetCartPanel({
         <div className={styles.cartEmpty}>
           <ShoppingBag size={28} strokeWidth={1.5} aria-hidden="true" />
           <h3>Your cart is empty</h3>
-          <Button variant="control" className={styles.action} onClick={onBack}>
+          <Button
+            variant="control"
+            className={styles.action}
+            onClick={onBrowse}
+          >
             Browse presets
           </Button>
         </div>

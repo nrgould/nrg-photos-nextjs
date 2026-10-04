@@ -3,7 +3,7 @@ import { useRef, useState, type ReactNode, type RefObject } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
-import type { Photo } from "@/lib/photography";
+import { takenLabel, type Photo } from "@/lib/photography";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -128,7 +128,10 @@ export default function Lightbox({
               </Button>
               <p aria-live="polite">
                 {current.title}
-                <span>© Nicholas Gould</span>
+                <span>
+                  {current.taken && `${takenLabel(current.taken)} · `}© Nicholas
+                  Gould
+                </span>
               </p>
               <Button
                 variant="icon"

@@ -66,11 +66,39 @@ export default function MapZoom({
     });
     return () => animation.stop();
   }, [current, reduced, keyboardInteraction, visualPosition]);
+  const modeIcon = (
+    <span className="map-zoom-icon" aria-hidden="true">
+      <AnimatePresence initial={false}>
+        <motion.span
+          key={mode}
+          initial={
+            reduced || keyboardInteraction
+              ? false
+              : { opacity: 0, scale: 0.25, filter: "blur(4px)" }
+          }
+          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+          exit={
+            reduced || keyboardInteraction
+              ? { opacity: 0 }
+              : { opacity: 0, scale: 0.25, filter: "blur(4px)" }
+          }
+          transition={
+            reduced || keyboardInteraction
+              ? { duration: 0 }
+              : { type: "spring", duration: 0.3, bounce: 0 }
+          }
+        >
+          {mode === "globe" ? <Globe2 size={18} /> : <MapIcon size={18} />}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
   const control = (
     <div
       className="zoom-control"
       data-orientation={vertical ? "vertical" : "horizontal"}
     >
+      {vertical && <span className="map-zoom-cap">{modeIcon}</span>}
       <div className="zoom-track">
         <motion.div
           className="zoom-fill"
@@ -93,6 +121,16 @@ export default function MapZoom({
               : { left: thumbOffset, transform: "translateX(-50%)" }
           }
         />
+        {vertical && (
+          <motion.span
+            className="zoom-stage-label"
+            aria-hidden="true"
+            data-active={draft !== null}
+            style={{ bottom: thumbOffset }}
+          >
+            {zoomLabels[current]}
+          </motion.span>
+        )}
         <Slider
           orientation={vertical ? "vertical" : "horizontal"}
           className="map-zoom-slider [&_[data-slot=slider-thumb]]:size-9"
@@ -145,31 +183,7 @@ export default function MapZoom({
         ref={trigger}
         render={<Button variant="quiet" aria-label="Map zoom" />}
       >
-        <span className="map-zoom-icon" aria-hidden="true">
-          <AnimatePresence initial={false}>
-            <motion.span
-              key={mode}
-              initial={
-                reduced || keyboardInteraction
-                  ? false
-                  : { opacity: 0, scale: 0.25, filter: "blur(4px)" }
-              }
-              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-              exit={
-                reduced || keyboardInteraction
-                  ? { opacity: 0 }
-                  : { opacity: 0, scale: 0.25, filter: "blur(4px)" }
-              }
-              transition={
-                reduced || keyboardInteraction
-                  ? { duration: 0 }
-                  : { type: "spring", duration: 0.3, bounce: 0 }
-              }
-            >
-              {mode === "globe" ? <Globe2 size={18} /> : <MapIcon size={18} />}
-            </motion.span>
-          </AnimatePresence>
-        </span>
+        {modeIcon}
       </PopoverTrigger>
       <PopoverContent
         anchor={() =>

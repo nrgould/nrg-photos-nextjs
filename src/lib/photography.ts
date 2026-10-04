@@ -6,7 +6,18 @@ export type Photo = {
   width: number;
   height: number;
   collection: string;
+  /** Shoot month as YYYY-MM, from the library folder; absent when unknown. */
+  taken?: string;
 };
+export function takenLabel(taken?: string) {
+  if (!taken) return null;
+  const [year, month] = taken.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1)).toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
 export type Collection = {
   slug: string;
   title: string;
@@ -30,6 +41,7 @@ function photo(
     title,
     alt,
     collection,
+    taken: item.taken,
   };
 }
 const green = [
@@ -240,8 +252,7 @@ export const collections: Collection[] = [
     slug: "a-study-in-green",
     title: "A study in green",
     category: "Nature",
-    description:
-      "Forests, gardens and close detail.",
+    description: "Forests, gardens and close detail.",
     cover: green[0],
     photos: green,
   },
@@ -249,8 +260,7 @@ export const collections: Collection[] = [
     slug: "far-from-here",
     title: "Far from here",
     category: "Landscape & travel",
-    description:
-      "Austria, Germany, Italy and Norway.",
+    description: "Austria, Germany, Italy and Norway.",
     cover: travel[1],
     photos: travel,
   },
@@ -258,8 +268,7 @@ export const collections: Collection[] = [
     slug: "everyday-stories",
     title: "Everyday stories",
     category: "Lifestyle & brands",
-    description:
-      "Lifestyle and product work for brands.",
+    description: "Lifestyle and product work for brands.",
     cover: lifestyle[0],
     photos: lifestyle,
   },
@@ -267,8 +276,7 @@ export const collections: Collection[] = [
     slug: "people-and-places",
     title: "People & places",
     category: "Portraits",
-    description:
-      "Portraits and couples.",
+    description: "Portraits and couples.",
     cover: people[0],
     photos: people,
   },

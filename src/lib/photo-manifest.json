@@ -46,7 +46,8 @@
     "alt": "4 lifestyle product aileen wearing helly hansen jacket lofoten islands norway.jpg",
     "origin": "Stills: 02 HOLD - model release/2023-02 Lofoten Norway/R6II5017.jpg",
     "width": 1920,
-    "height": 2400
+    "height": 2400,
+    "taken": "2023-02"
   },
   {
     "src": "/photos/2_product_lifestyle_ravens_brew_ferns.webp",
@@ -67,7 +68,8 @@
     "alt": "landscape sailboat in a blizzard.jpg",
     "origin": "Stills: 01 READY/2023-02 Tromsø Norway/R6II9237.jpg",
     "width": 1920,
-    "height": 2400
+    "height": 2400,
+    "taken": "2023-02"
   },
   {
     "src": "/photos/landscape_lake_james.webp",
@@ -81,56 +83,64 @@
     "alt": "landscape dolomites seceda.jpg",
     "origin": "Stills: 01 READY/2024-06 Dolomites/R6II7078.jpg",
     "width": 1800,
-    "height": 2400
+    "height": 2400,
+    "taken": "2024-06"
   },
   {
     "src": "/photos/landscape_dolomites_santa_magdalena.webp",
     "alt": "landscape dolomites santa magdalena.jpg",
     "origin": "Stills: 01 READY/2024-06 Dolomites/R6II6751.jpg",
     "width": 1920,
-    "height": 2400
+    "height": 2400,
+    "taken": "2024-06"
   },
   {
     "src": "/photos/landscape_dolomites_cadini_di_misurina.webp",
     "alt": "landscape dolomites cadini di misurina.jpg",
     "origin": "Stills: 01 READY/Study in Green/R6II9329.jpg",
     "width": 1800,
-    "height": 2400
+    "height": 2400,
+    "taken": "2024-06"
   },
   {
     "src": "/photos/landscape_copenhagen_corner.webp",
     "alt": "landscape copenhagen corner.jpg",
     "origin": "Stills: 01 READY/2023-04 Copenhagen Denmark/R6II1344-2.jpg",
     "width": 1920,
-    "height": 2400
+    "height": 2400,
+    "taken": "2023-04"
   },
   {
     "src": "/photos/landscape_bavarian_alps_sunset_in_grainau.webp",
     "alt": "landscape bavarian alps sunset in grainau.jpg",
     "origin": "Stills: 01 READY/2023-06 Zugspitze Germany/R6II3743-Enhanced-NR-Edit.jpg",
     "width": 1920,
-    "height": 2400
+    "height": 2400,
+    "taken": "2023-06"
   },
   {
     "src": "/photos/landscape_amsterdam_canal.webp",
     "alt": "landscape amsterdam canal.jpg",
     "origin": "Stills: 01 READY/2023-06 Amsterdam/R6II0981.jpg",
     "width": 1920,
-    "height": 2400
+    "height": 2400,
+    "taken": "2023-06"
   },
   {
     "src": "/photos/3_landscape_lago_di_braies.webp",
     "alt": "3 landscape lago di braies.jpg",
     "origin": "Stills: 01 READY/2024-06 Dolomites/R6II8094-Enhanced-NR.jpg",
     "width": 1920,
-    "height": 2400
+    "height": 2400,
+    "taken": "2024-06"
   },
   {
     "src": "/photos/portrait_thomas_stockholm_street_sunset.webp",
     "alt": "portrait thomas stockholm street sunset.jpg",
     "origin": "Stills: 02 HOLD - model release/2023-02 Stockholm Sweden Gamla Stan/R6II1747.jpg",
     "width": 1920,
-    "height": 2400
+    "height": 2400,
+    "taken": "2023-02"
   },
   {
     "src": "/photos/portrait_ncsu_grad_photo_4.webp",
@@ -144,14 +154,16 @@
     "alt": "portrait lifestyle emilie copenhagen sunset.jpg",
     "origin": "Stills: 02 HOLD - model release/2023-04 Copenhagen Denmark/R6II1530.jpg",
     "width": 1920,
-    "height": 2400
+    "height": 2400,
+    "taken": "2023-04"
   },
   {
     "src": "/photos/portrait_lifestyle_aileen_in_snow_sunset_in_sweden.webp",
     "alt": "portrait lifestyle aileen in snow sunset in sweden.jpg",
     "origin": "Stills: 02 HOLD - model release/2023-03 Kiruna Sweden/R6II0803.jpg",
     "width": 1920,
-    "height": 2400
+    "height": 2400,
+    "taken": "2023-03"
   },
   {
     "src": "/photos/portrait_horse_ab.webp",
@@ -186,7 +198,8 @@
     "alt": "lifestyle portrait emily wearing satila beanie lofoten islands norway.jpg",
     "origin": "Stills: 02 HOLD - model release/2023-02 Lofoten Norway/R6II5362.jpg",
     "width": 1920,
-    "height": 2400
+    "height": 2400,
+    "taken": "2023-02"
   },
   {
     "src": "/photos/3_portrait_couple_holding_eachother_sunset.webp",
@@ -214,35 +227,40 @@
     "alt": "hallstatt-1.jpeg",
     "origin": "Stills: 01 READY/2025-05 Hallstatt/R6II8182.jpg",
     "width": 2400,
-    "height": 1600
+    "height": 1600,
+    "taken": "2025-05"
   },
   {
     "src": "/photos/hallstatt-2.webp",
     "alt": "hallstatt-2.jpeg",
     "origin": "Stills: 01 READY/2025-05 Hallstatt/R6II5804.jpg",
     "width": 2400,
-    "height": 1600
+    "height": 1600,
+    "taken": "2025-05"
   },
   {
     "src": "/photos/bavarian-tree.webp",
     "alt": "bavarian-tree.jpeg",
     "origin": "Stills: 01 READY/2025-05 Bavarian Alps/R6II5236.jpg",
     "width": 2400,
-    "height": 1600
+    "height": 1600,
+    "taken": "2025-05"
   },
   {
     "src": "/photos/R6II1344.webp",
     "alt": "green/R6II1344.jpg",
     "origin": "Stills: 01 READY/2024-06 Vienna/R6II1344.jpg",
     "width": 1920,
-    "height": 2400
+    "height": 2400,
+    "taken": "2024-06"
   },
   {
     "src": "/photos/R6II1927.webp",
     "alt": "green/R6II1927.jpg",
     "origin": "Stills: 01 READY/2025-05 Swabia/R6II1927.jpg",
     "width": 1800,
-    "height": 2400
+    "height": 2400,
+    "taken": "2025-05"
   },
   {
     "src": "/photos/R6II2153.webp",
@@ -256,7 +274,8 @@
     "alt": "green/R6II3233.jpg",
     "origin": "Stills: 01 READY/2025-05 Bavarian Alps/R6II3233.jpg",
     "width": 1920,
-    "height": 2400
+    "height": 2400,
+    "taken": "2025-05"
   },
   {
     "src": "/photos/R6II3357.webp",
@@ -270,13 +289,15 @@
     "alt": "green/R6II4326.jpg",
     "origin": "Stills: 01 READY/2023-06 Zugspitze Germany/R6II4326.jpg",
     "width": 1920,
-    "height": 2400
+    "height": 2400,
+    "taken": "2023-06"
   },
   {
     "src": "/photos/R6II7301-Edit-2.webp",
     "alt": "green/R6II7301-Edit-2.jpg",
     "origin": "Stills: 01 READY/2023-05 Lund Sweden Street/R6II7301-Edit-2.jpg",
     "width": 1920,
-    "height": 2400
+    "height": 2400,
+    "taken": "2023-05"
   }
 ]

@@ -174,7 +174,7 @@ export default function ExploreChallenges({
 }: {
   progress: ExplorationProgress;
   onRevealHint: (challengeId: string) => void;
-  onBack: () => void;
+  onBack?: () => void;
   backLabel?: string;
   claimBoundary?: ExplorationClaimBoundary;
 }) {
@@ -215,9 +215,11 @@ export default function ExploreChallenges({
       aria-labelledby={`${id}-heading`}
     >
       <header className={styles.header}>
-        <Button variant="quiet" className={styles.back} onClick={onBack}>
-          <ArrowLeft size={16} aria-hidden="true" /> {backLabel}
-        </Button>
+        {onBack && (
+          <Button variant="quiet" className={styles.back} onClick={onBack}>
+            <ArrowLeft size={16} aria-hidden="true" /> {backLabel}
+          </Button>
+        )}
         <div className={styles.heading}>
           <Leaf size={23} strokeWidth={1.5} aria-hidden="true" />
           <h2 id={`${id}-heading`}>Challenges</h2>

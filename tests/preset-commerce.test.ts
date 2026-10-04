@@ -9,6 +9,7 @@ import {
   getVerifiedPresetLocations,
   presetCatalog,
 } from "../src/lib/preset-commerce";
+import { placeNode } from "../src/lib/favorites";
 
 test("commerce catalog exposes every real preset through a public field allowlist", () => {
   assert.equal(presetCatalog.length, 21);
@@ -96,4 +97,10 @@ test("location links remain unavailable until actual preset edit usage is verifi
   assert.deepEqual(getVerifiedPresetLocations("alpine-soft"), []);
   assert.equal(getCatalogPreset("Alpine Light"), undefined);
   assert.equal(getCatalogPreset("signature-01")?.name, "Alpine Light");
+});
+
+test("every verified preset location resolves to a place on the map", () => {
+  for (const preset of presetCatalog)
+    for (const location of getVerifiedPresetLocations(preset.id))
+      assert.ok(placeNode(location.locationId), location.locationId);
 });

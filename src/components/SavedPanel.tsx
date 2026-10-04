@@ -16,12 +16,14 @@ import styles from "./ExploreChallenges.module.css";
 export default function SavedPanel({
   favorites,
   onBack,
+  backLabel = "Back to photographs",
   onOpenPlace,
   onOpenPhoto,
   onToggle,
 }: {
   favorites: Favorites;
-  onBack: () => void;
+  onBack?: () => void;
+  backLabel?: string;
   onOpenPlace: (node: MapNode) => void;
   onOpenPhoto: (src: string, trigger: HTMLButtonElement) => void;
   onToggle: (kind: FavoriteKind, id: string) => void;
@@ -42,9 +44,11 @@ export default function SavedPanel({
       aria-labelledby={`${id}-heading`}
     >
       <header className={styles.header}>
-        <Button variant="quiet" className={styles.back} onClick={onBack}>
-          <ArrowLeft size={16} aria-hidden="true" /> Back to photographs
-        </Button>
+        {onBack && (
+          <Button variant="quiet" className={styles.back} onClick={onBack}>
+            <ArrowLeft size={16} aria-hidden="true" /> {backLabel}
+          </Button>
+        )}
         <div className={styles.heading}>
           <Heart size={22} strokeWidth={1.5} aria-hidden="true" />
           <h2 id={`${id}-heading`}>Saved</h2>
