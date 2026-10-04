@@ -319,7 +319,7 @@ export default function PlacesExplorer({
     setOpen(true);
     if (focusHandle)
       requestAnimationFrame(() =>
-        drawerHandle.current?.focus({ preventScroll: true }),
+        (drawerHandle.current ?? drawerElement)?.focus({ preventScroll: true }),
       );
   }
   function showPhotos() {
@@ -335,7 +335,7 @@ export default function PlacesExplorer({
     setOpen(true);
     requestAnimationFrame(() => {
       gallery.current?.scrollTo(0, photoScroll.current);
-      drawerHandle.current?.focus({ preventScroll: true });
+      (drawerHandle.current ?? drawerElement)?.focus({ preventScroll: true });
     });
   }
   const place = useMemo(() => {
@@ -820,7 +820,11 @@ export default function PlacesExplorer({
           }
           onOpenAutoFocus={(event) => {
             event.preventDefault();
-            drawerHandle.current?.focus({ preventScroll: true });
+            // Desktop has no grip; the panel takes focus so the close
+            // button does not open with a focus ring.
+            (drawerHandle.current ?? drawerElement)?.focus({
+              preventScroll: true,
+            });
           }}
           onCloseAutoFocus={(event) => {
             event.preventDefault();
@@ -989,22 +993,6 @@ export default function PlacesExplorer({
                     </span>
                   </DrawerDescription>
                 </div>
-                {placeId && (
-                  <Button
-                    variant="quiet"
-                    className="drawer-save"
-                    aria-label={`Save ${place?.name ?? "place"}`}
-                    aria-pressed={placeSaved}
-                    onClick={() => toggleFavorite("placeIds", placeId)}
-                  >
-                    <Heart
-                      size={18}
-                      fill={placeSaved ? "currentColor" : "none"}
-                      className={placeSaved ? "text-favorite" : undefined}
-                      aria-hidden="true"
-                    />
-                  </Button>
-                )}
                 <Button
                   variant="quiet"
                   className="drawer-presets-link"
@@ -1029,9 +1017,24 @@ export default function PlacesExplorer({
                     )}
                   </Button>
                 )}
+                {placeId && (
+                  <Button
+                    variant="quiet"
+                    className="drawer-save"
+                    aria-label={`Save ${place?.name ?? "place"}`}
+                    aria-pressed={placeSaved}
+                    onClick={() => toggleFavorite("placeIds", placeId)}
+                  >
+                    <Heart
+                      size={18}
+                      fill={placeSaved ? "currentColor" : "none"}
+                      className={placeSaved ? "text-favorite" : undefined}
+                      aria-hidden="true"
+                    />
+                  </Button>
+                )}
                 <Button
-                  ref={desktop ? drawerHandle : undefined}
-                  variant="control"
+                  variant="quiet"
                   aria-label="Close photographs"
                   onClick={closeDrawer}
                 >
@@ -1102,8 +1105,7 @@ export default function PlacesExplorer({
                   </Button>
                 </div>
                 <Button
-                  ref={desktop ? drawerHandle : undefined}
-                  variant="control"
+                  variant="quiet"
                   aria-label="Close drawer"
                   onClick={closeDrawer}
                 >
@@ -1241,7 +1243,10 @@ export default function PlacesExplorer({
           onCloseAutoFocus={(event) => {
             event.preventDefault();
             const origin = nestedOrigin.current;
-            (origin?.isConnected ? origin : drawerHandle.current)?.focus({
+            (origin?.isConnected
+              ? origin
+              : (drawerHandle.current ?? drawerElement)
+            )?.focus({
               preventScroll: true,
             });
           }}
@@ -1317,7 +1322,9 @@ export default function PlacesExplorer({
         <DialogContent
           variant="panel"
           className="location-search explorer-overlay"
-          finalFocus={() => (open ? drawerHandle.current : true)}
+          finalFocus={() =>
+            open ? (drawerHandle.current ?? drawerElement) : true
+          }
         >
           <DialogTitle className="sr-only">Find a place</DialogTitle>
           <Command>

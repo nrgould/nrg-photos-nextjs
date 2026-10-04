@@ -2773,6 +2773,7 @@ html[data-photo-theme="dark"] {
     display: none;
   }
   .location-drawer[data-vaul-drawer] {
+    outline: none;
     inset: auto 0 0;
     height: 100dvh;
     max-height: 100dvh;
@@ -2797,12 +2798,13 @@ html[data-photo-theme="dark"] {
     flex-shrink: 0;
     align-items: center;
     justify-content: space-between;
-    padding: 0 16px 8px;
-    gap: 8px;
+    padding: 0 12px 8px 16px;
+    gap: 2px;
   }
   .photo-drawer-header > div {
     flex: 1;
     min-width: 0;
+    margin-right: 6px;
   }
   .photo-drawer-header h2 {
     font: 500 22px/1.1 var(--serif);
@@ -2819,7 +2821,8 @@ html[data-photo-theme="dark"] {
     min-height: 44px;
     padding: 0;
     border: 0;
-    background: var(--pale);
+    color: var(--ink);
+    background: transparent;
   }
   .drawer-gallery {
     flex: 1;
@@ -3595,10 +3598,6 @@ html[data-photo-theme="dark"] {
     font-size: 10px;
     font-variant-numeric: tabular-nums;
     pointer-events: none;
-  }
-  .photo-drawer-header > .drawer-save {
-    color: var(--ink);
-    background: transparent;
   }
   .photo-drawer-header > .drawer-presets-link {
     width: auto;

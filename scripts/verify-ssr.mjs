@@ -3,9 +3,6 @@ const base = process.env.PREVIEW_URL || "http://localhost:3107";
 const indexable = process.env.EXPECT_INDEXABLE === "1";
 const canonicalOrigin =
   process.env.SEO_CANONICAL_ORIGIN || "https://nrgstudios.co";
-const schemaOrigin = indexable
-  ? canonicalOrigin
-  : process.env.SEO_PUBLIC_ORIGIN;
 const cases = [
   ["/", "Photographs on the map", 0],
   ["/?view=catalog&preset=signature-01", "Photographs on the map", 0],
