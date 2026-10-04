@@ -48,9 +48,17 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       data-scroll-behavior="smooth"
       className={`${serif.variable} ${sans.variable}`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{const t=localStorage.getItem('photography-theme');if(t==='dark'||t==='light')document.documentElement.dataset.photoTheme=t}catch{}`,
+          }}
+        />
+      </head>
       <body>
         <a className="skip-link" href="#main">
           Skip to content

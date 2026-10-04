@@ -124,6 +124,9 @@ export default function TravelGlobe({ places }: { places: TravelPlace[] }) {
       <div className="page-width">
         <div className="travel-heading">
           <h2 id="places-heading">Places</h2>
+          <a href="/explore" className="places-explore-link">
+            Explore places & presets
+          </a>
         </div>
         <div className="travel-layout">
           <div className="globe-panel">

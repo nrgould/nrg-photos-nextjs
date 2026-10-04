@@ -1,0 +1,29 @@
+name: Verify photography prototype
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - name: Verify server-rendered portfolio and explorer
+        run: |
+          npm start -- --port 3107 > /tmp/photo-server.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://localhost:3107/explore > /dev/null; then break; fi
+            sleep 1
+          done
+          node scripts/verify-ssr.mjs

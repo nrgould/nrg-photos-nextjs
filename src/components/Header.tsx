@@ -12,7 +12,7 @@ import {
 const links = [
   { href: "/work", label: "Work" },
   { href: "/about", label: "About" },
-  { href: "/#places", label: "Places" },
+  { href: "/explore", label: "Places & presets" },
 ];
 function Wordmark({ onClick }: { onClick?: () => void }) {
   return (

@@ -1,0 +1,128 @@
+[
+  {
+    "id": "signature-01",
+    "number": 1,
+    "name": "Alpine Light",
+    "category": "Landscape & travel"
+  },
+  {
+    "id": "signature-02",
+    "number": 2,
+    "name": "Mountain Bold",
+    "category": "Landscape & travel"
+  },
+  {
+    "id": "signature-03",
+    "number": 3,
+    "name": "Ridgeline",
+    "category": "Landscape & travel"
+  },
+  {
+    "id": "signature-04",
+    "number": 4,
+    "name": "Deep Forest",
+    "category": "Landscape & travel"
+  },
+  {
+    "id": "signature-05",
+    "number": 5,
+    "name": "Golden Hour",
+    "category": "Landscape & travel"
+  },
+  {
+    "id": "signature-06",
+    "number": 6,
+    "name": "City Matte",
+    "category": "Landscape & travel"
+  },
+  {
+    "id": "signature-07",
+    "number": 7,
+    "name": "Meadow",
+    "category": "Landscape & travel"
+  },
+  {
+    "id": "signature-08",
+    "number": 8,
+    "name": "Garden Light",
+    "category": "Nature"
+  },
+  {
+    "id": "signature-09",
+    "number": 9,
+    "name": "Warm Garden",
+    "category": "Nature"
+  },
+  {
+    "id": "signature-10",
+    "number": 10,
+    "name": "Evening Warm",
+    "category": "Nature"
+  },
+  {
+    "id": "signature-11",
+    "number": 11,
+    "name": "Green & Red",
+    "category": "Nature"
+  },
+  {
+    "id": "signature-12",
+    "number": 12,
+    "name": "Alpine Lake",
+    "category": "Landscape & travel"
+  },
+  {
+    "id": "signature-13",
+    "number": 13,
+    "name": "Storybook",
+    "category": "Landscape & travel"
+  },
+  {
+    "id": "signature-14",
+    "number": 14,
+    "name": "Lakeside",
+    "category": "Landscape & travel"
+  },
+  {
+    "id": "signature-15",
+    "number": 15,
+    "name": "Lotus",
+    "category": "Nature"
+  },
+  {
+    "id": "signature-16",
+    "number": 16,
+    "name": "Sunlit Field",
+    "category": "Nature"
+  },
+  {
+    "id": "signature-17",
+    "number": 17,
+    "name": "Sunflower",
+    "category": "Nature"
+  },
+  {
+    "id": "signature-18",
+    "number": 18,
+    "name": "Classic Film",
+    "category": "Film"
+  },
+  {
+    "id": "signature-19",
+    "number": 19,
+    "name": "Bright Portrait",
+    "category": "Portrait"
+  },
+  {
+    "id": "signature-20",
+    "number": 20,
+    "name": "Muted Film",
+    "category": "Film"
+  },
+  {
+    "id": "signature-21",
+    "number": 21,
+    "name": "Warm Portrait",
+    "category": "Portrait"
+  }
+]

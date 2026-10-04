@@ -155,3 +155,9 @@ All interactive elements use a 2px visible focus outline with 6px offset. Preser
 - Don't invent testimonials, clients, print prices, or availability claims.
 - Don't replace original photography with generated or stock imagery presented as Nicholas's.
 - Don't add generic rounded card containers to collection spreads.
+
+## Places & presets prototype
+
+`/explore` composes the existing local photo/place/geography models and shadcn Base UI primitives. Fraunces + Hanken Grotesk follow Otium's font pairing on the atlas surface. Flat map is the browsing default after the brief globe introduction; opaque controls are default and glass is optional. A native three-stop range exposes World / Region / Local. The Dialog primitive's centered `panel` variant contains favorites, pack assembly and search. No sidebar: location photography and edits sit in an inline section below the full-width map. Counts derive from deduplicated IDs.
+
+The persisted light/dark toggle changes the shared semantic tokens; photographs, the dark viewer and intentionally dark portfolio sections retain their original contrast. Suppress transitions during theme swaps. All recipes and purchases are explicitly prototypes; no image edit attribution is asserted without evidence. `better-ui` and `emil-design-eng` informed control hit areas, motion restraint, 0.96 press scale, token use and image outlines. See `docs/location-presets-spec.md` for the full source requirements.

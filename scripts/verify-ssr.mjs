@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 const base = process.env.PREVIEW_URL || "http://localhost:3107";
 const cases = [
   ["/", "<em>Photography</em></h1>", 0],
+  ["/explore", "Places &amp; presets", 0],
   ["/about", "<h1>About</h1>", 0],
   ["/contact", "<h1>Contact</h1>", 0],
   ["/work", "<h1>Work</h1>", 39],
