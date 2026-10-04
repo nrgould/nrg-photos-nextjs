@@ -15,8 +15,10 @@ import {
   ChevronDown,
   ChevronUp,
   Mail,
+  Leaf,
   Moon,
   Search,
+  ShoppingBag,
   Shuffle,
   Sun,
   X,
@@ -58,6 +60,21 @@ import {
 import PhotoImage from "./PhotoImage";
 import Lightbox from "./Lightbox";
 import PlacesMap from "./PlacesMap";
+import PresetCatalog from "./PresetCatalog";
+import ExploreChallenges, {
+  ExploreChallengesTrigger,
+} from "./ExploreChallenges";
+import { useExplorationProgress } from "./useExplorationProgress";
+import PresetCartPanel from "./PresetCartPanel";
+import { usePresetCart } from "./PresetCartProvider";
+import { usePresetCommerceBoundary } from "./CommerceCartProvider";
+import { AccountControl } from "./AccountControl";
+import {
+  createPresetCatalogState,
+  type PresetCatalogState,
+} from "@/lib/preset-commerce";
+
+type DrawerMode = "photos" | "presets" | "cart" | "challenges";
 
 const MotionButton = motion.create(Button);
 const separatorStyle: CSSProperties = {
@@ -98,10 +115,26 @@ function Control({
     </Tooltip>
   );
 }
-export default function PlacesExplorer() {
+export default function PlacesExplorer({
+  initialLocationId,
+  initialCatalogState,
+  initialView,
+}: {
+  initialLocationId?: string | null;
+  initialCatalogState?: PresetCatalogState;
+  initialView?: "catalog" | "cart";
+}) {
+  const initialNode = useMemo(
+    () => getMapNode(initialLocationId ?? null, travelPlaces),
+    [initialLocationId],
+  );
   const reducedMotion = useReducedMotion();
-  const [selected, setSelected] = useState<string | null>(travelPlaces[0].id);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(
+    initialNode?.collectionId ?? travelPlaces[0].id,
+  );
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(
+    initialNode?.id ?? null,
+  );
   const [filters, setFilters] = useState(() => defaultMapFilters(travelPlaces));
   const [filtersOpen, setFiltersOpen] = useState(false);
   const filteredPlaces = useMemo(
@@ -116,15 +149,63 @@ export default function PlacesExplorer() {
   const navigationDisabled =
     filteredPlaces.length === 0 ||
     (filteredPlaces.length === 1 && filteredPlaces[0].id === selected);
-  const [mode, setMode] = useState<"globe" | "map">("globe");
-  const [zoom, setZoom] = useState(3);
-  const [intro, setIntro] = useState(true);
+  const [mode, setMode] = useState<"globe" | "map">(
+    initialNode ? "map" : "globe",
+  );
+  const [zoom, setZoom] = useState(initialNode ? 3.5 : 3);
+  const [intro, setIntro] = useState(!initialNode && !initialView);
   const [revision, setRevision] = useState(0);
   const [zoomRevision, setZoomRevision] = useState(0);
   const [theme, setTheme] = useState<"light" | "dark">("light");
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(Boolean(initialNode || initialView));
+  const [drawerMode, setDrawerMode] = useState<DrawerMode>(
+    initialView === "cart"
+      ? "cart"
+      : initialView === "catalog"
+        ? "presets"
+        : "photos",
+  );
+  const [photoFocusOpen, setPhotoFocusOpen] = useState(Boolean(initialNode));
+  const { progress: explorationProgress, record: recordExploration } =
+    useExplorationProgress();
+  useEffect(() => {
+    if (
+      !initialView &&
+      initialNode?.kind === "location" &&
+      initialNode.precision === "regional"
+    )
+      recordExploration({
+        type: "location-opened",
+        locationId: initialNode.id,
+      });
+  }, [initialNode, initialView, recordExploration]);
+  const [catalogState, setCatalogState] = useState(() =>
+    createPresetCatalogState(initialCatalogState),
+  );
+  const { checkout } = usePresetCommerceBoundary();
+  const { cartIds, ownedPresetIds, addPreset, addPresets, removePreset } =
+    usePresetCart();
+  const checkoutParams = new URLSearchParams({ view: "cart" });
+  if (selectedNodeId) checkoutParams.set("location", selectedNodeId);
+  if (catalogState.query) checkoutParams.set("query", catalogState.query);
+  if (catalogState.category !== "All")
+    checkoutParams.set("category", catalogState.category);
+  if (catalogState.selectedPresetId)
+    checkoutParams.set("preset", catalogState.selectedPresetId);
+  const photoSnap = useRef<number | string | null>(0.25);
+  const photoScroll = useRef(0);
+  const pendingPhotoScroll = useRef<number | null>(null);
+  const catalogScroll = useRef(0);
+  const [catalogScrollMemory] = useState(() => ({
+    get: () => catalogScroll.current,
+    set: (value: number) => {
+      catalogScroll.current = value;
+    },
+  }));
   const [compactFraction, setCompactFraction] = useState(0.25);
-  const [snap, setSnap] = useState<number | string | null>(0.25);
+  const [snap, setSnap] = useState<number | string | null>(
+    initialView ? 0.75 : 0.25,
+  );
   const [command, setCommand] = useState(false);
   const [viewer, setViewer] = useState<string | null>(null);
   const [drawerElement, setDrawerElement] = useState<HTMLDivElement | null>(
@@ -136,12 +217,67 @@ export default function PlacesExplorer() {
   const drawerViewport = useRef<HTMLDivElement>(null);
   const photoLayout = useRef<HTMLDivElement>(null);
   const drawerOrigin = useRef<HTMLElement | SVGElement | null>(null);
+  const photoOrigin = useRef<HTMLElement | SVGElement | null>(null);
   const drawerHandle = useRef<HTMLButtonElement>(null);
   const photoFocus = useRef<HTMLButtonElement | null>(null);
   const filterTrigger = useRef<HTMLButtonElement | null>(null);
+  const presetsTrigger = useRef<HTMLButtonElement | null>(null);
+  const cartTrigger = useRef<HTMLButtonElement | null>(null);
+  const challengesTrigger = useRef<HTMLButtonElement | null>(null);
   function changeSnap(next: number | string | null) {
-    setSnap(next);
-    if (next === 0.25) gallery.current?.scrollTo(0, 0);
+    const value = drawerMode === "photos" ? next : Math.max(0.75, Number(next));
+    setSnap(value);
+    if (drawerMode === "photos") {
+      photoSnap.current = value;
+      if (value === 0.25) {
+        photoScroll.current = 0;
+        gallery.current?.scrollTo(0, 0);
+      }
+    }
+  }
+  function closeDrawer() {
+    if (drawerMode === "photos") {
+      photoScroll.current = gallery.current?.scrollTop ?? photoScroll.current;
+      setPhotoFocusOpen(false);
+    }
+    setOpen(false);
+  }
+  function showPanel(
+    next: Exclude<DrawerMode, "photos">,
+    trigger?: HTMLElement,
+  ) {
+    if (drawerMode === "photos") {
+      photoSnap.current = snap;
+      photoScroll.current = gallery.current?.scrollTop ?? photoScroll.current;
+    }
+    drawerOrigin.current =
+      trigger ??
+      (next === "cart"
+        ? cartTrigger.current
+        : next === "challenges"
+          ? challengesTrigger.current
+          : presetsTrigger.current);
+    setViewer(null);
+    setDrawerMode(next);
+    setSnap(0.75);
+    setOpen(true);
+    requestAnimationFrame(() =>
+      drawerHandle.current?.focus({ preventScroll: true }),
+    );
+  }
+  function showPhotos() {
+    const node = getMapNode(selectedNodeId, filteredPlaces);
+    if (node?.kind === "location" && node.precision === "regional")
+      recordExploration({ type: "location-opened", locationId: node.id });
+    pendingPhotoScroll.current = photoScroll.current;
+    drawerOrigin.current = photoOrigin.current ?? presetsTrigger.current;
+    setDrawerMode("photos");
+    setSnap(photoSnap.current);
+    setOpen(true);
+    requestAnimationFrame(() => {
+      gallery.current?.scrollTo(0, photoScroll.current);
+      drawerHandle.current?.focus({ preventScroll: true });
+    });
   }
   const place = useMemo(() => {
     const collection = filteredPlaces.find(
@@ -192,14 +328,18 @@ export default function PlacesExplorer() {
       setSelectedNodeId(null);
       drawerOrigin.current = filterTrigger.current;
       setOpen(false);
+      setPhotoFocusOpen(false);
       setViewer(null);
       photoFocus.current = filterTrigger.current;
     } else {
       if (
         place?.photos.map((photo) => photo.src).join() !==
         nextPlace.photos.map((photo) => photo.src).join()
-      )
+      ) {
+        photoScroll.current = 0;
+        pendingPhotoScroll.current = null;
         gallery.current?.scrollTo(0, 0);
+      }
       if (
         viewer !== null &&
         !nextPlace.photos.some((photo) => photo.src === viewer)
@@ -220,7 +360,15 @@ export default function PlacesExplorer() {
     const viewport = drawerViewport.current;
     const scroller = gallery.current;
     const layout = photoLayout.current;
-    if (!drawerElement || !viewport || !scroller || !layout || !place) return;
+    if (
+      drawerMode !== "photos" ||
+      !drawerElement ||
+      !viewport ||
+      !scroller ||
+      !layout ||
+      !place
+    )
+      return;
     const photos = place.photos;
     const figures = Array.from(layout.children) as HTMLElement[];
     const images = figures.map((figure) =>
@@ -306,6 +454,15 @@ export default function PlacesExplorer() {
         });
         viewport!.style.height = `${height}px`;
         layout!.style.height = `${contentHeight}px`;
+        if (pendingPhotoScroll.current !== null) {
+          scroller!.scrollTop = pendingPhotoScroll.current;
+          const restoredFraction =
+            photoSnap.current === 0.25
+              ? compactFraction
+              : Number(photoSnap.current);
+          if (Math.abs(height - bounds.height * restoredFraction) < 1)
+            pendingPhotoScroll.current = null;
+        }
         frame = requestAnimationFrame(renderLayout);
       } else if (transitioning) {
         frame = requestAnimationFrame(renderLayout);
@@ -340,7 +497,7 @@ export default function PlacesExplorer() {
       drawerElement.removeEventListener("transitionend", transition);
       drawerElement.removeEventListener("transitioncancel", transition);
     };
-  }, [drawerElement, compactFraction, place]);
+  }, [drawerElement, compactFraction, place, drawerMode]);
   function finishIntro() {
     setIntro(false);
     setMode("map");
@@ -350,18 +507,25 @@ export default function PlacesExplorer() {
   }
   function choose(id: string, showPhotos = false) {
     gallery.current?.scrollTo(0, 0);
+    photoScroll.current = 0;
+    pendingPhotoScroll.current = null;
+    setDrawerMode("photos");
+    if (drawerMode !== "photos") setSnap(photoSnap.current);
     setSelected(id);
     setSelectedNodeId(null);
     setViewer(null);
     setIntro(false);
     setRevision((r) => r + 1);
+    setPhotoFocusOpen(open || showPhotos);
     if (showPhotos) {
       drawerOrigin.current =
         document.activeElement instanceof HTMLElement ||
         document.activeElement instanceof SVGElement
           ? document.activeElement
           : null;
-      changeSnap(0.25);
+      photoOrigin.current = drawerOrigin.current;
+      photoSnap.current = 0.25;
+      setSnap(0.25);
       setOpen(true);
       gallery.current?.scrollTo(0, 0);
     }
@@ -370,10 +534,17 @@ export default function PlacesExplorer() {
     } catch {}
   }
   function chooseNode(node: MapNode) {
+    if (node.kind === "location" && node.precision === "regional")
+      recordExploration({ type: "location-opened", locationId: node.id });
     choose(node.collectionId, true);
     setSelectedNodeId(node.id);
     setMode("map");
     setZoom((current) => Math.max(current, 3.5));
+  }
+  function openPhotograph(photoSrc: string | null) {
+    setViewer(photoSrc);
+    if (photoSrc !== null)
+      recordExploration({ type: "photo-opened", photoSrc });
   }
   function changeTheme() {
     const next = theme === "light" ? "dark" : "light";
@@ -437,6 +608,24 @@ export default function PlacesExplorer() {
         >
           {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
         </Control>
+        <ExploreChallengesTrigger
+          progress={explorationProgress}
+          expanded={open && drawerMode === "challenges"}
+          triggerRef={challengesTrigger}
+          onClick={() => showPanel("challenges")}
+        />
+        <Button
+          ref={cartTrigger}
+          variant="control"
+          className="explorer-cart-trigger"
+          aria-label={`Open cart, ${cartIds.length} ${cartIds.length === 1 ? "preset" : "presets"}`}
+          onClick={(event) => showPanel("cart", event.currentTarget)}
+        >
+          <ShoppingBag size={18} aria-hidden="true" />
+          {cartIds.length > 0 && (
+            <span aria-hidden="true">{cartIds.length}</span>
+          )}
+        </Button>
       </div>
       <div className="explorer-workspace">
         <div className="map-workspace">
@@ -444,10 +633,19 @@ export default function PlacesExplorer() {
             <Control label="Find a place" onClick={() => setCommand(true)}>
               <Search size={18} />
             </Control>
+            <Button
+              ref={presetsTrigger}
+              variant="control"
+              className="explorer-presets-trigger"
+              aria-label="Browse all presets"
+              onClick={(event) => showPanel("presets", event.currentTarget)}
+            >
+              All presets
+            </Button>
           </div>
           <PlacesMap
             places={filteredPlaces}
-            canvasOpen={open}
+            canvasOpen={photoFocusOpen}
             selected={selected}
             selectedNodeId={selectedNodeId}
             mode={mode}
@@ -571,10 +769,15 @@ export default function PlacesExplorer() {
       <Drawer
         open={open}
         onOpenChange={(next) => {
-          if (viewer === null) setOpen(next);
+          if (viewer === null) {
+            if (next) setOpen(true);
+            else closeDrawer();
+          }
         }}
         modal={false}
-        snapPoints={[compactFraction, 0.75, 1]}
+        snapPoints={
+          drawerMode === "photos" ? [compactFraction, 0.75, 1] : [0.75, 1]
+        }
         activeSnapPoint={snap === 0.25 ? compactFraction : snap}
         setActiveSnapPoint={(value) =>
           changeSnap(value === compactFraction ? 0.25 : value)
@@ -587,12 +790,17 @@ export default function PlacesExplorer() {
           className="location-drawer explorer-overlay"
           data-expanded={expanded}
           data-snap={snap}
+          data-drawer-mode={drawerMode}
           style={
             {
               "--drawer-compact-height": `${compactFraction * 100}dvh`,
             } as CSSProperties
           }
-          aria-describedby="location-photo-description"
+          aria-describedby={
+            drawerMode === "photos"
+              ? "location-photo-description"
+              : "drawer-panel-description"
+          }
           onOpenAutoFocus={(event) => {
             event.preventDefault();
             drawerHandle.current?.focus({ preventScroll: true });
@@ -666,7 +874,7 @@ export default function PlacesExplorer() {
                   );
               }}
               className="photo-drawer-grip"
-              aria-label={`Resize photo drawer, ${Number(snap) * 100} percent open`}
+              aria-label={`Resize ${drawerMode === "photos" ? "photo" : drawerMode === "cart" ? "cart" : drawerMode === "challenges" ? "challenge" : "preset"} drawer, ${Number(snap) * 100} percent open`}
               aria-hidden={false}
               role="button"
               tabIndex={0}
@@ -697,45 +905,129 @@ export default function PlacesExplorer() {
                 }
               }}
             />
-            <div className="photo-drawer-header" data-vaul-no-drag>
-              <div>
-                <DrawerTitle>{place?.name ?? "Photographs"}</DrawerTitle>
-                <DrawerDescription id="location-photo-description">
-                  {place?.photos.length ?? 0}{" "}
-                  {(place?.photos.length ?? 0) === 1
-                    ? "photograph"
-                    : "photographs"}
-                  <span className="sr-only">
-                    . Map reference: {place?.referenceLabel}.
-                  </span>
-                </DrawerDescription>
+            {drawerMode === "photos" ? (
+              <div className="photo-drawer-header" data-vaul-no-drag>
+                <div>
+                  <DrawerTitle>{place?.name ?? "Photographs"}</DrawerTitle>
+                  <DrawerDescription id="location-photo-description">
+                    {place?.photos.length ?? 0}{" "}
+                    {(place?.photos.length ?? 0) === 1
+                      ? "photograph"
+                      : "photographs"}
+                    <span className="sr-only">
+                      . Map reference: {place?.referenceLabel}.
+                    </span>
+                  </DrawerDescription>
+                </div>
+                <Button
+                  variant="quiet"
+                  className="drawer-presets-link"
+                  onClick={() => showPanel("presets")}
+                >
+                  Presets
+                </Button>
+                <Button
+                  variant="quiet"
+                  className="drawer-browse"
+                  aria-label={
+                    expanded ? "Collapse photographs" : "Browse photographs"
+                  }
+                  onClick={() => changeSnap(expanded ? 0.25 : 0.75)}
+                >
+                  {!expanded && <span>Browse</span>}
+                  {expanded ? (
+                    <ChevronDown size={16} />
+                  ) : (
+                    <ChevronUp size={16} />
+                  )}
+                </Button>
+                <Button
+                  variant="control"
+                  aria-label="Close photographs"
+                  onClick={closeDrawer}
+                >
+                  <X size={18} />
+                </Button>
               </div>
-              <Button
-                variant="quiet"
-                className="drawer-browse"
-                aria-label={
-                  expanded ? "Collapse photographs" : "Browse photographs"
-                }
-                onClick={() => changeSnap(expanded ? 0.25 : 0.75)}
-              >
-                {!expanded && <span>Browse</span>}
-                {expanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-              </Button>
-              <Button
-                variant="control"
-                aria-label="Close photographs"
-                onClick={() => setOpen(false)}
-              >
-                <X size={18} />
-              </Button>
-            </div>
+            ) : (
+              <div className="drawer-commerce-header" data-vaul-no-drag>
+                <DrawerTitle className="sr-only">
+                  {drawerMode === "cart"
+                    ? "Your preset cart"
+                    : drawerMode === "challenges"
+                      ? "Exploration challenges"
+                      : "All presets"}
+                </DrawerTitle>
+                <DrawerDescription
+                  id="drawer-panel-description"
+                  className="sr-only"
+                >
+                  {drawerMode === "challenges"
+                    ? "Explore verified locations and find details in photographs. Local progress does not grant a reward."
+                    : "Browse the Signature Collection and manage your cart."}
+                </DrawerDescription>
+                <div
+                  className="drawer-mode-controls"
+                  role="group"
+                  aria-label="Drawer view"
+                >
+                  <AccountControl />
+                  <Button
+                    variant="quiet"
+                    disabled={!place}
+                    onClick={showPhotos}
+                  >
+                    Photos
+                  </Button>
+                  <Button
+                    variant="quiet"
+                    aria-pressed={drawerMode === "presets"}
+                    onClick={() => showPanel("presets")}
+                  >
+                    Presets
+                  </Button>
+                  <Button
+                    variant="quiet"
+                    aria-label="Explore challenges"
+                    aria-pressed={drawerMode === "challenges"}
+                    onClick={() => showPanel("challenges")}
+                  >
+                    <Leaf size={16} aria-hidden="true" />
+                  </Button>
+                  <Button
+                    variant="quiet"
+                    aria-label={`Cart, ${cartIds.length} presets`}
+                    aria-pressed={drawerMode === "cart"}
+                    onClick={() => showPanel("cart")}
+                  >
+                    <ShoppingBag size={16} aria-hidden="true" />
+                    <span>{cartIds.length}</span>
+                  </Button>
+                </div>
+                <Button
+                  variant="control"
+                  aria-label="Close drawer"
+                  onClick={closeDrawer}
+                >
+                  <X size={18} />
+                </Button>
+              </div>
+            )}
             <div
               ref={gallery}
               className="drawer-gallery"
+              hidden={drawerMode !== "photos"}
               data-photo-count={place?.photos.length ?? 0}
               data-vaul-no-drag={expanded ? "" : undefined}
               tabIndex={0}
               aria-label={place ? `${place.name} photographs` : "Photographs"}
+              onScroll={(event) => {
+                if (
+                  drawerMode === "photos" &&
+                  pendingPhotoScroll.current === null
+                )
+                  photoScroll.current = event.currentTarget.scrollTop;
+              }}
               onWheel={(event) => {
                 if (!expanded && event.deltaY > 0) changeSnap(0.75);
               }}
@@ -767,7 +1059,7 @@ export default function PlacesExplorer() {
                       onClick={(event) => {
                         if (event.detail > 0 && dragged.current) return;
                         photoFocus.current = event.currentTarget;
-                        setViewer(photo.src);
+                        openPhotograph(photo.src);
                       }}
                     >
                       <PhotoImage
@@ -785,6 +1077,42 @@ export default function PlacesExplorer() {
                 ))}
               </div>
             </div>
+            <div
+              className="drawer-commerce-pane"
+              hidden={drawerMode !== "presets"}
+              data-vaul-no-drag
+            >
+              <PresetCatalog
+                state={catalogState}
+                onStateChange={setCatalogState}
+                cartIds={cartIds}
+                ownedPresetIds={ownedPresetIds}
+                onAddPreset={addPreset}
+                onAddCollection={addPresets}
+                onRemovePreset={removePreset}
+                scrollMemory={catalogScrollMemory}
+              />
+            </div>
+            {drawerMode === "challenges" && (
+              <div className="drawer-commerce-pane" data-vaul-no-drag>
+                <ExploreChallenges
+                  progress={explorationProgress}
+                  onBack={() => (place ? showPhotos() : closeDrawer())}
+                  onRevealHint={(challengeId) =>
+                    recordExploration({ type: "hint-revealed", challengeId })
+                  }
+                />
+              </div>
+            )}
+            {drawerMode === "cart" && (
+              <div className="drawer-commerce-pane" data-vaul-no-drag>
+                <PresetCartPanel
+                  onBack={() => showPanel("presets")}
+                  returnPath={`/explore?${checkoutParams}`}
+                  checkout={checkout}
+                />
+              </div>
+            )}
           </div>
         </DrawerContent>
       </Drawer>
@@ -827,7 +1155,7 @@ export default function PlacesExplorer() {
         photos={place?.photos ?? []}
         index={viewerIndex < 0 ? null : viewerIndex}
         onIndexChange={(index) => {
-          setViewer(
+          openPhotograph(
             index === null ? null : (place?.photos[index]?.src ?? null),
           );
         }}

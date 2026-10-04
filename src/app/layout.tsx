@@ -8,7 +8,11 @@ import {
 } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { CommerceCartProvider } from "@/components/CommerceCartProvider";
+import { CommerceProviders } from "@/components/CommerceProviders";
+import { getAccountPublicConfiguration } from "@/lib/server/commerce-runtime";
 import { site } from "@/lib/site";
+import { seoLaunchMetadata } from "@/lib/seo-config";
 import "./globals.css";
 const serif = Cormorant_Garamond({
   subsets: ["latin"],
@@ -58,11 +62,13 @@ export const metadata: Metadata = {
     ],
   },
   twitter: { card: "summary_large_image" },
+  ...seoLaunchMetadata(),
 };
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   await connection();
+  const account = getAccountPublicConfiguration();
   return (
     <html
       lang="en"
@@ -81,9 +87,13 @@ export default async function RootLayout({
         <a className="skip-link" href="#main">
           Skip to content
         </a>
-        <Header />
-        {children}
-        <Footer />
+        <CommerceProviders publishableKey={account?.publishableKey ?? null}>
+          <CommerceCartProvider>
+            <Header />
+            {children}
+            <Footer />
+          </CommerceCartProvider>
+        </CommerceProviders>
       </body>
     </html>
   );

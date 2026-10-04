@@ -1,0 +1,240 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font:
+    400 14px/1.5 var(--font-explorer-sans),
+    sans-serif;
+}
+.header {
+  flex: none;
+  padding: 12px 16px;
+}
+.back {
+  min-height: 44px;
+  gap: 6px;
+  color: var(--ink);
+}
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+.heading > svg {
+  color: var(--forest);
+}
+.heading h2 {
+  margin: 0;
+  font:
+    500 26px/1.2 var(--font-explorer-display),
+    serif;
+  letter-spacing: -0.025em;
+}
+.header > p {
+  margin: 8px 0 0;
+  color: var(--muted-foreground);
+  font-size: 13px;
+}
+.content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 16px max(24px, env(safe-area-inset-bottom));
+}
+.sectionHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sectionHeading h3,
+.sectionHeading h4,
+.challenges > h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 550;
+}
+.milestone > p,
+.challenge > p {
+  margin: 8px 0;
+  color: var(--muted-foreground);
+  font-size: 13px;
+}
+.progress {
+  display: block;
+  width: 100%;
+  height: 5px;
+  margin-top: 18px;
+  border: 0;
+  border-radius: 5px;
+  overflow: hidden;
+  appearance: none;
+  background: var(--pale);
+  accent-color: var(--forest);
+}
+.progress::-webkit-progress-bar {
+  background: var(--pale);
+}
+.progress::-webkit-progress-value {
+  background: var(--forest);
+  border-radius: 5px;
+  transition: width 150ms var(--ease-out);
+}
+.progress::-moz-progress-bar {
+  background: var(--forest);
+  border-radius: 5px;
+}
+.milestone > .progressLabel {
+  margin-top: 8px;
+  color: var(--ink);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.locations {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
+  padding: 0;
+  margin: 18px 0;
+  list-style: none;
+}
+.locations li {
+  display: flex;
+  align-items: start;
+  gap: 7px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.locations li[data-visited="true"] {
+  color: var(--ink);
+}
+.locationCheck {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+}
+li[data-visited="true"] .locationCheck {
+  border-color: var(--forest);
+  background: var(--forest);
+  color: var(--primary-foreground);
+}
+.reward {
+  padding-top: 4px;
+}
+.claim {
+  min-height: 44px;
+  border-radius: 10px;
+}
+.claim:disabled {
+  cursor: default;
+}
+.claim[aria-busy="true"] {
+  cursor: wait;
+}
+.notice {
+  margin: 10px 0 0;
+  max-width: 60ch;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.error {
+  margin: 10px 0 0;
+  color: var(--destructive);
+  font-size: 13px;
+}
+.challenges {
+  padding-top: 24px;
+  margin-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.challenge {
+  margin-top: 12px;
+  padding: 14px 0;
+}
+.challenge + .challenge {
+  border-top: 1px solid var(--line);
+}
+.found,
+.planned {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  font-size: 11px;
+}
+.found {
+  color: var(--ink);
+}
+.planned {
+  color: var(--muted-foreground);
+}
+.hintButton {
+  min-height: 44px;
+  font-size: 13px;
+}
+.hintButton:disabled {
+  cursor: default;
+}
+.challenge > .hint {
+  padding: 10px 12px;
+  border-left: 2px solid var(--forest);
+  background: var(--pale);
+}
+.challenge > .caption {
+  font-size: 11px;
+}
+.trigger {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: 12px;
+}
+.dot {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--line);
+}
+.dot[data-started="true"] {
+  background: var(--muted-foreground);
+}
+.dot[data-complete="true"] {
+  width: 6px;
+  height: 6px;
+  background: var(--forest);
+}
+@media (max-height: 700px) {
+  .panel {
+    display: block;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .header {
+    padding-top: 6px;
+  }
+  .content {
+    overflow: visible;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .progress::-webkit-progress-value,
+  .panel button,
+  .trigger {
+    transition-duration: 0ms;
+  }
+}

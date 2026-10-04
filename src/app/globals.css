@@ -140,6 +140,7 @@
 }
 
 /* Site styles. Layered so Tailwind utilities on primitives win. */
+
 @layer components {
   * {
     box-sizing: border-box;
@@ -3470,6 +3471,107 @@ html[data-photo-theme="dark"] {
     .explorer .explorer-bottom-controls[data-drawer-snap="0.25"] {
       right: max(16px, env(safe-area-inset-right));
       bottom: calc(var(--drawer-compact-height, 25dvh) + 12px);
+    }
+  }
+}
+
+@layer components {
+  .explorer .explorer-top {
+    display: flex;
+    gap: 4px;
+  }
+  .explorer .map-toolbar > .explorer-presets-trigger {
+    width: auto;
+    min-width: 74px;
+    padding: 0 8px;
+    font-size: 12px;
+  }
+  .explorer-cart-trigger {
+    position: relative;
+  }
+  .explorer-cart-trigger > span {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    display: grid;
+    place-items: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+  }
+  .photo-drawer-header > .drawer-presets-link {
+    width: auto;
+    min-width: 52px;
+    padding: 0 6px;
+    color: var(--ink);
+    background: transparent;
+    font-size: 12px;
+  }
+  .drawer-commerce-header {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0 16px 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  .drawer-commerce-header > button {
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
+  }
+  .drawer-mode-controls {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .drawer-mode-controls > button {
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+    gap: 5px;
+    padding: 0 8px;
+    border-radius: 10px;
+    color: var(--muted-foreground);
+  }
+  .drawer-mode-controls > button[aria-pressed="true"] {
+    background: var(--pale);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .drawer-mode-controls > button:disabled {
+    cursor: default;
+  }
+  .drawer-commerce-pane {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .location-drawer .drawer-gallery[hidden],
+  .location-drawer .drawer-commerce-pane[hidden] {
+    display: none;
+  }
+  @media (max-width: 380px) {
+    .explorer .map-toolbar {
+      gap: 4px;
+    }
+    .photo-drawer-header {
+      gap: 4px;
+    }
+    .photo-drawer-header > .drawer-browse {
+      width: 44px;
+      padding: 0;
+      justify-content: center;
+    }
+    .photo-drawer-header > .drawer-browse > span {
+      display: none;
     }
   }
 }

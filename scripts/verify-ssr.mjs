@@ -1,8 +1,16 @@
 import assert from "node:assert/strict";
 const base = process.env.PREVIEW_URL || "http://localhost:3107";
+const indexable = process.env.EXPECT_INDEXABLE === "1";
+const canonicalOrigin =
+  process.env.SEO_CANONICAL_ORIGIN || "https://nrgstudios.co";
+const schemaOrigin = indexable
+  ? canonicalOrigin
+  : process.env.SEO_PUBLIC_ORIGIN;
 const cases = [
   ["/", "<em>Photography</em></h1>", 0],
   ["/explore", "Photographs on the map", 0],
+  ["/presets", "Preset catalog", 0],
+  ["/presets?preset=signature-01", "Alpine Light", 0],
   ["/about", "<h1>About</h1>", 0],
   ["/contact", "<h1>Contact</h1>", 0],
   ["/work", "<h1>Work</h1>", 39],
@@ -21,7 +29,20 @@ for (const [path, text, count] of cases) {
   );
   assert.ok(html.includes(text), `${path}: server-rendered heading`);
   assert.ok(html.includes('id="main"'), `${path}: main content`);
-  assert.ok(html.includes('rel="canonical"'), `${path}: canonical metadata`);
+  if (!path.startsWith("/presets") || indexable)
+    assert.ok(html.includes('rel="canonical"'), `${path}: canonical metadata`);
+  if (!indexable) {
+    assert.match(
+      response.headers.get("x-robots-tag") ?? "",
+      /noindex/,
+      `${path}: preview header`,
+    );
+    assert.match(
+      html,
+      /name="robots" content="[^"]*noindex/,
+      `${path}: preview metadata`,
+    );
+  }
   assert.equal(
     (html.match(/class="photo-button"/g) || []).length,
     count,
@@ -36,6 +57,23 @@ for (const [path, text, count] of cases) {
       "photo drawer initially closed",
     );
     assert.ok(!html.includes("Sample recipes"), "deferred preset UI absent");
+  }
+  if (path === "/presets") {
+    assert.equal(
+      (html.match(/\. View details"/g) || []).length,
+      21,
+      "all 21 presets in server HTML",
+    );
+    assert.equal(
+      new Set(
+        [...html.matchAll(/href="(\/presets\/signature-\d+)"/g)].map(
+          (match) => match[1],
+        ),
+      ).size,
+      21,
+      "all 21 direct preset anchors in server HTML",
+    );
+    assert.ok(html.includes("$1.99"), "visible individual preset pricing");
   }
   if (path === "/") {
     assert.ok(html.includes('id="places"'), "globe section in server HTML");
@@ -66,8 +104,136 @@ console.log(
 for (const path of ["/robots.txt", "/sitemap.xml"]) {
   const response = await fetch(base + path);
   assert.equal(response.status, 200);
-  assert.ok(!(await response.text()).includes("/prints"));
+  const text = await response.text();
+  assert.ok(!text.includes("/prints"));
+  if (path === "/sitemap.xml") {
+    const urls = [...text.matchAll(/<loc>(.*?)<\/loc>/g)].map(
+      (match) => match[1],
+    );
+    assert.equal(urls.length, indexable ? 81 : 0, "launch-gated sitemap");
+    assert.ok(
+      urls.every(
+        (url) =>
+          url.startsWith(canonicalOrigin + "/") || url === canonicalOrigin,
+      ),
+    );
+    if (indexable)
+      assert.equal(
+        (text.match(/<image:loc>/g) || []).length,
+        39,
+        "public photograph image sitemap",
+      );
+  } else
+    assert.equal(
+      text.includes("Sitemap:"),
+      indexable,
+      "launch-gated robots sitemap",
+    );
   console.log(`PASS ${path}`);
 }
 assert.equal((await fetch(base + "/prints")).status, 404);
 console.log("PASS removed prints route: HTTP 404");
+
+const publicRoutes = new Set();
+for (const [path, pattern, expected] of [
+  ["/locations", /href="(\/locations\/[^"?#]+)"/g, 9],
+  ["/photographs", /href="(\/photographs\/[^"?#]+)"/g, 39],
+  ["/presets", /href="(\/presets\/signature-\d+)"/g, 21],
+]) {
+  const response = await fetch(base + path);
+  assert.equal(response.status, 200, path);
+  const html = await response.text();
+  const routes = new Set([...html.matchAll(pattern)].map((match) => match[1]));
+  assert.equal(routes.size, expected, `${path}: crawlable direct links`);
+  routes.forEach((route) => publicRoutes.add(route));
+}
+for (const path of publicRoutes) {
+  const response = await fetch(base + path);
+  assert.equal(response.status, 200, path);
+  const raw = await response.text();
+  const html = raw.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "");
+  assert.match(html, /<h1[^>]*>.+?<\/h1>/s, `${path}: visible server heading`);
+  assert.match(
+    html,
+    /name="description" content="[^"]+"/,
+    `${path}: description`,
+  );
+  assert.equal(
+    html.includes('rel="canonical"'),
+    indexable,
+    `${path}: canonical gate`,
+  );
+  assert.equal(
+    /name="robots" content="[^"]*noindex/.test(html),
+    !indexable,
+    `${path}: indexing gate`,
+  );
+  const schemas = [
+    ...raw.matchAll(
+      /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g,
+    ),
+  ].map((match) => JSON.parse(match[1]));
+  if (schemaOrigin) {
+    assert.ok(
+      schemas.some((schema) => schema["@type"] === "BreadcrumbList"),
+      `${path}: breadcrumbs`,
+    );
+    const expectedType = path.startsWith("/presets/")
+      ? "Product"
+      : path.startsWith("/photographs/")
+        ? "ImageObject"
+        : "CollectionPage";
+    const schema = schemas.find((item) => item["@type"] === expectedType);
+    assert.ok(schema, `${path}: ${expectedType}`);
+    assert.ok(
+      JSON.stringify(schema).includes(schemaOrigin),
+      `${path}: current public origin`,
+    );
+    if (expectedType === "Product")
+      assert.ok(
+        !schema.offers && !schema.aggregateRating,
+        "no fabricated commerce claims",
+      );
+  } else assert.equal(schemas.length, 0, `${path}: no invented public origin`);
+}
+console.log(
+  `PASS ${publicRoutes.size} direct photo/location/preset routes: SSR, descriptions, links and SEO gates`,
+);
+for (const path of [
+  "/locations/not-a-location",
+  "/photographs/not-a-photo",
+  "/presets/not-a-preset",
+]) {
+  const response = await fetch(base + path);
+  assert.equal(response.status, 404, path);
+  assert.match(await response.text(), /noindex/, path);
+}
+const imageResponse = await fetch(base + "/photos/hallstatt-2.webp");
+assert.equal(imageResponse.status, 200);
+if (!indexable)
+  assert.match(
+    imageResponse.headers.get("x-robots-tag") ?? "",
+    /noindex/,
+    "preview image header",
+  );
+const availability = await fetch(base + "/api/commerce/availability");
+assert.equal(availability.status, 200);
+assert.deepEqual(await availability.json(), { status: "unavailable" });
+for (const [path, method] of [
+  ["ownership", "GET"],
+  ["download/signature-01", "GET"],
+  ["checkout", "POST"],
+  ["reward-claim", "POST"],
+  ["webhook", "POST"],
+]) {
+  const response = await fetch(`${base}/api/commerce/${path}`, { method });
+  assert.equal(
+    response.status,
+    503,
+    `${path}: fail closed without configured durable commerce`,
+  );
+  assert.match(response.headers.get("cache-control") ?? "", /no-store/, path);
+}
+console.log(
+  "PASS invalid SEO routes, preview image policy and all unconfigured commerce boundaries",
+);

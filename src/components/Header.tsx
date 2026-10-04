@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { AccountControl } from "./AccountControl";
 import {
   Sheet,
   SheetClose,
@@ -12,7 +13,8 @@ import {
 const links = [
   { href: "/work", label: "Work" },
   { href: "/about", label: "About" },
-  { href: "/explore", label: "Places & presets" },
+  { href: "/explore", label: "Explore places" },
+  { href: "/presets", label: "All presets" },
 ];
 function Wordmark({ onClick }: { onClick?: () => void }) {
   return (
@@ -44,6 +46,7 @@ export default function Header() {
             {link.label}
           </Link>
         ))}
+        <AccountControl />
       </nav>
       <Link href="/contact" className="header-contact">
         Contact
@@ -71,6 +74,7 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
+            <AccountControl />
           </nav>
         </SheetContent>
       </Sheet>

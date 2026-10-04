@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { site } from "@/lib/site";
 import { Arrow } from "./Arrow";
+import { DiscoveryLinks } from "./seo/SeoContent";
 export default function Footer() {
   return (
     <footer className="site-footer">
@@ -10,6 +11,7 @@ export default function Footer() {
           <Arrow diagonal />
         </Link>
       </div>
+      <DiscoveryLinks />
       <div className="footer-bottom">
         <Link href="/" className="footer-name">
           Nicholas Gould
