@@ -14,6 +14,7 @@ import {
   removeCartPreset,
   type PresetCartState,
 } from "@/lib/preset-cart";
+import { selectionFeedback } from "@/lib/haptics";
 import { getCatalogPreset } from "@/lib/preset-commerce";
 import {
   PRESET_CART_STORAGE_KEY,
@@ -52,7 +53,9 @@ function subscribe(onChange: () => void) {
 }
 
 function updateStoredCart(update: (cart: PresetCartState) => PresetCartState) {
-  const next = serializePresetCart(update(restorePresetCart(getSnapshot())));
+  const previous = getSnapshot();
+  const next = serializePresetCart(update(restorePresetCart(previous)));
+  if (next === previous) return;
   memorySnapshot = next;
   try {
     window.localStorage.setItem(PRESET_CART_STORAGE_KEY, next);
@@ -60,6 +63,7 @@ function updateStoredCart(update: (cart: PresetCartState) => PresetCartState) {
     // The current session remains usable when browser storage is unavailable.
   }
   window.dispatchEvent(new Event(changeEvent));
+  selectionFeedback();
 }
 
 type PresetCartContextValue = {

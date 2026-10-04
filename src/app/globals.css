@@ -2731,10 +2731,6 @@ html[data-photo-theme="dark"] {
   .map-zoom-slider > div {
     height: 36px;
   }
-  .map-zoom-slider [data-slot="slider-thumb"] {
-    width: 36px;
-    height: 36px;
-  }
   .travel-commands [data-slot="separator"] {
     height: 20px;
     align-self: center;

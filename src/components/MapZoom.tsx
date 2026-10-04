@@ -1,12 +1,6 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import {
-  AnimatePresence,
-  motion,
-  useReducedMotion,
-  useSpring,
-  useTransform,
-} from "motion/react";
+import { useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Globe2, Map as MapIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { Slider } from "./ui/slider";
@@ -17,18 +11,14 @@ import {
   PopoverTrigger,
 } from "./ui/popover";
 
-const levels = [0, 1, 2, 3, 5, 10];
-const labels = ["Globe", "World", "Continent", "Region", "Area", "Local"];
-function stepForZoom(zoom: number) {
-  const upper = levels.findIndex((value, index) => index > 0 && value >= zoom);
-  if (upper <= 1) return 1;
-  return (
-    upper -
-    1 +
-    Math.log(zoom / levels[upper - 1]) /
-      Math.log(levels[upper] / levels[upper - 1])
-  );
-}
+import {
+  zoomLevels,
+  zoomLabels,
+  zoomStop,
+  zoomStopPosition,
+} from "@/lib/map-zoom-stops";
+import { selectionFeedback } from "@/lib/haptics";
+
 export default function MapZoom({
   mode,
   zoom,
@@ -38,20 +28,11 @@ export default function MapZoom({
   zoom: number;
   onChange: (mode: "globe" | "map", zoom: number) => void;
 }) {
-  const value = mode === "globe" ? 0 : stepForZoom(zoom);
+  const value = zoomStop(mode, zoom);
   const [draft, setDraft] = useState<number | null>(null);
-  const draftRef = useRef<number | null>(null);
   const trigger = useRef<HTMLButtonElement | null>(null);
   const [keyboardInteraction, setKeyboardInteraction] = useState(false);
   const reduced = useReducedMotion();
-  const spring = useSpring(value, { stiffness: 420, damping: 25, mass: 0.7 });
-  const position = useTransform(spring, (v) => Math.max(0, Math.min(5, v)));
-  const x = useTransform(position, (v) => 2 + v * 35.2);
-  const fillWidth = useTransform(position, (v) => 36 + v * 35.2);
-  useEffect(() => {
-    if (reduced) spring.jump(value);
-    else spring.set(value);
-  }, [value, reduced, spring]);
   const current = draft ?? value;
   return (
     <Popover
@@ -63,10 +44,7 @@ export default function MapZoom({
               details.event.detail === 0),
         );
         if (!open) {
-          draftRef.current = null;
           setDraft(null);
-          if (reduced) spring.jump(value);
-          else spring.set(value);
         }
       }}
     >
@@ -104,6 +82,7 @@ export default function MapZoom({
         anchor={() =>
           trigger.current?.closest(".explorer-command-bar") ?? trigger.current
         }
+        align="center"
         side="top"
         sideOffset={12}
         data-keyboard={keyboardInteraction}
@@ -112,61 +91,47 @@ export default function MapZoom({
         <PopoverTitle className="sr-only">Map zoom</PopoverTitle>
         <div className="zoom-control">
           <div className="zoom-track">
-            <motion.div className="zoom-fill" style={{ width: fillWidth }} />
-            {levels.map((_, index) => (
+            <div
+              className="zoom-fill"
+              style={{
+                width: `calc(${36 * (1 - current / 5)}px + ${current * 20}%)`,
+              }}
+            />
+            {zoomLevels.map((_, index) => (
               <span
                 key={index}
                 className={`zoom-dot ${index <= current ? "is-filled" : ""}`}
-                style={{ left: 18 + index * 35.2 }}
+                style={{ left: zoomStopPosition(index) }}
               />
             ))}
-            <motion.span className="zoom-thumb" style={{ left: 0, x }} />
+            <span
+              className="zoom-thumb"
+              style={{
+                left: zoomStopPosition(current),
+                transform: "translateX(-50%)",
+              }}
+            />
             <Slider
-              className="map-zoom-slider"
+              className="map-zoom-slider [&_[data-slot=slider-thumb]]:size-9"
               aria-label="Map zoom level"
-              aria-valuetext={labels[Math.round(current)]}
+              aria-valuetext={zoomLabels[current]}
               value={[current]}
               min={0}
               max={5}
-              step={0.01}
+              step={1}
               largeStep={1}
+              onPointerCancel={() => setDraft(null)}
               onValueChange={(next, details) => {
                 setKeyboardInteraction(details.reason === "keyboard");
-                const number = Array.isArray(next) ? next[0] : next;
-                const key = "key" in details.event ? details.event.key : "";
-                const nextValue =
-                  details.reason === "keyboard"
-                    ? key === "Home"
-                      ? 0
-                      : key === "End"
-                        ? 5
-                        : Math.max(
-                            0,
-                            Math.min(
-                              5,
-                              number > current
-                                ? Math.floor(current) + 1
-                                : number < current
-                                  ? Math.ceil(current) - 1
-                                  : current,
-                            ),
-                          )
-                    : number;
-                draftRef.current = nextValue;
-                setDraft(nextValue);
-                if (details.reason === "drag" || reduced)
-                  spring.jump(nextValue);
-                else spring.set(nextValue);
+                const stop = Math.round(Array.isArray(next) ? next[0] : next);
+                if (stop !== current && details.reason !== "none")
+                  selectionFeedback();
+                setDraft(stop);
               }}
               onValueCommitted={(next) => {
-                const stop = Math.round(
-                  draftRef.current ?? (Array.isArray(next) ? next[0] : next),
-                );
-                draftRef.current = null;
+                const stop = Math.round(Array.isArray(next) ? next[0] : next);
                 setDraft(null);
-                if (reduced) spring.jump(stop);
-                else spring.set(stop);
-                onChange(stop === 0 ? "globe" : "map", levels[stop] || 1);
+                onChange(stop === 0 ? "globe" : "map", zoomLevels[stop] || 1);
               }}
             />
           </div>

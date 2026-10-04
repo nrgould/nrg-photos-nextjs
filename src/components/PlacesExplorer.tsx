@@ -21,6 +21,7 @@ import {
   Sun,
   X,
 } from "lucide-react";
+import { selectionFeedback } from "@/lib/haptics";
 import { travelPlaces } from "@/lib/places";
 import { drawerOwnsGesture, shouldDismissDrawer } from "@/lib/drawer-gesture";
 import { getMapNode, getMapNodes, type MapNode } from "@/lib/map-hierarchy";
@@ -238,6 +239,7 @@ export default function PlacesExplorer({
     next: Exclude<DrawerMode, "photos">,
     trigger?: HTMLElement,
   ) {
+    if (!open || drawerMode !== next) selectionFeedback();
     if (drawerMode === "photos") {
       photoSnap.current = snap;
       photoScroll.current = gallery.current?.scrollTop ?? photoScroll.current;
@@ -258,6 +260,7 @@ export default function PlacesExplorer({
     );
   }
   function showPhotos() {
+    selectionFeedback();
     const node = getMapNode(selectedNodeId, filteredPlaces);
     if (node?.kind === "location" && node.precision === "regional")
       recordExploration({ type: "location-opened", locationId: node.id });
@@ -454,6 +457,7 @@ export default function PlacesExplorer({
     } catch {}
   }
   function choose(id: string, showPhotos = false) {
+    selectionFeedback();
     gallery.current?.scrollTo(0, 0);
     photoScroll.current = 0;
     pendingPhotoScroll.current = null;
@@ -491,8 +495,10 @@ export default function PlacesExplorer({
   }
   function openPhotograph(photoSrc: string | null) {
     setViewer(photoSrc);
-    if (photoSrc !== null)
+    if (photoSrc !== null) {
+      selectionFeedback();
       recordExploration({ type: "photo-opened", photoSrc });
+    }
   }
   function changeTheme() {
     const next = theme === "light" ? "dark" : "light";
@@ -637,11 +643,19 @@ export default function PlacesExplorer({
           <div className="travel-commands">
             <Control
               variant="quiet"
-              label="Back"
+              label="Previous"
               disabled={navigationDisabled}
               onClick={() => navigate("back")}
             >
               <ArrowLeft size={18} />
+            </Control>
+            <Control
+              variant="quiet"
+              label="Next"
+              disabled={navigationDisabled}
+              onClick={() => navigate("next")}
+            >
+              <ArrowRight size={18} />
             </Control>
             <Separator orientation="vertical" style={separatorStyle} />
             <Control
@@ -651,15 +665,6 @@ export default function PlacesExplorer({
               onClick={() => navigate("shuffle")}
             >
               <Shuffle size={18} />
-            </Control>
-            <Separator orientation="vertical" style={separatorStyle} />
-            <Control
-              variant="quiet"
-              label="Next"
-              disabled={navigationDisabled}
-              onClick={() => navigate("next")}
-            >
-              <ArrowRight size={18} />
             </Control>
             <Separator orientation="vertical" style={separatorStyle} />
             <MapZoom
