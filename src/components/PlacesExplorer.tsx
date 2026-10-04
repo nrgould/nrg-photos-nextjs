@@ -94,9 +94,14 @@ export default function PlacesExplorer() {
   const [snap, setSnap] = useState<number | string | null>(0.25);
   const [command, setCommand] = useState(false);
   const [viewer, setViewer] = useState<number | null>(null);
+  const [drawerElement, setDrawerElement] = useState<HTMLDivElement | null>(
+    null,
+  );
   const dragged = useRef(false);
   const gestureStart = useRef<[number, number] | null>(null);
   const gallery = useRef<HTMLDivElement>(null);
+  const drawerViewport = useRef<HTMLDivElement>(null);
+  const photoLayout = useRef<HTMLDivElement>(null);
   const drawerOrigin = useRef<HTMLElement | SVGElement | null>(null);
   const drawerHandle = useRef<HTMLButtonElement>(null);
   const photoFocus = useRef<HTMLButtonElement | null>(null);
@@ -106,6 +111,130 @@ export default function PlacesExplorer() {
   }
   const place = travelPlaces[selected];
   const expanded = Number(snap) >= 0.75;
+  useEffect(() => {
+    const viewport = drawerViewport.current;
+    const scroller = gallery.current;
+    const layout = photoLayout.current;
+    if (!drawerElement || !viewport || !scroller || !layout) return;
+    const figures = Array.from(layout.children) as HTMLElement[];
+    const images = figures.map((figure) =>
+      figure.querySelector<HTMLElement>(".gallery-photo")!,
+    );
+    const captions = figures.map((figure) =>
+      figure.querySelector("figcaption")!,
+    );
+    let frame = 0;
+    let transitioning = false;
+    let previous = "";
+    const mix = (from: number, to: number, progress: number) =>
+      from + (to - from) * progress;
+
+    function renderLayout() {
+      frame = 0;
+      const bounds = drawerElement!.getBoundingClientRect();
+      const galleryBounds = scroller!.getBoundingClientRect();
+      const height = Math.max(
+        0,
+        Math.min(bounds.height, window.innerHeight - bounds.top),
+      );
+      const signature = `${height.toFixed(2)}:${bounds.width}:${bounds.height}`;
+      if (signature !== previous) {
+        previous = signature;
+        const compactHeight = bounds.height * compactFraction;
+        const progress = Math.max(
+          0,
+          Math.min(
+            1,
+            (height - compactHeight) / (bounds.height * 0.75 - compactHeight),
+          ),
+        );
+        const growth = Math.max(0, (progress - 0.2) / 0.8);
+        const lift = Math.min(1, progress / 0.2);
+        const width = galleryBounds.width - 32;
+        const count = figures.length;
+        const compactWidth = (width - 8 * (count - 1)) / count;
+        const headerHeight = galleryBounds.top - bounds.top;
+        const safeArea =
+          parseFloat(getComputedStyle(viewport!).paddingBottom) || 0;
+        const compactImageHeight = Math.max(
+          64,
+          compactHeight - headerHeight - safeArea - 12,
+        );
+        const gap = mix(8, 12, growth);
+        const captionHeight = 38 * growth;
+        const halfWidth = (width - 12) / 2;
+        const firstTargetHeight =
+          count === 2
+            ? (width * place.photos[0].height) / place.photos[0].width
+            : count === 3
+              ? width * 0.75
+              : halfWidth * 1.25;
+        const firstHeight = mix(compactImageHeight, firstTargetHeight, growth);
+        let contentHeight = 0;
+
+        figures.forEach((figure, index) => {
+          const lowerRow =
+            count === 2 ? index > 0 : count === 3 ? index > 0 : index > 1;
+          const fullWidth = count === 2 || (count === 3 && index === 0);
+          const targetWidth = fullWidth ? width : halfWidth;
+          const targetX = fullWidth
+            ? 0
+            : ((count === 3 ? index - 1 : index) % 2) * (halfWidth + 12);
+          const targetHeight =
+            count === 2
+              ? (width * place.photos[index].height) / place.photos[index].width
+              : count === 3 && index === 0
+                ? width * 0.75
+                : halfWidth * 1.25;
+          const imageHeight = mix(compactImageHeight, targetHeight, growth);
+          const x = mix(index * (compactWidth + 8), targetX, growth);
+          const y = lowerRow ? (firstHeight + captionHeight + gap) * lift : 0;
+          figure.style.width = `${mix(compactWidth, targetWidth, growth)}px`;
+          figure.style.transform = `translate(${x}px, ${y}px)`;
+          images[index].style.height = `${imageHeight}px`;
+          captions[index].style.opacity = String(growth);
+          contentHeight = Math.max(
+            contentHeight,
+            y + imageHeight + captionHeight,
+          );
+        });
+        viewport!.style.height = `${height}px`;
+        layout!.style.height = `${contentHeight}px`;
+        frame = requestAnimationFrame(renderLayout);
+      } else if (transitioning) {
+        frame = requestAnimationFrame(renderLayout);
+      }
+    }
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(renderLayout);
+    };
+    const transition = (event: TransitionEvent) => {
+      if (event.target !== drawerElement || event.propertyName !== "transform")
+        return;
+      transitioning = event.type === "transitionrun";
+      schedule();
+    };
+    // Observe Vaul's transform; this does not write to or animate the drawer shell.
+    const changes = new MutationObserver(schedule);
+    changes.observe(drawerElement, {
+      attributes: true,
+      attributeFilter: ["style", "data-state"],
+    });
+    const resize = new ResizeObserver(schedule);
+    resize.observe(drawerElement);
+    drawerElement.addEventListener("transitionrun", transition);
+    drawerElement.addEventListener("transitionend", transition);
+    drawerElement.addEventListener("transitioncancel", transition);
+    schedule();
+    return () => {
+      cancelAnimationFrame(frame);
+      changes.disconnect();
+      resize.disconnect();
+      drawerElement.removeEventListener("transitionrun", transition);
+      drawerElement.removeEventListener("transitionend", transition);
+      drawerElement.removeEventListener("transitioncancel", transition);
+    };
+  }, [drawerElement, compactFraction, place.photos]);
   function finishIntro() {
     setIntro(false);
     setMode("map");
@@ -232,56 +361,16 @@ export default function PlacesExplorer() {
         </div>
       </div>
       <div
-        className="explorer-command-bar"
+        className="explorer-bottom-controls"
         data-drawer-open={open}
         data-drawer-snap={open ? snap : 0}
+        inert={open && expanded}
         style={
           {
             "--drawer-compact-height": `${compactFraction * 100}dvh`,
           } as CSSProperties
         }
-        aria-label="Location navigation"
       >
-        <div className="travel-commands">
-          <Control
-            variant="quiet"
-            label="Back"
-            onClick={() =>
-              choose((selected - 1 + travelPlaces.length) % travelPlaces.length)
-            }
-          >
-            <ArrowLeft size={18} />
-          </Control>
-          <Separator orientation="vertical" style={separatorStyle} />
-          <Control
-            variant="quiet"
-            label="Shuffle"
-            onClick={() => choose(shuffleIndex(selected, travelPlaces.length))}
-          >
-            <Shuffle size={18} />
-          </Control>
-          <Separator orientation="vertical" style={separatorStyle} />
-          <Control
-            variant="quiet"
-            label="Next"
-            onClick={() => choose((selected + 1) % travelPlaces.length)}
-          >
-            <ArrowRight size={18} />
-          </Control>
-          <Separator orientation="vertical" style={separatorStyle} />
-          <MapZoom
-            mode={mode}
-            zoom={zoom}
-            onChange={(nextMode, nextZoom) => {
-              setZoomRevision((value) => value + 1);
-              setIntro(false);
-              setMode(nextMode);
-              setZoom(nextZoom);
-            }}
-          />
-        </div>
-      </div>
-      {!open && (
         <Tooltip>
           <TooltipTrigger
             render={
@@ -300,7 +389,51 @@ export default function PlacesExplorer() {
             Contact Nicholas
           </TooltipContent>
         </Tooltip>
-      )}
+        <div className="explorer-command-bar" aria-label="Location navigation">
+          <div className="travel-commands">
+            <Control
+              variant="quiet"
+              label="Back"
+              onClick={() =>
+                choose(
+                  (selected - 1 + travelPlaces.length) % travelPlaces.length,
+                )
+              }
+            >
+              <ArrowLeft size={18} />
+            </Control>
+            <Separator orientation="vertical" style={separatorStyle} />
+            <Control
+              variant="quiet"
+              label="Shuffle"
+              onClick={() =>
+                choose(shuffleIndex(selected, travelPlaces.length))
+              }
+            >
+              <Shuffle size={18} />
+            </Control>
+            <Separator orientation="vertical" style={separatorStyle} />
+            <Control
+              variant="quiet"
+              label="Next"
+              onClick={() => choose((selected + 1) % travelPlaces.length)}
+            >
+              <ArrowRight size={18} />
+            </Control>
+            <Separator orientation="vertical" style={separatorStyle} />
+            <MapZoom
+              mode={mode}
+              zoom={zoom}
+              onChange={(nextMode, nextZoom) => {
+                setZoomRevision((value) => value + 1);
+                setIntro(false);
+                setMode(nextMode);
+                setZoom(nextZoom);
+              }}
+            />
+          </div>
+        </div>
+      </div>
       <Drawer
         open={open}
         onOpenChange={(next) => {
@@ -316,6 +449,7 @@ export default function PlacesExplorer() {
         repositionInputs={false}
       >
         <DrawerContent
+          ref={setDrawerElement}
           className="location-drawer explorer-overlay"
           data-expanded={expanded}
           data-snap={snap}
@@ -364,10 +498,16 @@ export default function PlacesExplorer() {
           }}
           onInteractOutside={(event) => event.preventDefault()}
           onEscapeKeyDown={(event) => {
-            if (viewer !== null) event.preventDefault();
+            if (
+              viewer !== null ||
+              command ||
+              document.querySelector(".map-zoom-popover[data-open]")
+            )
+              event.preventDefault();
           }}
         >
           <div
+            ref={drawerViewport}
             className="drawer-visible-content"
             style={{
               height: `${(snap === 0.25 ? compactFraction : Number(snap)) * 100}dvh`,
@@ -426,6 +566,9 @@ export default function PlacesExplorer() {
                 <DrawerTitle>{place.name}</DrawerTitle>
                 <DrawerDescription id="location-photo-description">
                   {place.photos.length} photographs
+                  <span className="sr-only">
+                    . Map reference: {place.referenceLabel}.
+                  </span>
                 </DrawerDescription>
               </div>
               <Button
@@ -468,36 +611,40 @@ export default function PlacesExplorer() {
                 }
               }}
             >
-              {place.photos.map((photo, index) => (
-                <figure key={photo.src}>
-                  <MotionButton
-                    variant="quiet"
-                    press={false}
-                    whileTap={reducedMotion ? undefined : { scale: 0.975 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 28 }}
-                    className="gallery-photo"
-                    aria-label={`View ${photo.title}`}
-                    onClick={(event) => {
-                      if (event.detail > 0 && dragged.current) return;
-                      photoFocus.current = event.currentTarget;
-                      setViewer(index);
-                    }}
-                  >
-                    <PhotoImage
-                      photo={photo}
-                      sizes={
-                        !expanded
-                          ? `(max-width: 700px) ${Math.round(100 / place.photos.length)}vw, ${Math.round(358 / place.photos.length)}px`
-                          : place.photos.length === 2 ||
-                              (place.photos.length === 3 && index === 0)
+              <div ref={photoLayout} className="drawer-photo-layout">
+                {place.photos.map((photo, index) => (
+                  <figure key={photo.src}>
+                    <MotionButton
+                      variant="quiet"
+                      press={false}
+                      whileTap={reducedMotion ? undefined : { scale: 0.975 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 28,
+                      }}
+                      className="gallery-photo"
+                      aria-label={`View ${photo.title}`}
+                      onClick={(event) => {
+                        if (event.detail > 0 && dragged.current) return;
+                        photoFocus.current = event.currentTarget;
+                        setViewer(index);
+                      }}
+                    >
+                      <PhotoImage
+                        photo={photo}
+                        sizes={
+                          place.photos.length === 2 ||
+                          (place.photos.length === 3 && index === 0)
                             ? "(max-width: 700px) calc(100vw - 32px), 358px"
                             : "(max-width: 700px) calc(50vw - 22px), 173px"
-                      }
-                    />
-                  </MotionButton>
-                  <figcaption>{photo.title}</figcaption>
-                </figure>
-              ))}
+                        }
+                      />
+                    </MotionButton>
+                    <figcaption>{photo.title}</figcaption>
+                  </figure>
+                ))}
+              </div>
             </div>
           </div>
         </DrawerContent>

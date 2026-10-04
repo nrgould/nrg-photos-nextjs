@@ -1,12 +1,13 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import {
+  AnimatePresence,
   motion,
   useReducedMotion,
   useSpring,
   useTransform,
 } from "motion/react";
-import { Globe2, ZoomIn } from "lucide-react";
+import { Globe2, Map as MapIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { Slider } from "./ui/slider";
 import {
@@ -40,35 +41,78 @@ export default function MapZoom({
   const value = mode === "globe" ? 0 : stepForZoom(zoom);
   const [draft, setDraft] = useState<number | null>(null);
   const draftRef = useRef<number | null>(null);
+  const trigger = useRef<HTMLButtonElement | null>(null);
+  const [keyboardInteraction, setKeyboardInteraction] = useState(false);
   const reduced = useReducedMotion();
   const spring = useSpring(value, { stiffness: 420, damping: 25, mass: 0.7 });
-  const x = useTransform(spring, (v) => 2 + v * 35.2);
-  const scaleX = useTransform(spring, (v) => (36 + v * 35.2) / 212);
+  const position = useTransform(spring, (v) => Math.max(0, Math.min(5, v)));
+  const x = useTransform(position, (v) => 2 + v * 35.2);
+  const fillWidth = useTransform(position, (v) => 36 + v * 35.2);
   useEffect(() => {
     if (reduced) spring.jump(value);
     else spring.set(value);
   }, [value, reduced, spring]);
   const current = draft ?? value;
   return (
-    <Popover>
-      <PopoverTrigger render={<Button variant="quiet" aria-label="Map zoom" />}>
-        {mode === "globe" ? <Globe2 size={18} /> : <ZoomIn size={18} />}
+    <Popover
+      onOpenChange={(open, details) => {
+        setKeyboardInteraction(
+          "key" in details.event ||
+            (details.event.type === "click" &&
+              "detail" in details.event &&
+              details.event.detail === 0),
+        );
+        if (!open) {
+          draftRef.current = null;
+          setDraft(null);
+          if (reduced) spring.jump(value);
+          else spring.set(value);
+        }
+      }}
+    >
+      <PopoverTrigger
+        ref={trigger}
+        render={<Button variant="quiet" aria-label="Map zoom" />}
+      >
+        <span className="map-zoom-icon" aria-hidden="true">
+          <AnimatePresence initial={false}>
+            <motion.span
+              key={mode}
+              initial={
+                reduced || keyboardInteraction
+                  ? false
+                  : { opacity: 0, scale: 0.25, filter: "blur(4px)" }
+              }
+              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+              exit={
+                reduced || keyboardInteraction
+                  ? { opacity: 0 }
+                  : { opacity: 0, scale: 0.25, filter: "blur(4px)" }
+              }
+              transition={
+                reduced || keyboardInteraction
+                  ? { duration: 0 }
+                  : { type: "spring", duration: 0.3, bounce: 0 }
+              }
+            >
+              {mode === "globe" ? <Globe2 size={18} /> : <MapIcon size={18} />}
+            </motion.span>
+          </AnimatePresence>
+        </span>
       </PopoverTrigger>
       <PopoverContent
+        anchor={() =>
+          trigger.current?.closest(".explorer-command-bar") ?? trigger.current
+        }
         side="top"
         sideOffset={12}
-        className="map-zoom-popover explorer-overlay w-[262px] rounded-[14px] border border-line bg-paper p-3 text-foreground"
+        data-keyboard={keyboardInteraction}
+        className="map-zoom-popover explorer-overlay w-[236px] gap-0 rounded-none border-0 bg-transparent p-0 shadow-none ring-0 transition-[opacity,transform] duration-150 ease-[cubic-bezier(0.2,0,0,1)] data-open:animate-none data-closed:animate-none data-ending-style:duration-100 data-[keyboard=true]:transition-none motion-reduce:transition-none"
       >
-        <div className="zoom-popover-heading">
-          <PopoverTitle className="text-[13px] leading-none">Zoom</PopoverTitle>
-          <span>{labels[Math.round(current)]}</span>
-        </div>
+        <PopoverTitle className="sr-only">Map zoom</PopoverTitle>
         <div className="zoom-control">
           <div className="zoom-track">
-            <motion.div
-              className="zoom-fill"
-              style={{ width: 212, scaleX, transformOrigin: "left" }}
-            />
+            <motion.div className="zoom-fill" style={{ width: fillWidth }} />
             {levels.map((_, index) => (
               <span
                 key={index}
@@ -87,6 +131,7 @@ export default function MapZoom({
               step={0.01}
               largeStep={1}
               onValueChange={(next, details) => {
+                setKeyboardInteraction(details.reason === "keyboard");
                 const number = Array.isArray(next) ? next[0] : next;
                 const key = "key" in details.event ? details.event.key : "";
                 const nextValue =
@@ -99,12 +144,11 @@ export default function MapZoom({
                             0,
                             Math.min(
                               5,
-                              Math.round(current) +
-                                (number > current
-                                  ? 1
-                                  : number < current
-                                    ? -1
-                                    : 0),
+                              number > current
+                                ? Math.floor(current) + 1
+                                : number < current
+                                  ? Math.ceil(current) - 1
+                                  : current,
                             ),
                           )
                     : number;
@@ -126,10 +170,6 @@ export default function MapZoom({
               }}
             />
           </div>
-        </div>
-        <div className="zoom-popover-labels">
-          <span>Globe</span>
-          <span>Local</span>
         </div>
       </PopoverContent>
     </Popover>

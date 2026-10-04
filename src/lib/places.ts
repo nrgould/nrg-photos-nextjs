@@ -3,6 +3,8 @@ export type TravelPlace = {
   id: string;
   name: string;
   location: string;
+  referenceLabel: string;
+  /** Representative regional pin in [longitude, latitude], never camera GPS. */
   coordinates: [number, number];
   /** Globe label position relative to the pin, in globe SVG units. */
   labelOffset: [number, number];
@@ -19,6 +21,7 @@ export const travelPlaces: TravelPlace[] = [
     id: "austria",
     name: "Austria",
     location: "Hallstatt",
+    referenceLabel: "Hallstatt area",
     coordinates: [13.65, 47.56],
     labelOffset: [30, -30],
     photos: [find("Scenes from Hallstatt"), find("Still water, Hallstatt")],
@@ -26,8 +29,9 @@ export const travelPlaces: TravelPlace[] = [
   {
     id: "italy",
     name: "Italy",
-    location: "Lago di Braies",
-    coordinates: [12.09, 46.69],
+    location: "Dolomites",
+    referenceLabel: "Lago di Braies area",
+    coordinates: [12.08, 46.7],
     labelOffset: [30, 26],
     photos: [
       find("Lago di Braies"),
@@ -39,8 +43,9 @@ export const travelPlaces: TravelPlace[] = [
   {
     id: "norway",
     name: "Norway",
-    location: "Above the Arctic Circle",
-    coordinates: [18.96, 69.65],
+    location: "Northern Norway · Lofoten",
+    referenceLabel: "Lofoten regional reference",
+    coordinates: [13.38, 68.05],
     labelOffset: [26, -12],
     photos: [
       find("Into the Arctic"),
@@ -51,7 +56,8 @@ export const travelPlaces: TravelPlace[] = [
   {
     id: "north-carolina",
     name: "North Carolina",
-    location: "Lake James",
+    location: "Lake James · Raleigh",
+    referenceLabel: "Lake James regional reference",
     coordinates: [-81.89, 35.75],
     labelOffset: [22, -26],
     photos: [find("Lake James"), find("A new chapter")],

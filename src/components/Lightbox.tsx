@@ -102,7 +102,8 @@ export default function Lightbox({
                 <Image
                   src={current.src}
                   alt={current.alt}
-                  fill
+                  width={current.width}
+                  height={current.height}
                   sizes="90vw"
                   quality={85}
                 />

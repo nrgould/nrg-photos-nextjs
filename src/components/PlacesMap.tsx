@@ -14,6 +14,9 @@ import "maplibre-gl/dist/maplibre-gl.css";
 const engineZoom = (scale: number) => Math.log2((scale * 250 * Math.PI) / 512);
 const uiZoom = (zoom: number) =>
   Math.max(1, Math.min(10, (2 ** zoom * 512) / (250 * Math.PI)));
+// Separate the nearby Alpine collections with visible leaders; the dot stays geographic.
+const markerCallout = (index: number): [number, number] =>
+  index === 0 ? [42, -46] : index === 1 ? [-42, 46] : [0, -44];
 function colors() {
   const css = getComputedStyle(document.documentElement);
   const token = (name: string) => css.getPropertyValue(name).trim();
@@ -23,10 +26,16 @@ function colors() {
     land: token(dark ? "--neutral-800" : "--neutral-200"),
     edge: token(dark ? "--neutral-600" : "--neutral-500"),
     grid: token(dark ? "--neutral-700" : "--neutral-200"),
+    label: token(dark ? "--neutral-300" : "--neutral-600"),
   };
 }
 function style(): StyleSpecification {
   const color = colors();
+  const font = getComputedStyle(document.documentElement)
+    .getPropertyValue("--font-explorer-sans")
+    .split(",")[0]
+    .trim()
+    .replaceAll('"', "");
   return {
     version: 8,
     sources: {
@@ -36,6 +45,9 @@ function style(): StyleSpecification {
         attribution: "Natural Earth",
       },
       grid: { type: "geojson", data: "/maps/grid.json" },
+      boundaries: { type: "geojson", data: "/maps/boundaries.json" },
+      countries: { type: "geojson", data: "/maps/country-labels.json" },
+      cities: { type: "geojson", data: "/maps/city-labels.json" },
     },
     layers: [
       {
@@ -61,6 +73,52 @@ function style(): StyleSpecification {
         source: "land",
         paint: { "line-color": color.edge, "line-width": 0.6 },
       },
+      {
+        id: "boundaries",
+        type: "line",
+        source: "boundaries",
+        minzoom: 0.8,
+        paint: {
+          "line-color": color.edge,
+          "line-width": ["interpolate", ["linear"], ["zoom"], 1, 0.45, 4, 0.8],
+          "line-opacity": 0.65,
+        },
+      },
+      ...(["countries", "cities"] as const).map((source) => ({
+        id: `${source}-labels`,
+        type: "symbol" as const,
+        source,
+        minzoom: source === "cities" ? 3.2 : 0,
+        ...(source === "countries"
+          ? {
+              filter: [
+                "<=",
+                ["min", 3, ["get", "minZoom"]],
+                ["zoom"],
+              ] as import("maplibre-gl").FilterSpecification,
+            }
+          : {}),
+        layout: {
+          "text-field": [
+            "get",
+            "name",
+          ] as import("maplibre-gl").ExpressionSpecification,
+          "text-font": [font || "sans-serif", "sans-serif"],
+          "text-size": source === "countries" ? 12 : 10,
+          "text-max-width": 9,
+          "text-padding": source === "countries" ? 12 : 10,
+          "symbol-sort-key": [
+            "get",
+            "rank",
+          ] as import("maplibre-gl").ExpressionSpecification,
+        },
+        paint: {
+          "text-color": color.label,
+          "text-halo-color": color.land,
+          "text-halo-width": 1.5,
+          "text-opacity": source === "countries" ? 0.9 : 0.75,
+        },
+      })),
     ],
   };
 }
@@ -106,7 +164,8 @@ export default function PlacesMap(props: {
     let cancelled = false;
     let resize: ResizeObserver | undefined;
     import("maplibre-gl")
-      .then(({ Map, Marker, setWorkerUrl }) => {
+      .then(async ({ Map, Marker, setWorkerUrl }) => {
+        await document.fonts.ready;
         if (cancelled || !container.current) return;
         setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
         const initial = latest.current;
@@ -127,6 +186,7 @@ export default function PlacesMap(props: {
           canvasContextAttributes: { antialias: true },
         });
         instance.touchZoomRotate.disableRotation();
+        instance.keyboard.disableRotation();
         map.current = instance;
         instance
           .getCanvas()
@@ -142,12 +202,14 @@ export default function PlacesMap(props: {
           const elements = travelPlaces.map((place, index) => {
             const element = document.createElement("div");
             element.className = "map-thumbnail-host";
+            const [x, y] = markerCallout(index);
+            element.style.setProperty("--callout-x", `${x}px`);
+            element.style.setProperty("--callout-y", `${y}px`);
             const marker = new Marker({
               element,
+              anchor: "center",
               subpixelPositioning: true,
               opacityWhenCovered: 0,
-              offset:
-                index === 0 ? [-27, -10] : index === 1 ? [27, 10] : [0, 0],
             })
               .setLngLat(place.coordinates)
               .addTo(instance);
@@ -178,8 +240,16 @@ export default function PlacesMap(props: {
           latest.current.onZoomChange(uiZoom(instance.getZoom()), nextMode);
         });
         instance.on("error", (event) => {
+          if ("sourceId" in event && event.sourceId !== "land") {
+            console.warn("Optional map context unavailable", event.error);
+            return;
+          }
           console.error("Map failed to load", event.error);
           setFailed(true);
+        });
+        instance.on("sourcedata", (event) => {
+          if (event.sourceId === "land" && event.isSourceLoaded)
+            setFailed(false);
         });
         const observer = new ResizeObserver(() => {
           instance.resize();
@@ -217,6 +287,11 @@ export default function PlacesMap(props: {
     instance.setPaintProperty("land", "fill-color", color.land);
     instance.setPaintProperty("edge", "line-color", color.edge);
     instance.setPaintProperty("grid", "line-color", color.grid);
+    instance.setPaintProperty("boundaries", "line-color", color.edge);
+    for (const layer of ["countries-labels", "cities-labels"]) {
+      instance.setPaintProperty(layer, "text-color", color.label);
+      instance.setPaintProperty(layer, "text-halo-color", color.land);
+    }
   }, [props.theme, ready]);
 
   useEffect(() => {
@@ -306,29 +381,42 @@ export default function PlacesMap(props: {
       </div>
       {hosts.map((host, index) =>
         createPortal(
-          <Button
-            variant="quiet"
-            press={false}
-            className="map-photo-marker"
-            data-location={travelPlaces[index].id}
-            aria-label={`Explore ${travelPlaces[index].name}`}
-            aria-pressed={props.selected === index}
-            onClick={(event) => {
-              if (event.detail === 0 || !gestureMoved.current)
-                props.onChoose(index);
-            }}
-          >
-            <Image
-              src={travelPlaces[index].photos[0].src}
-              alt=""
-              width={44}
-              height={44}
-              sizes="44px"
-              quality={75}
-              draggable={false}
-            />
-            <span className="map-marker-label">{travelPlaces[index].name}</span>
-          </Button>,
+          <>
+            <svg
+              className="map-marker-leader"
+              viewBox="-80 -80 160 160"
+              aria-hidden="true"
+            >
+              <path d={`M0 0L${markerCallout(index).join(" ")}`} />
+              <circle cx="0" cy="0" r="3.5" />
+            </svg>
+            <Button
+              variant="quiet"
+              press={false}
+              className="map-photo-marker"
+              data-location={travelPlaces[index].id}
+              aria-label={`Explore ${travelPlaces[index].name}`}
+              title={`${travelPlaces[index].referenceLabel} · Regional collection, not camera GPS`}
+              aria-pressed={props.selected === index}
+              onClick={(event) => {
+                if (event.detail === 0 || !gestureMoved.current)
+                  props.onChoose(index);
+              }}
+            >
+              <Image
+                src={travelPlaces[index].photos[0].src}
+                alt=""
+                width={44}
+                height={44}
+                sizes="44px"
+                quality={75}
+                draggable={false}
+              />
+              <span className="map-marker-label">
+                {travelPlaces[index].name}
+              </span>
+            </Button>
+          </>,
           host,
           travelPlaces[index].id,
         ),

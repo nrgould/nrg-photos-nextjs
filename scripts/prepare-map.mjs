@@ -2,6 +2,7 @@ import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { geoGraticule10 } from "d3-geo";
+import { prepareCountryContext } from "./lib/map-context.mjs";
 
 function unwrapRing(ring) {
   const result = [ring[0].slice()];
@@ -80,11 +81,24 @@ async function prepareMapAssets() {
     "node_modules/maplibre-gl/LICENSE.txt",
     "public/maplibre/LICENSE.txt",
   );
-  const source = JSON.parse(await readFile("src/data/land.json", "utf8"));
+  const topology = JSON.parse(
+    await readFile("node_modules/world-atlas/countries-50m.json", "utf8"),
+  );
+  const context = prepareCountryContext(topology);
+  await copyFile(
+    "node_modules/world-atlas/LICENSE",
+    "public/maps/world-atlas-LICENSE.txt",
+  );
   await writeFile(
     "public/maps/land.json",
-    JSON.stringify(prepareLandForMercator(source)),
+    JSON.stringify(prepareLandForMercator(context.land)),
   );
+  await writeFile(
+    "public/maps/boundaries.json",
+    JSON.stringify(context.boundaries),
+  );
+  for (const name of ["country-labels", "city-labels"])
+    await copyFile(`src/data/${name}.json`, `public/maps/${name}.json`);
   await writeFile("public/maps/grid.json", JSON.stringify(geoGraticule10()));
 }
 
