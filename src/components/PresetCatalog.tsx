@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type Ref } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
@@ -39,6 +39,8 @@ export type PresetCatalogProps = {
   onBack?: () => void;
   backLabel?: string;
   scrollMemory?: { get: () => number; set: (value: number) => void };
+  /** Opens a preset outside the catalog instead of inline. */
+  onOpenPreset?: (id: string, trigger: HTMLElement) => void;
 };
 
 export default function PresetCatalog({
@@ -53,13 +55,15 @@ export default function PresetCatalog({
   onBack,
   backLabel = "Back to photographs",
   scrollMemory,
+  onOpenPreset,
 }: PresetCatalogProps) {
   const id = useId();
   const reducedMotion = useReducedMotion();
   const [keyboardInteraction, setKeyboardInteraction] = useState(false);
-  const selected = getCatalogPreset(state.selectedPresetId);
+  const selected = onOpenPreset
+    ? undefined
+    : getCatalogPreset(state.selectedPresetId);
   const results = filterPresetCatalog({ ...state, query: "" });
-  const locations = getVerifiedPresetLocations(selected?.id);
   const cart = new Set(
     cartIds.filter((presetId) => getCatalogPreset(presetId)),
   );
@@ -196,6 +200,10 @@ export default function PresetCatalog({
                         )
                           return;
                         event.preventDefault();
+                        if (onOpenPreset) {
+                          onOpenPreset(preset.id, event.currentTarget);
+                          return;
+                        }
                         update({ selectedPresetId: preset.id });
                         requestAnimationFrame(() =>
                           detailBack.current?.focus(),
@@ -297,109 +305,157 @@ export default function PresetCatalog({
       </div>
 
       {selected && (
-        <div className={styles.detail}>
-          <Button
-            ref={detailBack}
-            variant="quiet"
-            className={styles.back}
-            onClick={() => {
-              update({ selectedPresetId: null });
-              requestAnimationFrame(() => {
-                const result =
-                  resultsElement.current?.querySelector<HTMLElement>(
-                    `[data-preset-id="${selected.id}"]`,
-                  );
-                (result ?? categoryInput.current)?.focus({
-                  preventScroll: true,
-                });
+        <PresetDetail
+          preset={selected}
+          inCart={selectedInCart}
+          owned={selectedOwned}
+          onAddPreset={onAddPreset}
+          onRemovePreset={onRemovePreset}
+          onSelectLocation={onSelectLocation}
+          backRef={detailBack}
+          onBack={() => {
+            update({ selectedPresetId: null });
+            requestAnimationFrame(() => {
+              const result = resultsElement.current?.querySelector<HTMLElement>(
+                `[data-preset-id="${selected.id}"]`,
+              );
+              (result ?? categoryInput.current)?.focus({
+                preventScroll: true,
               });
-            }}
-          >
-            <ArrowLeft size={16} aria-hidden="true" />
-            All presets
-          </Button>
-          <div className={styles.productHeading}>
-            <span className={styles.productNumber} aria-hidden="true">
-              {String(selected.number).padStart(2, "0")}
-            </span>
-            <div>
-              <p className={styles.eyebrow}>{selected.category}</p>
-              <h3>{selected.name}</h3>
-            </div>
-          </div>
-          <div className={styles.purchase}>
-            <p>$1.99</p>
-            <Button
-              variant="solid"
-              className={styles.buy}
-              disabled={selectedOwned || (selectedInCart && !onRemovePreset)}
-              onClick={() => {
-                if (selectedOwned) return;
-                if (selectedInCart) onRemovePreset?.(selected.id);
-                else onAddPreset(selected.id);
-              }}
-            >
-              {selectedOwned
-                ? "Owned"
-                : selectedInCart
-                  ? onRemovePreset
-                    ? "Remove from cart"
-                    : "In cart"
-                  : "Add to cart"}
-              {selectedOwned || selectedInCart ? (
-                <Check size={18} aria-hidden="true" />
-              ) : (
-                <Plus size={18} aria-hidden="true" />
-              )}
-            </Button>
-            {selectedOwned && <PresetDownloadButton presetId={selected.id} />}
-          </div>
-          <div className={styles.facts}>
-            <h4>About this preset</h4>
-            <p>
-              Compatibility, included files and license details are not
-              published yet.
-            </p>
-            <Link
-              href={`/presets/${selected.id}`}
-              className={buttonVariants({
-                variant: "quiet",
-                className: styles.back,
-              })}
-            >
-              Open preset page
-            </Link>
-          </div>
-          <div className={styles.facts}>
-            <h4>Photographs & locations</h4>
-            {locations.length > 0 ? (
-              <ul className={styles.locations}>
-                {locations.map((location) => (
-                  <li key={location.locationId}>
-                    {onSelectLocation ? (
-                      <Button
-                        variant="control"
-                        className={styles.action}
-                        onClick={() =>
-                          onSelectLocation(location.locationId, selected.id)
-                        }
-                      >
-                        {location.locationName}
-                        <ArrowUpRight size={16} aria-hidden="true" />
-                      </Button>
-                    ) : (
-                      <span>{location.locationName}</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>Photo and location links are not available yet.</p>
-            )}
-            <p>Before-and-after previews are not available yet.</p>
-          </div>
-        </div>
+            });
+          }}
+        />
       )}
     </section>
+  );
+}
+
+export function PresetDetail({
+  preset,
+  inCart,
+  owned,
+  onAddPreset,
+  onRemovePreset,
+  onSelectLocation,
+  onBack,
+  backLabel = "All presets",
+  backRef,
+  standalone = false,
+}: {
+  preset: NonNullable<ReturnType<typeof getCatalogPreset>>;
+  inCart: boolean;
+  owned: boolean;
+  onAddPreset: (id: string) => void;
+  onRemovePreset?: (id: string) => void;
+  onSelectLocation?: (locationId: string, presetId: string) => void;
+  onBack: () => void;
+  backLabel?: string;
+  backRef?: Ref<HTMLButtonElement>;
+  /** Renders its own scroll container outside the catalog. */
+  standalone?: boolean;
+}) {
+  const locations = getVerifiedPresetLocations(preset.id);
+  const detail = (
+    <div className={styles.detail}>
+      <Button
+        ref={backRef}
+        variant="quiet"
+        className={styles.back}
+        onClick={onBack}
+      >
+        <ArrowLeft size={16} aria-hidden="true" />
+        {backLabel}
+      </Button>
+      <div className={styles.productHeading}>
+        <span className={styles.productNumber} aria-hidden="true">
+          {String(preset.number).padStart(2, "0")}
+        </span>
+        <div>
+          <p className={styles.eyebrow}>{preset.category}</p>
+          <h3>{preset.name}</h3>
+        </div>
+      </div>
+      <div className={styles.purchase}>
+        <p>$1.99</p>
+        <Button
+          variant="solid"
+          className={styles.buy}
+          disabled={owned || (inCart && !onRemovePreset)}
+          onClick={() => {
+            if (owned) return;
+            if (inCart) onRemovePreset?.(preset.id);
+            else onAddPreset(preset.id);
+          }}
+        >
+          {owned
+            ? "Owned"
+            : inCart
+              ? onRemovePreset
+                ? "Remove from cart"
+                : "In cart"
+              : "Add to cart"}
+          {owned || inCart ? (
+            <Check size={18} aria-hidden="true" />
+          ) : (
+            <Plus size={18} aria-hidden="true" />
+          )}
+        </Button>
+        {owned && <PresetDownloadButton presetId={preset.id} />}
+      </div>
+      <div className={styles.facts}>
+        <h4>About this preset</h4>
+        <p>
+          Compatibility, included files and license details are not published
+          yet.
+        </p>
+        <Link
+          href={`/presets/${preset.id}`}
+          className={buttonVariants({
+            variant: "quiet",
+            className: styles.back,
+          })}
+        >
+          Open preset page
+        </Link>
+      </div>
+      <div className={styles.facts}>
+        <h4>Photographs & locations</h4>
+        {locations.length > 0 ? (
+          <ul className={styles.locations}>
+            {locations.map((location) => (
+              <li key={location.locationId}>
+                {onSelectLocation ? (
+                  <Button
+                    variant="control"
+                    className={styles.action}
+                    onClick={() =>
+                      onSelectLocation(location.locationId, preset.id)
+                    }
+                  >
+                    {location.locationName}
+                    <ArrowUpRight size={16} aria-hidden="true" />
+                  </Button>
+                ) : (
+                  <span>{location.locationName}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Photo and location links are not available yet.</p>
+        )}
+        <p>Before-and-after previews are not available yet.</p>
+      </div>
+    </div>
+  );
+  return standalone ? (
+    <section
+      className={`${styles.catalog} ${styles.standalone}`}
+      data-drawer-scroll
+    >
+      {detail}
+    </section>
+  ) : (
+    detail
   );
 }

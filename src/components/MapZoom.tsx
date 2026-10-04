@@ -30,10 +30,13 @@ export default function MapZoom({
   mode,
   zoom,
   onChange,
+  inline = false,
 }: {
   mode: "globe" | "map";
   zoom: number;
   onChange: (mode: "globe" | "map", zoom: number) => void;
+  /** Desktop keeps the slider in the command bar instead of a popover. */
+  inline?: boolean;
 }) {
   const value = zoomStop(mode, zoom);
   const [draft, setDraft] = useState<number | null>(null);
@@ -63,6 +66,56 @@ export default function MapZoom({
     });
     return () => animation.stop();
   }, [current, reduced, keyboardInteraction, visualPosition]);
+  const control = (
+    <div className="zoom-control">
+      <div className="zoom-track">
+        <motion.div className="zoom-fill" style={{ width: fillWidth }} />
+        {zoomLevels.map((_, index) => (
+          <span
+            key={index}
+            className={`zoom-dot ${index <= current ? "is-filled" : ""}`}
+            style={{ left: zoomStopPosition(index) }}
+          />
+        ))}
+        <motion.span
+          className="zoom-thumb"
+          style={{
+            left: thumbLeft,
+            transform: "translateX(-50%)",
+          }}
+        />
+        <Slider
+          className="map-zoom-slider [&_[data-slot=slider-thumb]]:size-9"
+          aria-label="Map zoom level"
+          aria-valuetext={zoomLabels[current]}
+          value={[current]}
+          min={0}
+          max={5}
+          step={1}
+          largeStep={1}
+          onPointerDownCapture={() => visualPosition.jump(current)}
+          onKeyDownCapture={() => visualPosition.jump(current)}
+          onPointerCancel={() => {
+            visualPosition.jump(value);
+            setDraft(null);
+          }}
+          onValueChange={(next, details) => {
+            setKeyboardInteraction(details.reason === "keyboard");
+            const stop = Math.round(Array.isArray(next) ? next[0] : next);
+            if (stop !== current && details.reason !== "none")
+              selectionFeedback();
+            setDraft(stop);
+          }}
+          onValueCommitted={(next) => {
+            const stop = Math.round(Array.isArray(next) ? next[0] : next);
+            setDraft(null);
+            onChange(stop === 0 ? "globe" : "map", zoomLevels[stop] || 1);
+          }}
+        />
+      </div>
+    </div>
+  );
+  if (inline) return control;
   return (
     <Popover
       onOpenChange={(open, details) => {
@@ -119,53 +172,7 @@ export default function MapZoom({
         className="map-zoom-popover explorer-overlay w-[236px] gap-0 rounded-none border-0 bg-transparent p-0 shadow-none ring-0 transition-[opacity,transform] duration-150 ease-[cubic-bezier(0.2,0,0,1)] data-open:animate-none data-closed:animate-none data-ending-style:duration-100 data-[keyboard=true]:transition-none motion-reduce:transition-none"
       >
         <PopoverTitle className="sr-only">Map zoom</PopoverTitle>
-        <div className="zoom-control">
-          <div className="zoom-track">
-            <motion.div className="zoom-fill" style={{ width: fillWidth }} />
-            {zoomLevels.map((_, index) => (
-              <span
-                key={index}
-                className={`zoom-dot ${index <= current ? "is-filled" : ""}`}
-                style={{ left: zoomStopPosition(index) }}
-              />
-            ))}
-            <motion.span
-              className="zoom-thumb"
-              style={{
-                left: thumbLeft,
-                transform: "translateX(-50%)",
-              }}
-            />
-            <Slider
-              className="map-zoom-slider [&_[data-slot=slider-thumb]]:size-9"
-              aria-label="Map zoom level"
-              aria-valuetext={zoomLabels[current]}
-              value={[current]}
-              min={0}
-              max={5}
-              step={1}
-              largeStep={1}
-              onPointerDownCapture={() => visualPosition.jump(current)}
-              onKeyDownCapture={() => visualPosition.jump(current)}
-              onPointerCancel={() => {
-                visualPosition.jump(value);
-                setDraft(null);
-              }}
-              onValueChange={(next, details) => {
-                setKeyboardInteraction(details.reason === "keyboard");
-                const stop = Math.round(Array.isArray(next) ? next[0] : next);
-                if (stop !== current && details.reason !== "none")
-                  selectionFeedback();
-                setDraft(stop);
-              }}
-              onValueCommitted={(next) => {
-                const stop = Math.round(Array.isArray(next) ? next[0] : next);
-                setDraft(null);
-                onChange(stop === 0 ? "globe" : "map", zoomLevels[stop] || 1);
-              }}
-            />
-          </div>
-        </div>
+        {control}
       </PopoverContent>
     </Popover>
   );

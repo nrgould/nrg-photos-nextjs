@@ -169,11 +169,13 @@ export default function ExploreChallenges({
   progress: input,
   onRevealHint,
   onBack,
+  backLabel = "Back to photographs",
   claimBoundary = unavailableClaim,
 }: {
   progress: ExplorationProgress;
   onRevealHint: (challengeId: string) => void;
   onBack: () => void;
+  backLabel?: string;
   claimBoundary?: ExplorationClaimBoundary;
 }) {
   const id = useId();
@@ -214,7 +216,7 @@ export default function ExploreChallenges({
     >
       <header className={styles.header}>
         <Button variant="quiet" className={styles.back} onClick={onBack}>
-          <ArrowLeft size={16} aria-hidden="true" /> Back to photographs
+          <ArrowLeft size={16} aria-hidden="true" /> {backLabel}
         </Button>
         <div className={styles.heading}>
           <Leaf size={23} strokeWidth={1.5} aria-hidden="true" />

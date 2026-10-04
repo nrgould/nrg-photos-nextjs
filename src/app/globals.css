@@ -2725,10 +2725,12 @@ html[data-photo-theme="dark"] {
     bottom: 24px;
     left: 20px;
   }
+  /* Desktop: inline in the command bar, matching its 44px controls. */
   .explorer .zoom-control {
     width: 188px;
-    height: 52px;
-    padding: 7px;
+    height: 44px;
+    padding: 4px;
+    box-shadow: inset 0 1px 1px var(--neutral-500);
   }
   .map-zoom-slider {
     position: absolute;
@@ -2889,6 +2891,30 @@ html[data-photo-theme="dark"] {
       top: 76px;
       bottom: auto;
       left: 16px;
+    }
+  }
+  /* A nested drawer stacks over the drawer, which recedes behind it. Vaul
+     writes transition inline, so the property list is held here. */
+  .location-drawer[data-vaul-drawer] {
+    transition-property: transform, scale, translate !important;
+  }
+  .location-drawer[data-nested-open="true"] {
+    scale: 0.96;
+    translate: 0 -16px;
+    transform-origin: 50% 0;
+  }
+  /* Shorter than the drawer's 75% snap so the receding drawer shows above. */
+  .location-drawer.nested-drawer[data-vaul-drawer] {
+    height: calc(75dvh - 8px);
+    border-top: 1px solid var(--line);
+  }
+  @media (min-width: 701px) {
+    .location-drawer[data-nested-open="true"] {
+      translate: -16px 0;
+      transform-origin: 0 50%;
+    }
+    .location-drawer.nested-drawer[data-vaul-drawer] {
+      height: auto;
     }
   }
   @media (prefers-reduced-motion: reduce) {

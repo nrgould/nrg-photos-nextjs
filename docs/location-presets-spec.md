@@ -23,7 +23,7 @@ Continue `nrgould/nrg-photos-nextjs` from the existing `photo_portfolio-redesign
 12. Favorite certain locations or photos and see it like a “cart” - shadcn sidebar
 13. Texture on certain components/controls [reference image inspected locally]
 
-The latest mobile simplification removes the map contact and filter controls, preset search, and explorer graticule. Contact remains available through the existing site route and navigation. Catalog/category, cart and challenge content use a single scroll surface. A sufficiently long downward pull dismisses any drawer snap; scrolling away from the top stays native. These directions supersede earlier map controls and search requirements.
+The latest mobile simplification removes the map contact and filter controls, preset search, and explorer graticule. Contact remains available through the existing site route and navigation. Catalog/category, cart and challenge content use a single scroll surface. Cart, challenges and preset detail open as a nested drawer over the explorer drawer. A sufficiently long downward pull dismisses any drawer snap; scrolling away from the top stays native. These directions supersede earlier map controls and search requirements.
 
 The original sidebar reference is superseded by the later full-screen map, no navigation sidebar, and explicitly requested contextual right photo canvas/mobile bottom sheet. The original texture/glass suggestions do not override the latest neutral shadcn styling and restrained zoom direction.
 

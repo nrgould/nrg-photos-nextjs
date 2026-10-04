@@ -49,6 +49,16 @@ const introSettleDegrees =
   (2 * introSpinDegrees * introSettleMs) / (3 * introSpinMs);
 // Desktop thumbnails render larger; marker layout runs in 48px marker units.
 const desktopMarkerScale = 4 / 3;
+// A wide screen shows more map at the same engine zoom, so each desktop zoom
+// stop sits closer in.
+const desktopZoomOffset = 0.75;
+const zoomOffset = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(min-width: 701px)").matches
+    ? desktopZoomOffset
+    : 0;
+const toEngineZoom = (scale: number) => engineZoom(scale) + zoomOffset();
+const toUiZoom = (zoom: number) => uiZoom(zoom - zoomOffset());
 
 function colors() {
   const css = getComputedStyle(document.documentElement);
@@ -216,10 +226,14 @@ export default function PlacesMap(props: {
   const markerMembershipSeen = useRef(false);
   const MarkerClass = useRef<typeof import("maplibre-gl").Marker | null>(null);
   const [level, setLevel] = useState<MarkerLevel>(() =>
-    markerLevel(mode === "globe" ? 0 : engineZoom(zoom), "country"),
+    markerLevel(
+      mode === "globe" ? 0 : toEngineZoom(zoom),
+      "country",
+      toEngineZoom(3),
+    ),
   );
   const liveLevel = useRef(level);
-  const breakoutZoom = useRef(engineZoom(3));
+  const breakoutZoom = useRef(toEngineZoom(3));
   const nodes = useMemo(
     () => getMapNodes(props.places, level),
     [props.places, level],
@@ -282,12 +296,12 @@ export default function PlacesMap(props: {
           style: style(projection.current.mix),
           center: initialCenter,
           zoom: cameraZoom(
-            initial.mode === "globe" ? 0 : engineZoom(initial.zoom),
+            initial.mode === "globe" ? 0 : toEngineZoom(initial.zoom),
             initialCenter[1],
             projection.current.mix,
           ),
           minZoom: 0,
-          maxZoom: engineZoom(10),
+          maxZoom: toEngineZoom(10),
           transformConstrain: (center, zoom) => {
             const camera = constrainCamera(
               center,
@@ -314,7 +328,7 @@ export default function PlacesMap(props: {
           nativeZoomIntent.current.active = false;
           const nextMode =
             forcedMode ?? projectionMode(scale, projection.current.mode);
-          const nextZoom = uiZoom(scale);
+          const nextZoom = toUiZoom(scale);
           nativeSync.current = {
             mode: nextMode,
             zoom: nextZoom,
@@ -415,7 +429,7 @@ export default function PlacesMap(props: {
           if (next !== liveLevel.current) {
             liveLevel.current = next;
             setLevel(next);
-            if (next === "country") breakoutZoom.current = engineZoom(3);
+            if (next === "country") breakoutZoom.current = toEngineZoom(3);
           }
         });
         instance.on("render", () => {
@@ -596,7 +610,7 @@ export default function PlacesMap(props: {
                 ),
               );
             }
-            const settledZoom = uiZoom(settled.scale);
+            const settledZoom = toUiZoom(settled.scale);
             nativeSync.current = {
               mode: settled.mode,
               zoom: settledZoom,
@@ -872,7 +886,7 @@ export default function PlacesMap(props: {
     navigationTarget.current = null;
     const targetMix = mode === "globe" ? 0 : 1;
     const targetZoom = cameraZoom(
-      mode === "globe" ? 0 : engineZoom(zoom),
+      mode === "globe" ? 0 : toEngineZoom(zoom),
       recenter && targetCenter ? targetCenter[1] : instance.getCenter().lat,
       targetMix,
     );
@@ -903,11 +917,11 @@ export default function PlacesMap(props: {
                 ? Math.min(height * 0.5, Math.max(height * 0.25, 180)) + 40
                 : 72,
           },
-          maxZoom: engineZoom(3.5),
+          maxZoom: toEngineZoom(3.5),
         })
       : undefined;
     if (framed?.zoom !== undefined)
-      breakoutZoom.current = Math.min(engineZoom(3), framed.zoom - 0.2);
+      breakoutZoom.current = Math.min(toEngineZoom(3), framed.zoom - 0.2);
     const settle = () =>
       instance.easeTo({
         ...(framed
@@ -1098,7 +1112,7 @@ export default function PlacesMap(props: {
                     else props.onChoose(node.collectionId);
                     if (node.kind === "country")
                       props.onZoomChange(
-                        Math.max(3.5, uiZoom(map.current?.getZoom() ?? 0)),
+                        Math.max(3.5, toUiZoom(map.current?.getZoom() ?? 0)),
                         "map",
                       );
                   }}
