@@ -137,18 +137,6 @@ export function toggleId(ids: string[], id: string) {
 export function addPack(ids: string[], pack: string[]) {
   return [...new Set([...ids, ...pack])];
 }
-export function shuffleIndex(
-  current: number,
-  count: number,
-  random = Math.random(),
-) {
-  return count < 2
-    ? current
-    : (current +
-        1 +
-        Math.floor(Math.min(Math.max(random, 0), 0.999999) * (count - 1))) %
-        count;
-}
 export function packManifest(ids: string[]) {
   return {
     version: 1,

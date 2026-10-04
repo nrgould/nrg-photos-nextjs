@@ -57,3 +57,16 @@ export const travelPlaces: TravelPlace[] = [
     photos: [find("Lake James"), find("A new chapter")],
   },
 ];
+
+export function shuffleIndex(
+  current: number,
+  count: number,
+  random = Math.random(),
+) {
+  return count < 2
+    ? current
+    : (current +
+        1 +
+        Math.floor(Math.min(Math.max(random, 0), 0.999999) * (count - 1))) %
+        count;
+}

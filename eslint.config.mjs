@@ -4,5 +4,11 @@ import nextTs from "eslint-config-next/typescript";
 export default defineConfig([
   ...nextVitals,
   ...nextTs,
-  globalIgnores([".next/**", ".impeccable/**", "next-env.d.ts"]),
+  globalIgnores([
+    ".next/**",
+    ".impeccable/**",
+    "next-env.d.ts",
+    "public/maplibre/**",
+    "public/maps/**",
+  ]),
 ]);

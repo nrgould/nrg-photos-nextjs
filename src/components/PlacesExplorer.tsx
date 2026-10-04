@@ -7,11 +7,12 @@ import {
   type CSSProperties,
 } from "react";
 import Link from "next/link";
+import { motion, useReducedMotion } from "motion/react";
 import {
   ArrowLeft,
   ArrowRight,
-  Globe2,
-  Map,
+  ChevronDown,
+  ChevronUp,
   Mail,
   Moon,
   Search,
@@ -19,11 +20,9 @@ import {
   Sun,
   X,
 } from "lucide-react";
-import { travelPlaces } from "@/lib/places";
-import { zoomStops, zoomLabels } from "@/lib/globe";
-import { shuffleIndex } from "@/lib/presets";
+import { travelPlaces, shuffleIndex } from "@/lib/places";
 import { Button } from "./ui/button";
-import { Slider } from "./ui/slider";
+import MapZoom from "./MapZoom";
 import { Separator } from "./ui/separator";
 import {
   Tooltip,
@@ -48,6 +47,14 @@ import {
 import PhotoImage from "./PhotoImage";
 import Lightbox from "./Lightbox";
 import PlacesMap from "./PlacesMap";
+
+const MotionButton = motion.create(Button);
+const separatorStyle: CSSProperties = {
+  height: 20,
+  width: 1,
+  alignSelf: "center",
+  flex: "0 0 1px",
+};
 
 function Control({
   label,
@@ -74,11 +81,13 @@ function Control({
   );
 }
 export default function PlacesExplorer() {
+  const reducedMotion = useReducedMotion();
   const [selected, setSelected] = useState(0);
   const [mode, setMode] = useState<"globe" | "map">("globe");
-  const [zoom, setZoom] = useState(2);
+  const [zoom, setZoom] = useState(3);
   const [intro, setIntro] = useState(true);
   const [revision, setRevision] = useState(0);
+  const [zoomRevision, setZoomRevision] = useState(0);
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [open, setOpen] = useState(false);
   const [compactFraction, setCompactFraction] = useState(0.25);
@@ -193,23 +202,21 @@ export default function PlacesExplorer() {
             <Control label="Find a place" onClick={() => setCommand(true)}>
               <Search size={18} />
             </Control>
-            <Control
-              label={mode === "map" ? "Show globe" : "Show flat map"}
-              onClick={() => {
-                setIntro(false);
-                setMode(mode === "map" ? "globe" : "map");
-              }}
-            >
-              {mode === "map" ? <Globe2 size={18} /> : <Map size={18} />}
-            </Control>
           </div>
           <PlacesMap
             canvasOpen={open}
             selected={selected}
             mode={mode}
             zoom={zoom}
+            onZoomChange={(nextZoom, nextMode) => {
+              setZoom(nextZoom);
+              setMode(nextMode);
+              setIntro(false);
+            }}
+            theme={theme}
             intro={intro}
             revision={revision}
+            zoomRevision={zoomRevision}
             onChoose={(index) => choose(index, true)}
             onIntroEnd={finishIntro}
           />
@@ -222,42 +229,6 @@ export default function PlacesExplorer() {
               Start exploring
             </Button>
           )}
-          <div className="map-controls">
-            <div className="zoom-control" data-disabled={mode === "globe"}>
-              <div className="zoom-track">
-                <div
-                  className="zoom-fill"
-                  style={{ width: `calc(36px + (100% - 36px) * ${zoom / 5})` }}
-                />
-                {zoomStops.map((_, index) => (
-                  <span
-                    key={index}
-                    className={`zoom-dot ${index <= zoom ? "is-filled" : ""}`}
-                    style={{
-                      left: `calc(18px + (100% - 36px) * ${index / 5})`,
-                    }}
-                  />
-                ))}
-                <span
-                  className="zoom-thumb"
-                  style={{ left: `calc(18px + (100% - 36px) * ${zoom / 5})` }}
-                />
-                <Slider
-                  className="map-zoom-slider"
-                  aria-label="Map zoom"
-                  value={[zoom]}
-                  min={0}
-                  max={5}
-                  step={1}
-                  aria-valuetext={zoomLabels[zoom]}
-                  disabled={mode === "globe"}
-                  onValueChange={(value) =>
-                    setZoom(Array.isArray(value) ? value[0] : value)
-                  }
-                />
-              </div>
-            </div>
-          </div>
         </div>
       </div>
       <div
@@ -281,7 +252,7 @@ export default function PlacesExplorer() {
           >
             <ArrowLeft size={18} />
           </Control>
-          <Separator orientation="vertical" />
+          <Separator orientation="vertical" style={separatorStyle} />
           <Control
             variant="quiet"
             label="Shuffle"
@@ -289,7 +260,7 @@ export default function PlacesExplorer() {
           >
             <Shuffle size={18} />
           </Control>
-          <Separator orientation="vertical" />
+          <Separator orientation="vertical" style={separatorStyle} />
           <Control
             variant="quiet"
             label="Next"
@@ -297,6 +268,17 @@ export default function PlacesExplorer() {
           >
             <ArrowRight size={18} />
           </Control>
+          <Separator orientation="vertical" style={separatorStyle} />
+          <MapZoom
+            mode={mode}
+            zoom={zoom}
+            onChange={(nextMode, nextZoom) => {
+              setZoomRevision((value) => value + 1);
+              setIntro(false);
+              setMode(nextMode);
+              setZoom(nextZoom);
+            }}
+          />
         </div>
       </div>
       {!open && (
@@ -391,9 +373,11 @@ export default function PlacesExplorer() {
               height: `${(snap === 0.25 ? compactFraction : Number(snap)) * 100}dvh`,
             }}
           >
-            <Button
+            <MotionButton
               variant="quiet"
               press={false}
+              whileTap={reducedMotion ? undefined : { scaleX: 0.96 }}
+              transition={{ type: "spring", stiffness: 500, damping: 28 }}
               ref={drawerHandle}
               onClick={(event) => {
                 if (event.detail === 0 || !dragged.current)
@@ -445,6 +429,17 @@ export default function PlacesExplorer() {
                 </DrawerDescription>
               </div>
               <Button
+                variant="quiet"
+                className="drawer-browse"
+                aria-label={
+                  expanded ? "Collapse photographs" : "Browse photographs"
+                }
+                onClick={() => changeSnap(expanded ? 0.25 : 0.75)}
+              >
+                {!expanded && <span>Browse</span>}
+                {expanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+              </Button>
+              <Button
                 variant="control"
                 aria-label="Close photographs"
                 onClick={() => setOpen(false)}
@@ -455,6 +450,7 @@ export default function PlacesExplorer() {
             <div
               ref={gallery}
               className="drawer-gallery"
+              data-photo-count={place.photos.length}
               data-vaul-no-drag={expanded ? "" : undefined}
               tabIndex={0}
               aria-label={`${place.name} photographs`}
@@ -462,6 +458,7 @@ export default function PlacesExplorer() {
                 if (!expanded && event.deltaY > 0) changeSnap(0.75);
               }}
               onKeyDown={(event) => {
+                if (event.target !== event.currentTarget) return;
                 if (
                   !expanded &&
                   ["ArrowDown", "PageDown", " "].includes(event.key)
@@ -473,9 +470,11 @@ export default function PlacesExplorer() {
             >
               {place.photos.map((photo, index) => (
                 <figure key={photo.src}>
-                  <Button
+                  <MotionButton
                     variant="quiet"
                     press={false}
+                    whileTap={reducedMotion ? undefined : { scale: 0.975 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 28 }}
                     className="gallery-photo"
                     aria-label={`View ${photo.title}`}
                     onClick={(event) => {
@@ -483,16 +482,19 @@ export default function PlacesExplorer() {
                       photoFocus.current = event.currentTarget;
                       setViewer(index);
                     }}
-                    onFocus={() => {
-                      if (index > 0 && !expanded) changeSnap(0.75);
-                    }}
                   >
                     <PhotoImage
                       photo={photo}
-                      priority={index === 0}
-                      sizes="(max-width: 700px) calc(100vw - 32px), 448px"
+                      sizes={
+                        !expanded
+                          ? `(max-width: 700px) ${Math.round(100 / place.photos.length)}vw, ${Math.round(358 / place.photos.length)}px`
+                          : place.photos.length === 2 ||
+                              (place.photos.length === 3 && index === 0)
+                            ? "(max-width: 700px) calc(100vw - 32px), 358px"
+                            : "(max-width: 700px) calc(50vw - 22px), 173px"
+                      }
                     />
-                  </Button>
+                  </MotionButton>
                   <figcaption>{photo.title}</figcaption>
                 </figure>
               ))}

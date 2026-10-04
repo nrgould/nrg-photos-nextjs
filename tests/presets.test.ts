@@ -5,11 +5,9 @@ import {
   curatedPacks,
   restoreCollection,
   addPack,
-  shuffleIndex,
   packManifest,
 } from "../src/lib/presets";
-import { travelPlaces } from "../src/lib/places";
-import { flatFrame, zoomStops } from "../src/lib/globe";
+import { travelPlaces, shuffleIndex } from "../src/lib/places";
 
 test("every sample recipe links to a real original and real locations", () => {
   for (const recipe of presets) {
@@ -60,36 +58,4 @@ test("shuffle excludes current location across random boundaries", () => {
       assert.ok(next >= 0 && next < 4);
     }
   assert.equal(shuffleIndex(0, 1), 0);
-});
-test("all map zoom stops center the selected place and produce valid local geography", () => {
-  for (const place of travelPlaces)
-    for (const zoom of zoomStops) {
-      const map = flatFrame(place.coordinates, zoom, [place.coordinates]);
-      assert.ok(map.land.length > 0);
-      assert.ok(!map.land.includes("NaN"));
-      assert.ok(Math.abs(map.points[0].position[0] - 420) < 0.001);
-      assert.ok(Math.abs(map.points[0].position[1] - 280) < 0.001);
-    }
-});
-
-test("map focus remains in the visible area beside a photo canvas", () => {
-  const center: [number, number] = [13.65, 47.56];
-  const desktop = flatFrame(center, 3, [center], [1327, 1030], [-150, 0]);
-  assert.deepEqual(desktop.points[0].position, [513.5, 515]);
-  const mobile = flatFrame(center, 3, [center], [390, 844], [0, -177.24]);
-  assert.equal(mobile.points[0].position[0], 195);
-  assert.ok(Math.abs(mobile.points[0].position[1] - 244.76) < 1e-8);
-});
-
-test("fractional camera zoom keeps map geometry and marker projection aligned", () => {
-  const center: [number, number] = [12.09, 46.69];
-  const first = flatFrame(center, 1, [center], [390, 844]);
-  for (const zoom of [1.25, 3.3874, 7.9]) {
-    const frame = flatFrame(center, zoom, [center], [390, 844], [0, -105.5]);
-    assert.equal(frame.land, first.land);
-    assert.equal(frame.grid, first.grid);
-    assert.ok(frame.transform.endsWith(`scale(${zoom})`));
-    assert.ok(Math.abs(frame.points[0].position[0] - 195) < 1e-8);
-    assert.ok(Math.abs(frame.points[0].position[1] - 316.5) < 1e-8);
-  }
 });

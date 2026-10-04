@@ -29,6 +29,7 @@ const explorerDisplay = Fraunces({
   axes: ["opsz", "SOFT", "WONK"],
   variable: "--font-explorer-display",
   display: "swap",
+  preload: false,
 });
 const explorerSans = Hanken_Grotesk({
   subsets: ["latin"],

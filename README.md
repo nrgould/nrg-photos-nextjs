@@ -4,7 +4,7 @@ A redesign of nicholasgouldphoto.com built with Next.js 16, React 19 and TypeScr
 
 ## Run locally
 
-Requires Node.js 22 or newer.
+Requires Node.js24 LTS. Use `nvm use` in this repository; see [runtime setup](docs/runtime.md).
 
 ```sh
 npm ci

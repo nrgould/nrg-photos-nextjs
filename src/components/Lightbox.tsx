@@ -1,6 +1,7 @@
 "use client";
-import { useRef, type RefObject } from "react";
+import { useRef, useState, type RefObject } from "react";
 import Image from "next/image";
+import { motion, useReducedMotion } from "motion/react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Photo } from "@/lib/photography";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,9 @@ export default function Lightbox({
   index: number | null;
   onIndexChange: (index: number | null) => void;
 }) {
-  const touchStart = useRef<number | null>(null);
+  const reducedMotion = useReducedMotion();
+  const touchStart = useRef<[number, number] | null>(null);
+  const [keyboardNavigation, setKeyboardNavigation] = useState(false);
   const move = (direction: number) =>
     index !== null &&
     onIndexChange((index + direction + photos.length) % photos.length);
@@ -32,11 +35,14 @@ export default function Lightbox({
       onOpenChange={(open) => !open && onIndexChange(null)}
     >
       <DialogContent
-        className="lightbox"
+        className="lightbox data-starting-style:scale-100"
         finalFocus={finalFocus}
         onKeyDown={(e) => {
-          if (e.key === "ArrowRight") move(1);
-          if (e.key === "ArrowLeft") move(-1);
+          if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+            e.preventDefault();
+            setKeyboardNavigation(true);
+            move(e.key === "ArrowRight" ? 1 : -1);
+          }
         }}
       >
         {current && (
@@ -56,29 +62,59 @@ export default function Lightbox({
             <div
               className="lightbox-image"
               onTouchStart={(e) => {
-                touchStart.current = e.touches[0].clientX;
+                setKeyboardNavigation(false);
+                touchStart.current =
+                  e.touches.length === 1
+                    ? [e.touches[0].clientX, e.touches[0].clientY]
+                    : null;
+              }}
+              onTouchCancel={() => {
+                touchStart.current = null;
               }}
               onTouchEnd={(e) => {
                 if (touchStart.current === null) return;
                 const distance =
-                  e.changedTouches[0].clientX - touchStart.current;
-                if (Math.abs(distance) > 50) move(distance > 0 ? -1 : 1);
+                  e.changedTouches[0].clientX - touchStart.current[0];
+                const vertical =
+                  e.changedTouches[0].clientY - touchStart.current[1];
+                if (
+                  Math.abs(distance) > 50 &&
+                  Math.abs(distance) > Math.abs(vertical)
+                )
+                  move(distance > 0 ? -1 : 1);
                 touchStart.current = null;
               }}
             >
-              <Image
+              <motion.div
                 key={current.src}
-                src={current.src}
-                alt={current.alt}
-                fill
-                sizes="90vw"
-                quality={85}
-              />
+                className="lightbox-photo"
+                initial={
+                  reducedMotion || keyboardNavigation
+                    ? false
+                    : { opacity: 0, transform: "scale(0.985)" }
+                }
+                animate={{ opacity: 1, transform: "scale(1)" }}
+                transition={{
+                  transform: { type: "spring", duration: 0.28, bounce: 0.14 },
+                  opacity: { duration: 0.14 },
+                }}
+              >
+                <Image
+                  src={current.src}
+                  alt={current.alt}
+                  fill
+                  sizes="90vw"
+                  quality={85}
+                />
+              </motion.div>
             </div>
             <div className="lightbox-footer">
               <Button
                 variant="icon"
-                onClick={() => move(-1)}
+                onClick={(event) => {
+                  setKeyboardNavigation(event.detail === 0);
+                  move(-1);
+                }}
                 aria-label="Previous photograph"
               >
                 <ChevronLeft strokeWidth={1.5} />
@@ -89,7 +125,10 @@ export default function Lightbox({
               </p>
               <Button
                 variant="icon"
-                onClick={() => move(1)}
+                onClick={(event) => {
+                  setKeyboardNavigation(event.detail === 0);
+                  move(1);
+                }}
                 aria-label="Next photograph"
               >
                 <ChevronRight strokeWidth={1.5} />
