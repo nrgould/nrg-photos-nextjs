@@ -28,6 +28,10 @@
   --neutral-800: #262626;
   --neutral-900: #181818;
   --neutral-950: #101010;
+  --explorer-water-light: #e7edef;
+  --explorer-land-light: #eeede8;
+  --explorer-water-dark: #192125;
+  --explorer-land-dark: #2b2d2c;
   --clay: #783e25;
   --image-outline: oklch(0 0 0 / 0.1);
   --image-outline-dark: oklch(1 0 0 / 0.1);
@@ -3111,6 +3115,39 @@ html[data-photo-theme="dark"] {
     pointer-events: none;
     white-space: nowrap;
   }
+  .map-marker-cover {
+    position: relative;
+    z-index: 1;
+  }
+  .map-marker-stack-layer {
+    position: absolute;
+    inset: 0;
+    border: 2px solid var(--paper);
+    border-radius: 10px;
+    background: var(--paper);
+    pointer-events: none;
+    transform: translate(3px, -3px) rotate(4deg);
+  }
+  .map-marker-stack-layer[data-layer="0"] {
+    transform: translate(-3px, -5px) rotate(-5deg);
+  }
+  .map-marker-count {
+    position: absolute;
+    right: -5px;
+    bottom: -5px;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 10px/1 var(--sans);
+    pointer-events: none;
+  }
   .map-photo-marker:focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 4px;
@@ -3160,11 +3197,26 @@ html[data-photo-theme="dark"] {
     left: calc(var(--callout-x) - 24px);
     top: calc(var(--callout-y) - 24px);
   }
+  .map-thumbnail-host[data-label-side="above"] .map-marker-label {
+    top: auto;
+    bottom: 53px;
+  }
+  .map-thumbnail-host[data-label-hidden="true"] .map-marker-label {
+    opacity: 0;
+  }
+  .map-thumbnail-host:focus-within .map-marker-label {
+    opacity: 1;
+  }
+  @media (hover: hover) {
+    .map-thumbnail-host:has(.map-photo-marker:hover) .map-marker-label {
+      opacity: 1;
+    }
+  }
   .map-marker-leader {
     position: absolute;
-    inset: -80px;
-    width: 160px;
-    height: 160px;
+    inset: -44px;
+    width: 88px;
+    height: 88px;
     overflow: visible;
     pointer-events: none;
     color: var(--ink);

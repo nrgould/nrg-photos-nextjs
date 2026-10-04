@@ -2,6 +2,19 @@
 
 Authoritative scope: October 3 daily note task “Add presets to map locations, connect to edits that I used”, all nested items, plus Nicholas's subsequent corrections. The current acceptance criteria below supersede earlier screenshots and layout drafts.
 
+## Current overnight authorization, October 4
+
+Nicholas authorized continuing all remaining stages sequentially without waiting for another design review. The historical map-only acceptance and deferred sections below document earlier checkpoints; this section supersedes their pause gates.
+
+1. Finish the verified map/filter checkpoint, then fix excessive globe callout offsets and make globe/flat projection changes continuous and interruptible.
+2. At global scale show country stacks; as the visitor zooms in, reveal only source-verified city/region references. Preserve exact original photo membership, stable IDs and filtered counts. Representative pins are not camera GPS. Italy intentionally represents the Dolomites; finer named locations need separate audited references.
+3. Apply the approved subtle palette to both map projections: blue-gray water and warm off-white land in light mode; deep blue-gray water and charcoal land in dark mode. Keep labels/borders quiet, controls neutral with dark-green selection, and photos primary. No terrain/detail expansion or external tiles.
+4. Restore a direct 21-preset catalog plus Photos/Presets drawer modes, curated collection and custom selection, then cart pricing at USD 1.99 per distinct paid preset with 20% off the eligible subtotal at ten or more. Cart collection and server-verified ownership are separate.
+5. Implement/test Clerk, Stripe Checkout, signed idempotent fulfillment, entitlement and protected-delivery code. Missing credentials, durable persistence, product/Price mapping, legal terms and approved private packages block only configured operation; unconfigured routes must fail closed and UI must explain availability honestly.
+6. Add local exploration progress toward five distinct verified places and photo-specific challenges. Local progress is not a paid or free entitlement. Claims require server validation and once-per-account policy. Do not invent the unconfirmed dog photograph or before/after exports.
+
+Prints and NAS remain TODO only. No live charges, account provisioning, persistent access/security changes, private archive scan/upload, merge or production promotion. Each stage gets its own verified commit/preview and CI/review check. The existing portfolio, contact behavior and original worktree remain protected.
+
 ## Foundation
 
 Continue `nrgould/nrg-photos-nextjs` from the existing `photo_portfolio-redesign` worktree, branch `codex/photography-redesign`, head `f078128`. Its local refinements are preserved in baseline commit `4909bd9` in an isolated checkout. The original worktree is untouched. Supported Codex task discovery did not return the original photography session; filesystem and git independently confirmed its worktree. Preserve all original photos, provenance, SSR via `connection()`, original routes and contact behavior.

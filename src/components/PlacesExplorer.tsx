@@ -22,6 +22,7 @@ import {
   X,
 } from "lucide-react";
 import { travelPlaces } from "@/lib/places";
+import { getMapNode, getMapNodes, type MapNode } from "@/lib/map-hierarchy";
 import {
   activeFilterCount,
   defaultMapFilters,
@@ -100,6 +101,7 @@ function Control({
 export default function PlacesExplorer() {
   const reducedMotion = useReducedMotion();
   const [selected, setSelected] = useState<string | null>(travelPlaces[0].id);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [filters, setFilters] = useState(() => defaultMapFilters(travelPlaces));
   const [filtersOpen, setFiltersOpen] = useState(false);
   const filteredPlaces = useMemo(
@@ -141,20 +143,53 @@ export default function PlacesExplorer() {
     setSnap(next);
     if (next === 0.25) gallery.current?.scrollTo(0, 0);
   }
-  const place = filteredPlaces.find((candidate) => candidate.id === selected);
+  const place = useMemo(() => {
+    const collection = filteredPlaces.find(
+      (candidate) => candidate.id === selected,
+    );
+    const node = selectedNodeId
+      ? getMapNode(selectedNodeId, filteredPlaces)
+      : null;
+    return collection && node
+      ? {
+          ...collection,
+          name: node.label,
+          photos: node.photos,
+          referenceLabel: node.referenceLabel,
+        }
+      : collection;
+  }, [filteredPlaces, selected, selectedNodeId]);
+  const searchNodes = useMemo(
+    () => [
+      ...getMapNodes(filteredPlaces, "country"),
+      ...getMapNodes(filteredPlaces, "location"),
+    ],
+    [filteredPlaces],
+  );
+  const locationCount = searchNodes.filter(
+    (node) => node.kind === "location",
+  ).length;
   const viewerIndex =
     place?.photos.findIndex((photo) => photo.src === viewer) ?? -1;
   const expanded = Number(snap) >= 0.75;
   function updateFilters(next: FilterState) {
     const nextPlaces = filterPlaces(travelPlaces, next);
-    const nextSelected = retainSelection(nextPlaces, selected);
-    const nextPlace = nextPlaces.find(
+    const nextNode = selectedNodeId
+      ? getMapNode(selectedNodeId, nextPlaces)
+      : null;
+    const nextSelected =
+      selectedNodeId && !nextNode
+        ? null
+        : retainSelection(nextPlaces, selected);
+    const nextCollection = nextPlaces.find(
       (candidate) => candidate.id === nextSelected,
     );
+    const nextPlace = nextNode ?? nextCollection;
     setFilters(next);
     setSelected(nextSelected);
     setIntro(false);
     if (!nextPlace) {
+      setSelectedNodeId(null);
       drawerOrigin.current = filterTrigger.current;
       setOpen(false);
       setViewer(null);
@@ -316,6 +351,7 @@ export default function PlacesExplorer() {
   function choose(id: string, showPhotos = false) {
     gallery.current?.scrollTo(0, 0);
     setSelected(id);
+    setSelectedNodeId(null);
     setViewer(null);
     setIntro(false);
     setRevision((r) => r + 1);
@@ -332,6 +368,12 @@ export default function PlacesExplorer() {
     try {
       sessionStorage.setItem("photo-map-intro", "seen");
     } catch {}
+  }
+  function chooseNode(node: MapNode) {
+    choose(node.collectionId, true);
+    setSelectedNodeId(node.id);
+    setMode("map");
+    setZoom((current) => Math.max(current, 3.5));
   }
   function changeTheme() {
     const next = theme === "light" ? "dark" : "light";
@@ -407,6 +449,7 @@ export default function PlacesExplorer() {
             places={filteredPlaces}
             canvasOpen={open}
             selected={selected}
+            selectedNodeId={selectedNodeId}
             mode={mode}
             zoom={zoom}
             onZoomChange={(nextZoom, nextMode) => {
@@ -419,6 +462,7 @@ export default function PlacesExplorer() {
             revision={revision}
             zoomRevision={zoomRevision}
             onChoose={(id) => choose(id, true)}
+            onChooseNode={chooseNode}
             onIntroEnd={finishIntro}
           />
           {intro && (
@@ -516,7 +560,7 @@ export default function PlacesExplorer() {
               onClear={clearFilters}
               activeCount={activeCount}
               photoCount={photoCount}
-              locationCount={filteredPlaces.length}
+              locationCount={locationCount}
               open={filtersOpen}
               onOpenChange={setFiltersOpen}
               triggerRef={filterTrigger}
@@ -757,17 +801,21 @@ export default function PlacesExplorer() {
               <CommandEmpty>
                 No places found{activeCount ? " within these filters" : ""}.
               </CommandEmpty>
-              {filteredPlaces.map((p) => (
+              {searchNodes.map((node) => (
                 <CommandItem
-                  key={p.id}
-                  value={`${p.name} ${p.location}`}
+                  key={node.id}
+                  value={`${node.label} ${node.referenceLabel} ${filteredPlaces.find((collection) => collection.id === node.collectionId)?.name ?? ""} ${filteredPlaces.find((collection) => collection.id === node.collectionId)?.location ?? ""}`}
                   onSelect={() => {
-                    choose(p.id, true);
+                    chooseNode(node);
                     setCommand(false);
                   }}
                 >
-                  {p.name}
-                  <span>{p.location}</span>
+                  {node.label}
+                  <span>
+                    {node.kind === "country"
+                      ? "All photographs"
+                      : node.referenceLabel}
+                  </span>
                 </CommandItem>
               ))}
             </CommandList>
@@ -786,9 +834,8 @@ export default function PlacesExplorer() {
       />
       <span className="sr-only" aria-live="polite">
         {place?.name ?? "No location selected"}. {photoCount}{" "}
-        {photoCount === 1 ? "photograph" : "photographs"} in{" "}
-        {filteredPlaces.length}{" "}
-        {filteredPlaces.length === 1 ? "location" : "locations"}.
+        {photoCount === 1 ? "photograph" : "photographs"} in {locationCount}{" "}
+        {locationCount === 1 ? "location" : "locations"}.
       </span>
     </TooltipProvider>
   );

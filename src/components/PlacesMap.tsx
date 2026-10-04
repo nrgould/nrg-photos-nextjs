@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import type {
@@ -8,22 +8,27 @@ import type {
   StyleSpecification,
 } from "maplibre-gl";
 import { travelPlaces, type TravelPlace } from "@/lib/places";
+import { getMapNodes, type MapNode } from "@/lib/map-hierarchy";
+import {
+  continuousProjection,
+  constrainCamera,
+  engineZoom,
+  markerLevel,
+  markerLabels,
+  markerOffsets,
+  uiZoom,
+  type MarkerLevel,
+} from "@/lib/map-camera";
 import { Button } from "./ui/button";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-const engineZoom = (scale: number) => Math.log2((scale * 250 * Math.PI) / 512);
-const uiZoom = (zoom: number) =>
-  Math.max(1, Math.min(10, (2 ** zoom * 512) / (250 * Math.PI)));
-// Separate the nearby Alpine collections with visible leaders; the dot stays geographic.
-const markerCallout = (index: number): [number, number] =>
-  index === 0 ? [42, -46] : index === 1 ? [-42, 46] : [0, -44];
 function colors() {
   const css = getComputedStyle(document.documentElement);
   const token = (name: string) => css.getPropertyValue(name).trim();
   const dark = document.documentElement.dataset.photoTheme === "dark";
   return {
-    water: token(dark ? "--neutral-900" : "--neutral-50"),
-    land: token(dark ? "--neutral-800" : "--neutral-200"),
+    water: token(dark ? "--explorer-water-dark" : "--explorer-water-light"),
+    land: token(dark ? "--explorer-land-dark" : "--explorer-land-light"),
     edge: token(dark ? "--neutral-600" : "--neutral-500"),
     grid: token(dark ? "--neutral-700" : "--neutral-200"),
     label: token(dark ? "--neutral-300" : "--neutral-600"),
@@ -38,6 +43,7 @@ function style(): StyleSpecification {
     .replaceAll('"', "");
   return {
     version: 8,
+    projection: continuousProjection,
     sources: {
       land: {
         type: "geojson",
@@ -124,6 +130,7 @@ function style(): StyleSpecification {
 }
 export default function PlacesMap(props: {
   selected: string | null;
+  selectedNodeId?: string | null;
   places: TravelPlace[];
   canvasOpen: boolean;
   mode: "globe" | "map";
@@ -133,11 +140,20 @@ export default function PlacesMap(props: {
   zoomRevision: number;
   theme: "light" | "dark";
   onChoose: (id: string) => void;
+  onChooseNode?: (node: MapNode) => void;
   onIntroEnd: () => void;
   onZoomChange: (zoom: number, mode: "globe" | "map") => void;
 }) {
-  const { selected, revision, zoomRevision, canvasOpen, mode, zoom, intro } =
-    props;
+  const {
+    selected,
+    selectedNodeId,
+    revision,
+    zoomRevision,
+    canvasOpen,
+    mode,
+    zoom,
+    intro,
+  } = props;
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<MapLibreMap | null>(null);
   const latest = useRef(props);
@@ -146,8 +162,25 @@ export default function PlacesMap(props: {
   });
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [hosts, setHosts] = useState<HTMLElement[]>([]);
-  const markers = useRef<Marker[]>([]);
+  const [hosts, setHosts] = useState<Map<string, HTMLElement>>(new Map());
+  const markers = useRef(new Map<string, { marker: Marker; node: MapNode }>());
+  const MarkerClass = useRef<typeof import("maplibre-gl").Marker | null>(null);
+  const [level, setLevel] = useState<MarkerLevel>(() =>
+    markerLevel(mode === "globe" ? 0 : engineZoom(zoom), "country"),
+  );
+  const liveLevel = useRef(level);
+  const nodes = useMemo(
+    () => getMapNodes(props.places, level),
+    [props.places, level],
+  );
+  const allNodes = useMemo(
+    () => [
+      ...getMapNodes(props.places, "country"),
+      ...getMapNodes(props.places, "location"),
+    ],
+    [props.places],
+  );
+  const navigationTarget = useRef<[number, number] | null>(null);
   const gestureMoved = useRef(false);
   const nativeSync = useRef<{
     mode: "globe" | "map";
@@ -156,21 +189,26 @@ export default function PlacesMap(props: {
   } | null>(null);
   const focus = useRef({
     selected: props.selected,
+    selectedNodeId: props.selectedNodeId,
     revision: -1,
     canvasOpen: props.canvasOpen,
     mode: props.mode,
+    zoom: props.zoom,
+    zoomRevision: props.zoomRevision,
   });
 
   useEffect(() => {
     let cancelled = false;
+    const markerInstances = markers.current;
     let resize: ResizeObserver | undefined;
     import("maplibre-gl")
-      .then(async ({ Map, Marker, setWorkerUrl }) => {
+      .then(async ({ Map: MapConstructor, Marker, LngLat, setWorkerUrl }) => {
         await document.fonts.ready;
         if (cancelled || !container.current) return;
         setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
+        MarkerClass.current = Marker;
         const initial = latest.current;
-        const instance = new Map({
+        const instance = new MapConstructor({
           container: container.current,
           style: style(),
           center: initial.intro
@@ -180,6 +218,13 @@ export default function PlacesMap(props: {
           zoom: initial.mode === "globe" ? 0 : engineZoom(initial.zoom),
           minZoom: 0,
           maxZoom: engineZoom(10),
+          transformConstrain: (center, zoom) => {
+            const camera = constrainCamera(center, zoom);
+            return {
+              center: new LngLat(camera.longitude, camera.latitude),
+              zoom: camera.zoom,
+            };
+          },
           renderWorldCopies: true,
           dragRotate: false,
           touchPitch: false,
@@ -198,28 +243,74 @@ export default function PlacesMap(props: {
           );
         instance.on("load", () => {
           if (cancelled) return;
-          instance.setProjection({
-            type: latest.current.mode === "globe" ? "globe" : "mercator",
-          });
-          const elements = travelPlaces.map((place, index) => {
-            const element = document.createElement("div");
-            element.className = "map-thumbnail-host";
-            const [x, y] = markerCallout(index);
-            element.style.setProperty("--callout-x", `${x}px`);
-            element.style.setProperty("--callout-y", `${y}px`);
-            const marker = new Marker({
-              element,
-              anchor: "center",
-              subpixelPositioning: true,
-              opacityWhenCovered: 0,
-            })
-              .setLngLat(place.coordinates)
-              .addTo(instance);
-            markers.current.push(marker);
-            return element;
-          });
-          setHosts(elements);
           setReady(true);
+        });
+        instance.on("zoom", () => {
+          const next = markerLevel(instance.getZoom(), liveLevel.current);
+          if (next !== liveLevel.current) {
+            liveLevel.current = next;
+            setLevel(next);
+          }
+        });
+        instance.on("render", () => {
+          const { clientWidth: width, clientHeight: height } =
+            instance.getCanvas();
+          const anchors = [...markers.current].flatMap(
+            ([id, { marker, node }]) => {
+              const element = marker.getElement();
+              if (element.classList.contains("maplibregl-marker-covered"))
+                return [];
+              const point = instance.project(marker.getLngLat());
+              if (!Number.isFinite(point.x) || !Number.isFinite(point.y))
+                return [];
+              return [
+                {
+                  id,
+                  x: point.x,
+                  y: point.y,
+                  priority:
+                    latest.current.selectedNodeId === id ||
+                    (!latest.current.selectedNodeId &&
+                      latest.current.selected === node.collectionId) ||
+                    element.contains(document.activeElement),
+                },
+              ];
+            },
+          );
+          const offsets = markerOffsets(anchors, {
+            width,
+            height,
+          });
+          const widths = new Map(
+            anchors.map(({ id }) => {
+              const element = markers.current.get(id)!.marker.getElement();
+              const label =
+                element.querySelector<HTMLElement>(".map-marker-label");
+              if (label && element.dataset.labelText !== label.textContent) {
+                element.dataset.labelText = label.textContent ?? "";
+                element.dataset.labelWidth = String(label.offsetWidth);
+              }
+              return [id, Number(element.dataset.labelWidth ?? 0)] as const;
+            }),
+          );
+          const labels = markerLabels(anchors, offsets, widths);
+          for (const [id, offset] of offsets) {
+            const element = markers.current.get(id)!.marker.getElement();
+            const key = `${offset.x},${offset.y}`;
+            if (element.dataset.callout !== key) {
+              element.style.setProperty("--callout-x", `${offset.x}px`);
+              element.style.setProperty("--callout-y", `${offset.y}px`);
+              element.dataset.callout = key;
+            }
+            const label = labels.get(id)!;
+            if (element.dataset.labelSide !== label.side)
+              element.dataset.labelSide = label.side;
+            if (element.dataset.labelHidden !== String(label.hidden))
+              element.dataset.labelHidden = String(label.hidden);
+            const path = element.querySelector("path");
+            const line = `M0 0L${offset.x} ${offset.y}`;
+            if (path?.getAttribute("d") !== line) path?.setAttribute("d", line);
+          }
         });
         instance.on("dragstart", () => {
           gestureMoved.current = true;
@@ -230,25 +321,11 @@ export default function PlacesMap(props: {
         instance.on("zoomend", (event) => {
           if (!event.originalEvent) return;
           const nextMode = instance.getZoom() < engineZoom(1) ? "globe" : "map";
-          focus.current.mode = nextMode;
           nativeSync.current = {
             mode: nextMode,
             zoom: uiZoom(instance.getZoom()),
             revision: latest.current.zoomRevision,
           };
-          instance.setProjection({
-            type: nextMode === "globe" ? "globe" : "mercator",
-          });
-          if (container.current) {
-            const { width, height } = container.current.getBoundingClientRect();
-            const padDrawer = nextMode === "map" && latest.current.canvasOpen;
-            instance.setPadding({
-              top: 0,
-              left: 0,
-              right: padDrawer && width > 700 ? 410 : 0,
-              bottom: padDrawer && width <= 700 ? height * 0.25 : 0,
-            });
-          }
           latest.current.onZoomChange(uiZoom(instance.getZoom()), nextMode);
         });
         instance.on("error", (event) => {
@@ -265,15 +342,6 @@ export default function PlacesMap(props: {
         });
         const observer = new ResizeObserver(() => {
           instance.resize();
-          if (!container.current) return;
-          const { width, height } = container.current.getBoundingClientRect();
-          const padDrawer = latest.current.mode === "map" && latest.current.canvasOpen;
-          instance.setPadding({
-            top: 0,
-            left: 0,
-            right: padDrawer && width > 700 ? 410 : 0,
-            bottom: padDrawer && width <= 700 ? height * 0.25 : 0,
-          });
         });
         observer.observe(container.current);
         resize = observer;
@@ -284,12 +352,56 @@ export default function PlacesMap(props: {
     return () => {
       cancelled = true;
       resize?.disconnect();
-      markers.current.forEach((marker) => marker.remove());
-      markers.current = [];
+      markerInstances.forEach(({ marker }) => marker.remove());
+      markerInstances.clear();
       map.current?.remove();
       map.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    const instance = map.current;
+    const Constructor = MarkerClass.current;
+    if (!ready || !instance || !Constructor) return;
+    const ids = new Set(nodes.map((node) => node.id));
+    for (const [id, { marker }] of markers.current) {
+      if (!ids.has(id)) {
+        marker.remove();
+        markers.current.delete(id);
+      }
+    }
+    for (const node of nodes) {
+      const existing = markers.current.get(node.id);
+      if (existing) {
+        existing.node = node;
+        existing.marker.setLngLat(node.coordinates);
+        continue;
+      }
+      const element = document.createElement("div");
+      element.className = "map-thumbnail-host";
+      element.style.setProperty("--callout-x", "0px");
+      element.style.setProperty("--callout-y", "-28px");
+      element.dataset.labelSide = "above";
+      const marker = new Constructor({
+        element,
+        anchor: "center",
+        subpixelPositioning: true,
+        opacityWhenCovered: 0,
+      })
+        .setLngLat(node.coordinates)
+        .addTo(instance);
+      markers.current.set(node.id, { marker, node });
+    }
+    setHosts(
+      new Map(
+        [...markers.current].map(([id, { marker }]) => [
+          id,
+          marker.getElement(),
+        ]),
+      ),
+    );
+    instance.triggerRepaint();
+  }, [nodes, ready]);
 
   useEffect(() => {
     const instance = map.current;
@@ -310,30 +422,28 @@ export default function PlacesMap(props: {
     const instance = map.current;
     if (!ready || !instance || !container.current) return;
     const previous = focus.current;
-    focus.current = { selected, revision, canvasOpen, mode };
+    focus.current = {
+      selected,
+      selectedNodeId,
+      revision,
+      canvasOpen,
+      mode,
+      zoom,
+      zoomRevision,
+    };
     if (selected === null && previous.selected !== null) {
       instance.stop();
-      if (mode === "map") {
-        const canvas = instance.getCanvas();
-        const center = instance.unproject([
-          canvas.clientWidth / 2,
-          canvas.clientHeight / 2,
-        ]);
-        // Rebase the padded Mercator view without moving its visible pixels.
-        instance.jumpTo({
-          center,
-          padding: { top: 0, left: 0, right: 0, bottom: 0 },
-        });
-      }
+      navigationTarget.current = null;
       nativeSync.current = null;
       return;
     }
     const selectedPlace = travelPlaces.find((place) => place.id === selected);
+    const selectedNode = allNodes.find((node) => node.id === selectedNodeId);
     const recenter =
       previous.selected !== selected ||
+      previous.selectedNodeId !== selectedNodeId ||
       previous.revision !== revision ||
-      previous.canvasOpen !== canvasOpen ||
-      previous.mode !== mode;
+      previous.canvasOpen !== canvasOpen;
     const synced = nativeSync.current;
     nativeSync.current = null;
     if (
@@ -343,31 +453,37 @@ export default function PlacesMap(props: {
       synced.revision === zoomRevision
     )
       return;
+    const zoomRequested =
+      previous.mode !== mode ||
+      previous.zoom !== zoom ||
+      previous.zoomRevision !== zoomRevision;
+    if (!recenter && !zoomRequested) return;
     const targetZoom = mode === "globe" ? 0 : engineZoom(zoom);
     if (!recenter && Math.abs(instance.getZoom() - targetZoom) < 0.001) return;
     const reduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
     instance.stop();
-    instance.setProjection({ type: mode === "globe" ? "globe" : "mercator" });
-    // Globe padding changes perspective, so it cannot be rebased like Mercator.
-    if (mode === "globe")
-      instance.setPadding({ top: 0, left: 0, right: 0, bottom: 0 });
     const { width, height } = container.current.getBoundingClientRect();
-    const padDrawer = mode === "map" && canvasOpen;
     const finish = () => latest.current.onIntroEnd();
     if (intro) instance.once("moveend", finish);
+    const targetCenter =
+      navigationTarget.current ??
+      (selectedNode?.kind === "country"
+        ? selectedPlace?.coordinates
+        : selectedNode?.coordinates) ??
+      selectedPlace?.coordinates;
+    navigationTarget.current = null;
     instance.easeTo({
-      ...(recenter && selectedPlace
-        ? { center: selectedPlace.coordinates }
-        : {}),
+      ...(recenter && targetCenter ? { center: targetCenter } : {}),
       zoom: targetZoom,
-      padding: {
-        top: 0,
-        left: 0,
-        right: padDrawer && width > 700 ? 410 : 0,
-        bottom: padDrawer && width <= 700 ? height * 0.25 : 0,
-      },
+      // Selection offsets frame the drawer without leaving projection-dependent padding behind.
+      offset:
+        recenter && canvasOpen
+          ? width > 700
+            ? [-205, 0]
+            : [0, -height * 0.125]
+          : [0, 0],
       duration: reduced ? 0 : intro ? 2200 : 650,
       easing: (t) => 1 - (1 - t) ** 3,
     });
@@ -376,7 +492,18 @@ export default function PlacesMap(props: {
         instance.off("moveend", finish);
       };
     }
-  }, [selected, revision, zoomRevision, canvasOpen, mode, zoom, intro, ready]);
+  }, [
+    selected,
+    selectedNodeId,
+    allNodes,
+    revision,
+    zoomRevision,
+    canvasOpen,
+    mode,
+    zoom,
+    intro,
+    ready,
+  ]);
 
   return (
     <div
@@ -415,36 +542,75 @@ export default function PlacesMap(props: {
           </Button>
         ))}
       </div>
-      {hosts.map((host, index) => {
-        const place = props.places.find(
-          (place) => place.id === travelPlaces[index].id,
-        );
-        if (!place) return null;
+      {nodes.map((node) => {
+        const host = hosts.get(node.id);
+        if (!host) return null;
         return createPortal(
           <>
             <svg
               className="map-marker-leader"
-              viewBox="-80 -80 160 160"
+              viewBox="-44 -44 88 88"
               aria-hidden="true"
             >
-              <path d={`M0 0L${markerCallout(index).join(" ")}`} />
+              <path d="M0 0L0 -28" />
               <circle cx="0" cy="0" r="3.5" />
             </svg>
             <Button
               variant="quiet"
               press={false}
               className="map-photo-marker"
-              data-location={place.id}
-              aria-label={`Explore ${place.name}`}
-              title={`${place.referenceLabel} · Regional collection, not camera GPS`}
-              aria-pressed={props.selected === place.id}
+              data-location={node.collectionId}
+              data-map-node={node.id}
+              data-node-kind={node.kind}
+              aria-label={`Explore ${node.label}, ${node.photoCount} ${node.photoCount === 1 ? "photograph" : "photographs"}`}
+              title={`${node.referenceLabel} · ${node.precision === "country" ? "Country collection" : "Regional reference"}, not camera GPS`}
+              aria-pressed={
+                selectedNodeId
+                  ? selectedNodeId === node.id
+                  : props.selected === node.collectionId
+              }
               onClick={(event) => {
-                if (event.detail === 0 || !gestureMoved.current)
-                  props.onChoose(place.id);
+                if (event.detail !== 0 && gestureMoved.current) return;
+                navigationTarget.current =
+                  node.kind === "country"
+                    ? (travelPlaces.find(
+                        (place) => place.id === node.collectionId,
+                      )?.coordinates ?? node.coordinates)
+                    : node.coordinates;
+                if (props.onChooseNode) props.onChooseNode(node);
+                else props.onChoose(node.collectionId);
+                if (node.kind === "country")
+                  props.onZoomChange(
+                    Math.max(3.5, uiZoom(map.current?.getZoom() ?? 0)),
+                    "map",
+                  );
               }}
             >
+              {node.kind === "country" &&
+                node.photos
+                  .slice(1, 3)
+                  .reverse()
+                  .map((photo, index) => (
+                    <span
+                      className="map-marker-stack-layer"
+                      data-layer={index}
+                      key={photo.src}
+                      aria-hidden="true"
+                    >
+                      <Image
+                        src={photo.src}
+                        alt=""
+                        width={44}
+                        height={44}
+                        sizes="44px"
+                        quality={75}
+                        draggable={false}
+                      />
+                    </span>
+                  ))}
               <Image
-                src={place.photos[0].src}
+                className="map-marker-cover"
+                src={node.cover.src}
                 alt=""
                 width={44}
                 height={44}
@@ -452,11 +618,16 @@ export default function PlacesMap(props: {
                 quality={75}
                 draggable={false}
               />
-              <span className="map-marker-label">{place.name}</span>
+              {node.photoCount > 1 && (
+                <span className="map-marker-count" aria-hidden="true">
+                  {node.photoCount}
+                </span>
+              )}
+              <span className="map-marker-label">{node.label}</span>
             </Button>
           </>,
           host,
-          place.id,
+          node.id,
         );
       })}
       <span className="map-attribution">Natural Earth</span>
