@@ -42,6 +42,13 @@ export const zoomLabels = [
   "Near",
   "Local",
 ] as const;
+const flatProjection = geoMercator()
+  .translate([0, 0])
+  .scale(125)
+  .precision(0.8);
+const flatPath = geoPath(flatProjection);
+const flatLand = flatPath(land as GeoPermissibleObjects) ?? "";
+const flatGrid = flatPath(graticule) ?? "";
 export function flatFrame(
   center: [number, number],
   zoom: number,
@@ -49,21 +56,19 @@ export function flatFrame(
   size: [number, number] = [840, 560],
   offset: [number, number] = [0, 0],
 ) {
-  const projection = geoMercator()
-    .translate([size[0] / 2 + offset[0], size[1] / 2 + offset[1]])
-    .scale(125 * zoom)
-    .center([center[0], Math.max(-75, Math.min(75, center[1]))])
-    .clipExtent([
-      [0, 0],
-      [size[0], size[1]],
-    ])
-    .precision(0.8);
-  const path = geoPath(projection);
+  const origin = flatProjection([
+    center[0],
+    Math.max(-75, Math.min(75, center[1])),
+  ])!;
+  const x = size[0] / 2 + offset[0] - origin[0] * zoom;
+  const y = size[1] / 2 + offset[1] - origin[1] * zoom;
   return {
-    land: path(land as GeoPermissibleObjects) ?? "",
-    grid: path(graticule) ?? "",
+    land: flatLand,
+    grid: flatGrid,
+    transform: `translate(${x},${y}) scale(${zoom})`,
     points: points.map((point) => {
-      const position = projection(point) ?? [0, 0];
+      const projected = flatProjection(point)!;
+      const position = [projected[0] * zoom + x, projected[1] * zoom + y];
       return {
         position,
         visible:

@@ -80,3 +80,16 @@ test("map focus remains in the visible area beside a photo canvas", () => {
   assert.equal(mobile.points[0].position[0], 195);
   assert.ok(Math.abs(mobile.points[0].position[1] - 244.76) < 1e-8);
 });
+
+test("fractional camera zoom keeps map geometry and marker projection aligned", () => {
+  const center: [number, number] = [12.09, 46.69];
+  const first = flatFrame(center, 1, [center], [390, 844]);
+  for (const zoom of [1.25, 3.3874, 7.9]) {
+    const frame = flatFrame(center, zoom, [center], [390, 844], [0, -105.5]);
+    assert.equal(frame.land, first.land);
+    assert.equal(frame.grid, first.grid);
+    assert.ok(frame.transform.endsWith(`scale(${zoom})`));
+    assert.ok(Math.abs(frame.points[0].position[0] - 195) < 1e-8);
+    assert.ok(Math.abs(frame.points[0].position[1] - 316.5) < 1e-8);
+  }
+});

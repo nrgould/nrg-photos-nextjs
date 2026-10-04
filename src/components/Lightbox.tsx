@@ -1,5 +1,5 @@
 "use client";
-import { useRef } from "react";
+import { useRef, type RefObject } from "react";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Photo } from "@/lib/photography";
@@ -14,7 +14,9 @@ export default function Lightbox({
   photos,
   index,
   onIndexChange,
+  finalFocus,
 }: {
+  finalFocus?: RefObject<HTMLElement | null>;
   photos: Photo[];
   index: number | null;
   onIndexChange: (index: number | null) => void;
@@ -31,6 +33,7 @@ export default function Lightbox({
     >
       <DialogContent
         className="lightbox"
+        finalFocus={finalFocus}
         onKeyDown={(e) => {
           if (e.key === "ArrowRight") move(1);
           if (e.key === "ArrowLeft") move(-1);

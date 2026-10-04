@@ -1,6 +1,6 @@
 import PlacesExplorer from "@/components/PlacesExplorer";
 export const metadata = {
-  title: "Places & presets",
+  title: "Photographs on the map",
   alternates: { canonical: "/explore" },
 };
 export default function ExplorePage() {

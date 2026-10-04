@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { animate, useReducedMotion } from "motion/react";
 import { flatFrame, globeFrame, shortestTurn, zoomStops } from "@/lib/globe";
 import { travelPlaces } from "@/lib/places";
 
@@ -33,87 +34,94 @@ export default function PlacesMap({
     observer.observe(container.current);
     return () => observer.disconnect();
   }, []);
-  const [center, setCenter] = useState<[number, number]>(place.coordinates);
+  const [camera, setCamera] = useState({
+    center: place.coordinates,
+    zoom: 1,
+    offset: [0, 0] as [number, number],
+  });
+  const cameraRef = useRef(camera);
+  const flight = useRef<{ stop: () => void } | null>(null);
+  const reducedMotion = useReducedMotion();
   const [view, setView] = useState<[number, number]>([-30, 20]);
+  const viewRef = useRef(view);
   const pointer = useRef<{
     x: number;
     y: number;
     center: [number, number];
     id: number;
+    zoom: number;
   } | null>(null);
   const end = useRef(onIntroEnd);
   useEffect(() => {
     end.current = onIntroEnd;
   }, [onIntroEnd]);
   useEffect(() => {
-    let frame = 0;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    let start: number | undefined;
-    const tick = (now: number) => {
-      start ??= now;
-      const t = Math.min((now - start) / 2200, 1);
-      const ease = 1 - (1 - t) ** 3;
-      if (intro && !reduced.matches)
-        setView([
-          -30 + shortestTurn(-30, place.coordinates[0]) * ease,
-          20 + (place.coordinates[1] - 20) * ease,
-        ]);
-      else setView(place.coordinates);
-      if (intro && !reduced.matches && t < 1)
-        frame = requestAnimationFrame(tick);
-      else if (intro) end.current();
-    };
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [intro, place]);
+    const from = viewRef.current;
+    const animation = animate(0, 1, {
+      duration: reducedMotion ? 0 : intro ? 2.2 : 0.65,
+      ease: [0.22, 1, 0.36, 1],
+      onUpdate: (progress) => {
+        const next: [number, number] = [
+          from[0] + shortestTurn(from[0], place.coordinates[0]) * progress,
+          from[1] + (place.coordinates[1] - from[1]) * progress,
+        ];
+        viewRef.current = next;
+        setView(next);
+      },
+      onComplete: () => {
+        if (intro) end.current();
+      },
+    });
+    return () => animation.stop();
+  }, [intro, place, reducedMotion]);
   useEffect(() => {
-    const frame = requestAnimationFrame(() => setCenter(place.coordinates));
-    return () => cancelAnimationFrame(frame);
-  }, [place, zoom, revision]);
-  const hadIntro = useRef(intro);
-  const [arrivalZoom, setArrivalZoom] = useState<number | null>(null);
-  useEffect(() => {
-    const arriving = hadIntro.current && !intro && mode === "map";
-    hadIntro.current = intro;
-    let frame = 0;
-    let started: number | undefined;
-    const reduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    const tick = (now: number) => {
-      if (!arriving || reduced) {
-        setArrivalZoom(null);
-        return;
-      }
-      started ??= now;
-      const t = Math.min((now - started) / 750, 1);
-      setArrivalZoom(
-        t === 1 ? null : 1 + (zoomStops[zoom] - 1) * (1 - (1 - t) ** 3),
-      );
-      if (t < 1) frame = requestAnimationFrame(tick);
+    if (mode !== "map") return;
+    const from = cameraRef.current;
+    const target = {
+      center: place.coordinates,
+      zoom: zoomStops[zoom],
+      offset: (canvasOpen
+        ? size[0] <= 700
+          ? [0, -size[1] * 0.125]
+          : [-180, 0]
+        : [0, 0]) as [number, number],
     };
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [intro, mode, zoom, selected]);
+    const animation = animate(0, 1, {
+      duration: reducedMotion ? 0 : 0.65,
+      ease: [0.22, 1, 0.36, 1],
+      onUpdate: (progress) => {
+        const next = {
+          center: from.center.map(
+            (v, i) => v + (target.center[i] - v) * progress,
+          ) as [number, number],
+          zoom: from.zoom + (target.zoom - from.zoom) * progress,
+          offset: from.offset.map(
+            (v, i) => v + (target.offset[i] - v) * progress,
+          ) as [number, number],
+        };
+        cameraRef.current = next;
+        setCamera(next);
+      },
+    });
+    flight.current = animation;
+    return () => animation.stop();
+  }, [place, zoom, revision, mode, canvasOpen, size, reducedMotion]);
   const points = travelPlaces.map((p) => p.coordinates);
   const geometry =
     mode === "globe"
       ? globeFrame(view, points)
-      : flatFrame(
-          center,
-          arrivalZoom ?? zoomStops[zoom],
-          points,
-          size,
-          canvasOpen
-            ? size[0] <= 700
-              ? [0, -size[1] * 0.21]
-              : [-150, 0]
-            : [0, 0],
-        );
+      : flatFrame(camera.center, camera.zoom, points, size, camera.offset);
+  function moveCenter(center: [number, number]) {
+    flight.current?.stop();
+    const next = { ...cameraRef.current, center };
+    cameraRef.current = next;
+    setCamera(next);
+  }
   const width = mode === "globe" ? 560 : size[0];
   const height = mode === "globe" ? 560 : size[1];
   function pan(dx: number, dy: number) {
-    setCenter((c) => [
+    const c = cameraRef.current.center;
+    moveCenter([
       Math.max(-180, Math.min(180, c[0] + dx)),
       Math.max(-75, Math.min(75, c[1] + dy)),
     ]);
@@ -153,10 +161,12 @@ export default function PlacesMap({
           )
             return;
           if (pointer.current) return;
+          flight.current?.stop();
           pointer.current = {
             x: e.clientX,
             y: e.clientY,
-            center,
+            center: cameraRef.current.center,
+            zoom: cameraRef.current.zoom,
             id: e.pointerId,
           };
           e.currentTarget.setPointerCapture(e.pointerId);
@@ -167,10 +177,10 @@ export default function PlacesMap({
           const scale =
             ((width /
               e.currentTarget.getBoundingClientRect().width /
-              (125 * zoomStops[zoom])) *
+              (125 * p.zoom)) *
               180) /
             Math.PI;
-          setCenter([
+          moveCenter([
             Math.max(
               -180,
               Math.min(180, p.center[0] - (e.clientX - p.x) * scale),
@@ -197,8 +207,23 @@ export default function PlacesMap({
         {mode === "globe" && (
           <circle cx="280" cy="280" r="251" className="explorer-ocean" />
         )}
-        <path d={geometry.grid} className="explorer-graticule" />
-        <path d={geometry.land} className="explorer-land" />
+        <g
+          className="map-world"
+          transform={
+            "transform" in geometry ? String(geometry.transform) : undefined
+          }
+        >
+          <path
+            d={geometry.grid}
+            className="explorer-graticule"
+            vectorEffect="non-scaling-stroke"
+          />
+          <path
+            d={geometry.land}
+            className="explorer-land"
+            vectorEffect="non-scaling-stroke"
+          />
+        </g>
         {geometry.points.map(
           (point, index) =>
             point.visible &&

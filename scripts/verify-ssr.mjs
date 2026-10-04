@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 const base = process.env.PREVIEW_URL || "http://localhost:3107";
 const cases = [
   ["/", "<em>Photography</em></h1>", 0],
-  ["/explore", "Places &amp; presets", 0],
+  ["/explore", "Photographs on the map", 0],
   ["/about", "<h1>About</h1>", 0],
   ["/contact", "<h1>Contact</h1>", 0],
   ["/work", "<h1>Work</h1>", 39],
@@ -29,6 +29,14 @@ for (const [path, text, count] of cases) {
   );
   assert.ok(!html.includes("images.unsplash.com"), `${path}: no stock images`);
   assert.ok(!html.includes('href="/prints"'), `${path}: no print navigation`);
+  if (path === "/explore") {
+    assert.ok(html.includes("data-location"), "map locations in server HTML");
+    assert.ok(
+      !html.includes("location-drawer"),
+      "photo drawer initially closed",
+    );
+    assert.ok(!html.includes("Sample recipes"), "deferred preset UI absent");
+  }
   if (path === "/") {
     assert.ok(html.includes('id="places"'), "globe section in server HTML");
     assert.ok(html.includes("data-land"), "globe geography in server HTML");

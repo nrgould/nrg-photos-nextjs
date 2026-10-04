@@ -157,10 +157,12 @@ All interactive elements use a 2px visible focus outline with 6px offset. Preser
 - Don't replace original photography with generated or stock imagery presented as Nicholas's.
 - Don't add generic rounded card containers to collection spreads.
 
-## Places & presets prototype
+## Map and photographs prototype
 
-`/explore` is a fixed full-viewport map with floating controls. Its contextual photo canvas sits on the right on desktop and becomes an expandable bottom sheet on mobile. No visible page title, portfolio chrome, below-map sections or navigation sidebar. Original routes remain available separately. Use rounded Next.js Images, never Polaroid stacks, in this experience.
+`/explore` is a full-viewport neutral map. The shadcn/Vaul photo drawer starts closed; explicit location selection opens its compact25% snap, followed by75% and100%. Short viewports use a180px minimum compact preview. Photos scroll internally at larger snaps; the grab bar/header remain fixed. No recipe, pack, favorites or comparison controls in the active experience for this iteration.
 
-Neutral black/white/gray surfaces and geography in both themes; dark green only for restrained primary and selected accents. The bottom command bar is a small pill with dividers. The latest exact slider reference has six dot stops, a white filled track and black circular thumb inside a dark capsule. Native range semantics provide keyboard access.
+The small bottom command pill composes shadcn Button/Tooltip/Separator. On phones it floats above the compact drawer and hides at larger snaps. Navigation preserves drawer state and resets photographs to the top. Desktop navigation centers in the remaining map space. Search uses shadcn Command in the shared Dialog; zoom uses shadcn Slider with the exact six-dot reference appearance. Rounded Next.js Images replace the rejected stack treatment.
 
-Otium product-register typography is sourced from its layout, global CSS and DESIGN.md, including Hanken body/block/label steps and Fraunces title axes/weights. Variables are loaded at the root so portaled dialogs inherit them. The map itself has no display headline. Contextual pack/favorites/search dialogs reuse the existing Base UI primitive. Recipe/demo provenance stays explicit; raw commercial preset files are excluded. See `docs/location-presets-spec.md` and `docs/location-presets-verification.md`.
+Motion14 animates map center/zoom/offset from the current rendered camera and cancels interrupted transitions. Vaul owns drawer gestures and transforms. Reduced motion uses zero camera duration and static drawer/pill transitions. Custom SVG map geometry is cached; pins remain keyboard operable.
+
+Otium's relevant Hanken/Fraunces product typography tokens remain applied through root font variables so portals inherit them. Dark green marks selected/core states only. Original portfolio routes, photos, SSR and contact behavior remain preserved. See `docs/location-presets-spec.md` and `docs/location-presets-verification.md`.
