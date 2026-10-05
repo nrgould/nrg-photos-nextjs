@@ -78,7 +78,7 @@ export default async function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{const t=localStorage.getItem('photography-theme');if(t==='dark'||t==='light')document.documentElement.dataset.photoTheme=t}catch{}`,
+            __html: `try{const t=localStorage.getItem('photography-theme');if(t==='dark'||t==='light')document.documentElement.dataset.photoTheme=t}catch{}for(const e of['contextmenu','dragstart'])document.addEventListener(e,v=>{if(v.target instanceof HTMLImageElement)v.preventDefault()})`,
           }}
         />
       </head>

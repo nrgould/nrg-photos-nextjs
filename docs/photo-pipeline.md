@@ -1,6 +1,6 @@
 # Photo import and JEV classification boundary
 
-Photographs are public WebP derivatives in the Supabase Storage bucket `photos`, keyed by the basename of `src`. `src/lib/photo-manifest.json` records each one's provenance, size, alt text and, for map photos, `locationId`.
+Photographs are public WebP derivatives in the Supabase Storage bucket `photos`, keyed by the basename of `src`. `src/lib/photo-manifest.json` records each one's provenance, size, alt text and, for map photos, `locationId`. On the site every `img` refuses the context menu, drag-out and the iOS long-press save sheet (`globals.css`, the head script in `layout.tsx`). That deters casual saving only: the bucket is public, so anyone with the URL can fetch the 2400px file.
 
 ## Import from Lightroom
 

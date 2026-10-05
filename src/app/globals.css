@@ -209,6 +209,10 @@
     display: block;
     max-width: 100%;
     height: auto;
+    /* No save sheet on long-press, no drag-out to the desktop. */
+    -webkit-touch-callout: none;
+    -webkit-user-drag: none;
+    user-select: none;
   }
   p {
     line-height: 1.75;
