@@ -4,12 +4,12 @@ Photographs are public WebP derivatives in the Supabase Storage bucket `photos`,
 
 ## Import from Lightroom
 
-Location is tagged in Lightroom Classic (IPTC Country, State/Province, City, Sublocation; GPS from the Map module or a GPX tracklog). The export strips location from the files and writes it to the export JSON instead. Then:
+Location and alt text are tagged in Lightroom Classic (IPTC Country, State/Province, City, Sublocation and Alt Text; GPS from the Map module or a GPX tracklog). The export strips location from the files and writes it to the export JSON instead. Then:
 
 1. `node --env-file=.env.local scripts/import-photographs.mjs <map-photos.json> --dry-run` and read the report.
 2. Fix labels it rejects in Lightroom, not in this repo, and re-export.
-3. Run without `--dry-run`. It matches each IPTC path to `src/data/locations.json` by name, adds new nodes, pins new places from photo GPS or one Nominatim lookup, uploads files missing from the bucket (from a `photos/` folder beside the JSON) and rewrites the manifest.
-4. Write alt text for every entry the report lists, review the diff, commit, check the preview.
+3. Run without `--dry-run`. It matches each IPTC path to `src/data/locations.json` by name, adds new nodes, pins new places from photo GPS or one Nominatim lookup, encodes and uploads photos missing from the bucket from each row's `input` file (2400px WebP, metadata stripped except copyright) and rewrites the manifest.
+4. Fill Lightroom Alt Text for every entry the report lists and re-import (the manifest keeps an existing alt when Lightroom's is empty). Review the diff, commit, check the preview.
 
 Without an argument the script rebuilds the portfolio originals from their recorded origins.
 

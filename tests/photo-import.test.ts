@@ -4,6 +4,7 @@ import countryLabels from "../src/data/country-labels.json";
 import {
   centroid,
   locationFields,
+  manifestEntry,
   resolveLocation,
   slug,
 } from "../scripts/lib/photo-import.mjs";
@@ -65,4 +66,30 @@ test("a location with a gap above a filled field is rejected, not guessed", () =
     ]),
     [13.66, 47.57],
   );
+});
+
+test("alt text comes from Lightroom, falling back to the manifest draft", () => {
+  const row = {
+    src: "/photos/lr-1.webp",
+    lightroomId: 1,
+    capturedAt: "2023-02-24T10:00:00",
+    width: 2400,
+    height: 1600,
+    status: "site",
+  };
+  const previous = { alt: "Draft alt text kept in the manifest." };
+  assert.equal(
+    manifestEntry(
+      { ...row, altText: " From Lightroom. " },
+      "lofoten",
+      "Lofoten",
+      previous,
+    ).alt,
+    "From Lightroom.",
+  );
+  assert.equal(
+    manifestEntry({ ...row, altText: "" }, "lofoten", "Lofoten", previous).alt,
+    previous.alt,
+  );
+  assert.equal(manifestEntry(row, "lofoten", "Lofoten", undefined).alt, "");
 });

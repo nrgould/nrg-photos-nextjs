@@ -10,7 +10,7 @@ import {
 } from "./lib/photo-import.mjs";
 // Portfolio originals: node --env-file=.env.local scripts/import-photographs.mjs
 // Lightroom map export: node --env-file=.env.local scripts/import-photographs.mjs <map-photos.json> [--dry-run]
-//   Files missing from the bucket are read from a photos/ folder beside the JSON.
+//   Rows missing from the bucket are encoded from their `input` file.
 const bucket = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SECRET_KEY,
@@ -21,6 +21,20 @@ const treePath = "src/data/locations.json";
 const manifest = JSON.parse(await fs.readFile(manifestPath, "utf8"));
 const writeJson = (file, value) =>
   fs.writeFile(file, JSON.stringify(value, null, 2) + "\n");
+
+// sharp drops input metadata, GPS included; only a Lightroom copyright is written back.
+async function encode(input, copyright) {
+  let image = sharp(input).rotate().resize({
+    width: 2400,
+    height: 2400,
+    fit: "inside",
+    withoutEnlargement: true,
+  });
+  if (copyright) image = image.withExif({ IFD0: { Copyright: copyright } });
+  const output = await image.webp({ quality: 88 }).toBuffer();
+  const { width, height } = await sharp(output).metadata();
+  return { output, width, height };
+}
 
 async function upload(src, file) {
   const { error } = await bucket.upload(path.basename(src), file, {
@@ -53,18 +67,8 @@ async function rebuildOriginals() {
         throw new Error(`Image download failed: ${response.status} ${url}`);
       input = Buffer.from(await response.arrayBuffer());
     }
-    const output = await sharp(input)
-      .rotate()
-      .resize({
-        width: 2400,
-        height: 2400,
-        fit: "inside",
-        withoutEnlargement: true,
-      })
-      .webp({ quality: 88 })
-      .toBuffer();
+    const { output, width, height } = await encode(input);
     await upload(item.src, output);
-    const { width, height } = await sharp(output).metadata();
     item.width = width;
     item.height = height;
   }
@@ -168,17 +172,11 @@ async function importLightroom(exportPath, dryRun) {
     ({ entry }) => !names.has(path.basename(entry.src)),
   );
   if (!dryRun) {
-    for (const { entry } of uploads)
-      await upload(
-        entry.src,
-        await fs.readFile(
-          path.join(
-            path.dirname(exportPath),
-            "photos",
-            path.basename(entry.src),
-          ),
-        ),
-      );
+    for (const { row, entry } of uploads) {
+      const { output, width, height } = await encode(row.input, row.copyright);
+      await upload(entry.src, output);
+      Object.assign(entry, { width, height });
+    }
     await writeJson(treePath, tree);
     await writeJson(manifestPath, next);
   }

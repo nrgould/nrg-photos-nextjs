@@ -70,7 +70,7 @@ export function manifestEntry(row, locationId, title, previous) {
   return {
     src: row.src,
     title,
-    alt: previous?.alt ?? "",
+    alt: row.altText?.trim() || previous?.alt || "",
     origin: `Lightroom ${row.lightroomId}`,
     width: row.width,
     height: row.height,

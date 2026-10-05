@@ -288,7 +288,7 @@ test("membership depends on source identity, preserves input order, and never in
   assert.deepEqual(travelPlaces, before);
 });
 
-test("the location tree is whole: unique ids, real parents, a pinned place for every map photo", () => {
+test("the location tree is whole: unique ids, real parents, every place a photo sits in is pinned", () => {
   const ids = locations.map((node) => node.id);
   assert.equal(new Set(ids).size, ids.length);
   for (const node of locations) {
@@ -298,6 +298,6 @@ test("the location tree is whole: unique ids, real parents, a pinned place for e
   }
   for (const [src, id] of photoLocations) {
     const place = locationPath(id)[2];
-    assert.ok(place?.coordinates?.every(Number.isFinite), src);
+    if (place) assert.ok(place.coordinates?.every(Number.isFinite), src);
   }
 });

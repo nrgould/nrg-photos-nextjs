@@ -39,7 +39,7 @@ export const getPhotoLocation = (photo: Photo) =>
 export const getPhotoCollection = (photo: Photo) =>
   collections.find((collection) => collection.slug === photo.collection)!;
 export const locationDescription = (node: MapNode) =>
-  `${node.photoCount} ${node.photoCount === 1 ? "photograph" : "photographs"} from ${node.label} by Nicholas Gould, including ${node.photos.map((photo) => photo.title).join(" and ")}.`;
+  `${node.photoCount} ${node.photoCount === 1 ? "photograph" : "photographs"} from ${node.label} by Nicholas Gould, including ${[...new Set(node.photos.map((photo) => photo.title))].slice(0, 3).join(", ")}.`;
 export const photoDescription = (photo: Photo) =>
   `${photo.alt}. Photograph by Nicholas Gould from ${getPhotoCollection(photo).title}.`;
 export const presetDescription = (preset: PresetCatalogItem) =>
