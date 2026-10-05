@@ -693,6 +693,16 @@ export default function PlacesExplorer({
       window.removeEventListener("keydown", listener);
     };
   }, []);
+  // Phones carry search in the command bar; desktop keeps it top left.
+  const search = (
+    <Control
+      variant={desktop ? undefined : "quiet"}
+      label="Find a place"
+      onClick={() => setCommand(true)}
+    >
+      <Search size={18} />
+    </Control>
+  );
   const zoomControl = (
     <MapZoom
       vertical={desktop}
@@ -861,9 +871,7 @@ export default function PlacesExplorer({
       <div className="explorer-workspace">
         <div className="map-workspace">
           <div className="map-toolbar">
-            <Control label="Find a place" onClick={() => setCommand(true)}>
-              <Search size={18} />
-            </Control>
+            {desktop && search}
             <Button
               ref={presetsTrigger}
               variant="control"
@@ -960,6 +968,8 @@ export default function PlacesExplorer({
               <>
                 <Separator orientation="vertical" style={separatorStyle} />
                 {zoomControl}
+                <Separator orientation="vertical" style={separatorStyle} />
+                {search}
               </>
             )}
           </div>
