@@ -1,4 +1,20 @@
+import { getCatalogPreset } from "../../preset-commerce";
 import { readAccountConfiguration } from "../account-configuration";
+
+/** The Lemon Squeezy 2025 pack, limited to the presets still on sale. */
+export const legacyPackPresetIds: readonly string[] = Object.freeze(
+  [
+    "stetten-1",
+    "eibsee-1",
+    "grainau-1",
+    "salzburg-1",
+    "seiser-alm-1",
+    "vienna-1",
+    "rome-2",
+    "bavaria-1",
+    "cary-4",
+  ].filter((id) => getCatalogPreset(id)),
+);
 
 export type TestCommerceConfiguration = {
   mode: "stripe-test";
