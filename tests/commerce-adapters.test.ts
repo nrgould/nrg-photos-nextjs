@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   readCommerceConfiguration,
-  type TestCommerceConfiguration,
+  type CommerceConfiguration,
 } from "../src/lib/server/commerce/config";
 import { createSessionAuthenticator } from "../src/lib/server/commerce/auth";
 import { createCommerceHandlers } from "../src/lib/server/commerce/http";
@@ -40,7 +40,7 @@ const env = {
 const config = (
   readCommerceConfiguration(env, ids) as {
     status: "configured";
-    configuration: TestCommerceConfiguration;
+    configuration: CommerceConfiguration;
   }
 ).configuration;
 const fails = (code: string) => (error: unknown) =>
@@ -159,6 +159,65 @@ test("configuration is disabled by default and rejects live, partial or unsafe c
     assert.deepEqual(readCommerceConfiguration({ ...env, ...patch }, ids), {
       status: "invalid",
     });
+});
+
+test("live mode needs a live key, keeps every other check, and reports ready without test wording", async () => {
+  const live = { ...env, COMMERCE_MODE: "stripe-live" };
+  for (const key of ["sk_live_fixture", "rk_live_fixture"]) {
+    const result = readCommerceConfiguration(
+      { ...live, STRIPE_SECRET_KEY: key },
+      ids,
+    );
+    assert.equal(result.status, "configured");
+    if (result.status === "configured") {
+      assert.equal(result.configuration.mode, "stripe-live");
+      assert.equal(result.configuration.stripeSecretKey, key);
+    }
+  }
+  for (const patch of [
+    {},
+    { STRIPE_SECRET_KEY: "rk_test_fixture" },
+    { STRIPE_SECRET_KEY: "pk_live_fixture" },
+    { STRIPE_SECRET_KEY: "sk_live_fixture", STRIPE_WEBHOOK_SECRET: "" },
+    { STRIPE_SECRET_KEY: "sk_live_fixture", STRIPE_BULK_COUPON_ID: "" },
+    { STRIPE_SECRET_KEY: "sk_live_fixture", STRIPE_PRESET_PRICE_IDS: "{}" },
+  ])
+    assert.deepEqual(readCommerceConfiguration({ ...live, ...patch }, ids), {
+      status: "invalid",
+    });
+  for (const key of ["sk_live_fixture", "rk_live_fixture"])
+    assert.deepEqual(
+      readCommerceConfiguration({ ...env, STRIPE_SECRET_KEY: key }, ids),
+      { status: "invalid" },
+    );
+
+  const liveConfig = { ...config, mode: "stripe-live" as const };
+  const f = sdkFixture();
+  const gateway = createStripeGateway(f.client, liveConfig);
+  await assert.rejects(
+    gateway.createCheckout(order()),
+    fails("price_configuration_mismatch"),
+  );
+  assert.throws(
+    () => gateway.verifyWebhook("{}", "valid-fixture-signature"),
+    fails("livemode_mismatch"),
+  );
+  const memory = new MemoryCommerceStore();
+  const store: CommerceStore = {
+    durability: "durable",
+    transaction: memory.transaction.bind(memory),
+  };
+  const handlers = createCommerceHandlers({
+    configuration: { status: "configured", configuration: liveConfig },
+    store,
+    service: createCommerceService({
+      policy: { presetIds: ids },
+      store,
+      payments: gateway,
+    }),
+    authenticate: async () => ({ userId: "user-A", email: null }),
+  });
+  assert.deepEqual(await handlers.availability().json(), { status: "ready" });
 });
 
 test("unconfigured HTTP and test-memory-store HTTP make no provider/auth calls and never report owned", async () => {
@@ -319,7 +378,7 @@ test("webhook forwards exact raw body/signature to SDK and rejects invalid signa
   });
   assert.throws(
     () => gateway.verifyWebhook(raw, "valid-fixture-signature"),
-    fails("live_event_rejected"),
+    fails("livemode_mismatch"),
   );
   f.event({
     id: "evt_refund",

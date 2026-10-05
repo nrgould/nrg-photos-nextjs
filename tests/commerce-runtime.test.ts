@@ -25,6 +25,10 @@ test("account UI configuration stays absent for disabled, partial, live or unsaf
   };
   assert.equal(readAccountConfiguration({}), null);
   assert.equal(readAccountConfiguration(env)?.origin, env.COMMERCE_ORIGIN);
+  assert.equal(
+    readAccountConfiguration({ ...env, COMMERCE_MODE: "stripe-live" })?.origin,
+    env.COMMERCE_ORIGIN,
+  );
   for (const patch of [
     { COMMERCE_MODE: "live" },
     { COMMERCE_MODE: "disabled" },

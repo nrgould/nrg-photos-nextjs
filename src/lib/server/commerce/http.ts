@@ -103,7 +103,9 @@ export function createCommerceHandlers({
             store?.durability === "durable" &&
             service &&
             authenticate
-              ? "test-ready"
+              ? configuration.configuration.mode === "stripe-live"
+                ? "ready"
+                : "test-ready"
               : "unavailable",
         },
         { headers },

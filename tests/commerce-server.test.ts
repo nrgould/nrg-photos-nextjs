@@ -16,6 +16,10 @@ import {
   type PaymentEvent,
   type PaymentGateway,
 } from "../src/lib/server/commerce/types";
+import {
+  createSupabaseDelivery,
+  type StorageClient,
+} from "../src/lib/server/commerce/supabase-delivery";
 import { MemoryCommerceStore } from "./support/commerce-memory-store";
 import { dropStores, makeStore } from "./support/commerce-store";
 
@@ -620,6 +624,75 @@ test("download adapter is called only for an owned preset and fixed sixty-second
     sourceId: orderId,
     expiresInSeconds: 60,
   });
+});
+
+test("Supabase delivery signs the private preset file with its catalog name, only for an owner", async () => {
+  const f = fixture();
+  const { orderId } = await f.service.checkout("user-A", [ids[0]], requestId);
+  await f.event({ id: "evt_paid", type: "paid", session: f.paid(orderId) });
+  const calls: unknown[] = [];
+  const client: StorageClient = {
+    storage: {
+      from(bucket) {
+        return {
+          async createSignedUrl(path, expiresIn, options) {
+            calls.push({ bucket, path, expiresIn, options });
+            return {
+              data: {
+                signedUrl: `https://fixture.supabase.co/storage/v1/object/sign/${bucket}/${path}?token=fixture&download=${encodeURIComponent(options.download)}`,
+              },
+              error: null,
+            };
+          },
+        };
+      },
+    },
+  };
+  const delivery = createSupabaseDelivery(
+    client,
+    "https://fixture.supabase.co",
+  );
+  assert.deepEqual(delivery.allowedOrigins, ["https://fixture.supabase.co"]);
+  const service = createCommerceService({
+    policy: { presetIds: ids },
+    store: f.store,
+    payments: f.payments,
+    delivery,
+  });
+  await assert.rejects(service.download("user-B", ids[0]), fails("not_owned"));
+  assert.equal(calls.length, 0);
+  const { url } = await service.download("user-A", ids[0]);
+  const name = `${presetCatalog[0].name}.xmp`;
+  assert.equal(new URL(url).origin, "https://fixture.supabase.co");
+  assert.equal(new URL(url).searchParams.get("download"), name);
+  assert.deepEqual(calls, [
+    {
+      bucket: "preset-files",
+      path: `${ids[0]}.xmp`,
+      expiresIn: 60,
+      options: { download: name },
+    },
+  ]);
+
+  const failing = createSupabaseDelivery(
+    {
+      storage: {
+        from: () => ({
+          createSignedUrl: async () => ({ data: null, error: new Error("x") }),
+        }),
+      },
+    },
+    "https://fixture.supabase.co",
+  );
+  await assert.rejects(
+    failing.issueDownload({
+      userId: "user-A",
+      presetId: ids[0],
+      sourceId: orderId,
+      expiresInSeconds: 60,
+    }),
+    fails("delivery_unavailable"),
+  );
 });
 
 test("refund committed while the signer is awaited suppresses the signed download URL", async () => {

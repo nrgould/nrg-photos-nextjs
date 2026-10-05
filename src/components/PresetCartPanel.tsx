@@ -28,7 +28,7 @@ export type PresetCheckoutRequest = {
 export type PresetCheckoutBoundary =
   | { status: "unavailable"; message?: string }
   | {
-      status: "test-ready";
+      status: "test-ready" | "ready";
       startCheckout: (request: PresetCheckoutRequest) => Promise<void>;
     };
 export const unavailablePresetCheckout = {
@@ -58,7 +58,7 @@ export default function PresetCartPanel({
   const remaining = Math.max(0, BULK_DISCOUNT_MINIMUM - quote.paidCount);
 
   async function beginCheckout() {
-    if (checkout.status !== "test-ready" || pending || cartIds.length === 0)
+    if (checkout.status === "unavailable" || pending || cartIds.length === 0)
       return;
     setPending(true);
     setError(null);
@@ -200,18 +200,24 @@ export default function PresetCartPanel({
               aria-busy={pending}
               onClick={beginCheckout}
             >
-              {pending
-                ? "Opening test checkout…"
+              {checkout.status === "unavailable"
+                ? "Checkout unavailable"
                 : checkout.status === "test-ready"
-                  ? "Continue to test checkout"
-                  : "Checkout unavailable"}
+                  ? pending
+                    ? "Opening test checkout…"
+                    : "Continue to test checkout"
+                  : pending
+                    ? "Opening checkout…"
+                    : "Continue to checkout"}
               <LockKeyhole aria-hidden="true" />
             </Button>
-            <p className={styles.notice}>
-              {checkout.status === "test-ready"
-                ? "Test mode. No live payment."
-                : (checkout.message ?? unavailablePresetCheckout.message)}
-            </p>
+            {checkout.status !== "ready" && (
+              <p className={styles.notice}>
+                {checkout.status === "unavailable"
+                  ? (checkout.message ?? unavailablePresetCheckout.message)
+                  : "Test mode. No live payment."}
+              </p>
+            )}
             {error && (
               <p className={styles.error} role="alert">
                 {error}

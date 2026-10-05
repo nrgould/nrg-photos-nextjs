@@ -30,7 +30,7 @@ const emptyOwned: readonly string[] = [];
 export function useCommerceBoundary() {
   const account = useCommerceAccount();
   const [availability, setAvailability] = useState<
-    "unavailable" | "test-ready"
+    "unavailable" | "test-ready" | "ready"
   >("unavailable");
   const [ownership, setOwnership] = useState<OwnershipSnapshot | null>(null);
   const [revision, setRevision] = useState(0);
@@ -69,8 +69,8 @@ export function useCommerceBoundary() {
             value &&
               typeof value === "object" &&
               "status" in value &&
-              value.status === "test-ready"
-              ? "test-ready"
+              (value.status === "test-ready" || value.status === "ready")
+              ? value.status
               : "unavailable",
           );
       })
@@ -82,7 +82,7 @@ export function useCommerceBoundary() {
 
   useEffect(() => {
     const userId = account.userId;
-    if (availability !== "test-ready" || !userId || !sessionKey) return;
+    if (availability === "unavailable" || !userId || !sessionKey) return;
     const controller = new AbortController();
     fetch("/api/commerce/ownership", {
       credentials: "same-origin",
@@ -118,7 +118,7 @@ export function useCommerceBoundary() {
   const startCheckout = useCallback(
     async (request: PresetCheckoutRequest) => {
       if (
-        availability !== "test-ready" ||
+        availability === "unavailable" ||
         !account.userId ||
         !sessionKey ||
         !currentOwnership(ownership, sessionKey, revision, true) ||
@@ -206,10 +206,10 @@ export function useCommerceBoundary() {
     ownership,
     sessionKey,
     revision,
-    availability === "test-ready",
+    availability !== "unavailable",
   );
   const ready = Boolean(
-    availability === "test-ready" && account.userId && sessionKey && owned,
+    availability !== "unavailable" && account.userId && sessionKey && owned,
   );
 
   // Signed-out checkout starts a guest session, then resumes once its ownership is confirmed.
@@ -252,19 +252,19 @@ export function useCommerceBoundary() {
 
   const checkout = useMemo<PresetCheckoutBoundary>(
     () =>
-      ready
-        ? { status: "test-ready", startCheckout }
-        : availability === "test-ready" &&
-            account.supabase &&
-            account.userId === null
-          ? { status: "test-ready", startCheckout: startGuestCheckout }
-          : {
-              status: "unavailable",
-              message:
-                availability === "test-ready" && sessionKey
-                  ? "Confirming your account’s presets before checkout."
-                  : "Cart saved.",
-            },
+      availability !== "unavailable" &&
+      (ready || (account.supabase && account.userId === null))
+        ? {
+            status: availability,
+            startCheckout: ready ? startCheckout : startGuestCheckout,
+          }
+        : {
+            status: "unavailable",
+            message:
+              availability !== "unavailable" && sessionKey
+                ? "Confirming your account’s presets before checkout."
+                : "Cart saved.",
+          },
     [
       availability,
       account.supabase,
@@ -301,7 +301,7 @@ export function useCommerceBoundary() {
   // The free preset is one per email account, so a guest signs in with an email first.
   const reward = useMemo<ExplorationClaimBoundary>(
     () =>
-      availability !== "test-ready" || account.userId === undefined
+      availability === "unavailable" || account.userId === undefined
         ? { status: "unavailable" }
         : account.userId && !account.anonymous && account.email
           ? { status: "ready", claim: claimReward, claimedPresetId }

@@ -31,7 +31,9 @@ export async function composeCommerceRuntime(
 ) {
   if (
     configuration.status !== "configured" ||
-    adapters?.store.durability !== "durable"
+    adapters?.store.durability !== "durable" ||
+    // Live mode never sells what it cannot deliver.
+    (configuration.configuration.mode === "stripe-live" && !adapters.delivery)
   )
     return createCommerceHandlers({ configuration });
 
@@ -103,14 +105,39 @@ async function durableStore(url: string) {
   return store;
 }
 
+let delivery: Promise<PrivateDelivery> | undefined;
+async function privateDelivery(supabaseUrl: string, secretKey: string) {
+  delivery ??= Promise.all([
+    import("@supabase/supabase-js"),
+    import("./commerce/supabase-delivery"),
+  ]).then(([{ createClient }, { createSupabaseDelivery }]) =>
+    createSupabaseDelivery(
+      createClient(supabaseUrl, secretKey, {
+        auth: { persistSession: false, autoRefreshToken: false },
+      }),
+      supabaseUrl,
+    ),
+  );
+  return delivery;
+}
+
 export async function getCommerceHandlers() {
   // Deliberately no persistence fallback: without DATABASE_URL every operation stays 503.
   const configuration = readCommerceConfiguration(process.env, presetIds);
   const url = process.env.DATABASE_URL;
+  const secretKey = process.env.SUPABASE_SECRET_KEY;
   return composeCommerceRuntime(
     configuration,
     configuration.status === "configured" && url
-      ? { store: await durableStore(url) }
+      ? {
+          store: await durableStore(url),
+          delivery: secretKey
+            ? await privateDelivery(
+                configuration.configuration.supabaseUrl,
+                secretKey,
+              )
+            : undefined,
+        }
       : undefined,
   );
 }

@@ -2,7 +2,8 @@ export function readAccountConfiguration(
   env: Readonly<Record<string, string | undefined>>,
 ) {
   if (
-    env.COMMERCE_MODE !== "stripe-test" ||
+    (env.COMMERCE_MODE !== "stripe-test" &&
+      env.COMMERCE_MODE !== "stripe-live") ||
     !env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.startsWith("sb_publishable_")
   )
     return null;

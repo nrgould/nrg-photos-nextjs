@@ -1,4 +1,4 @@
-import type { TestCommerceConfiguration } from "./config";
+import type { CommerceConfiguration } from "./config";
 import { checkoutReturnUrl } from "./return-path";
 import {
   CommerceError,
@@ -38,7 +38,7 @@ export type StripeCheckoutParameters = {
   expires_at: number;
   discounts?: { coupon: string }[];
 };
-/** Structural subset accepted by the official Stripe Node SDK; inject an initialized test client. */
+/** Structural subset accepted by the official Stripe Node SDK; inject a client initialized with the configured key. */
 export interface StripeClient {
   prices: { retrieve(id: string): Promise<StripePrice> };
   coupons: { retrieve(id: string): Promise<StripeCoupon> };
@@ -78,10 +78,10 @@ function paymentIntent(value: unknown): string | null {
     throw new CommerceError("invalid_provider_payload");
   return id;
 }
-function session(value: unknown): CheckoutSession {
+function session(value: unknown, live: boolean): CheckoutSession {
   const data = record(value);
-  if (data.livemode !== false || data.mode !== "payment")
-    throw new CommerceError("live_or_invalid_session");
+  if (data.livemode !== live || data.mode !== "payment")
+    throw new CommerceError("livemode_or_invalid_session");
   if (
     data.status !== "open" &&
     data.status !== "complete" &&
@@ -95,7 +95,7 @@ function session(value: unknown): CheckoutSession {
   )
     throw new CommerceError("invalid_payment_status");
   const details = record(data.total_details);
-  // Tax/shipping policy is intentionally not configured in this test-only boundary.
+  // Tax/shipping policy is intentionally not configured in this boundary.
   if (cents(details.amount_tax) !== 0 || cents(details.amount_shipping) !== 0)
     throw new CommerceError("unexpected_tax_or_shipping", 409);
   return {
@@ -114,13 +114,15 @@ function session(value: unknown): CheckoutSession {
 
 export function createStripeGateway(
   client: StripeClient,
-  configuration: TestCommerceConfiguration,
+  configuration: CommerceConfiguration,
 ): PaymentGateway {
+  const live = configuration.mode === "stripe-live";
   return {
     async createCheckout(order) {
       if (order.sessionId)
         return session(
           await client.checkout.sessions.retrieve(order.sessionId),
+          live,
         );
       const priceIds = order.presetIds.map((id) => {
         const price = configuration.priceIds[id];
@@ -135,7 +137,7 @@ export function createStripeGateway(
           (price, index) =>
             price.id !== priceIds[index] ||
             !price.active ||
-            price.livemode ||
+            price.livemode !== live ||
             price.currency !== "usd" ||
             price.unit_amount !== 199 ||
             price.type !== "one_time",
@@ -149,7 +151,7 @@ export function createStripeGateway(
         if (
           coupon.id !== configuration.bulkCouponId ||
           !coupon.valid ||
-          coupon.livemode ||
+          coupon.livemode !== live ||
           coupon.percent_off !== 20 ||
           coupon.amount_off !== null ||
           coupon.duration !== "once" ||
@@ -184,7 +186,7 @@ export function createStripeGateway(
         },
         { idempotencyKey: `preset-order:${order.id}` },
       );
-      return session(result);
+      return session(result, live);
     },
     verifyWebhook(rawBody, signature): PaymentEvent {
       let verified: unknown;
@@ -199,8 +201,7 @@ export function createStripeGateway(
       }
       const event = record(verified);
       const id = string(event.id);
-      if (event.livemode !== false)
-        throw new CommerceError("live_event_rejected");
+      if (event.livemode !== live) throw new CommerceError("livemode_mismatch");
       const object = record(event.data).object;
       const types = {
         "checkout.session.completed": "completed",
@@ -213,7 +214,7 @@ export function createStripeGateway(
         return {
           id,
           type: types[type as keyof typeof types],
-          session: session(object),
+          session: session(object, live),
         };
       if (type === "charge.refunded" || type === "charge.dispute.created") {
         const data = record(object);

@@ -16,8 +16,9 @@ export const legacyPackPresetIds: readonly string[] = Object.freeze(
   ].filter((id) => getCatalogPreset(id)),
 );
 
-export type TestCommerceConfiguration = {
-  mode: "stripe-test";
+export type CommerceMode = "stripe-test" | "stripe-live";
+export type CommerceConfiguration = {
+  mode: CommerceMode;
   origin: string;
   stripeSecretKey: string;
   webhookSecret: string;
@@ -28,7 +29,7 @@ export type TestCommerceConfiguration = {
 };
 export type ConfigurationResult =
   | { status: "disabled" | "invalid" }
-  | { status: "configured"; configuration: TestCommerceConfiguration };
+  | { status: "configured"; configuration: CommerceConfiguration };
 
 /** Pure: does not read files, instantiate SDKs, provision accounts or contact providers. */
 export function readCommerceConfiguration(
@@ -37,12 +38,18 @@ export function readCommerceConfiguration(
 ): ConfigurationResult {
   if (!env.COMMERCE_MODE || env.COMMERCE_MODE === "disabled")
     return { status: "disabled" };
-  if (env.COMMERCE_MODE !== "stripe-test") return { status: "invalid" };
+  const mode = env.COMMERCE_MODE;
+  if (mode !== "stripe-test" && mode !== "stripe-live")
+    return { status: "invalid" };
   const account = readAccountConfiguration(env);
   if (!account) return { status: "invalid" };
+  // A test key never runs in live mode, and a live key never runs in test mode.
+  const stripeSecretKey = env.STRIPE_SECRET_KEY ?? "";
   try {
     if (
-      !env.STRIPE_SECRET_KEY?.startsWith("sk_test_") ||
+      !(mode === "stripe-live" ? /^(sk|rk)_live_/ : /^sk_test_/).test(
+        stripeSecretKey,
+      ) ||
       !env.STRIPE_WEBHOOK_SECRET?.startsWith("whsec_") ||
       !env.STRIPE_BULK_COUPON_ID
     )
@@ -66,9 +73,9 @@ export function readCommerceConfiguration(
     return {
       status: "configured",
       configuration: {
-        mode: "stripe-test",
+        mode,
         origin: account.origin,
-        stripeSecretKey: env.STRIPE_SECRET_KEY,
+        stripeSecretKey,
         webhookSecret: env.STRIPE_WEBHOOK_SECRET,
         supabaseUrl: account.supabaseUrl,
         supabasePublishableKey: account.publishableKey,

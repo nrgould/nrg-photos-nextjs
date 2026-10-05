@@ -45,7 +45,7 @@ Every preset is tied to the place it was made for: the location its id names (gr
 
 Cheap non-Supabase storage and JEV classification have deterministic dry-run manifest/adapter contracts in `photo-pipeline.md`; no upload, inference or archive scan. Approved endpoint, storage/cost/retention policy and human classification review are required before activation. Prints and NAS remain TODO only.
 
-Commerce activation requires approved durable transactional persistence, Clerk test credentials, Stripe test prices/coupon mapping, private delivery packages/storage, software/file/license/refund terms, provider sandbox end-to-end verification and rate limiting. Reward claims require a confirmed email account; the campaign is configured in `commerce-runtime.ts`. Live charges are unsupported. See `commerce-server-foundation.md` and `commerce-sdk-integration.md`.
+Commerce activation requires approved durable transactional persistence, Clerk test credentials, Stripe test prices/coupon mapping, private delivery packages/storage, software/file/license/refund terms, provider sandbox end-to-end verification and rate limiting. Reward claims require a confirmed email account; the campaign is configured in `commerce-runtime.ts`. Live mode (`COMMERCE_MODE=stripe-live`) requires private delivery; its env contract is in `commerce-server-foundation.md` and `commerce-sdk-integration.md`.
 
 ## Typography source
 

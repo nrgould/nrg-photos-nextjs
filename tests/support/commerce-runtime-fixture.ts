@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import { registerHooks } from "node:module";
 import { MemoryCommerceStore } from "./commerce-memory-store";
-import type { ConfigurationResult } from "../../src/lib/server/commerce/config";
+import type {
+  CommerceConfiguration,
+  ConfigurationResult,
+} from "../../src/lib/server/commerce/config";
 
 async function main() {
   const hook = registerHooks({
@@ -76,6 +79,46 @@ async function main() {
           });
         }
       }
+    // Live mode with a durable store but no private delivery must not sell.
+    const memory = new MemoryCommerceStore();
+    const live = await composeCommerceRuntime(
+      {
+        status: "configured",
+        configuration: {
+          ...(configurations[2] as { configuration: CommerceConfiguration })
+            .configuration,
+          mode: "stripe-live",
+          stripeSecretKey: "sk_live_fixture",
+        },
+      },
+      {
+        store: {
+          durability: "durable",
+          transaction: memory.transaction.bind(memory),
+        },
+      },
+    );
+    assert.deepEqual(await live.availability().json(), {
+      status: "unavailable",
+    });
+    const refused = await live.checkout(
+      new Request("https://photography.example/api/commerce/checkout", {
+        method: "POST",
+        headers: {
+          origin: "https://photography.example",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          paidPresetIds: ["eibsee-1"],
+          requestId: "live-request-000001",
+          returnPath: "/presets",
+        }),
+      }),
+    );
+    assert.equal(refused.status, 503);
+    assert.deepEqual(await refused.json(), {
+      error: "commerce_not_configured",
+    });
     process.env.COMMERCE_MODE = "disabled";
     const [availability, checkout, ownership, download, reward, webhook] =
       await Promise.all([

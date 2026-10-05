@@ -7,10 +7,10 @@ import {
   quotePresets,
 } from "../src/lib/server/commerce/service";
 import { CommerceError, type Order } from "../src/lib/server/commerce/types";
-import type { TestCommerceConfiguration } from "../src/lib/server/commerce/config";
+import type { CommerceConfiguration } from "../src/lib/server/commerce/config";
 import { MemoryCommerceStore } from "./support/commerce-memory-store";
 
-const configuration: TestCommerceConfiguration = {
+const configuration: CommerceConfiguration = {
   mode: "stripe-test",
   origin: "https://photography.example",
   stripeSecretKey: "sk_test_fixture_not_a_credential",
@@ -88,7 +88,7 @@ test("official Stripe SDK verifies exact raw signatures; tampering, stale signat
   const live = raw.replace('"livemode": false', '"livemode": true');
   assert.throws(
     () => gateway.verifyWebhook(live, sign(live)),
-    fails("live_event_rejected"),
+    fails("livemode_mismatch"),
   );
   assert.equal(networkCalls, 0);
 });
