@@ -1,68 +1,97 @@
+import locationTree from "../data/locations.json";
+import manifest from "./photo-manifest.json";
 import { allPhotos, type Photo } from "./photography";
+
+export type LocationNode = {
+  /** Stable: favorites and exploration progress persist it. Parents may change. */
+  id: string;
+  name: string;
+  parent?: string;
+  /** Representative area reference in [longitude, latitude], never camera GPS. */
+  coordinates?: [number, number];
+  coordinateSource?: "manual" | "geocoded" | "photo-gps";
+  reference?: string;
+  /** Countries only: label position in country-labels.json. */
+  naturalEarthId?: string;
+};
 export type TravelPlace = {
   id: string;
   name: string;
-  location: string;
   referenceLabel: string;
   /** Representative regional pin in [longitude, latitude], never camera GPS. */
   coordinates: [number, number];
-  /** Globe label position relative to the pin, in globe SVG units. */
-  labelOffset: [number, number];
   photos: Photo[];
 };
-const find = (title: string) => {
-  const photo = allPhotos.find((p) => p.title === title);
-  if (!photo) throw new Error(`Missing place photograph: ${title}`);
-  return photo;
+
+// Depth-first, so siblings keep file order and every child follows its parent.
+function depthFirst(nodes: LocationNode[], parent?: string): LocationNode[] {
+  return nodes
+    .filter((node) => node.parent === parent)
+    .flatMap((node) => [node, ...depthFirst(nodes, node.id)]);
+}
+/** Country, region, place, sublocation. */
+export const locations = depthFirst(locationTree as LocationNode[]);
+const byId = new Map(locations.map((node) => [node.id, node]));
+
+/** Country first, the node itself last. */
+export function locationPath(id: string): LocationNode[] {
+  const node = byId.get(id);
+  if (!node) throw new Error(`Unknown location: ${id}`);
+  return node.parent ? [...locationPath(node.parent), node] : [node];
+}
+
+type ManifestEntry = Pick<
+  Photo,
+  "src" | "alt" | "width" | "height" | "taken"
+> & {
+  title?: string;
+  locationId?: string;
+  hero?: boolean;
 };
-// Geographic reference points for each region, not recorded camera GPS positions.
-export const travelPlaces: TravelPlace[] = [
-  {
-    id: "austria",
-    name: "Austria",
-    location: "Hallstatt",
-    referenceLabel: "Hallstatt area",
-    coordinates: [13.65, 47.56],
-    labelOffset: [30, -30],
-    photos: [find("Scenes from Hallstatt"), find("Still water, Hallstatt")],
-  },
-  {
-    id: "italy",
-    name: "Italy",
-    location: "Dolomites",
-    referenceLabel: "Lago di Braies area",
-    coordinates: [12.08, 46.7],
-    labelOffset: [30, 26],
-    photos: [
-      find("Lago di Braies"),
-      find("Seceda"),
-      find("Santa Magdalena"),
-      find("Cadini di Misurina"),
-    ],
-  },
-  {
-    id: "norway",
-    name: "Norway",
-    location: "Northern Norway · Lofoten",
-    referenceLabel: "Lofoten regional reference",
-    coordinates: [13.38, 68.05],
-    labelOffset: [26, -12],
-    photos: [
-      find("Into the Arctic"),
-      find("Out in the elements"),
-      find("Emily, Lofoten"),
-    ],
-  },
-  {
-    id: "north-carolina",
-    name: "North Carolina",
-    location: "Lake James · Raleigh",
-    referenceLabel: "Lake James regional reference",
-    coordinates: [-81.89, 35.75],
-    labelOffset: [22, -26],
-    photos: [find("Lake James"), find("A new chapter")],
-  },
-];
+const entries = new Map(
+  (manifest as ManifestEntry[]).map((entry) => [entry.src, entry]),
+);
+/** Where each map photograph was taken, keyed by src. */
+export const photoLocations = new Map(
+  [...entries.values()].flatMap((entry) =>
+    entry.locationId ? [[entry.src, entry.locationId] as const] : [],
+  ),
+);
+
+// Portfolio photographs keep their editorial titles; Lightroom ones carry theirs in the manifest.
+const portfolio = new Map(allPhotos.map((photo) => [photo.src, photo]));
+function mapPhoto(src: string, collection: string): Photo {
+  const { title = "", alt, width, height, taken } = entries.get(src)!;
+  return (
+    portfolio.get(src) ?? { src, title, alt, width, height, collection, taken }
+  );
+}
+
+// One collection per country, photos in tree order.
+export const travelPlaces: TravelPlace[] = locations
+  .filter((country) => !country.parent)
+  .flatMap((country) => {
+    const located = [...photoLocations]
+      .filter(([, id]) => locationPath(id)[0] === country)
+      .sort(
+        ([srcA, a], [srcB, b]) =>
+          locations.indexOf(byId.get(a)!) - locations.indexOf(byId.get(b)!) ||
+          Number(!!entries.get(srcB)!.hero) - Number(!!entries.get(srcA)!.hero),
+      );
+    const pin = located
+      .map(([, id]) => locationPath(id)[2])
+      .find((place) => place?.coordinates);
+    if (!pin) return [];
+    return [
+      {
+        id: country.id,
+        name: country.name,
+        referenceLabel: pin.reference ?? `${pin.name} area reference`,
+        coordinates: pin.coordinates!,
+        photos: located.map(([src]) => mapPhoto(src, country.id)),
+      },
+    ];
+  });
 
 export function shuffleIndex(
   current: number,

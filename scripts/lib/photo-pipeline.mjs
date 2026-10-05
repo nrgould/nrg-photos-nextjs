@@ -26,11 +26,6 @@ export function planBatches(manifest, batchSize = 100) {
     return {
       id: createHash("sha256").update(key).digest("hex").slice(0, 24),
       photo: photo.src,
-      storage: {
-        provider: "r2",
-        derivativeKey: `approved/${key}`,
-        visibility: "public-after-approval",
-      },
       classification: {
         provider: "jev",
         state: "unconfigured",

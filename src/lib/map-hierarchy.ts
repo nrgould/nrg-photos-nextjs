@@ -1,6 +1,12 @@
 import countryLabels from "../data/country-labels.json";
 import type { Photo } from "./photography";
-import type { TravelPlace } from "./places";
+import {
+  locationPath,
+  locations,
+  photoLocations,
+  type LocationNode,
+  type TravelPlace,
+} from "./places";
 
 export type MapNodeKind = "country" | "location";
 export type MapNode = {
@@ -18,129 +24,16 @@ export type MapNode = {
   referenceLabel: string;
 };
 
-type CountryReference = {
-  id: string;
-  collectionId: string;
-  label: string;
-  naturalEarthId: string;
-};
-const countries: CountryReference[] = [
-  {
-    id: "country:austria",
-    collectionId: "austria",
-    label: "Austria",
-    naturalEarthId: "AUT",
-  },
-  {
-    id: "country:italy",
-    collectionId: "italy",
-    label: "Italy",
-    naturalEarthId: "ITA",
-  },
-  {
-    id: "country:norway",
-    collectionId: "norway",
-    label: "Norway",
-    naturalEarthId: "NOR",
-  },
-  {
-    id: "country:united-states",
-    collectionId: "north-carolina",
-    label: "United States",
-    naturalEarthId: "USA",
-  },
-];
+const countries = locations.filter((node) => !node.parent);
 
-type LocationReference = {
-  id: string;
-  collectionId: string;
-  label: string;
-  coordinates: [number, number];
-  referenceLabel: string;
-  photoSrcs: string[];
-};
+/** The map's pin for a photo: the place level (country, region, place) of its location. */
+function placeFor(src: string) {
+  const id = photoLocations.get(src);
+  const place = id ? locationPath(id)[2] : undefined;
+  return place?.coordinates ? place : undefined;
+}
 
-// Membership follows source asset identities; titles and photo order may change.
-// Coordinate evidence and the limits of each reference are in map-hierarchy-spec.md.
-const locations: LocationReference[] = [
-  {
-    id: "location:hallstatt",
-    collectionId: "austria",
-    label: "Hallstatt",
-    coordinates: [13.65, 47.56],
-    referenceLabel: "Hallstatt area reference",
-    photoSrcs: ["/photos/hallstatt-1.webp", "/photos/hallstatt-2.webp"],
-  },
-  {
-    id: "location:braies",
-    collectionId: "italy",
-    label: "Lago di Braies",
-    coordinates: [12.08, 46.7],
-    referenceLabel: "Lago di Braies area reference",
-    photoSrcs: ["/photos/3_landscape_lago_di_braies.webp"],
-  },
-  {
-    id: "location:seceda",
-    collectionId: "italy",
-    label: "Seceda",
-    coordinates: [11.73, 46.6],
-    referenceLabel: "Seceda ridge area reference",
-    photoSrcs: ["/photos/landscape_dolomites_seceda.webp"],
-  },
-  {
-    id: "location:santa-magdalena",
-    collectionId: "italy",
-    label: "Santa Magdalena",
-    coordinates: [11.71, 46.64],
-    referenceLabel: "Santa Magdalena village area reference",
-    photoSrcs: ["/photos/landscape_dolomites_santa_magdalena.webp"],
-  },
-  {
-    id: "location:cadini",
-    collectionId: "italy",
-    label: "Cadini di Misurina",
-    coordinates: [12.29, 46.59],
-    referenceLabel: "Cadini area reference near Fonda Savio",
-    photoSrcs: ["/photos/landscape_dolomites_cadini_di_misurina.webp"],
-  },
-  {
-    id: "location:tromso",
-    collectionId: "norway",
-    label: "Tromsø",
-    coordinates: [18.96, 69.65],
-    referenceLabel: "Tromsø regional reference",
-    photoSrcs: ["/photos/landscape_sailboat_in_a_blizzard.webp"],
-  },
-  {
-    id: "location:lofoten",
-    collectionId: "norway",
-    label: "Lofoten",
-    coordinates: [13.38, 68.05],
-    referenceLabel: "Lofoten regional reference",
-    photoSrcs: [
-      "/photos/4_lifestyle_product_aileen_wearing_helly_hansen_jacket_lofoten_islands_norway.webp",
-      "/photos/lifestyle_portrait_emily_wearing_satila_beanie_lofoten_islands_norway.webp",
-    ],
-  },
-  {
-    id: "location:lake-james",
-    collectionId: "north-carolina",
-    label: "Lake James",
-    coordinates: [-81.89, 35.75],
-    referenceLabel: "Lake James area reference near Paddy’s Creek",
-    photoSrcs: ["/photos/landscape_lake_james.webp"],
-  },
-  {
-    id: "location:raleigh",
-    collectionId: "north-carolina",
-    label: "Raleigh",
-    coordinates: [-78.68, 35.78],
-    referenceLabel: "NC State campus area reference, Raleigh",
-    photoSrcs: ["/photos/portrait_ncsu_grad_photo_4.webp"],
-  },
-];
-
-function countryCoordinates(country: CountryReference): [number, number] {
+function countryCoordinates(country: LocationNode): [number, number] {
   const feature = countryLabels.features.find(
     (entry) => entry.properties.id === country.naturalEarthId,
   );
@@ -192,18 +85,16 @@ export function getCountryChildBounds(
   countryId: string,
   places: TravelPlace[],
 ): MapChildBounds | null {
-  const country = countries.find((entry) => entry.id === countryId);
-  if (!country) return null;
-  const place = places.find((entry) => entry.id === country.collectionId);
+  const country = countries.find(
+    (entry) => `country:${entry.id}` === countryId,
+  );
+  const place = places.find((entry) => entry.id === country?.id);
   if (!place?.photos.length) return null;
   return getCoordinateBounds(
-    locations
-      .filter(
-        (reference) =>
-          reference.collectionId === country.collectionId &&
-          place.photos.some((photo) => reference.photoSrcs.includes(photo.src)),
-      )
-      .map((reference) => reference.coordinates),
+    place.photos.flatMap((photo) => {
+      const coordinates = placeFor(photo.src)?.coordinates;
+      return coordinates ? [coordinates] : [];
+    }),
   );
 }
 
@@ -221,25 +112,20 @@ export function getMapNodes(
   kind: MapNodeKind,
 ): MapNode[] {
   return countries.flatMap((country) => {
-    const place = places.find((entry) => entry.id === country.collectionId);
+    const place = places.find((entry) => entry.id === country.id);
     if (!place?.photos.length) return [];
-    const base = { collectionId: place.id, countryId: country.id };
+    const base = { collectionId: place.id, countryId: `country:${country.id}` };
     if (kind === "country") {
-      const bounds = getCountryChildBounds(country.id, places);
-      const knownPhotoSrcs = new Set(
-        locations
-          .filter((reference) => reference.collectionId === place.id)
-          .flatMap((reference) => reference.photoSrcs),
-      );
+      const bounds = getCountryChildBounds(base.countryId, places);
       const hasUnknownLocations = place.photos.some(
-        (photo) => !knownPhotoSrcs.has(photo.src),
+        (photo) => !placeFor(photo.src),
       );
       return [
         {
           ...base,
-          id: country.id,
+          id: base.countryId,
           kind,
-          label: country.label,
+          label: country.name,
           coordinates: bounds
             ? boundsCenter(bounds)
             : countryCoordinates(country),
@@ -248,27 +134,24 @@ export function getMapNodes(
           cover: place.photos[0],
           precision: "country",
           referenceLabel: bounds
-            ? `${country.label} photographed-region cluster reference${hasUnknownLocations ? " · unknown photo locations excluded" : ""}`
-            : `${country.label} country reference · no verified photo locations`,
+            ? `${country.name} photographed-region cluster reference${hasUnknownLocations ? " · unknown photo locations excluded" : ""}`
+            : `${country.name} country reference · no verified photo locations`,
         } satisfies MapNode,
       ];
     }
-    const references = locations.filter(
-      (entry) => entry.collectionId === place.id,
-    );
-    const nodes = references.flatMap((reference): MapNode[] => {
-      const photos = place.photos.filter((photo) =>
-        reference.photoSrcs.includes(photo.src),
-      );
-      if (!photos.length) return [];
+    const groups = Map.groupBy(place.photos, (photo) => placeFor(photo.src));
+    const nodes = locations.flatMap((reference): MapNode[] => {
+      const photos = groups.get(reference);
+      if (!photos || !reference.coordinates) return [];
       return [
         {
           ...base,
-          id: reference.id,
+          id: `location:${reference.id}`,
           kind,
-          label: reference.label,
+          label: reference.name,
           coordinates: [...reference.coordinates],
-          referenceLabel: reference.referenceLabel,
+          referenceLabel:
+            reference.reference ?? `${reference.name} area reference`,
           photos,
           photoCount: photos.length,
           cover: photos[0],
@@ -276,18 +159,15 @@ export function getMapNodes(
         },
       ];
     });
-    const assigned = new Set(
-      references.flatMap((reference) => reference.photoSrcs),
-    );
-    const unlocated = place.photos.filter((photo) => !assigned.has(photo.src));
-    if (unlocated.length)
+    const unlocated = groups.get(undefined);
+    if (unlocated)
       nodes.push({
         ...base,
         id: `location:${place.id}-unlocated`,
         kind,
-        label: `${country.label} · location unknown`,
+        label: `${country.name} · location unknown`,
         coordinates: countryCoordinates(country),
-        referenceLabel: `${country.label} collection reference · photo location unknown`,
+        referenceLabel: `${country.name} collection reference · photo location unknown`,
         photos: unlocated,
         photoCount: unlocated.length,
         cover: unlocated[0],

@@ -1,0 +1,88 @@
+[
+  { "id": "austria", "name": "Austria", "naturalEarthId": "AUT" },
+  { "id": "upper-austria", "parent": "austria", "name": "Upper Austria" },
+  {
+    "id": "hallstatt",
+    "parent": "upper-austria",
+    "name": "Hallstatt",
+    "coordinates": [13.65, 47.56],
+    "coordinateSource": "manual",
+    "reference": "Hallstatt area reference"
+  },
+  { "id": "italy", "name": "Italy", "naturalEarthId": "ITA" },
+  { "id": "south-tyrol", "parent": "italy", "name": "South Tyrol" },
+  {
+    "id": "braies",
+    "parent": "south-tyrol",
+    "name": "Lago di Braies",
+    "coordinates": [12.08, 46.7],
+    "coordinateSource": "manual",
+    "reference": "Lago di Braies area reference"
+  },
+  {
+    "id": "seceda",
+    "parent": "south-tyrol",
+    "name": "Seceda",
+    "coordinates": [11.73, 46.6],
+    "coordinateSource": "manual",
+    "reference": "Seceda ridge area reference"
+  },
+  {
+    "id": "santa-magdalena",
+    "parent": "south-tyrol",
+    "name": "Santa Magdalena",
+    "coordinates": [11.71, 46.64],
+    "coordinateSource": "manual",
+    "reference": "Santa Magdalena village area reference"
+  },
+  { "id": "veneto", "parent": "italy", "name": "Veneto" },
+  {
+    "id": "cadini",
+    "parent": "veneto",
+    "name": "Cadini di Misurina",
+    "coordinates": [12.29, 46.59],
+    "coordinateSource": "manual",
+    "reference": "Cadini area reference near Fonda Savio"
+  },
+  { "id": "norway", "name": "Norway", "naturalEarthId": "NOR" },
+  { "id": "troms", "parent": "norway", "name": "Troms" },
+  {
+    "id": "tromso",
+    "parent": "troms",
+    "name": "Tromsø",
+    "coordinates": [18.96, 69.65],
+    "coordinateSource": "manual",
+    "reference": "Tromsø regional reference"
+  },
+  { "id": "nordland", "parent": "norway", "name": "Nordland" },
+  {
+    "id": "lofoten",
+    "parent": "nordland",
+    "name": "Lofoten",
+    "coordinates": [13.38, 68.05],
+    "coordinateSource": "manual",
+    "reference": "Lofoten regional reference"
+  },
+  { "id": "united-states", "name": "United States", "naturalEarthId": "USA" },
+  {
+    "id": "north-carolina",
+    "parent": "united-states",
+    "name": "North Carolina"
+  },
+  {
+    "id": "lake-james",
+    "parent": "north-carolina",
+    "name": "Lake James",
+    "coordinates": [-81.89, 35.75],
+    "coordinateSource": "manual",
+    "reference": "Lake James area reference near Paddy’s Creek"
+  },
+  {
+    "id": "raleigh",
+    "parent": "north-carolina",
+    "name": "Raleigh",
+    "coordinates": [-78.68, 35.78],
+    "coordinateSource": "manual",
+    "reference": "NC State campus area reference, Raleigh"
+  }
+]

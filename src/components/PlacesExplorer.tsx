@@ -1413,7 +1413,7 @@ export default function PlacesExplorer({
               {searchNodes.map((node) => (
                 <CommandItem
                   key={node.id}
-                  value={`${node.label} ${node.referenceLabel} ${filteredPlaces.find((collection) => collection.id === node.collectionId)?.name ?? ""} ${filteredPlaces.find((collection) => collection.id === node.collectionId)?.location ?? ""}`}
+                  value={`${node.label} ${node.referenceLabel} ${filteredPlaces.find((collection) => collection.id === node.collectionId)?.name ?? ""}`}
                   onSelect={() => {
                     chooseNode(node);
                     setCommand(false);

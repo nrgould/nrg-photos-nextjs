@@ -45,7 +45,7 @@ test("matching photos preserve original identity and order without changing sour
   });
   assert.deepEqual(
     places.map((place) => place.id),
-    ["austria", "north-carolina"],
+    ["austria", "united-states"],
   );
   assert.equal(places[0], travelPlaces[0]);
   assert.deepEqual(
@@ -83,7 +83,7 @@ test("filtering retains a valid selection and clears an excluded location withou
     ...defaults,
     orientation: "horizontal",
   });
-  assert.equal(retainSelection(places, "north-carolina"), "north-carolina");
+  assert.equal(retainSelection(places, "united-states"), "united-states");
   assert.equal(retainSelection(places, "italy"), null);
   assert.equal(retainSelection(places, null), null);
   assert.equal(retainSelection([], "austria"), null);
@@ -94,15 +94,15 @@ test("navigation wraps only eligible locations and handles no selection and empt
     ...defaults,
     orientation: "horizontal",
   });
-  assert.equal(navigatePlaces(places, "austria", "next"), "north-carolina");
-  assert.equal(navigatePlaces(places, "austria", "back"), "north-carolina");
-  assert.equal(navigatePlaces(places, "north-carolina", "next"), "austria");
+  assert.equal(navigatePlaces(places, "austria", "next"), "united-states");
+  assert.equal(navigatePlaces(places, "austria", "back"), "united-states");
+  assert.equal(navigatePlaces(places, "united-states", "next"), "austria");
   assert.equal(navigatePlaces(places, null, "next"), "austria");
-  assert.equal(navigatePlaces(places, null, "back"), "north-carolina");
-  assert.equal(navigatePlaces(places, null, "shuffle", 0.99), "north-carolina");
+  assert.equal(navigatePlaces(places, null, "back"), "united-states");
+  assert.equal(navigatePlaces(places, null, "shuffle", 0.99), "united-states");
   assert.equal(
     navigatePlaces(places, "austria", "shuffle", 0),
-    "north-carolina",
+    "united-states",
   );
   assert.equal(navigatePlaces([places[0]], "austria", "shuffle"), "austria");
   for (const direction of ["next", "back", "shuffle"] as const)

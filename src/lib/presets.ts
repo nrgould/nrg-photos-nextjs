@@ -62,7 +62,7 @@ export const presets: Preset[] = [
     "homeward",
     "Homeward",
     "Warm evenings and the greens close to home.",
-    ["north-carolina"],
+    ["united-states"],
     [
       { label: "Temperature", value: "+8" },
       { label: "Shadows", value: "+12" },

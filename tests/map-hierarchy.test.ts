@@ -2,7 +2,12 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import countryLabels from "../src/data/country-labels.json";
 import manifest from "../src/lib/photo-manifest.json";
-import { travelPlaces } from "../src/lib/places";
+import {
+  locationPath,
+  locations,
+  photoLocations,
+  travelPlaces,
+} from "../src/lib/places";
 import { defaultMapFilters, filterPlaces } from "../src/lib/map-filters";
 import {
   getMapNode,
@@ -84,7 +89,7 @@ test("country photo stacks center the eligible photographed regions while preser
   );
   assert.deepEqual(countries[3].coordinates, [-80.285, 35.765]);
   assert.equal(countries[3].label, "United States");
-  assert.equal(countries[3].collectionId, "north-carolina");
+  assert.equal(countries[3].collectionId, "united-states");
   assert.deepEqual(getCountryChildBounds("country:italy", travelPlaces), [
     [11.71, 46.59],
     [12.29, 46.7],
@@ -112,7 +117,7 @@ test("single-child and filtered country anchors follow only remaining eligible p
   assert.equal(country?.cover.title, "A new chapter");
   assert.equal(getCountryChildBounds("country:italy", horizontal), null);
   assert.equal(getCountryChildBounds("country:united-states", []), null);
-  assert.equal(getCountryChildBounds("north-carolina", travelPlaces), null);
+  assert.equal(getCountryChildBounds("united-states", travelPlaces), null);
   assert.equal(getCountryChildBounds("country:invented", travelPlaces), null);
 });
 
@@ -281,4 +286,18 @@ test("membership depends on source identity, preserves input order, and never in
   assert.equal(future[0].cover, newPhoto);
   assert.match(future[0].referenceLabel, /location unknown/);
   assert.deepEqual(travelPlaces, before);
+});
+
+test("the location tree is whole: unique ids, real parents, a pinned place for every map photo", () => {
+  const ids = locations.map((node) => node.id);
+  assert.equal(new Set(ids).size, ids.length);
+  for (const node of locations) {
+    if (node.parent) assert.ok(ids.includes(node.parent), node.id);
+    else assert.ok(node.naturalEarthId, node.id);
+    assert.ok(locationPath(node.id).length <= 4, node.id);
+  }
+  for (const [src, id] of photoLocations) {
+    const place = locationPath(id)[2];
+    assert.ok(place?.coordinates?.every(Number.isFinite), src);
+  }
 });
