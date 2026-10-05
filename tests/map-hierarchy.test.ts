@@ -294,13 +294,10 @@ test("unknown future photos retain country reference without inflating verified 
   );
 });
 
-test("regional memberships distinguish the Dolomites, Tromsø, Lofoten and Raleigh", () => {
+test("regional memberships distinguish the Dolomites and Lofoten", () => {
   for (const [id, src] of [
     ["braies", "/photos/3_landscape_lago_di_braies.webp"],
-    ["seceda", "/photos/landscape_dolomites_seceda.webp"],
-    ["santa-magdalena", "/photos/landscape_dolomites_santa_magdalena.webp"],
-    ["cadini", "/photos/landscape_dolomites_cadini_di_misurina.webp"],
-    ["tromso", "/photos/landscape_sailboat_in_a_blizzard.webp"],
+    ["val-di-funes", "/photos/landscape_dolomites_santa_magdalena.webp"],
     [
       "lofoten",
       "/photos/4_lifestyle_product_aileen_wearing_helly_hansen_jacket_lofoten_islands_norway.webp",
@@ -309,8 +306,6 @@ test("regional memberships distinguish the Dolomites, Tromsø, Lofoten and Ralei
       "lofoten",
       "/photos/lifestyle_portrait_emily_wearing_satila_beanie_lofoten_islands_norway.webp",
     ],
-    ["lake-james", "/photos/landscape_lake_james.webp"],
-    ["raleigh", "/photos/portrait_ncsu_grad_photo_4.webp"],
   ])
     assert.ok(
       getMapNode(`location:${id}`, travelPlaces)?.photos.some(

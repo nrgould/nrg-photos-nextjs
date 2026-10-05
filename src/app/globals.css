@@ -889,6 +889,35 @@
     line-height: 1.3;
     letter-spacing: -0.005em;
   }
+  /* Neighbouring photos, framed like the map's marker thumbnails. */
+  .lightbox-strip {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 4px 50% 18px;
+  }
+  .lightbox-strip button {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    padding: 2px;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    opacity: 0.5;
+    transition: opacity 150ms;
+  }
+  .lightbox-strip button[aria-current] {
+    border-color: currentColor;
+    opacity: 1;
+  }
+  .lightbox-strip img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
   .lightbox-footer p span {
     display: block;
     font-family: var(--sans);
@@ -3732,10 +3761,10 @@ html[data-photo-theme="dark"] {
     min-height: 44px;
     padding: 0;
   }
-  .photo-drawer-header .drawer-up {
-    gap: 4px;
-    margin-bottom: 2px;
-    padding: 0;
+  .drawer-gallery .drawer-up {
+    width: 100%;
+    min-height: 48px;
+    margin-top: 16px;
   }
   .drawer-commerce-header > .drawer-back {
     width: auto;

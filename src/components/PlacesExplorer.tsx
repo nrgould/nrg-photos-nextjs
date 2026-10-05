@@ -620,7 +620,9 @@ export default function PlacesExplorer({
       sessionStorage.setItem("photo-map-intro", "seen");
     } catch {}
   }
+  // Showing a place's photos closes any nested page stacked over them.
   function chooseNode(node: MapNode) {
+    closeNested();
     if (node.kind === "location" && node.precision === "regional")
       explore({ type: "location-opened", locationId: node.id });
     choose(node.collectionId, true);
@@ -630,9 +632,7 @@ export default function PlacesExplorer({
   }
   function showLocation(locationId: string) {
     const node = placeNode(locationId);
-    if (!node) return;
-    closeNested();
-    chooseNode(node);
+    if (node) chooseNode(node);
   }
   function openPhotograph(photoSrc: string | null) {
     setViewer(photoSrc);
@@ -1171,16 +1171,6 @@ export default function PlacesExplorer({
             {drawerMode === "photos" ? (
               <div className="photo-drawer-header">
                 <div>
-                  {parentNode && (
-                    <Button
-                      variant="quiet"
-                      className="drawer-up"
-                      onClick={() => chooseNode(parentNode)}
-                    >
-                      <ArrowLeft size={14} aria-hidden="true" />
-                      {parentNode.label}
-                    </Button>
-                  )}
                   <DrawerTitle>{place?.name ?? "Photographs"}</DrawerTitle>
                   <DrawerDescription id="location-photo-description">
                     {placeList &&
@@ -1378,6 +1368,16 @@ export default function PlacesExplorer({
                       </figure>
                     ))}
               </div>
+              {/* A place ends with its way back to the country's list of places. */}
+              {parentNode && expanded && (
+                <Button
+                  variant="outline"
+                  className="drawer-up"
+                  onClick={() => chooseNode(parentNode)}
+                >
+                  View {parentNode.label}
+                </Button>
+              )}
             </div>
             {drawerMode !== "photos" && (
               <div className="drawer-commerce-pane">{page}</div>

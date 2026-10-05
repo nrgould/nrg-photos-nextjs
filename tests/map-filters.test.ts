@@ -173,7 +173,7 @@ test("subject membership is explicitly grounded in every original map photo", ()
   );
   assert.deepEqual(
     people.map((photo) => photo.title),
-    ["Out in the elements", "Emily, Lofoten", "A new chapter"],
+    ["Out in the elements", "Emily, Lofoten"],
   );
   assert.equal(getPhotoSubject("/photos/unreviewed.webp"), undefined);
   const unreviewed = [
@@ -195,7 +195,7 @@ test("subject membership is explicitly grounded in every original map photo", ()
 
 test("subject and format intersect without changing original identity or order", () => {
   assert.deepEqual(results({ ...defaults, subject: "places" }), [8, 4]);
-  assert.deepEqual(results({ ...defaults, subject: "people" }), [3, 2]);
+  assert.deepEqual(results({ ...defaults, subject: "people" }), [2, 1]);
   for (const value of ["places", "people"] as const)
     for (const orientation of ["horizontal", "vertical"] as const)
       assert.deepEqual(
@@ -221,7 +221,7 @@ test("subject and format intersect without changing original identity or order",
 test("facet counts predict the next choice while respecting the other filter", () => {
   const count = (keep: Keep) => expected(keep)[0];
   assert.deepEqual(mapFilterFacetCounts(travelPlaces, defaults), {
-    subject: { all: total, places: 8, people: 3 },
+    subject: { all: total, places: 8, people: 2 },
     orientation: {
       any: total,
       horizontal: count(horizontal),
@@ -242,7 +242,7 @@ test("facet counts predict the next choice while respecting the other filter", (
         people: count(both(people, horizontal)),
       },
       orientation: {
-        any: 3,
+        any: count(people),
         horizontal: count(both(people, horizontal)),
         vertical: count(both(people, vertical)),
       },

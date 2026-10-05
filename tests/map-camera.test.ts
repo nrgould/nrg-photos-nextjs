@@ -237,8 +237,9 @@ test("regional breakout has hysteresis during small pinch changes", () => {
   );
 });
 
-test("desktop globe spans 60% of the short side; phones keep the base zoom", () => {
-  assert.equal(viewportZoomOffset(390, 844), 0);
+test("desktop globe spans 60% of the short side; a phone's 60% of its height", () => {
+  const phone = viewportZoomOffset(390, 844);
+  assert.ok(Math.abs((512 / Math.PI) * 2 ** phone - 0.6 * 844) < 0.001);
   const offset = viewportZoomOffset(2000, 1258);
   assert.ok(Math.abs((512 / Math.PI) * 2 ** offset - 0.6 * 1258) < 0.001);
 });

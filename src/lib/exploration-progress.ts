@@ -21,8 +21,8 @@ export const explorationChallenges = [
     id: "find-red-boat",
     title: "Find the red boat",
     clue: "A small flash of red, surrounded by Arctic water and snow.",
-    photoSrc: "/photos/landscape_sailboat_in_a_blizzard.webp",
-    photoTitle: "Into the Arctic",
+    photoSrc: "/photos/lr-4337389.webp",
+    photoTitle: "Sommarøy",
   },
 ] as const;
 

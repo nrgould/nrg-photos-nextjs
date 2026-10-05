@@ -12,9 +12,9 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";
-/** Rendered width: the image fits the stage between the bar and footer, so portraits are height-bound. */
+/** Rendered width: the image fits the stage between the bar, footer and filmstrip, so portraits are height-bound. */
 function sizes(photo: Photo) {
-  const fit = `calc((100vh - 140px) * ${(photo.width / photo.height).toFixed(3)})`;
+  const fit = `calc((100vh - 200px) * ${(photo.width / photo.height).toFixed(3)})`;
   return `(max-width: 700px) min(calc(100vw - 24px), ${fit}), min(calc(100vw - 140px), ${fit})`;
 }
 export default function Lightbox({
@@ -38,6 +38,13 @@ export default function Lightbox({
     index !== null &&
     onIndexChange((index + direction + photos.length) % photos.length);
   const current = index === null ? null : photos[index];
+  // Keep the current photo centred in the filmstrip; the dialog mounts after effects run.
+  const centre = (button: HTMLButtonElement | null) =>
+    button?.scrollIntoView({
+      inline: "center",
+      block: "nearest",
+      behavior: reducedMotion ? "instant" : "smooth",
+    });
   if (index !== null)
     for (const offset of [1, -1]) {
       const photo = photos[(index + offset + photos.length) % photos.length];
@@ -166,6 +173,29 @@ export default function Lightbox({
               >
                 <ChevronRight strokeWidth={1.5} />
               </Button>
+            </div>
+            <div className="lightbox-strip">
+              {photos.map((photo, i) => (
+                <button
+                  key={photo.src}
+                  type="button"
+                  aria-label={`Photograph ${i + 1}`}
+                  ref={i === index ? centre : undefined}
+                  aria-current={i === index || undefined}
+                  onClick={() => {
+                    setKeyboardNavigation(true);
+                    onIndexChange(i);
+                  }}
+                >
+                  <Image
+                    src={photoUrl(photo.src)}
+                    alt=""
+                    width={photo.width}
+                    height={photo.height}
+                    sizes="48px"
+                  />
+                </button>
+              ))}
             </div>
           </>
         )}

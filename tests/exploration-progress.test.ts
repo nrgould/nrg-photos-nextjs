@@ -13,7 +13,7 @@ import {
 } from "../src/lib/exploration-progress";
 
 const ids = explorationLocations.map((location) => location.id);
-const boat = "/photos/landscape_sailboat_in_a_blizzard.webp";
+const boat = "/photos/lr-4337389.webp";
 const empty = createExplorationProgress();
 const visit = (progress: unknown, locationId: string) =>
   recordExplorationEvent(progress, { type: "location-opened", locationId });
@@ -69,8 +69,8 @@ test("red-boat completion requires the exact actual opened photograph; visits do
     .flatMap((place) => place.photos)
     .find((photo) => photo.src === boat);
   assert.ok(actual);
-  assert.equal(actual.title, "Into the Arctic");
-  assert.match(actual.alt, /red boat/i);
+  assert.equal(actual.title, "Sommarøy");
+  assert.match(actual.alt, /red and white boat/i);
   let progress = visit(empty, "location:tromso");
   progress = recordExplorationEvent(progress, {
     type: "photo-opened",

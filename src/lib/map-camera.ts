@@ -69,13 +69,10 @@ export function projectionMode(
   return previous;
 }
 
-/** Desktop zooms in until the globe spans 60% of the viewport's short side. */
+/** Zoom in until the globe spans 60% of the viewport's short side; a phone's runs past its width, 60% of its height. */
 export function viewportZoomOffset(width: number, height: number) {
-  if (width <= 700) return 0;
-  return Math.max(
-    0,
-    Math.log2((0.6 * Math.min(width, height) * Math.PI) / 512),
-  );
+  const span = 0.6 * (width <= 700 ? height : Math.min(width, height));
+  return Math.max(0, Math.log2((span * Math.PI) / 512));
 }
 
 /** Zoom at which the flat map's full height fills the viewport. */

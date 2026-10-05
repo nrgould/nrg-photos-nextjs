@@ -16,22 +16,22 @@ export function defaultMapFilters(places: TravelPlace[]): MapFilters {
   };
 }
 
-// Editorial subjects for the eleven map photographs, grounded in their existing
-// titles and alt text. New sources stay unclassified until explicitly reviewed.
+// Editorial subjects for the original map photographs, grounded in their titles
+// and alt text. Portfolio copies of a Lightroom photo are keyed by the Lightroom
+// src. New sources stay unclassified until explicitly reviewed.
 const photoSubjects: Readonly<Record<string, Exclude<PhotoSubject, "all">>> = {
-  "/photos/hallstatt-1.webp": "places",
-  "/photos/hallstatt-2.webp": "places",
+  "/photos/lr-7029050.webp": "places",
+  "/photos/lr-7029023.webp": "places",
   "/photos/3_landscape_lago_di_braies.webp": "places",
-  "/photos/landscape_dolomites_seceda.webp": "places",
+  "/photos/lr-4433864.webp": "places",
   "/photos/landscape_dolomites_santa_magdalena.webp": "places",
-  "/photos/landscape_dolomites_cadini_di_misurina.webp": "places",
-  "/photos/landscape_sailboat_in_a_blizzard.webp": "places",
-  "/photos/landscape_lake_james.webp": "places",
+  "/photos/lr-4475385.webp": "places",
+  "/photos/lr-4337389.webp": "places",
+  "/photos/lr-3472824.webp": "places",
   "/photos/4_lifestyle_product_aileen_wearing_helly_hansen_jacket_lofoten_islands_norway.webp":
     "people",
   "/photos/lifestyle_portrait_emily_wearing_satila_beanie_lofoten_islands_norway.webp":
     "people",
-  "/photos/portrait_ncsu_grad_photo_4.webp": "people",
 };
 
 export function getPhotoSubject(src: string) {

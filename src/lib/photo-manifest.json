@@ -70,16 +70,14 @@
     "origin": "Stills: 01 READY/2023-02 Tromsø Norway/R6II9237.jpg",
     "width": 1920,
     "height": 2400,
-    "taken": "2023-02",
-    "locationId": "tromso"
+    "taken": "2023-02"
   },
   {
     "src": "/photos/landscape_lake_james.webp",
     "alt": "Lake and forested hills seen through blurred pine branches and orange leaves, low cloud hanging under a pale grey sky",
     "origin": "https://nicholasgouldphoto.com/static/b81ac636d4a7b04f95c86143d2584a84/f9b34/landscape_lake_james.jpg",
     "width": 1737,
-    "height": 2172,
-    "locationId": "lake-james"
+    "height": 2172
   },
   {
     "src": "/photos/landscape_dolomites_seceda.webp",
@@ -87,8 +85,7 @@
     "origin": "Stills: 01 READY/2024-06 Dolomites/R6II7078.jpg",
     "width": 1800,
     "height": 2400,
-    "taken": "2024-06",
-    "locationId": "seceda"
+    "taken": "2024-06"
   },
   {
     "src": "/photos/landscape_dolomites_santa_magdalena.webp",
@@ -97,7 +94,7 @@
     "width": 1920,
     "height": 2400,
     "taken": "2024-06",
-    "locationId": "santa-magdalena"
+    "locationId": "val-di-funes"
   },
   {
     "src": "/photos/landscape_dolomites_cadini_di_misurina.webp",
@@ -105,8 +102,7 @@
     "origin": "Stills: 01 READY/Study in Green/R6II9329.jpg",
     "width": 1800,
     "height": 2400,
-    "taken": "2024-06",
-    "locationId": "cadini"
+    "taken": "2024-06"
   },
   {
     "src": "/photos/landscape_copenhagen_corner.webp",
@@ -154,8 +150,7 @@
     "alt": "Smiling graduate in a red cap, gown and white stoles looks at the camera, with blurred grey buildings behind him",
     "origin": "https://nicholasgouldphoto.com/static/fa0da901697f3f39543edddbff3f5c0d/aaa89/portrait_ncsu_grad_photo_4.jpg",
     "width": 2400,
-    "height": 1600,
-    "locationId": "raleigh"
+    "height": 1600
   },
   {
     "src": "/photos/portrait_lifestyle_emilie_copenhagen_sunset.webp",
@@ -237,8 +232,7 @@
     "origin": "Stills: 01 READY/2025-05 Hallstatt/R6II8182.jpg",
     "width": 2400,
     "height": 1600,
-    "taken": "2025-05",
-    "locationId": "hallstatt"
+    "taken": "2025-05"
   },
   {
     "src": "/photos/hallstatt-2.webp",
@@ -246,8 +240,7 @@
     "origin": "Stills: 01 READY/2025-05 Hallstatt/R6II5804.jpg",
     "width": 2400,
     "height": 1600,
-    "taken": "2025-05",
-    "locationId": "hallstatt"
+    "taken": "2025-05"
   },
   {
     "src": "/photos/bavarian-tree.webp",
