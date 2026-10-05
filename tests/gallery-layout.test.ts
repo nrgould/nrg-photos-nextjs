@@ -41,3 +41,31 @@ test("hero count: all of a small set, else the marked ones, one to three", () =>
   assert.equal(heroCount(20, 2), 2);
   assert.equal(heroCount(20, 5), 3);
 });
+
+test("space left after the heroes pushes the grid down", () => {
+  const plain = galleryLayout(Array(5).fill(0.8), 358, { heroes: 1 });
+  const spaced = galleryLayout(Array(5).fill(0.8), 358, {
+    heroes: 1,
+    after: 120,
+  });
+  assert.equal(spaced[0].y, plain[0].y);
+  assert.equal(spaced[1].y, plain[1].y + 120);
+});
+
+test("a landscape in the grid runs full width after the row it lands in", () => {
+  // Heroes, then portrait, landscape, portrait, portrait, portrait.
+  const tiles = galleryLayout([0.8, 0.8, 1.5, 0.8, 0.8, 0.8], 358, {
+    heroes: 1,
+  });
+  assert.equal(tiles.length, 6);
+  const [, a, wide, b, c, d] = tiles;
+  assert.equal(a.y, b.y);
+  assert.equal(b.y, c.y);
+  assert.equal(wide.width, 358);
+  assert.equal(wide.height, 358 / 1.5);
+  assert.ok(wide.y > a.y && d.y > wide.y);
+  assert.ok(!overlaps(tiles));
+  // Places keep two-column cards whatever the cover's shape.
+  const cards = galleryLayout([1.5, 1.5, 0.8], 300, { columns: 2 });
+  assert.equal(cards[0].width, cards[1].width);
+});

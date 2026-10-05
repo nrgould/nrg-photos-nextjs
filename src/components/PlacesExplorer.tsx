@@ -496,7 +496,7 @@ export default function PlacesExplorer({
     )?.id ??
     null;
   const placeSaved = placeId !== null && favorites.placeIds.includes(placeId);
-  // A place shows its first preset above the photos until all are asked for.
+  // A place shows three presets under its heroes until all are asked for.
   const [allPresetsPlace, setAllPresetsPlace] = useState<string | null>(null);
   const allPlacePresets = placeId !== null && allPresetsPlace === placeId;
   const placePresets = useMemo(() => {
@@ -505,6 +505,16 @@ export default function PlacesExplorer({
       : null;
     return node ? getPlacePresets(node) : [];
   }, [filteredPlaces, selectedNodeId]);
+  const placePresetProps = {
+    cartIds: new Set(cartIds),
+    ownedIds: new Set(ownedPresetIds),
+    onAddPreset: (id: string) => addToCart([id]),
+    onRemovePreset: removePreset,
+    onOpenPreset: (id: string, trigger: HTMLElement) => {
+      setCatalogState((state) => ({ ...state, selectedPresetId: id }));
+      openPage("preset", trigger);
+    },
+  };
   const savedCount = favorites.placeIds.length + favorites.photoSrcs.length;
   const searchNodes = useMemo(
     () => [
@@ -560,7 +570,7 @@ export default function PlacesExplorer({
     const figures = Array.from(
       layout.querySelectorAll<HTMLElement>(":scope > figure"),
     );
-    const preface = layout.querySelector<HTMLElement>(".place-preface");
+    const presetSection = layout.querySelector<HTMLElement>(".place-presets");
     const images = figures.map((figure) =>
       figure.querySelector<HTMLElement>(".gallery-photo")!,
     );
@@ -584,7 +594,8 @@ export default function PlacesExplorer({
         0,
         Math.min(bounds.height, window.innerHeight - bounds.top),
       );
-      const signature = `${height.toFixed(2)}:${bounds.width}:${bounds.height}`;
+      const presetsHeight = presetSection?.offsetHeight ?? 0;
+      const signature = `${height.toFixed(2)}:${bounds.width}:${bounds.height}:${presetsHeight}`;
       if (signature !== previous) {
         previous = signature;
         const compactHeight = bounds.height * compactFraction;
@@ -611,10 +622,10 @@ export default function PlacesExplorer({
         const tiles = galleryLayout(
           aspects,
           width,
-          placeList ? { columns: 2, caption: captionHeight } : { heroes },
+          placeList
+            ? { columns: 2, caption: captionHeight }
+            : { heroes, after: presetSection ? presetsHeight + 8 : 0 },
         );
-        // The preface (presets, then the photos heading) sits above the photos.
-        const top = preface ? preface.offsetHeight : 0;
         let contentHeight = 0;
         figures.forEach((figure, index) => {
           const tile = tiles[index];
@@ -625,7 +636,7 @@ export default function PlacesExplorer({
             tile.x,
             growth,
           );
-          const y = (tile.y + top) * growth;
+          const y = tile.y * growth;
           figure.style.width = `${mix(compactWidth, tile.width, growth)}px`;
           figure.style.transform = `translate(${x}px, ${y}px)`;
           figure.style.opacity = inStrip ? "" : String(growth);
@@ -637,10 +648,17 @@ export default function PlacesExplorer({
             y + imageHeight + captionHeight * growth,
           );
         });
-        if (preface) {
-          // Revealed with the grid, like the captions.
-          preface.style.opacity = String(growth);
-          preface.style.visibility = growth > 0 ? "" : "hidden";
+        if (presetSection) {
+          // Under the heroes, revealed with the grid like the captions.
+          const hero = tiles[Math.min(heroes, count) - 1];
+          const y = (hero.y + hero.height + 8) * growth;
+          presetSection.style.transform = `translateY(${y}px)`;
+          presetSection.style.opacity = String(growth);
+          presetSection.style.visibility = growth > 0 ? "" : "hidden";
+          contentHeight = Math.max(
+            contentHeight,
+            y + presetSection.offsetHeight * growth,
+          );
         }
         viewport!.style.height = `${height}px`;
         layout!.style.height = `${contentHeight}px`;
@@ -675,6 +693,8 @@ export default function PlacesExplorer({
     });
     const resize = new ResizeObserver(schedule);
     resize.observe(drawerElement);
+    // Show all rolls the rest out; the grid under the presets follows each frame.
+    if (presetSection) resize.observe(presetSection);
     drawerElement.addEventListener("transitionrun", transition);
     drawerElement.addEventListener("transitionend", transition);
     drawerElement.addEventListener("transitioncancel", transition);
@@ -695,7 +715,6 @@ export default function PlacesExplorer({
     heroes,
     drawerMode,
     placePresets,
-    allPlacePresets,
   ]);
   function finishIntro() {
     setIntro(false);
@@ -1600,30 +1619,31 @@ export default function PlacesExplorer({
                       </figure>
                     ))}
                 {!placeList && placePresets.length > 0 && (
-                  <div className="place-preface">
-                    <section aria-labelledby="place-presets-heading">
-                      <h3 id="place-presets-heading">
-                        Presets used at this location
-                      </h3>
-                      <PresetList
-                        presets={
-                          allPlacePresets
-                            ? placePresets
-                            : placePresets.slice(0, 1)
-                        }
-                        cartIds={new Set(cartIds)}
-                        ownedIds={new Set(ownedPresetIds)}
-                        onAddPreset={(id) => addToCart([id])}
-                        onRemovePreset={removePreset}
-                        onOpenPreset={(id, trigger) => {
-                          setCatalogState((state) => ({
-                            ...state,
-                            selectedPresetId: id,
-                          }));
-                          openPage("preset", trigger);
-                        }}
-                      />
-                      {placePresets.length > 1 && (
+                  <section
+                    className="place-presets"
+                    aria-labelledby="place-presets-heading"
+                  >
+                    <h3 id="place-presets-heading">
+                      Presets used at this location
+                    </h3>
+                    <PresetList
+                      presets={placePresets.slice(0, 3)}
+                      {...placePresetProps}
+                    />
+                    {placePresets.length > 3 && (
+                      <>
+                        <div
+                          className="place-presets-rest"
+                          data-open={allPlacePresets}
+                          inert={!allPlacePresets}
+                        >
+                          <div>
+                            <PresetList
+                              presets={placePresets.slice(3)}
+                              {...placePresetProps}
+                            />
+                          </div>
+                        </div>
                         <Button
                           variant="quiet"
                           className="place-presets-more"
@@ -1636,10 +1656,12 @@ export default function PlacesExplorer({
                             ? "Show fewer"
                             : `Show all ${placePresets.length}`}
                         </Button>
-                      )}
-                    </section>
-                    <h3>Photos from this location</h3>
-                  </div>
+                      </>
+                    )}
+                    {(place?.photos.length ?? 0) > heroes && (
+                      <h3>Photos from this location</h3>
+                    )}
+                  </section>
                 )}
               </div>
               {/* Phones end a place with its way back to the country's list of places. */}

@@ -2735,20 +2735,39 @@ html[data-photo-theme="dark"] {
     align-items: flex-end;
   }
   /* Presets, then the photos heading, above the drawer gallery's laid-out photos. */
-  .place-preface {
+  /* Placed under the heroes by the drawer gallery's layout. */
+  .place-presets {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    padding: 12px 0 8px;
+    padding: 16px 0 8px;
   }
-  .place-preface h3 {
+  .place-presets h3 {
     margin: 0 0 4px;
     font-size: 13px;
     font-weight: 600;
   }
-  .place-preface section + h3 {
+  .place-presets h3:not(:first-child) {
     margin-top: 16px;
+  }
+  /* Presets past the third roll out under Show all. */
+  .place-presets-rest {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 240ms var(--ease-out);
+  }
+  .place-presets-rest[data-open="true"] {
+    grid-template-rows: 1fr;
+  }
+  .place-presets-rest > div {
+    min-height: 0;
+    overflow: hidden;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .place-presets-rest {
+      transition: none;
+    }
   }
   .place-presets-more {
     min-height: 36px;
