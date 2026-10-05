@@ -216,8 +216,23 @@
     ]
   },
   {
-    "id": "salzburg-2",
+    "id": "lofoten-2",
     "number": 15,
+    "name": "Lofoten II",
+    "category": "Moody",
+    "location": "lofoten",
+    "bestFor": "Arctic harbors, snowy peaks and open sea under gray skies.",
+    "whatItDoes": "The shared base with shadows at +100 and aquas and blues desaturated, so sea and sky read cold and quiet.",
+    "showcase": [
+      "/photos/lr-2366195.webp",
+      "/photos/lr-3827519.webp",
+      "/photos/lr-3827515.webp",
+      "/photos/lr-4148262.webp"
+    ]
+  },
+  {
+    "id": "salzburg-2",
+    "number": 16,
     "name": "Salzburg II",
     "category": "Moody",
     "location": "salzburg",
@@ -233,7 +248,7 @@
   },
   {
     "id": "vienna-2",
-    "number": 16,
+    "number": 17,
     "name": "Vienna II",
     "category": "Moody",
     "location": "vienna",
@@ -245,21 +260,6 @@
       "/photos/lr-7029115.webp",
       "/photos/lr-5148806.webp",
       "/photos/lr-7029114.webp"
-    ]
-  },
-  {
-    "id": "lofoten-2",
-    "number": 17,
-    "name": "Lofoten II",
-    "category": "Lush Green",
-    "location": "lofoten",
-    "bestFor": "Arctic harbors, snowy peaks and open sea under gray skies.",
-    "whatItDoes": "The shared base with shadows at +100 and aquas and blues desaturated, so sea and sky read cold and quiet.",
-    "showcase": [
-      "/photos/lr-2366195.webp",
-      "/photos/lr-3827519.webp",
-      "/photos/lr-3827515.webp",
-      "/photos/lr-4148262.webp"
     ]
   },
   {
