@@ -9,7 +9,7 @@ export type LocationNode = {
   parent?: string;
   /** Representative area reference in [longitude, latitude], never camera GPS. */
   coordinates?: [number, number];
-  coordinateSource?: "manual" | "geocoded" | "photo-gps";
+  coordinateSource?: "manual" | "geocoded";
   reference?: string;
   /** Countries only: label position in country-labels.json. */
   naturalEarthId?: string;

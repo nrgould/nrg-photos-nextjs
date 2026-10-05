@@ -202,8 +202,8 @@
     "id": "lund",
     "parent": "skane",
     "name": "Lund",
-    "coordinates": [13.19, 55.71],
-    "coordinateSource": "photo-gps"
+    "coordinates": [13.19, 55.7],
+    "coordinateSource": "geocoded"
   },
   {
     "id": "united-kingdom",
@@ -450,15 +450,15 @@
     "id": "ulm",
     "parent": "baden-wurttemberg",
     "name": "Ulm",
-    "coordinates": [10, 48.36],
-    "coordinateSource": "photo-gps"
+    "coordinates": [9.99, 48.4],
+    "coordinateSource": "geocoded"
   },
   {
     "id": "esslingen",
     "parent": "baden-wurttemberg",
     "name": "Esslingen",
     "coordinates": [9.31, 48.74],
-    "coordinateSource": "photo-gps"
+    "coordinateSource": "geocoded"
   },
   {
     "id": "schwangau",

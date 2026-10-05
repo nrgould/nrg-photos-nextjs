@@ -8,7 +8,7 @@ Location and alt text are tagged in Lightroom Classic (IPTC Country, State/Provi
 
 1. `node --env-file=.env.local scripts/import-photographs.mjs <map-photos.json> --dry-run` and read the report.
 2. Fix labels it rejects in Lightroom, not in this repo, and re-export. A photo needs at least a City to be placed; one tagged only to Country or State is reported unplaced.
-3. Run without `--dry-run`. It matches each IPTC path to `src/data/locations.json` by name, adds new nodes, pins new places from photo GPS or one Nominatim lookup, encodes and uploads photos missing from the bucket from each row's `input` file (2400px WebP, metadata stripped except copyright) and rewrites the manifest.
+3. Run without `--dry-run`. It matches each IPTC path to `src/data/locations.json` by name, adds new nodes, pins new places at their town center with one Nominatim lookup (photo GPS never sets a pin), encodes and uploads photos missing from the bucket from each row's `input` file (2400px WebP, metadata stripped except copyright) and rewrites the manifest.
 4. Fill Lightroom Alt Text for every entry the report lists and re-import (the manifest keeps an existing alt when Lightroom's is empty). Review the diff, commit, check the preview.
 
 Removal marks: on a preview deployment (or local dev), "Mark for removal" in the lightbox records the photo's `src` in the `photo_removals` table (`/api/curate`). Marks are a request list, not a filter: read them with `select src from photo_removals`, reject those photos in Lightroom and re-export. A mark whose photo has left the manifest is no longer returned.

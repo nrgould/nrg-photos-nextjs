@@ -129,7 +129,7 @@ async function importLightroom(exportPath, dryRun) {
     });
   }
 
-  // Places (third level) need a pin: photo GPS first, else one geocode. Sublocations take GPS only.
+  // Places (third level) are pinned at their town center by one geocode, never by photo GPS.
   const byId = (id) => tree.find((node) => node.id === id);
   const ancestry = (id) => {
     const path = [];
@@ -139,18 +139,7 @@ async function importLightroom(exportPath, dryRun) {
   };
   for (const node of created) {
     const path = ancestry(node.id);
-    if (path.length < 3) continue;
-    const gps = placed.flatMap(({ row, entry }) =>
-      ancestry(entry.locationId).includes(node) &&
-      Number.isFinite(row.lat) &&
-      Number.isFinite(row.lon)
-        ? [[row.lon, row.lat]]
-        : [],
-    );
-    if (gps.length) {
-      node.coordinates = centroid(gps);
-      node.coordinateSource = "photo-gps";
-    } else if (path.length === 3 && !dryRun) {
+    if (path.length === 3 && !dryRun) {
       const coordinates = await geocode(path.map((entry) => entry.name));
       if (coordinates) {
         node.coordinates = coordinates;
