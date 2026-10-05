@@ -259,9 +259,11 @@ export default function PlacesExplorer({
     },
   }));
   const [compactFraction, setCompactFraction] = useState(0.25);
-  const [snap, setSnap] = useState<number | string | null>(
+  const [chosenSnap, setSnap] = useState<number | string | null>(
     initialView ? 0.75 : 0.25,
   );
+  // A phone's nested sheet is 75% tall; the drawer under it lifts to 75% so it shows receding above.
+  const snap = nested && !desktop && chosenSnap === 0.25 ? 0.75 : chosenSnap;
   const [command, setCommand] = useState(false);
   const [contact, setContact] = useState(false);
   const [viewer, setViewer] = useState<string | null>(null);
