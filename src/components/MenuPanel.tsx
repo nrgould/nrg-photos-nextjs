@@ -1,8 +1,12 @@
 "use client";
-import { useId, type ReactNode } from "react";
-import { Mail, Moon, SlidersHorizontal, Sun } from "lucide-react";
+import { useId } from "react";
+import { ChevronRight, Mail, Moon, SlidersHorizontal, Sun } from "lucide-react";
+import { presetCatalog } from "@/lib/preset-commerce";
+import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import {
   Item,
+  ItemActions,
   ItemContent,
   ItemGroup,
   ItemMedia,
@@ -23,26 +27,10 @@ export default function MenuPanel({
   onContact: () => void;
 }) {
   const id = useId();
-  const row = (
-    icon: ReactNode,
-    label: string,
-    onClick: (trigger: HTMLElement) => void,
-  ) => (
-    <Item
-      render={
-        <button
-          type="button"
-          onClick={(event) => onClick(event.currentTarget)}
-        />
-      }
-      className={`${styles.row} text-left`}
-    >
-      <ItemMedia variant="icon">{icon}</ItemMedia>
-      <ItemContent className={styles.rowContent}>
-        <ItemTitle>{label}</ItemTitle>
-      </ItemContent>
-    </Item>
-  );
+  const themes = [
+    { value: "light", label: "Light", Icon: Sun },
+    { value: "dark", label: "Dark", Icon: Moon },
+  ] as const;
   return (
     <section
       className={styles.panel}
@@ -54,24 +42,58 @@ export default function MenuPanel({
           Menu
         </h2>
       </header>
-      <div className={styles.content}>
-        <ItemGroup className={styles.rows}>
-          {row(
-            <SlidersHorizontal size={18} aria-hidden="true" />,
-            "All presets",
-            onPresets,
-          )}
-          {row(
-            theme === "light" ? (
-              <Moon size={18} aria-hidden="true" />
-            ) : (
-              <Sun size={18} aria-hidden="true" />
-            ),
-            `Switch to ${theme === "light" ? "dark" : "light"} mode`,
-            onTheme,
-          )}
-          {row(<Mail size={18} aria-hidden="true" />, "Contact", onContact)}
+      <div className={`${styles.content} ${styles.menu}`}>
+        <ItemGroup className={styles.menuGroup}>
+          <Item
+            render={
+              <button
+                type="button"
+                onClick={(event) => onPresets(event.currentTarget)}
+              />
+            }
+            className={styles.menuRow}
+          >
+            <ItemMedia variant="icon">
+              <SlidersHorizontal size={18} strokeWidth={1.5} aria-hidden />
+            </ItemMedia>
+            <ItemContent>
+              <ItemTitle>All presets</ItemTitle>
+            </ItemContent>
+            <ItemActions className={styles.menuTrailing}>
+              {presetCatalog.length}
+              <ChevronRight size={16} strokeWidth={1.5} aria-hidden />
+            </ItemActions>
+          </Item>
+          <Item
+            render={<button type="button" onClick={onContact} />}
+            className={styles.menuRow}
+          >
+            <ItemMedia variant="icon">
+              <Mail size={18} strokeWidth={1.5} aria-hidden />
+            </ItemMedia>
+            <ItemContent>
+              <ItemTitle>Contact</ItemTitle>
+            </ItemContent>
+          </Item>
         </ItemGroup>
+        <section aria-labelledby={`${id}-appearance`}>
+          <h3 id={`${id}-appearance`} className={styles.savedHeading}>
+            Appearance
+          </h3>
+          <ButtonGroup className={styles.menuThemes}>
+            {themes.map(({ value, label, Icon }) => (
+              <Button
+                key={value}
+                variant="control"
+                aria-pressed={theme === value}
+                onClick={() => theme !== value && onTheme()}
+              >
+                <Icon size={16} strokeWidth={1.5} aria-hidden />
+                {label}
+              </Button>
+            ))}
+          </ButtonGroup>
+        </section>
       </div>
     </section>
   );

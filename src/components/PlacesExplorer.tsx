@@ -17,6 +17,7 @@ import {
   Heart,
   Trash2,
   Mail,
+  Menu as MenuIcon,
   Moon,
   Search,
   ShoppingBag,
@@ -921,7 +922,10 @@ export default function PlacesExplorer({
               }
             >
               <span className="max-[700px]:hidden">All presets</span>
-              <span className="min-[701px]:hidden">Menu</span>
+              <span className="min-[701px]:hidden">
+                <MenuIcon size={18} aria-hidden="true" />
+                <span className="sr-only">Menu</span>
+              </span>
             </Button>
           </div>
           <PlacesMap
@@ -1284,7 +1288,8 @@ export default function PlacesExplorer({
                 >
                   {pageTitle(drawerMode)}.
                 </DrawerDescription>
-                {place && (
+                {/* Menu pages carry their own back link, so the place link would be a second one. */}
+                {place && !baseStack.includes("menu") && (
                   <Button
                     variant="quiet"
                     className="drawer-back"

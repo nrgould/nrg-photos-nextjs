@@ -3733,8 +3733,11 @@ html[data-photo-theme="dark"] {
     .explorer .explorer-top {
       right: 12px;
     }
+    /* Phones: the trigger is the 44px Menu icon. */
     .explorer .map-toolbar > .explorer-presets-trigger {
+      width: 44px;
       min-width: 0;
+      padding: 0;
     }
     .explorer .explorer-top .explorer-account-trigger {
       padding: 0;
@@ -3754,6 +3757,9 @@ html[data-photo-theme="dark"] {
     justify-content: space-between;
     gap: 8px;
     padding: 0 16px 8px;
+  }
+  /* The divider separates the back link from the page; a lone close button needs none. */
+  .drawer-commerce-header:has(> .drawer-back) {
     border-bottom: 1px solid var(--line);
   }
   .drawer-commerce-header > button {

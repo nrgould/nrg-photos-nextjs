@@ -362,3 +362,48 @@
   height: 100%;
   object-fit: cover;
 }
+/* Phone menu: grouped rows on a pale card; radii are concentric (10 + 4 = 14). */
+.menu {
+  display: grid;
+  gap: 24px;
+}
+.menuGroup {
+  gap: 2px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--pale);
+}
+.menuRow {
+  flex-wrap: nowrap;
+  min-height: 52px;
+  gap: 12px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 10px;
+  color: var(--ink);
+  font-size: 15px;
+  text-align: left;
+  transition: background-color 150ms var(--ease-out);
+}
+.menuRow:active {
+  background: var(--line);
+}
+@media (hover: hover) and (pointer: fine) {
+  .menuRow:hover {
+    background: var(--paper);
+  }
+}
+.menuTrailing {
+  gap: 4px;
+  color: var(--muted-foreground);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.menuThemes {
+  width: 100%;
+}
+.menuThemes > button {
+  flex: 1;
+  min-height: 44px;
+  gap: 6px;
+}
