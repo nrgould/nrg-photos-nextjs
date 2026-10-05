@@ -161,6 +161,14 @@ export function createCommerceService({
       .digest("hex");
     const order = await store.transaction(async (tx) => {
       await assertUnowned(tx, userId, quote.presetIds);
+      // A failed Stripe call leaves a pending order with no session. Any session it could
+      // have opened expires an hour after creation, so after that the reservation is released.
+      for (const stale of await tx.pendingOrdersForPresets(
+        userId,
+        quote.presetIds,
+      ))
+        if (!stale.sessionId && Date.now() - stale.createdAt > 3600000)
+          await tx.putOrder({ ...stale, status: "expired" });
       const boundId = await tx.checkoutRequest(id);
       const existing = boundId ? await tx.getOrder(boundId) : null;
       if (boundId && !existing) throw new CommerceError("order_missing", 409);

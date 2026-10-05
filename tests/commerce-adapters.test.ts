@@ -289,13 +289,14 @@ test("Stripe adapter validates server Price/coupon then emits only fixed test Ch
     f.creations[0].params.cancel_url,
     "http://localhost:3000/?checkout=cancelled",
   );
-  assert.equal(f.creations[0].params.allow_promotion_codes, false);
+  assert.equal("allow_promotion_codes" in f.creations[0].params, false);
   assert.deepEqual(f.creations[0].params.automatic_tax, { enabled: false });
   assert.equal(f.creations[0].params.discounts, undefined);
   await gateway.createCheckout(order(10));
   assert.deepEqual(f.creations[1].params.discounts, [
     { coupon: "coupon_fixture" },
   ]);
+  assert.equal("allow_promotion_codes" in f.creations[1].params, false);
   f.client.prices.retrieve = async (id) => ({
     id,
     active: true,

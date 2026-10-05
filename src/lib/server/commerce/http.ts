@@ -34,6 +34,18 @@ export function createCommerceHandlers({
     try {
       return Response.json(await run(), { headers });
     } catch (error) {
+      // Provider and database failures surface as a bare 503, so name the cause in the server log.
+      if (!(error instanceof CommerceError) || error.status >= 500) {
+        const { name, code, type, statusCode, message } = (error ??
+          {}) as Record<string, unknown>;
+        console.error("commerce request failed", {
+          name,
+          code,
+          type,
+          statusCode,
+          message,
+        });
+      }
       return Response.json(
         {
           error:

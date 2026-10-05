@@ -249,6 +249,40 @@ test("verified expiration releases a pending reservation; an open overlapping se
   assert.notEqual(second.orderId, first.orderId);
 });
 
+test("a checkout whose provider call failed releases its reservation an hour later", async () => {
+  const f = fixture();
+  const createCheckout = f.payments.createCheckout;
+  f.payments.createCheckout = async () => {
+    throw new Error("provider rejected the session");
+  };
+  await assert.rejects(
+    f.service.checkout("user-A", ids.slice(0, 10), requestId),
+  );
+  f.payments.createCheckout = createCheckout;
+  const now = Date.now;
+  try {
+    // Past Stripe's 30-minute minimum the attempt cannot open a session, but one it opened may still be live.
+    Date.now = () => now() + 31 * 60000;
+    await assert.rejects(
+      f.service.checkout("user-A", ids.slice(0, 10), "replacement-request-001"),
+      fails("checkout_attempt_expired"),
+    );
+    Date.now = () => now() + 61 * 60000;
+    await assert.rejects(
+      f.service.checkout("user-A", ids.slice(0, 10), requestId),
+      fails("order_not_pending"),
+    );
+    const retry = await f.service.checkout(
+      "user-A",
+      ids.slice(0, 10),
+      "replacement-request-002",
+    );
+    assert.ok(retry.url);
+  } finally {
+    Date.now = now;
+  }
+});
+
 test("provider-confirmed expiration releases its reservation even before the expiration webhook arrives", async () => {
   const f = fixture();
   const { orderId } = await f.service.checkout("user-A", [ids[0]], requestId);

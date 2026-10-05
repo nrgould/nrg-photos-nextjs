@@ -32,7 +32,6 @@ export type StripeCheckoutParameters = {
   client_reference_id: string;
   metadata: { orderId: string };
   payment_intent_data: { metadata: { orderId: string } };
-  allow_promotion_codes: false;
   automatic_tax: { enabled: false };
   adaptive_pricing: { enabled: false };
   expires_at: number;
@@ -176,10 +175,10 @@ export function createStripeGateway(
           client_reference_id: order.id,
           metadata: { orderId: order.id },
           payment_intent_data: { metadata: { orderId: order.id } },
-          allow_promotion_codes: false,
           automatic_tax: { enabled: false },
           adaptive_pricing: { enabled: false },
           expires_at: Math.floor(order.createdAt / 1000) + 3600,
+          // Promotion codes default off; sending allow_promotion_codes beside discounts makes Stripe reject the session.
           ...(order.discountCents
             ? { discounts: [{ coupon: configuration.bulkCouponId }] }
             : {}),
