@@ -346,9 +346,13 @@ export default function ExploreChallenges({
       setClaimedId(presetId);
       await wait(reducedMotion ? 0 : 700);
       onOpenPreset?.(presetId);
-    } catch {
+    } catch (error) {
       setReelId(null);
-      setError("The reward could not be confirmed. Try again.");
+      setError(
+        error instanceof Error && error.message === "reward_unavailable"
+          ? "You already own every preset in the draw."
+          : "The reward could not be confirmed. Try again.",
+      );
     } finally {
       setPending(false);
     }

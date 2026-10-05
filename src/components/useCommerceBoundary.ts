@@ -289,7 +289,12 @@ export function useCommerceBoundary() {
       !("presetId" in value) ||
       typeof value.presetId !== "string"
     )
-      throw new Error("Reward unavailable");
+      // The server's code, so an account that owns every preset isn't told to try again.
+      throw new Error(
+        value && typeof value === "object" && "error" in value
+          ? String(value.error)
+          : "Reward unavailable",
+      );
     return { presetId: value.presetId };
   }, [refreshOwnership]);
   const claimedPresetId = owned ? (ownership?.rewardPresetId ?? null) : null;
