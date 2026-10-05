@@ -306,4 +306,14 @@ test("search matches every word across places and photographs", () => {
       ({ node }) => node.label === "Tromsø",
     ),
   );
+
+  // A region finds the places and photographs under it.
+  const carolina = searchExplorer(travelPlaces, "north carolina");
+  for (const label of ["Boone Fork Trail", "Cary", "Raleigh"])
+    assert.ok(
+      carolina.places.some(({ node }) => node.label === label),
+      label,
+    );
+  assert.equal(carolina.photos.length, 20);
+  assert.ok(new Set(carolina.photos.map(({ node }) => node.label)).size >= 3);
 });

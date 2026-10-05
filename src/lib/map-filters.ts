@@ -1,6 +1,12 @@
 import { getMapNodes, type MapNode } from "./map-hierarchy";
 import type { Photo } from "./photography";
-import { shuffleIndex, type TravelPlace } from "./places";
+import {
+  locationPath,
+  locations as locationTree,
+  photoLocations,
+  shuffleIndex,
+  type TravelPlace,
+} from "./places";
 
 export type PhotoOrientation = "any" | "horizontal" | "vertical";
 export type PhotoSubject = "all" | "places" | "people";
@@ -172,6 +178,13 @@ const fold = (text: string) =>
     .replace(/æ/g, "ae")
     .replace(/ß/g, "ss");
 
+const treeIds = new Set(locationTree.map((node) => node.id));
+// A location's own name and every region above it, so "North Carolina" finds Boone.
+const ancestry = (id: string | undefined) =>
+  id && treeIds.has(id) ? locationPath(id).map((node) => node.name) : [];
+const nodeAncestry = (node: MapNode) =>
+  ancestry(node.id.slice(node.id.indexOf(":") + 1));
+
 /** Text search over places and photographs: every word must appear. */
 export function searchExplorer(
   places: TravelPlace[],
@@ -188,7 +201,9 @@ export function searchExplorer(
   const locations = getMapNodes(places, "location");
   const placeHits = [...getMapNodes(places, "country"), ...locations]
     .map((node) => ({ node, collection: collection(node) }))
-    .filter(({ node, collection }) => matches(node.label, collection));
+    .filter(({ node, collection }) =>
+      matches(node.label, collection, ...nodeAncestry(node)),
+    );
   if (!words.length) return { places: placeHits, photos: [] };
   // Locations before countries, so a photo is listed under its own place.
   const seen = new Set<string>();
@@ -198,8 +213,22 @@ export function searchExplorer(
       if (seen.has(photo.src)) continue;
       seen.add(photo.src);
       const name = collection(node);
-      if (matches(photo.title, photo.alt, node.label, name))
+      if (
+        matches(
+          photo.title,
+          photo.alt,
+          node.label,
+          name,
+          ...ancestry(photoLocations.get(photo.src)),
+        )
+      )
         photos.push({ photo, node, collection: name });
     }
-  return { places: placeHits, photos: photos.slice(0, limit) };
+  // Round-robin across places, so a region's capped list samples every place under it.
+  const byPlace = [...Map.groupBy(photos, (hit) => hit.node.id).values()];
+  const sampled: typeof photos = [];
+  for (let i = 0; sampled.length < Math.min(limit, photos.length); i++)
+    for (const group of byPlace)
+      if (group[i] && sampled.length < limit) sampled.push(group[i]);
+  return { places: placeHits, photos: sampled };
 }
