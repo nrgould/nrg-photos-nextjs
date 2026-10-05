@@ -2886,6 +2886,20 @@ html[data-photo-theme="dark"] {
     gap: 16px;
     margin-top: 16px;
   }
+  .account-dialog-opt-in {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    margin-block: -8px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .account-dialog-opt-in input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--ink);
+  }
   @media (min-width: 701px) {
     .location-drawer[data-vaul-drawer] {
       inset: 12px 12px 12px auto;

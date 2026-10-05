@@ -82,6 +82,8 @@ export function SignInDialog({
   const [codeType, setCodeType] = useState<"email" | "email_change">("email");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  // Unchecked by default: an account isn't consent to marketing email.
+  const [optIn, setOptIn] = useState(false);
   const [signedIn, setSignedIn] = useState(userId);
   const field = useRef<HTMLInputElement>(null);
   // Signing out starts the next sign-in from the email step.
@@ -93,7 +95,8 @@ export function SignInDialog({
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!supabase) return;
-    const value = String(new FormData(event.currentTarget).get("value")).trim();
+    const form = new FormData(event.currentTarget);
+    const value = String(form.get("value")).trim();
     setPending(true);
     setError(null);
     const redirect = window.location.origin + window.location.pathname;
@@ -126,6 +129,7 @@ export function SignInDialog({
             },
           }));
         setCodeType(type);
+        setOptIn(form.has("optIn"));
       }
     } catch (thrown) {
       error = thrown instanceof Error ? thrown : new Error("Try again.");
@@ -133,6 +137,13 @@ export function SignInDialog({
     setPending(false);
     if (error) return setError(error.message);
     if (!sentTo) return setSentTo(value);
+    // Consent is kept on the account, with when it was given; the email list reads it from there.
+    if (optIn) {
+      const { error } = await supabase.auth.updateUser({
+        data: { marketing_opt_in: new Date().toISOString() },
+      });
+      if (error) console.error("Saving the email opt-in failed", error);
+    }
     onOpenChange(false);
     onSignedIn?.();
   }
@@ -189,6 +200,12 @@ export function SignInDialog({
                   })}
             />
           </Label>
+          {!sentTo && (
+            <label className="account-dialog-opt-in">
+              <input type="checkbox" name="optIn" defaultChecked={optIn} />
+              Email me when new presets come out
+            </label>
+          )}
           {error && (
             <p role="alert" className="form-error">
               {error}
