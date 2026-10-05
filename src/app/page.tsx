@@ -1,57 +1,53 @@
-import Hero from '@/components/Hero';
-import AboutSection from '@/components/AboutSection';
-import ScrollGallery from '@/components/ScrollGallery';
-import ContactPostcard from '@/components/ContactPostcard';
-import TravelSection from '@/components/TravelSection';
-import PolaroidStackSection from '@/components/PolaroidStackSection';
-import QuoteSection from '@/components/QuoteSection';
-import TestimonialsSection from '@/components/TestimonialsSection';
-
-export default function Home() {
-	return (
-		<div className='items-center min-h-screen'>
-			<main className='flex flex-col row-start-2 items-center sm:items-start w-full'>
-				{/* Hero */}
-				<div className='w-full'>
-					<Hero />
-				</div>
-
-				{/* About Section */}
-				<div className='w-full'>
-					<AboutSection />
-				</div>
-
-				{/* Portfolio Section */}
-				<div className='w-full'>
-					<ScrollGallery headingText='NRG' />
-				</div>
-
-				{/* Quote */}
-				<div className='w-full'>
-					<QuoteSection />
-				</div>
-
-				{/* Testimonials */}
-				<div className='w-full'>
-					<TestimonialsSection />
-				</div>
-
-				{/* Travel */}
-				<div className='w-full'>
-					<TravelSection />
-				</div>
-
-				{/* Polaroid Stack Section */}
-				<div className='w-full'>
-					<PolaroidStackSection />
-				</div>
-
-				{/* Contact Postcard */}
-				<div className='w-full'>
-					<ContactPostcard />
-				</div>
-			</main>
-			<footer className='row-start-3 flex gap-[24px] flex-wrap items-center justify-center'></footer>
-		</div>
-	);
+import PlacesExplorer from "@/components/PlacesExplorer";
+import { curating } from "@/lib/server/curate";
+import { getMapNode } from "@/lib/map-hierarchy";
+import { travelPlaces } from "@/lib/places";
+import {
+  createPresetCatalogState,
+  type PresetCategory,
+} from "@/lib/preset-commerce";
+export const metadata = { alternates: { canonical: "/" } };
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const initialLocationId =
+    typeof params.location === "string" &&
+    getMapNode(params.location, travelPlaces)
+      ? params.location
+      : undefined;
+  const initialCatalogState = createPresetCatalogState({
+    query: typeof params.query === "string" ? params.query.slice(0, 200) : "",
+    category:
+      typeof params.category === "string"
+        ? (params.category as PresetCategory)
+        : "All",
+    selectedPresetId: typeof params.preset === "string" ? params.preset : null,
+  });
+  const initialView =
+    params.view === "cart" ||
+    params.view === "catalog" ||
+    params.view === "library"
+      ? params.view
+      : undefined;
+  return (
+    <main id="main" className="explorer">
+      <PlacesExplorer
+        key={JSON.stringify({
+          initialLocationId,
+          initialCatalogState,
+          initialView,
+        })}
+        initialLocationId={initialLocationId}
+        initialCatalogState={initialCatalogState}
+        initialView={initialView}
+        curating={curating()}
+        contactEmailEnabled={Boolean(
+          process.env.RESEND_API_KEY && process.env.CONTACT_FROM_EMAIL,
+        )}
+      />
+    </main>
+  );
 }

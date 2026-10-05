@@ -1,0 +1,594 @@
+[
+  {
+    "id": "eibsee-1",
+    "number": 1,
+    "name": "Eibsee I",
+    "category": "Natural",
+    "location": "eibsee",
+    "bestFor": "Lakes, coastlines and rough water under gray skies, in the Alps or on northern coasts.",
+    "whatItDoes": "The Stetten I base with dehaze pulled to -13 for a softer, misty feel, and yellows slightly desaturated and brightened.",
+    "watchOut": "Negative dehaze takes more contrast out of already foggy frames.",
+    "example": {
+      "before": "eibsee-1/8144217-c1594d9b-before.webp",
+      "after": "eibsee-1/8144217-665bb948-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-4337374.webp",
+      "/photos/lr-3109952.webp",
+      "/photos/lr-4337402.webp",
+      "/photos/lr-2705401.webp"
+    ]
+  },
+  {
+    "id": "grainau-1",
+    "number": 2,
+    "name": "Grainau I",
+    "category": "Natural",
+    "location": "grainau",
+    "bestFor": "Alpine meadows, lone trees and lakeside forest in daylight.",
+    "whatItDoes": "The shared base with vibrance cut and saturation raised, which pushes strong colors further while holding muted ones back. Yellows lean green.",
+    "example": {
+      "before": "grainau-1/8167179-cc6d58cc-before.webp",
+      "after": "grainau-1/8167179-9b6a014d-after.webp",
+      "width": 1538,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-4151205.webp",
+      "/photos/lr-4393836.webp",
+      "/photos/lr-3110028.webp",
+      "/photos/lr-4337449.webp"
+    ]
+  },
+  {
+    "id": "seiser-alm-1",
+    "number": 3,
+    "name": "Seiser Alm I",
+    "category": "Natural",
+    "also": ["Lush Green"],
+    "location": "seiser-alm",
+    "bestFor": "Alpine meadows with peaks behind them and green paths in soft light.",
+    "whatItDoes": "The shared base with vibrance cut and saturation up, and yellows shifted toward green and brightened for vivid grass.",
+    "watchOut": "Close to Grainau I, with a stronger yellow shift (+43) that makes grass greener.",
+    "example": {
+      "before": "seiser-alm-1/4393977-b2bb1bef-before.webp",
+      "after": "seiser-alm-1/4393977-525608aa-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-4393941.webp",
+      "/photos/lr-4434733.webp",
+      "/photos/lr-4475519.webp",
+      "/photos/lr-4519901.webp"
+    ]
+  },
+  {
+    "id": "zugspitze-1",
+    "number": 4,
+    "name": "Zugspitze I",
+    "category": "Natural",
+    "location": "zugspitze",
+    "bestFor": "Peaks lit at sunrise or sunset, alpine chapels and summit crosses.",
+    "whatItDoes": "The shared base with a vibrance lift and greens shifted toward yellow, desaturated and brightened for pale spring grass. Yellows lean green and brighten.",
+    "watchOut": "Forest goes pale and yellowish. Grainau I keeps greens deeper.",
+    "example": {
+      "before": "zugspitze-1/8116962-e6756306-before.webp",
+      "after": "zugspitze-1/8116962-5c144baa-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-4151203.webp",
+      "/photos/lr-4337400.webp",
+      "/photos/lr-4337408.webp",
+      "/photos/lr-4337432.webp"
+    ]
+  },
+  {
+    "id": "vienna-1",
+    "number": 5,
+    "name": "Vienna I",
+    "category": "Natural",
+    "location": "vienna",
+    "bestFor": "Palaces, formal gardens, gothic spires and lake views under overcast skies.",
+    "whatItDoes": "The shared base with deeper blacks and a large green-primary hue shift in calibration.",
+    "watchOut": "The calibration shift (+88) changes every green. Check foliage frame by frame.",
+    "example": {
+      "before": "vienna-1/4574707-50b11bae-before.webp",
+      "after": "vienna-1/4574707-7640f0ac-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-4663337.webp",
+      "/photos/lr-7028957.webp",
+      "/photos/lr-7029012.webp",
+      "/photos/lr-7029109.webp"
+    ]
+  },
+  {
+    "id": "allgau-1",
+    "number": 6,
+    "name": "Bavaria II",
+    "category": "Natural",
+    "location": "allgau",
+    "bestFor": "Green pastures, mountain lakes and single trees under big skies.",
+    "whatItDoes": "Near-maximum highlight recovery (-95), shadows at +76, a slight dehaze boost and grain 34. Yellows pushed green and desaturated, greens and blues muted, warm highlights over blue shadows. It keeps an AI sky mask and two gradient masks.",
+    "watchOut": "The gradients sit where they were on the original frames. Reposition or delete them.",
+    "example": {
+      "before": "allgau-1/5309755-7f7e06eb-before.webp",
+      "after": "allgau-1/5309755-50e3bc60-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-4474869.webp",
+      "/photos/lr-7028989.webp",
+      "/photos/lr-7028993.webp",
+      "/photos/lr-7029113.webp"
+    ]
+  },
+  {
+    "id": "salzburg-1",
+    "number": 7,
+    "name": "Salzburg I",
+    "category": "Natural",
+    "location": "salzburg",
+    "bestFor": "Church and cathedral interiors and autumn paths where deep shadows need opening.",
+    "whatItDoes": "The shared base with shadows near the maximum (+84), a warm midtone grade, and aquas and blues muted. Grain 19.",
+    "example": {
+      "before": "salzburg-1/8117130-7d427ea6-before.webp",
+      "after": "salzburg-1/8117130-6152d651-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-4151296.webp",
+      "/photos/lr-4151240.webp",
+      "/photos/lr-4151238.webp",
+      "/photos/lr-4151244.webp"
+    ]
+  },
+  {
+    "id": "hallstatt-1",
+    "number": 8,
+    "name": "Hallstatt I",
+    "category": "Natural",
+    "location": "hallstatt",
+    "bestFor": "Overcast lake towns where you want the mist to stay cool and quiet.",
+    "whatItDoes": "The base color with a strong shadow lift, a dehaze cut, greens shifted further and heavily desaturated, and green primary saturation raised in calibration.",
+    "example": {
+      "before": "hallstatt-1/5376250-01060964-before.webp",
+      "after": "hallstatt-1/5376250-3e0f3f61-after.webp",
+      "width": 1545,
+      "height": 2048
+    },
+    "showcase": ["/photos/lr-7029043.webp"]
+  },
+  {
+    "id": "mount-rainier-2",
+    "number": 9,
+    "name": "Mount Rainier II",
+    "category": "Alpine Blue",
+    "location": "mount-rainier",
+    "bestFor": "Hazy or overcast mountain days where the green slopes need to stand out from a pale sky. Also works on mountain village streets.",
+    "whatItDoes": "Adds contrast and color, recovers bright skies, tints shadows blue and highlights warm, and shifts yellow-greens toward a cooler green.",
+    "example": {
+      "before": "mount-rainier-2/6247363-763dc4d3-before.webp",
+      "after": "mount-rainier-2/6247363-4c99edc0-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-7028966.webp",
+      "/photos/lr-8059682.webp",
+      "/photos/lr-7552804.webp",
+      "/photos/lr-4433894.webp"
+    ]
+  },
+  {
+    "id": "hopfensee-2",
+    "number": 10,
+    "name": "Hopfensee I",
+    "category": "Alpine Blue",
+    "location": "hopfensee",
+    "bestFor": "Misty lakes, alpine villages and wooden houses in morning haze.",
+    "whatItDoes": "Strong contrast (+38) and vibrance (+45), highlights at -77, yellows pushed green, reds shifted slightly toward magenta and grain 26. Blues and aquas keep most of their saturation.",
+    "example": {
+      "before": "hopfensee-2/5277652-1bc559be-before.webp",
+      "after": "hopfensee-2/5277652-f280b041-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-7028939.webp",
+      "/photos/lr-7029046.webp",
+      "/photos/lr-8059639.webp",
+      "/photos/lr-8059161.webp"
+    ]
+  },
+  {
+    "id": "stetten-1",
+    "number": 11,
+    "name": "Stetten I",
+    "category": "Alpine Blue",
+    "location": "stetten",
+    "bestFor": "Green countryside, vineyards and village views in daylight, including shots framed through gates or windows.",
+    "whatItDoes": "The shared base look (softened texture and clarity, faded blacks, blue shadows, warm highlights, light grain) with shadows opened wide and greens and yellows made brighter and more saturated.",
+    "watchOut": "Greens get loud fast on already lush scenes. Pull Green saturation back if grass starts to glow.",
+    "example": {
+      "before": "stetten-1/8143889-1f43d5a0-before.webp",
+      "after": "stetten-1/8143889-85bd4c2b-after.webp",
+      "width": 1546,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-4337403.webp",
+      "/photos/lr-4151128.webp",
+      "/photos/lr-3248114.webp",
+      "/photos/lr-4151153.webp"
+    ]
+  },
+  {
+    "id": "mount-fremont-1",
+    "number": 12,
+    "name": "Mount Fremont I",
+    "category": "Alpine Blue",
+    "location": "mount-rainier",
+    "bestFor": "Bright, high-contrast scenes where the sky would otherwise blow out. It is built on Mount Rainier II, so it suits the same mountain scenes.",
+    "whatItDoes": "Mount Rainier II with full highlight recovery and much more vibrance.",
+    "watchOut": "The extra vibrance makes saturated clothing loud. Lower Vibrance if reds run hot.",
+    "example": {
+      "before": "mount-fremont-1/6246986-32eafd23-before.webp",
+      "after": "mount-fremont-1/6246986-408ee530-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-6246902.webp",
+      "/photos/lr-8059685.webp",
+      "/photos/lr-8059671.webp",
+      "/photos/lr-8059637.webp"
+    ]
+  },
+  {
+    "id": "kiruna-2",
+    "number": 13,
+    "name": "Kiruna II",
+    "category": "Alpine Blue",
+    "location": "kiruna",
+    "bestFor": "Arctic rivers, winter skies and buildings under heavy cloud, plus golden autumn birch.",
+    "whatItDoes": "A strong shadow lift with a strong grade (blue shadows, warm highlights, warm midtone), and yellows and greens shifted, saturated and brightened for golden foliage.",
+    "watchOut": "Nothing like Kiruna I. Yellows can go neon under artificial light.",
+    "example": {
+      "before": "kiruna-2/8117802-72e92d2f-before.webp",
+      "after": "kiruna-2/8117802-57f93810-after.webp",
+      "width": 1538,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-4337410.webp",
+      "/photos/lr-4337392.webp",
+      "/photos/lr-4337395.webp",
+      "/photos/lr-4337391.webp"
+    ]
+  },
+  {
+    "id": "lago-di-braies-2",
+    "number": 14,
+    "name": "Lago di Braies I",
+    "category": "Alpine Blue",
+    "location": "braies",
+    "bestFor": "Turquoise mountain lakes and the trails around them.",
+    "whatItDoes": "Recovers bright skies, lifts shadows, shifts aqua water toward blue and deepens it. No grain, so it stays clean.",
+    "watchOut": "Magenta is fully desaturated, so pink flowers or clothing turn gray.",
+    "example": {
+      "before": "lago-di-braies-2/4434635-57cb69dd-before.webp",
+      "after": "lago-di-braies-2/4434635-5be44804-after.webp",
+      "width": 1537,
+      "height": 2048
+    },
+    "showcase": ["/photos/lr-4434635.webp"]
+  },
+  {
+    "id": "lofoten-1",
+    "number": 15,
+    "name": "Lofoten I",
+    "category": "Moody",
+    "location": "nordland",
+    "bestFor": "Rock, weathered wood, fishing gear and other textured subjects in overcast light.",
+    "whatItDoes": "Heavy texture (+28) and clarity (+48) with a faded curve that lifts blacks hard. No HSL changes.",
+    "watchOut": "This is the strongest clarity in the library. Keep it off faces and noisy skies.",
+    "example": {
+      "before": "lofoten-1/8148391-5d447ee4-before.webp",
+      "after": "lofoten-1/8148391-9d9087d9-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-2366219.webp",
+      "/photos/lr-2366227.webp",
+      "/photos/lr-3827516.webp",
+      "/photos/lr-4337378.webp"
+    ]
+  },
+  {
+    "id": "lofoten-2",
+    "number": 16,
+    "name": "Lofoten II",
+    "category": "Moody",
+    "location": "lofoten",
+    "bestFor": "Arctic harbors, snowy peaks and open sea under gray skies.",
+    "whatItDoes": "The shared base with shadows at +100 and aquas and blues desaturated, so sea and sky read cold and quiet.",
+    "example": {
+      "before": "lofoten-2/8117634-057c104a-before.webp",
+      "after": "lofoten-2/8117634-6d343c99-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-2366195.webp",
+      "/photos/lr-3827519.webp",
+      "/photos/lr-3827515.webp",
+      "/photos/lr-4148262.webp"
+    ]
+  },
+  {
+    "id": "salzburg-2",
+    "number": 17,
+    "name": "Salzburg II",
+    "category": "Moody",
+    "location": "salzburg",
+    "bestFor": "Golden-hour town and lakeside views, fortresses and stone archways.",
+    "whatItDoes": "More contrast and less shadow lift than Salzburg I, darker yellows, muted aquas and blues, and the red primary shifted toward orange and desaturated in calibration.",
+    "watchOut": "Red flowers and signs go dull from the red primary cut.",
+    "example": {
+      "before": "salzburg-2/8144381-87f0d71d-before.webp",
+      "after": "salzburg-2/8144381-865b0760-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-2927561.webp",
+      "/photos/lr-4151297.webp",
+      "/photos/lr-4151292.webp",
+      "/photos/lr-4151293.webp"
+    ]
+  },
+  {
+    "id": "vienna-2",
+    "number": 18,
+    "name": "Vienna II",
+    "category": "Moody",
+    "location": "vienna",
+    "bestFor": "Candlelit interiors, church naves and stained glass in warm low light.",
+    "whatItDoes": "The Rome I color base with light highlight recovery, a dehaze cut, oranges muted and brightened, much brighter yellows, more vibrance and saturation, and lighter grain (21).",
+    "watchOut": "The light highlight recovery lets bright windows and flames clip.",
+    "example": {
+      "before": "vienna-2/5474924-3e5da64a-before.webp",
+      "after": "vienna-2/5474924-9d62cd93-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-7028887.webp",
+      "/photos/lr-7029115.webp",
+      "/photos/lr-5148806.webp",
+      "/photos/lr-7029114.webp"
+    ]
+  },
+  {
+    "id": "rome-2",
+    "number": 19,
+    "name": "Rome I",
+    "category": "Soft Film",
+    "location": "rome",
+    "bestFor": "Hillside villages, vineyards and canal houses in soft or overcast light.",
+    "whatItDoes": "The second base family: softened texture and clarity, heavy grain (50), yellows pushed green and desaturated, greens muted, aquas and blues mostly drained, and a red calibration shift.",
+    "watchOut": "Skies go nearly colorless.",
+    "example": {
+      "before": "rome-2/4537995-d2145d4a-before.webp",
+      "after": "rome-2/4537995-3763bf0e-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-4373118.webp",
+      "/photos/lr-6530013.webp",
+      "/photos/lr-4151127.webp",
+      "/photos/lr-4151066.webp"
+    ]
+  },
+  {
+    "id": "bavaria-1",
+    "number": 20,
+    "name": "Bavaria I",
+    "category": "Soft Film",
+    "location": "bavaria",
+    "bestFor": "Misty lake villages, forest ponds and pale cathedrals in flat light.",
+    "whatItDoes": "Rome I with lighter highlight recovery (-49) and vibrance cut to -13, so it is flatter and more muted.",
+    "example": {
+      "before": "bavaria-1/5244383-5535df34-before.webp",
+      "after": "bavaria-1/5244383-1bb2bc04-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-4474676.webp",
+      "/photos/lr-4519858.webp",
+      "/photos/lr-4537627.webp",
+      "/photos/lr-4574296.webp"
+    ]
+  },
+  {
+    "id": "amsterdam-2",
+    "number": 21,
+    "name": "Amsterdam I",
+    "category": "Soft Film",
+    "location": "amsterdam",
+    "bestFor": "Tree-lined streets, canals and old buildings with greenery.",
+    "whatItDoes": "Rome I with less highlight recovery (-57), saturation +35 and lighter grain (34).",
+    "example": {
+      "before": "amsterdam-2/8118802-c61e28ea-before.webp",
+      "after": "amsterdam-2/8118802-a3c51423-after.webp",
+      "width": 1537,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-7028892.webp",
+      "/photos/lr-2895337.webp",
+      "/photos/lr-5170743.webp",
+      "/photos/lr-7028913.webp"
+    ]
+  },
+  {
+    "id": "hoh-rainforest-1",
+    "number": 22,
+    "name": "Hoh Rainforest I",
+    "category": "Soft Film",
+    "location": "hoh-rainforest",
+    "bestFor": "Dense, shaded forest with moss, tall trunks and ferns.",
+    "whatItDoes": "Softens texture and clarity, raises overall saturation while holding yellows and greens back so the forest stays deep green, and adds grain.",
+    "watchOut": "Saturation is high, so red or pink flowers in the frame get very intense.",
+    "example": {
+      "before": "hoh-rainforest-1/6330669-a7f0d8f0-before.webp",
+      "after": "hoh-rainforest-1/6330669-77f31f01-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-6330669.webp",
+      "/photos/lr-6331468.webp",
+      "/photos/lr-6530010.webp"
+    ]
+  },
+  {
+    "id": "neuschwanstein-1",
+    "number": 23,
+    "name": "Neuschwanstein I",
+    "category": "Soft Film",
+    "location": "neuschwanstein",
+    "bestFor": "Castles and villages seen from a viewpoint, with lakes and forest around them, including on overcast days.",
+    "whatItDoes": "Raises saturation and vibrance while holding yellows and greens back, with a blue and warm split and light grain.",
+    "example": {
+      "before": "neuschwanstein-1/5244100-8960897c-before.webp",
+      "after": "neuschwanstein-1/5244100-bfa87848-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-7028938.webp",
+      "/photos/lr-7028958.webp",
+      "/photos/lr-7028931.webp"
+    ]
+  },
+  {
+    "id": "mount-rainier-1",
+    "number": 24,
+    "name": "Mount Rainier I",
+    "category": "Soft Film",
+    "location": "mount-rainier",
+    "bestFor": "Green landscapes in soft or overcast light: pastures, hillsides and forest paths.",
+    "whatItDoes": "Cuts yellow, green and orange saturation for muted greens, tints shadows teal, adds a red-magenta midtone grade and brightens reds.",
+    "example": {
+      "before": "mount-rainier-1/6279684-352ab5e0-before.webp",
+      "after": "mount-rainier-1/6279684-41e6d9b6-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-8059597.webp",
+      "/photos/lr-8059649.webp",
+      "/photos/lr-4394299.webp",
+      "/photos/lr-6246902.webp"
+    ]
+  },
+  {
+    "id": "hallstatt-3",
+    "number": 25,
+    "name": "Hallstatt II",
+    "category": "Golden",
+    "location": "hallstatt",
+    "bestFor": "Gray days you want to feel warm, a soft golden haze over lake and mountains.",
+    "whatItDoes": "Brightens whites while pulling highlights far down, so fog and cloud keep their detail. Adds saturation, a blue and warm split, grain, and masks for sky, water and subject.",
+    "example": {
+      "before": "hallstatt-3/5336622-c4e92196-before.webp",
+      "after": "hallstatt-3/5336622-89de3ed0-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-7029000.webp",
+      "/photos/lr-7029057.webp",
+      "/photos/lr-7029005.webp",
+      "/photos/lr-7029022.webp"
+    ]
+  },
+  {
+    "id": "kiruna-1",
+    "number": 26,
+    "name": "Kiruna I",
+    "category": "Golden",
+    "location": "kiruna",
+    "bestFor": "Snow and winter scenes that need almost no styling.",
+    "whatItDoes": "Mild contrast, brighter whites and a vibrance lift. No grade, no grain, no HSL work.",
+    "watchOut": "It is the lightest preset in the library, so it will not tie a set together the way the graded presets do.",
+    "example": {
+      "before": "kiruna-1/8167472-711a53f8-before.webp",
+      "after": "kiruna-1/8167472-f839f416-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-2366289.webp",
+      "/photos/lr-2366297.webp",
+      "/photos/lr-4337391.webp",
+      "/photos/lr-2366285.webp"
+    ]
+  },
+  {
+    "id": "boston-2",
+    "number": 27,
+    "name": "Isabella Gardens",
+    "category": "Mint",
+    "location": "boston",
+    "bestFor": "Ornate interiors, period rooms and architectural detail.",
+    "whatItDoes": "Moderate highlight recovery (-59) with shadows at +59, a dehaze cut, grain 25 and a soft curve. Aquas and blues drained by about two thirds, yellows pushed green.",
+    "watchOut": "Bright windows can clip at -59. Pull them down with a mask.",
+    "example": {
+      "before": "boston-2/5624716-3f1e4c29-before.webp",
+      "after": "boston-2/5624716-9326c986-after.webp",
+      "width": 1544,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-7029078.webp",
+      "/photos/lr-6331469.webp",
+      "/photos/lr-7029088.webp"
+    ]
+  },
+  {
+    "id": "cary-4",
+    "number": 28,
+    "name": "Cary I",
+    "category": "Mint",
+    "location": "cary",
+    "bestFor": "Night light displays and lantern festivals, with skin kept warm under colored light.",
+    "whatItDoes": "A hazy glow from heavy texture reduction (-28) and negative dehaze (-22), then a grade: blue shadows, green-teal highlights and a warm midtone. Oranges lean red and are muted.",
+    "watchOut": "Aquas and blues lose about a third of their saturation, so blue lights read softer.",
+    "example": {
+      "before": "cary-4/6858814-d50d56e2-before.webp",
+      "after": "cary-4/6858814-5b979533-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": [
+      "/photos/lr-4890977.webp",
+      "/photos/lr-4890652.webp",
+      "/photos/lr-8059465.webp"
+    ]
+  }
+]

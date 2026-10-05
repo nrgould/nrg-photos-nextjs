@@ -1,0 +1,535 @@
+.catalog {
+  min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  color: var(--ink);
+  background: var(--paper);
+  font-family: var(--font-explorer-sans), sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.header {
+  padding: 12px 16px;
+}
+/* A lone page's heading row shares its line with the drawer's close button. */
+.header > .heading:first-child {
+  padding-right: 52px;
+}
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.heading h2 {
+  margin: 3px 0 0;
+  font:
+    500 24px/1.25 var(--font-explorer-display),
+    serif;
+  letter-spacing: -0.02em;
+}
+.eyebrow {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+.total {
+  white-space: nowrap;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.cartCount {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.availability {
+  margin: 10px 0 0;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.back {
+  gap: 6px;
+  min-height: 44px;
+  padding: 0;
+  color: var(--ink);
+}
+.listPane {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+.listPane[hidden] {
+  display: none;
+}
+.filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+  padding: 0 16px;
+}
+.search {
+  position: relative;
+  grid-column: 1 / -1;
+}
+.search > svg {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  translate: 0 -50%;
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+.search input {
+  height: 44px;
+  min-height: 44px;
+  padding: 0 44px 0 36px;
+  border-radius: 10px;
+}
+.search input::-webkit-search-cancel-button {
+  appearance: none;
+}
+/* 4px inset inside the 10px field, so 6px keeps the corners concentric. */
+.clear {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+.clear button {
+  border-radius: 6px;
+  color: var(--muted-foreground);
+}
+.clear button:hover {
+  color: var(--ink);
+  text-decoration: none;
+}
+.categoryLabel {
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+/* Its label text is screen-reader only, so no gap above the select. */
+.categoryLabel > * {
+  margin-top: 0;
+}
+.category {
+  color: var(--ink);
+}
+.category select {
+  min-height: 44px;
+  padding: 8px 28px 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: 14px;
+}
+.category > svg {
+  right: 10px;
+}
+.resultCount {
+  margin: 12px 16px 4px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+.results {
+  min-height: 0;
+  padding: 8px 12px 20px;
+}
+.items {
+  gap: 0;
+}
+.item {
+  flex-wrap: nowrap;
+  gap: 8px;
+  padding: 8px 4px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+}
+.presetRows {
+  gap: 2px;
+}
+.presetRow {
+  position: relative;
+  flex-wrap: nowrap;
+  gap: 12px;
+  padding: 8px;
+  border: 0;
+  border-radius: 14px;
+}
+.presetRow:hover,
+.presetRow:has(.preset:focus-visible) {
+  background: var(--muted);
+}
+.presetRow:has(.preset:focus-visible) {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+.itemContent {
+  min-width: 0;
+}
+.itemActions {
+  flex-shrink: 0;
+  gap: 8px;
+}
+.rowPrice {
+  display: grid;
+  gap: 2px;
+  min-width: 40px;
+  text-align: right;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.rowPrice small {
+  color: var(--muted-foreground);
+  font-size: 10px;
+}
+/* 6px matches the row's inner radius, like the mood icon. */
+.add {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: 6px;
+}
+/* Unselected, the plus is borderless so the row doesn't end on a box. */
+.add:not([data-selected="true"]) {
+  border-color: transparent;
+  background: transparent;
+}
+.add:not([data-selected="true"]):hover {
+  background: var(--line);
+}
+.add[data-selected="true"] {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+}
+.add:disabled {
+  cursor: default;
+  opacity: 1;
+}
+.preset {
+  color: var(--ink);
+  text-decoration: none;
+  outline: none;
+}
+.preset::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+.chevron {
+  color: var(--muted-foreground);
+}
+/* The add button sits above the stretched link. */
+.itemActions > button {
+  position: relative;
+}
+/* 14px row radius less its 8px padding: 6px keeps the corners concentric. */
+.mood {
+  align-self: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--muted-foreground);
+  translate: none;
+}
+.empty {
+  padding: 24px 4px;
+}
+.empty p {
+  margin-bottom: 12px;
+}
+.detail {
+  min-height: 0;
+  padding: 0 16px 24px;
+}
+.detailNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.steps {
+  display: flex;
+  margin-right: -8px;
+}
+/* The drawer's close button sits at the end of this row. */
+.standalone .steps {
+  margin-right: 32px;
+}
+.standalone {
+  padding-top: 16px;
+}
+.productHeading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0 22px;
+}
+.productNumber {
+  flex-shrink: 0;
+  width: 48px;
+  font:
+    400 32px/1 var(--font-explorer-display),
+    serif;
+  color: var(--muted-foreground);
+}
+.productHeading h3 {
+  margin: 4px 0 0;
+  font:
+    500 28px/1.15 var(--font-explorer-display),
+    serif;
+}
+.madeIn {
+  margin: 2px 0 0;
+  color: var(--muted-foreground);
+  font-size: 13px;
+}
+.madeIn .placeLink {
+  min-height: 0;
+  padding: 0;
+  color: var(--ink);
+}
+.purchase {
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.purchase > p:first-child {
+  margin: 0 0 12px;
+  font-size: 13px;
+}
+.notice {
+  margin: 10px 0 0;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.facts {
+  margin-top: 24px;
+}
+.facts h4,
+.facts h5 {
+  margin: 0 0 7px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.facts p {
+  margin: 0 0 10px;
+  color: var(--muted-foreground);
+  font-size: 13px;
+}
+.facts dt {
+  font-size: 13px;
+  font-weight: 600;
+}
+.facts dd {
+  margin: 2px 0 12px;
+  color: var(--muted-foreground);
+  font-size: 13px;
+}
+/* The showcase and place grids sit under one label, apart from the usage text. */
+.edited {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.edited > h4 {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+/* Hand-picked photos run larger than the place grids below. */
+.showcase {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.showcase button {
+  aspect-ratio: 4 / 5;
+}
+.placeLink {
+  gap: 4px;
+  color: inherit;
+  font-weight: inherit;
+}
+@media (hover: hover) {
+  .preset:hover {
+    background: var(--pale);
+    text-decoration: none;
+  }
+}
+.collectionAction {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  min-height: 44px;
+  margin: 0;
+  gap: 4px 12px;
+  border-radius: 10px;
+  white-space: normal;
+  text-align: left;
+}
+.collectionAction span {
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+.collectionAction:disabled {
+  cursor: default;
+}
+.selectionIcon {
+  display: grid;
+  width: 18px;
+  height: 18px;
+}
+.selectionIcon > span {
+  grid-area: 1 / 1;
+  display: grid;
+  place-items: center;
+}
+.cartPanel {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  min-height: 0;
+  height: 100%;
+  color: var(--ink);
+  background: var(--paper);
+  font-family: var(--font-explorer-sans), sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.cartResults {
+  padding: 0 16px;
+}
+.cartName {
+  font-size: 14px;
+  font-weight: 500;
+}
+.cartCategory {
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+.libraryGuest {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+.libraryGuest p {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.cartSummary {
+  flex: 0 0 auto;
+  padding: 12px 16px max(16px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  background: var(--paper);
+}
+.discountHint {
+  margin: 0 0 12px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.totals {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 16px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.totals > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.totals dd {
+  margin: 0;
+  white-space: nowrap;
+}
+.totalLine {
+  padding-top: 10px;
+  font-weight: 600;
+}
+.error {
+  margin: 12px 0 0;
+  color: var(--destructive);
+  font-size: 13px;
+}
+.store {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px max(16px, env(safe-area-inset-left)) 40px;
+  font-family: var(--font-explorer-sans), sans-serif;
+}
+.storeNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.cartTrigger {
+  min-height: 44px;
+  border-radius: 12px;
+}
+.cartTrigger > span {
+  min-width: 1.4em;
+  font-variant-numeric: tabular-nums;
+}
+.storeContent {
+  height: min(850px, 85dvh);
+  min-height: 450px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.storePane {
+  height: 100%;
+  min-height: 0;
+}
+.storePane[hidden] {
+  display: none;
+}
+.storePane:focus {
+  outline: none;
+}
+.store .catalog {
+  font-family: var(--font-explorer-sans), sans-serif;
+}
+@media (prefers-reduced-motion: reduce) {
+  .catalog button,
+  .cartPanel button,
+  .storeNav button {
+    transition-duration: 0ms;
+  }
+}
+
+.store {
+  --paper: var(--neutral-0);
+  --pale: var(--neutral-100);
+  --ink: var(--neutral-900);
+  --line: var(--neutral-200);
+  --muted-foreground: var(--neutral-600);
+  --input: var(--neutral-300);
+  --ring: var(--neutral-600);
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --primary: var(--green-900);
+  --primary-foreground: var(--neutral-0);
+  --border: var(--line);
+}
+:global(html[data-photo-theme="dark"]) .store {
+  --paper: var(--neutral-950);
+  --pale: var(--neutral-900);
+  --ink: var(--neutral-100);
+  --line: var(--neutral-700);
+  --muted-foreground: var(--neutral-300);
+  --input: var(--neutral-500);
+  --ring: var(--neutral-300);
+}

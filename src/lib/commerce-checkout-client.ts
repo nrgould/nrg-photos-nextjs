@@ -1,0 +1,119 @@
+import { getCatalogPreset } from "./preset-commerce";
+import { safePresetReturnPath } from "./preset-cart-storage";
+
+export type CheckoutAttempt = { requestId: string; key: string };
+export const checkoutAttemptStorageKey = "photography-checkout-attempt-v1";
+
+/** Presets a stored checkout attempt paid for, when it belongs to this user. */
+export function attemptPresetIds(value: unknown, userId: string): string[] {
+  if (!value || typeof value !== "object" || !("key" in value)) return [];
+  try {
+    const [owner, ids] = JSON.parse(String(value.key)) as unknown[];
+    return owner === userId && Array.isArray(ids)
+      ? ids.filter(
+          (id): id is string =>
+            typeof id === "string" && Boolean(getCatalogPreset(id)),
+        )
+      : [];
+  } catch {
+    return [];
+  }
+}
+export type OwnershipSnapshot = {
+  sessionKey: string;
+  revision: number;
+  presetIds: string[];
+  rewardPresetId: string | null;
+};
+
+export function checkoutReturnPath(value: string): string {
+  const url = new URL(
+    safePresetReturnPath(value),
+    "https://photography.invalid",
+  );
+  url.searchParams.delete("checkout");
+  url.searchParams.sort();
+  return `${url.pathname}${url.search}`;
+}
+
+export function currentOwnership(
+  snapshot: OwnershipSnapshot | null,
+  sessionKey: string | null,
+  revision: number,
+  available: boolean,
+): string[] | null {
+  return available &&
+    sessionKey &&
+    snapshot?.sessionKey === sessionKey &&
+    snapshot.revision === revision
+    ? snapshot.presetIds
+    : null;
+}
+export function checkoutAttempt(
+  userId: string,
+  presetIds: readonly string[],
+  returnPath: string,
+  previous: unknown,
+  createId: () => string,
+): CheckoutAttempt {
+  const ids = [...new Set(presetIds)].sort();
+  if (!userId || !ids.length || ids.some((id) => !getCatalogPreset(id)))
+    throw new Error("Invalid checkout selection");
+  const key = JSON.stringify([userId, ids, checkoutReturnPath(returnPath)]);
+  if (
+    previous &&
+    typeof previous === "object" &&
+    "key" in previous &&
+    previous.key === key &&
+    "requestId" in previous &&
+    typeof previous.requestId === "string" &&
+    /^[a-zA-Z0-9_-]{16,100}$/.test(previous.requestId)
+  )
+    return { key, requestId: previous.requestId };
+  const requestId = createId();
+  if (!/^[a-zA-Z0-9_-]{16,100}$/.test(requestId))
+    throw new Error("Invalid checkout request ID");
+  return { key, requestId };
+}
+
+/** The campaign's claimed preset in an ownership response, if it is a catalog preset. */
+export const claimedReward = (value: unknown) =>
+  value && typeof value === "object" && "rewardPresetId" in value
+    ? (getCatalogPreset(value.rewardPresetId)?.id ?? null)
+    : null;
+
+export function verifiedOwnership(value: unknown): string[] | null {
+  if (
+    !value ||
+    typeof value !== "object" ||
+    !("status" in value) ||
+    value.status !== "verified" ||
+    !("presetIds" in value) ||
+    !Array.isArray(value.presetIds) ||
+    value.presetIds.some(
+      (id) => typeof id !== "string" || !getCatalogPreset(id),
+    )
+  )
+    return null;
+  return [...new Set(value.presetIds as string[])];
+}
+
+export function stripeCheckoutUrl(value: unknown): string | null {
+  if (
+    !value ||
+    typeof value !== "object" ||
+    !("url" in value) ||
+    typeof value.url !== "string"
+  )
+    return null;
+  try {
+    const url = new URL(value.url);
+    return url.origin === "https://checkout.stripe.com" &&
+      !url.username &&
+      !url.password
+      ? url.href
+      : null;
+  } catch {
+    return null;
+  }
+}
