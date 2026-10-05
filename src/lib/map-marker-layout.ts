@@ -54,9 +54,11 @@ export function markerTargetVisible(
 type Viewport = { width: number; height: number };
 type Positioned = { id: string; x: number; y: number };
 
-const defaultOffset = { x: 0, y: -28 };
+// A thumbnail sits on its town; it moves off only to clear a neighbor.
+const defaultOffset = { x: 0, y: 0 };
 const candidates: readonly MarkerCallout[] = [
   defaultOffset,
+  { x: 0, y: -28 },
   { x: 0, y: 28 },
   { x: -28, y: 0 },
   { x: 28, y: 0 },

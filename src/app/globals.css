@@ -3427,17 +3427,9 @@ html[data-photo-theme="dark"] {
       opacity 160ms var(--ease-out),
       transform 260ms var(--ease-out);
   }
-  .map-thumbnail-host[data-marker-phase="entering"] .map-marker-leader,
-  .map-thumbnail-host[data-marker-phase="exiting"] .map-marker-leader {
-    opacity: 0;
-  }
-  .map-thumbnail-host[data-entry-motion="true"] .map-marker-leader {
-    transition: opacity 120ms var(--ease-out);
-  }
   @media (prefers-reduced-motion: reduce) {
     .map-thumbnail-host .map-marker-callout,
-    .map-thumbnail-host .map-marker-content,
-    .map-thumbnail-host .map-marker-leader {
+    .map-thumbnail-host .map-marker-content {
       transition: none;
     }
   }
@@ -3455,26 +3447,6 @@ html[data-photo-theme="dark"] {
     .map-thumbnail-host:has(.map-photo-marker:hover) .map-marker-label {
       opacity: 1;
     }
-  }
-  .map-marker-leader {
-    position: absolute;
-    inset: -44px;
-    width: 88px;
-    height: 88px;
-    overflow: visible;
-    pointer-events: none;
-    color: var(--ink);
-  }
-  .map-marker-leader path {
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1;
-    opacity: 0.55;
-  }
-  .map-marker-leader circle {
-    fill: var(--ink);
-    stroke: var(--paper);
-    stroke-width: 1.5;
   }
   .maplibregl-marker-covered {
     visibility: hidden;
@@ -3761,9 +3733,11 @@ html[data-photo-theme="dark"] {
     min-height: 44px;
     padding: 0;
   }
-  .drawer-gallery .drawer-up {
+  .drawer-up {
     width: 100%;
     min-height: 48px;
+  }
+  .drawer-gallery .drawer-up {
     margin-top: 16px;
   }
   .drawer-commerce-header > .drawer-back {

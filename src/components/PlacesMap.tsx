@@ -717,9 +717,6 @@ export default function PlacesMap(props: {
               if (element.dataset.labelHidden !== String(label.hidden))
                 element.dataset.labelHidden = String(label.hidden);
             }
-            const path = element.querySelector("path");
-            const line = `M0 0L${x} ${y}`;
-            if (path?.getAttribute("d") !== line) path?.setAttribute("d", line);
           }
           const viewport = instance.getCanvas().getBoundingClientRect();
           for (const { marker, exiting } of markers.current.values()) {
@@ -1001,7 +998,7 @@ export default function PlacesMap(props: {
       element.inert = true;
       element.setAttribute("aria-hidden", "true");
       element.style.setProperty("--callout-x", "0px");
-      element.style.setProperty("--callout-y", "-28px");
+      element.style.setProperty("--callout-y", "0px");
       element.dataset.labelSide = "above";
       element.dataset.markerPhase = motion ? "entering" : "active";
       element.dataset.entryMotion = String(motion);
@@ -1311,164 +1308,154 @@ export default function PlacesMap(props: {
       </div>
       {[...hosts.values()].map(({ element: host, node }) => {
         return createPortal(
-          <>
-            <svg
-              className="map-marker-leader"
-              viewBox="-44 -44 88 88"
-              aria-hidden="true"
-            >
-              <path d="M0 0L0 -28" />
-              <circle cx="0" cy="0" r="3.5" />
-            </svg>
+          <div
+            className="map-marker-callout"
+            onTransitionEnd={(event) => {
+              if (event.target !== event.currentTarget) return;
+              markerLayoutDirty.current = true;
+              map.current?.triggerRepaint();
+            }}
+          >
             <div
-              className="map-marker-callout"
-              onTransitionEnd={(event) => {
-                if (event.target !== event.currentTarget) return;
+              className="map-marker-content"
+              ref={(element) => {
+                if (!element) return;
                 markerLayoutDirty.current = true;
                 map.current?.triggerRepaint();
-              }}
-            >
-              <div
-                className="map-marker-content"
-                ref={(element) => {
-                  if (!element) return;
-                  markerLayoutDirty.current = true;
-                  map.current?.triggerRepaint();
-                  const entry = markers.current.get(node.id);
-                  if (entry && host.dataset.markerPhase === "entering") {
-                    if (entry.enterFrame !== undefined)
-                      cancelAnimationFrame(entry.enterFrame);
-                    // Commit the entrance style before the next animation frame.
-                    void element.offsetWidth;
-                    entry.enterFrame = requestAnimationFrame(() => {
-                      const current = markers.current.get(node.id);
-                      if (current && !current.exiting)
-                        host.dataset.markerPhase = "active";
-                      if (current) current.enterFrame = undefined;
-                      markerLayoutDirty.current = true;
-                      map.current?.triggerRepaint();
-                    });
-                  }
-                }}
-              >
-                <Button
-                  variant="quiet"
-                  press={false}
-                  className="map-photo-marker"
-                  style={{
-                    display: "block",
-                    position: "absolute",
-                    left: -24,
-                    top: -24,
-                    width: 48,
-                    height: 48,
-                    minHeight: 48,
-                    padding: 2,
-                    borderRadius: 12,
-                  }}
-                  data-location={node.collectionId}
-                  data-map-node={node.id}
-                  data-node-kind={node.kind}
-                  aria-label={`${node.kind === "cluster" ? `Zoom in to ${node.referenceLabel}` : `Explore ${node.label}`}, ${node.photoCount} ${node.photoCount === 1 ? "photograph" : "photographs"}`}
-                  aria-pressed={
-                    selectedNodeId
-                      ? selectedNodeId === node.id ||
-                        Boolean(node.memberIds?.includes(selectedNodeId))
-                      : props.selected === node.collectionId
-                  }
-                  onFocus={() => {
+                const entry = markers.current.get(node.id);
+                if (entry && host.dataset.markerPhase === "entering") {
+                  if (entry.enterFrame !== undefined)
+                    cancelAnimationFrame(entry.enterFrame);
+                  // Commit the entrance style before the next animation frame.
+                  void element.offsetWidth;
+                  entry.enterFrame = requestAnimationFrame(() => {
+                    const current = markers.current.get(node.id);
+                    if (current && !current.exiting)
+                      host.dataset.markerPhase = "active";
+                    if (current) current.enterFrame = undefined;
                     markerLayoutDirty.current = true;
                     map.current?.triggerRepaint();
-                  }}
-                  onClick={(event) => {
-                    if (
-                      markers.current.get(node.id)?.exiting ||
-                      (event.detail !== 0 && gestureMoved.current)
-                    )
-                      return;
-                    if (node.kind === "cluster") {
-                      const instance = map.current;
-                      const box = container.current?.getBoundingClientRect();
-                      const bounds = getCoordinateBounds(
-                        allNodes
-                          .filter((entry) => node.memberIds!.includes(entry.id))
-                          .map((entry) => entry.coordinates),
-                      );
-                      const camera =
-                        instance &&
-                        box &&
-                        bounds &&
-                        instance.cameraForBounds(bounds, {
-                          padding: framePadding(
-                            box.width,
-                            box.height,
-                            props.canvasOpen,
-                          ),
-                          maxZoom: toEngineZoom(10),
-                        });
-                      if (camera?.zoom === undefined) return;
-                      navigationTarget.current = node.coordinates;
-                      props.onZoomChange(
-                        Math.max(
-                          toUiZoom(camera.zoom),
-                          toUiZoom(instance!.getZoom()) * 1.5,
+                  });
+                }
+              }}
+            >
+              <Button
+                variant="quiet"
+                press={false}
+                className="map-photo-marker"
+                style={{
+                  display: "block",
+                  position: "absolute",
+                  left: -24,
+                  top: -24,
+                  width: 48,
+                  height: 48,
+                  minHeight: 48,
+                  padding: 2,
+                  borderRadius: 12,
+                }}
+                data-location={node.collectionId}
+                data-map-node={node.id}
+                data-node-kind={node.kind}
+                aria-label={`${node.kind === "cluster" ? `Zoom in to ${node.referenceLabel}` : `Explore ${node.label}`}, ${node.photoCount} ${node.photoCount === 1 ? "photograph" : "photographs"}`}
+                aria-pressed={
+                  selectedNodeId
+                    ? selectedNodeId === node.id ||
+                      Boolean(node.memberIds?.includes(selectedNodeId))
+                    : props.selected === node.collectionId
+                }
+                onFocus={() => {
+                  markerLayoutDirty.current = true;
+                  map.current?.triggerRepaint();
+                }}
+                onClick={(event) => {
+                  if (
+                    markers.current.get(node.id)?.exiting ||
+                    (event.detail !== 0 && gestureMoved.current)
+                  )
+                    return;
+                  if (node.kind === "cluster") {
+                    const instance = map.current;
+                    const box = container.current?.getBoundingClientRect();
+                    const bounds = getCoordinateBounds(
+                      allNodes
+                        .filter((entry) => node.memberIds!.includes(entry.id))
+                        .map((entry) => entry.coordinates),
+                    );
+                    const camera =
+                      instance &&
+                      box &&
+                      bounds &&
+                      instance.cameraForBounds(bounds, {
+                        padding: framePadding(
+                          box.width,
+                          box.height,
+                          props.canvasOpen,
                         ),
-                        "map",
-                      );
-                      return;
-                    }
+                        maxZoom: toEngineZoom(10),
+                      });
+                    if (camera?.zoom === undefined) return;
                     navigationTarget.current = node.coordinates;
-                    if (props.onChooseNode) props.onChooseNode(node);
-                    else props.onChoose(node.collectionId);
-                    if (node.kind === "country")
-                      props.onZoomChange(
-                        Math.max(3.5, toUiZoom(map.current?.getZoom() ?? 0)),
-                        "map",
-                      );
-                  }}
-                >
-                  {node.kind !== "location" &&
-                    node.photos
-                      .slice(1, 3)
-                      .reverse()
-                      .map((photo, index) => (
-                        <span
-                          className="map-marker-stack-layer"
-                          data-layer={index}
-                          key={photo.src}
-                          aria-hidden="true"
-                        >
-                          <Image
-                            src={photoUrl(photo.src)}
-                            alt=""
-                            width={44}
-                            height={44}
-                            sizes="44px"
-                            quality={75}
-                            draggable={false}
-                          />
-                        </span>
-                      ))}
-                  <Image
-                    className="map-marker-cover"
-                    src={photoUrl(node.cover.src)}
-                    alt=""
-                    width={44}
-                    height={44}
-                    sizes="44px"
-                    quality={75}
-                    draggable={false}
-                  />
-                  {node.photoCount > 1 && (
-                    <span className="map-marker-count" aria-hidden="true">
-                      {node.photoCount}
-                    </span>
-                  )}
-                  <span className="map-marker-label">{node.label}</span>
-                </Button>
-              </div>
+                    props.onZoomChange(
+                      Math.max(
+                        toUiZoom(camera.zoom),
+                        toUiZoom(instance!.getZoom()) * 1.5,
+                      ),
+                      "map",
+                    );
+                    return;
+                  }
+                  navigationTarget.current = node.coordinates;
+                  if (props.onChooseNode) props.onChooseNode(node);
+                  else props.onChoose(node.collectionId);
+                  if (node.kind === "country")
+                    props.onZoomChange(
+                      Math.max(3.5, toUiZoom(map.current?.getZoom() ?? 0)),
+                      "map",
+                    );
+                }}
+              >
+                {node.kind !== "location" &&
+                  node.photos
+                    .slice(1, 3)
+                    .reverse()
+                    .map((photo, index) => (
+                      <span
+                        className="map-marker-stack-layer"
+                        data-layer={index}
+                        key={photo.src}
+                        aria-hidden="true"
+                      >
+                        <Image
+                          src={photoUrl(photo.src)}
+                          alt=""
+                          width={44}
+                          height={44}
+                          sizes="44px"
+                          quality={75}
+                          draggable={false}
+                        />
+                      </span>
+                    ))}
+                <Image
+                  className="map-marker-cover"
+                  src={photoUrl(node.cover.src)}
+                  alt=""
+                  width={44}
+                  height={44}
+                  sizes="44px"
+                  quality={75}
+                  draggable={false}
+                />
+                {node.photoCount > 1 && (
+                  <span className="map-marker-count" aria-hidden="true">
+                    {node.photoCount}
+                  </span>
+                )}
+                <span className="map-marker-label">{node.label}</span>
+              </Button>
             </div>
-          </>,
+          </div>,
           host,
           node.id,
         );

@@ -132,7 +132,7 @@ test("occluded globe anchors and offscreen markers do not displace visible targe
   ];
   const layout = layoutMapMarkers({ anchors, viewport });
   assert.deepEqual(layout.unresolvedIds, []);
-  assert.deepEqual(layout.offsets.get("front"), { x: 0, y: -28 });
+  assert.deepEqual(layout.offsets.get("front"), { x: 0, y: 0 });
 });
 
 test("impossible density is explicit instead of moving anchors or hiding interactive targets", () => {
