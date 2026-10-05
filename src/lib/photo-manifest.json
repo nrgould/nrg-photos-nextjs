@@ -373,6 +373,18 @@
     "presetId": "lofoten-2"
   },
   {
+    "src": "/photos/lr-2135933.webp",
+    "title": "Haukland",
+    "alt": "A man in a dark parka with a fur hood and a beanie stands on a rock below a snow-dusted peak",
+    "origin": "Lightroom 2135933",
+    "width": 1280,
+    "height": 1600,
+    "taken": "2023-02-23T03:05:07.88",
+    "locationId": "haukland",
+    "placeSource": "curation",
+    "lightroomId": 2135933
+  },
+  {
     "src": "/photos/lr-2135934.webp",
     "title": "Uttakleiv",
     "alt": "Person in a dark parka stands on a rocky shore strewn with seaweed, with waves and a foggy snow-dusted mountain behind",
@@ -542,6 +554,30 @@
     "lightroomId": 2366189
   },
   {
+    "src": "/photos/lr-2366190.webp",
+    "title": "Nusfjord",
+    "alt": "Red and yellow fishing cabins and moored boats in a small harbour under snowy, misty mountains",
+    "origin": "Lightroom 2366190",
+    "width": 1280,
+    "height": 1600,
+    "taken": "2023-02-23T07:01:26.21",
+    "locationId": "nusfjord",
+    "placeSource": "curation",
+    "lightroomId": 2366190
+  },
+  {
+    "src": "/photos/lr-2366193.webp",
+    "title": "Nusfjord",
+    "alt": "A yellow wooden boathouse and fishing boats along snowy docks in a harbour village",
+    "origin": "Lightroom 2366193",
+    "width": 1600,
+    "height": 1066,
+    "taken": "2023-02-23T07:01:38.56",
+    "locationId": "nusfjord",
+    "placeSource": "curation",
+    "lightroomId": 2366193
+  },
+  {
     "src": "/photos/lr-2366195.webp",
     "title": "Nusfjord",
     "alt": "Cluster of red cabins on a far shore across calm grey water, snowy mountains fading into mist, a snowy rock in front",
@@ -554,6 +590,18 @@
     "lightroomId": 2366195,
     "hero": true,
     "presetId": "lofoten-2"
+  },
+  {
+    "src": "/photos/lr-2366201.webp",
+    "title": "Nusfjord",
+    "alt": "A yellow boathouse and a white fishing boat on dark harbour water below snowy mountains",
+    "origin": "Lightroom 2366201",
+    "width": 1280,
+    "height": 1600,
+    "taken": "2023-02-23T06:41:55.09",
+    "locationId": "nusfjord",
+    "placeSource": "curation",
+    "lightroomId": 2366201
   },
   {
     "src": "/photos/lr-2366209.webp",
@@ -969,6 +1017,19 @@
     "lightroomId": 2452877
   },
   {
+    "src": "/photos/lr-2452878.webp",
+    "title": "Lake District",
+    "alt": "Grey clouds over a choppy lake, a small boat crossing in front of autumn hills and fells",
+    "origin": "Lightroom 2452878",
+    "width": 1280,
+    "height": 1600,
+    "taken": "2023-04-11T07:20:50.31",
+    "locationId": "lake-district",
+    "placeSource": "curation",
+    "lightroomId": 2452878,
+    "presetId": "eibsee-1"
+  },
+  {
     "src": "/photos/lr-2452884.webp",
     "title": "Lake District",
     "alt": "Square stone church tower with arched windows and a red-and-white flag, set against heavy white clouds and framed by dark branches",
@@ -1004,6 +1065,18 @@
     "locationId": "manchester",
     "placeSource": "curation",
     "lightroomId": 2452934
+  },
+  {
+    "src": "/photos/lr-2452937.webp",
+    "title": "Manchester",
+    "alt": "Person in a long beige coat walks away down a dark stone-vaulted cloister, wall lamps glowing amber along the arches",
+    "origin": "Lightroom 2452937",
+    "width": 1280,
+    "height": 1600,
+    "taken": "2023-04-12T09:53:31.46",
+    "locationId": "manchester",
+    "placeSource": "curation",
+    "lightroomId": 2452937
   },
   {
     "src": "/photos/lr-2498374.webp",
@@ -3046,6 +3119,32 @@
     "lightroomId": 4337508
   },
   {
+    "src": "/photos/lr-4373050.webp",
+    "title": "Bolzano",
+    "alt": "Terraced vineyards and dark cypress trees on a green hillside, a village church in the distance",
+    "origin": "Lightroom 4373050",
+    "width": 1600,
+    "height": 1066,
+    "taken": "2024-06-17T15:04:26.28",
+    "locationId": "bolzano",
+    "placeSource": "curation",
+    "lightroomId": 4373050,
+    "presetId": "rome-2"
+  },
+  {
+    "src": "/photos/lr-4373109.webp",
+    "title": "Bolzano",
+    "alt": "A man walks a path between roses and a farmhouse toward vineyard terraces in the haze",
+    "origin": "Lightroom 4373109",
+    "width": 1280,
+    "height": 1600,
+    "taken": "2024-06-17T15:18:10.80",
+    "locationId": "bolzano",
+    "placeSource": "curation",
+    "lightroomId": 4373109,
+    "presetId": "rome-2"
+  },
+  {
     "src": "/photos/lr-4373118.webp",
     "title": "Bolzano",
     "alt": "A hiker in a gray T-shirt walks a narrow paved lane toward terraced vineyards, red-tiled roofs and a hazy green mountainside",
@@ -3316,6 +3415,31 @@
     "presetId": "mount-rainier-2"
   },
   {
+    "src": "/photos/lr-4433955.webp",
+    "title": "Seceda",
+    "alt": "A man in a cap looks out over a green alpine valley with scattered huts toward misty peaks",
+    "origin": "Lightroom 4433955",
+    "width": 1280,
+    "height": 1600,
+    "taken": "2024-06-19T05:09:35.97",
+    "locationId": "seceda",
+    "placeSource": "curation",
+    "lightroomId": 4433955
+  },
+  {
+    "src": "/photos/lr-4433980.webp",
+    "title": "Seceda",
+    "alt": "An orange paraglider canopy and its pilot above forested slopes and jagged grey peaks",
+    "origin": "Lightroom 4433980",
+    "width": 1200,
+    "height": 1600,
+    "taken": "2024-06-19T05:20:29.00",
+    "locationId": "seceda",
+    "placeSource": "curation",
+    "lightroomId": 4433980,
+    "presetId": "mount-rainier-2"
+  },
+  {
     "src": "/photos/lr-4433990.webp",
     "title": "Seceda",
     "alt": "A paraglider with a red canopy flies past a steep rocky crag and a grassy slope, snowy peaks below in hazy sky",
@@ -3326,6 +3450,30 @@
     "locationId": "seceda",
     "placeSource": "curation",
     "lightroomId": 4433990
+  },
+  {
+    "src": "/photos/lr-4434120.webp",
+    "title": "Seceda",
+    "alt": "Two paragliders drift over green alpine meadows and huts below a towering rock massif",
+    "origin": "Lightroom 4434120",
+    "width": 1280,
+    "height": 1600,
+    "taken": "2024-06-19T05:59:57.65",
+    "locationId": "seceda",
+    "placeSource": "curation",
+    "lightroomId": 4434120
+  },
+  {
+    "src": "/photos/lr-4434129.webp",
+    "title": "Seceda",
+    "alt": "Two small paragliders over a dark forested valley beneath a misty mountain",
+    "origin": "Lightroom 4434129",
+    "width": 1200,
+    "height": 1600,
+    "taken": "2024-06-19T06:00:28.10",
+    "locationId": "seceda",
+    "placeSource": "curation",
+    "lightroomId": 4434129
   },
   {
     "src": "/photos/lr-4434342.webp",
@@ -4281,6 +4429,19 @@
     "locationId": "tre-cime-di-lavaredo",
     "placeSource": "curation",
     "lightroomId": 4928510
+  },
+  {
+    "src": "/photos/lr-5148802.webp",
+    "title": "Ulm",
+    "alt": "A narrow stone spiral staircase climbs toward a slit window in a dark tower",
+    "origin": "Lightroom 5148802",
+    "width": 1280,
+    "height": 1600,
+    "taken": "2025-05-22T06:55:51.40",
+    "locationId": "ulm",
+    "placeSource": "curation",
+    "lightroomId": 5148802,
+    "presetId": "vienna-2"
   },
   {
     "src": "/photos/lr-5148806.webp",
@@ -5740,6 +5901,18 @@
     "lightroomId": 7028974
   },
   {
+    "src": "/photos/lr-7028975.webp",
+    "title": "Füssen",
+    "alt": "A glowing chandelier hangs in a dim church arch, light flooding through an arched window",
+    "origin": "Lightroom 7028975",
+    "width": 1200,
+    "height": 1600,
+    "taken": "2025-05-27T13:16:28.54",
+    "locationId": "fussen",
+    "placeSource": "curation",
+    "lightroomId": 7028975
+  },
+  {
     "src": "/photos/lr-7028979.webp",
     "title": "Allgäu",
     "alt": "A grassy slope sprinkled with yellow flowers, power poles crossing the ridge and a clump of spruce trees at left",
@@ -5764,6 +5937,18 @@
     "placeSource": "curation",
     "lightroomId": 7028981,
     "presetId": "allgau-1"
+  },
+  {
+    "src": "/photos/lr-7028982.webp",
+    "title": "Füssen",
+    "alt": "A Baroque church nave with painted ceilings and wooden pews, warm light filling the altar",
+    "origin": "Lightroom 7028982",
+    "width": 1200,
+    "height": 1600,
+    "taken": "2025-05-27T13:15:21.64",
+    "locationId": "fussen",
+    "placeSource": "curation",
+    "lightroomId": 7028982
   },
   {
     "src": "/photos/lr-7028983.webp",
@@ -5803,6 +5988,18 @@
     "placeSource": "curation",
     "lightroomId": 7028989,
     "presetId": "allgau-1"
+  },
+  {
+    "src": "/photos/lr-7028991.webp",
+    "title": "Füssen",
+    "alt": "A white marble statue of a saint in a church niche behind wrought iron gates",
+    "origin": "Lightroom 7028991",
+    "width": 1200,
+    "height": 1600,
+    "taken": "2025-05-27T13:13:22.40",
+    "locationId": "fussen",
+    "placeSource": "curation",
+    "lightroomId": 7028991
   },
   {
     "src": "/photos/lr-7028992.webp",
@@ -7921,20 +8118,6 @@
     "lightroomId": 8059328
   },
   {
-    "src": "/photos/lr-8059397.webp",
-    "title": "Black Mountain",
-    "alt": "Red train caboose beside a wooden deck and flower beds, with a cream gallery sign in the foreground under an overcast sky",
-    "origin": "Lightroom 8059397",
-    "width": 1600,
-    "height": 1067,
-    "taken": "2025-09-27T16:07:45.83",
-    "locationId": "black-mountain",
-    "placeSource": "curation",
-    "lightroomId": 8059397,
-    "hero": true,
-    "presetId": "mount-rainier-2"
-  },
-  {
     "src": "/photos/lr-8059465.webp",
     "title": "Cary",
     "alt": "Copper-toned maple leaf pendant with green beads hangs among dark green ivy leaves in moody, low light",
@@ -7945,19 +8128,6 @@
     "locationId": "cary",
     "placeSource": "nicholas",
     "lightroomId": 8059465
-  },
-  {
-    "src": "/photos/lr-8059505.webp",
-    "title": "Morganton",
-    "alt": "A tattooed man in a green cap works over a wooden printing frame on a black-draped table at a hilltop overlook at sunset",
-    "origin": "Lightroom 8059505",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2025-09-19T18:42:58.85",
-    "locationId": "morganton",
-    "placeSource": "nicholas",
-    "lightroomId": 8059505,
-    "hero": true
   },
   {
     "src": "/photos/lr-8059513.webp",

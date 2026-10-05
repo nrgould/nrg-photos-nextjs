@@ -637,20 +637,6 @@
     "name": "Haystack Rock"
   },
   {
-    "id": "black-mountain",
-    "parent": "north-carolina",
-    "name": "Black Mountain",
-    "coordinates": [-82.32, 35.62],
-    "coordinateSource": "geocoded"
-  },
-  {
-    "id": "morganton",
-    "parent": "north-carolina",
-    "name": "Morganton",
-    "coordinates": [-81.69, 35.75],
-    "coordinateSource": "geocoded"
-  },
-  {
     "id": "falsterbo",
     "parent": "skane",
     "name": "Falsterbo",
