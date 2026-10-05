@@ -58,6 +58,11 @@ export const photoLocations = new Map(
   ),
 );
 
+/** Photographs marked as a place's lead images. */
+export const heroSrcs = new Set(
+  [...entries.values()].filter((entry) => entry.hero).map((entry) => entry.src),
+);
+
 // Portfolio photographs keep their editorial titles; Lightroom ones carry theirs in the manifest.
 const portfolio = new Map(allPhotos.map((photo) => [photo.src, photo]));
 function mapPhoto(src: string, collection: string): Photo {
@@ -67,16 +72,20 @@ function mapPhoto(src: string, collection: string): Photo {
   );
 }
 
+const rank = (node: LocationNode) => locations.indexOf(node);
 // One collection per country, photos in tree order.
 export const travelPlaces: TravelPlace[] = locations
   .filter((country) => !country.parent)
   .flatMap((country) => {
     const located = [...photoLocations]
       .filter(([, id]) => locationPath(id)[0] === country)
+      // Tree order by map place, heroes leading each place, then tree order within it.
       .sort(
         ([srcA, a], [srcB, b]) =>
-          locations.indexOf(byId.get(a)!) - locations.indexOf(byId.get(b)!) ||
-          Number(!!entries.get(srcB)!.hero) - Number(!!entries.get(srcA)!.hero),
+          rank(locationPath(a)[2] ?? byId.get(a)!) -
+            rank(locationPath(b)[2] ?? byId.get(b)!) ||
+          Number(heroSrcs.has(srcB)) - Number(heroSrcs.has(srcA)) ||
+          rank(byId.get(a)!) - rank(byId.get(b)!),
       );
     const pin = located
       .map(([, id]) => locationPath(id)[2])

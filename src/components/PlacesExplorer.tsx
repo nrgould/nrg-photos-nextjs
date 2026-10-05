@@ -26,7 +26,8 @@ import {
   X,
 } from "lucide-react";
 import { selectionFeedback } from "@/lib/haptics";
-import { travelPlaces } from "@/lib/places";
+import { heroSrcs, travelPlaces } from "@/lib/places";
+import { galleryLayout, heroCount } from "@/lib/gallery-layout";
 import { takenLabel } from "@/lib/photography";
 import { drawerOwnsGesture, shouldDismissDrawer } from "@/lib/drawer-gesture";
 import { getMapNode, getMapNodes, type MapNode } from "@/lib/map-hierarchy";
@@ -373,6 +374,31 @@ export default function PlacesExplorer({
         }
       : collection;
   }, [filteredPlaces, selected, selectedNodeId]);
+  // A country (or a bare collection) lists its places to dive into; a place shows its photos.
+  const placeList = useMemo(
+    () =>
+      selected === null || selectedNodeId?.startsWith("location:")
+        ? null
+        : getMapNodes(filteredPlaces, "location").filter((node) =>
+            selectedNodeId
+              ? node.countryId === selectedNodeId
+              : node.collectionId === selected,
+          ),
+    [filteredPlaces, selected, selectedNodeId],
+  );
+  // A place leads back to its country's list of places.
+  const parentNode = selectedNodeId?.startsWith("location:")
+    ? getMapNode(
+        getMapNode(selectedNodeId, filteredPlaces)?.countryId ?? null,
+        filteredPlaces,
+      )
+    : null;
+  const heroes = place
+    ? heroCount(
+        place.photos.length,
+        place.photos.filter((photo) => heroSrcs.has(photo.src)).length,
+      )
+    : 0;
   const placeId =
     selectedNodeId ??
     getMapNodes(filteredPlaces, "country").find(
@@ -411,13 +437,15 @@ export default function PlacesExplorer({
       !place
     )
       return;
-    const photos = place.photos;
     const figures = Array.from(layout.children) as HTMLElement[];
     const images = figures.map((figure) =>
       figure.querySelector<HTMLElement>(".gallery-photo")!,
     );
     const captions = figures.map((figure) =>
-      figure.querySelector("figcaption")!,
+      figure.querySelector("figcaption"),
+    );
+    const aspects = (placeList?.map((node) => node.cover) ?? place.photos).map(
+      (photo) => photo.width / photo.height,
     );
     let frame = 0;
     let transitioning = false;
@@ -445,7 +473,6 @@ export default function PlacesExplorer({
           ),
         );
         const growth = Math.max(0, (progress - 0.2) / 0.8);
-        const lift = Math.min(1, progress / 0.2);
         const width = galleryBounds.width - 32;
         const count = figures.length;
         const stripCount = Math.min(count, 4);
@@ -457,48 +484,32 @@ export default function PlacesExplorer({
           64,
           compactHeight - headerHeight - safeArea - 12,
         );
-        const gap = mix(8, 12, growth);
-        const captionHeight = 38 * growth;
-        const halfWidth = (width - 12) / 2;
-        const firstTargetHeight =
-          count <= 2
-            ? (width * photos[0].height) / photos[0].width
-            : count === 3
-              ? width * 0.75
-              : halfWidth * 1.25;
-        const firstHeight = mix(compactImageHeight, firstTargetHeight, growth);
+        const captionHeight = placeList ? 46 : 0;
+        const tiles = galleryLayout(
+          aspects,
+          width,
+          placeList ? { columns: 2, caption: captionHeight } : { heroes },
+        );
         let contentHeight = 0;
-
         figures.forEach((figure, index) => {
-          const row = count <= 3 ? Math.min(index, 1) : Math.floor(index / 2);
+          const tile = tiles[index];
           const inStrip = index < stripCount;
-          const fullWidth = count <= 2 || (count === 3 && index === 0);
-          const targetWidth = fullWidth ? width : halfWidth;
-          const targetX = fullWidth
-            ? 0
-            : ((count === 3 ? index - 1 : index) % 2) * (halfWidth + 12);
-          const targetHeight =
-            count <= 2
-              ? (width * photos[index].height) / photos[index].width
-              : count === 3 && index === 0
-                ? width * 0.75
-                : halfWidth * 1.25;
-          const imageHeight = mix(compactImageHeight, targetHeight, growth);
+          const imageHeight = mix(compactImageHeight, tile.height, growth);
           const x = mix(
             Math.min(index, stripCount - 1) * (compactWidth + 8),
-            targetX,
+            tile.x,
             growth,
           );
-          const y = row * (firstHeight + captionHeight + gap) * lift;
-          figure.style.width = `${mix(compactWidth, targetWidth, growth)}px`;
+          const y = tile.y * growth;
+          figure.style.width = `${mix(compactWidth, tile.width, growth)}px`;
           figure.style.transform = `translate(${x}px, ${y}px)`;
           figure.style.opacity = inStrip ? "" : String(growth);
           figure.style.visibility = inStrip || growth > 0 ? "" : "hidden";
           images[index].style.height = `${imageHeight}px`;
-          captions[index].style.opacity = String(growth);
+          if (captions[index]) captions[index].style.opacity = String(growth);
           contentHeight = Math.max(
             contentHeight,
-            y + imageHeight + captionHeight,
+            y + imageHeight + captionHeight * growth,
           );
         });
         viewport!.style.height = `${height}px`;
@@ -546,7 +557,7 @@ export default function PlacesExplorer({
       drawerElement.removeEventListener("transitionend", transition);
       drawerElement.removeEventListener("transitioncancel", transition);
     };
-  }, [drawerElement, compactFraction, place, drawerMode]);
+  }, [drawerElement, compactFraction, place, placeList, heroes, drawerMode]);
   function finishIntro() {
     setIntro(false);
     setMode("map");
@@ -1134,8 +1145,20 @@ export default function PlacesExplorer({
             {drawerMode === "photos" ? (
               <div className="photo-drawer-header">
                 <div>
+                  {parentNode && (
+                    <Button
+                      variant="quiet"
+                      className="drawer-up"
+                      onClick={() => chooseNode(parentNode)}
+                    >
+                      <ArrowLeft size={14} aria-hidden="true" />
+                      {parentNode.label}
+                    </Button>
+                  )}
                   <DrawerTitle>{place?.name ?? "Photographs"}</DrawerTitle>
                   <DrawerDescription id="location-photo-description">
+                    {placeList &&
+                      `${placeList.length} ${placeList.length === 1 ? "place" : "places"} · `}
                     {place?.photos.length ?? 0}{" "}
                     {(place?.photos.length ?? 0) === 1
                       ? "photograph"
@@ -1250,45 +1273,74 @@ export default function PlacesExplorer({
               }}
             >
               <div ref={photoLayout} className="drawer-photo-layout">
-                {place?.photos.map((photo, index) => (
-                  <figure key={photo.src}>
-                    <MotionButton
-                      variant="quiet"
-                      press={false}
-                      whileTap={reducedMotion ? undefined : { scale: 0.975 }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 500,
-                        damping: 28,
-                      }}
-                      className="gallery-photo"
-                      aria-label={`View ${photo.title}`}
-                      onClick={(event) => {
-                        if (event.detail > 0 && dragged.current) return;
-                        photoFocus.current = event.currentTarget;
-                        openPhotograph(photo.src);
-                      }}
-                    >
-                      <PhotoImage
-                        photo={photo}
-                        sizes={
-                          place.photos.length <= 2 ||
-                          (place.photos.length === 3 && index === 0)
-                            ? "(max-width: 700px) calc(100vw - 32px), 358px"
-                            : "(max-width: 700px) calc(50vw - 22px), 173px"
-                        }
-                      />
-                    </MotionButton>
-                    <figcaption>
-                      <span>{photo.title}</span>
-                      {photo.taken && (
-                        <time dateTime={photo.taken}>
-                          {takenLabel(photo.taken)}
-                        </time>
-                      )}
-                    </figcaption>
-                  </figure>
-                ))}
+                {placeList
+                  ? placeList.map((node) => (
+                      <figure key={node.id}>
+                        <MotionButton
+                          variant="quiet"
+                          press={false}
+                          whileTap={reducedMotion ? undefined : { scale: 0.96 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 500,
+                            damping: 28,
+                          }}
+                          className="gallery-photo"
+                          aria-label={`${node.label}, ${node.photoCount} ${node.photoCount === 1 ? "photograph" : "photographs"}`}
+                          onClick={(event) => {
+                            if (event.detail > 0 && dragged.current) return;
+                            gallery.current?.scrollTo(0, 0);
+                            chooseNode(node);
+                          }}
+                        >
+                          <PhotoImage
+                            photo={node.cover}
+                            sizes="(max-width: 700px) calc(50vw - 20px), 175px"
+                          />
+                        </MotionButton>
+                        <figcaption>
+                          <span>{node.label}</span>
+                          <span>
+                            {node.photoCount}{" "}
+                            {node.photoCount === 1
+                              ? "photograph"
+                              : "photographs"}
+                          </span>
+                        </figcaption>
+                      </figure>
+                    ))
+                  : place?.photos.map((photo, index) => (
+                      <figure key={photo.src}>
+                        <MotionButton
+                          variant="quiet"
+                          press={false}
+                          whileTap={reducedMotion ? undefined : { scale: 0.96 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 500,
+                            damping: 28,
+                          }}
+                          className="gallery-photo"
+                          aria-label={`View ${photo.title || place.name}${photo.taken ? `, ${takenLabel(photo.taken)}` : ""}`}
+                          onClick={(event) => {
+                            if (event.detail > 0 && dragged.current) return;
+                            photoFocus.current = event.currentTarget;
+                            openPhotograph(photo.src);
+                          }}
+                        >
+                          <PhotoImage
+                            photo={photo}
+                            sizes={
+                              index === 0 || (heroes === 2 && index === 1)
+                                ? "(max-width: 700px) calc(100vw - 32px), 358px"
+                                : index < heroes
+                                  ? "(max-width: 700px) calc(50vw - 20px), 175px"
+                                  : "(max-width: 700px) calc(33vw - 16px), 114px"
+                            }
+                          />
+                        </MotionButton>
+                      </figure>
+                    ))}
               </div>
             </div>
             {drawerMode !== "photos" && (

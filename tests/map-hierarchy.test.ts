@@ -23,6 +23,14 @@ const placeOf = (photo: Photo) => {
   const place = id ? locationPath(id)[2] : undefined;
   return place?.coordinates ? place : undefined;
 };
+/** Top-level map unit: the country, or the state inside the United States. */
+const unitOf = (photo: Photo) => {
+  const path = locationPath(photoLocations.get(photo.src)!);
+  return path[0].id === "united-states" ? path[1].id : path[0].id;
+};
+const unitIds = (photos: Photo[]) => [
+  ...new Set(photos.map((photo) => `country:${unitOf(photo)}`)),
+];
 const sourcePhotos = travelPlaces.flatMap((place) => place.photos);
 const regionalIds = (photos: Photo[]) => [
   ...new Set(photos.flatMap((photo) => placeOf(photo)?.id ?? [])),
@@ -33,7 +41,7 @@ test("country aggregates and real locations each partition the map photos", () =
     place.photos.some((photo) => !placeOf(photo)),
   ).length;
   for (const [kind, count] of [
-    ["country", travelPlaces.length],
+    ["country", unitIds(sourcePhotos).length],
     ["location", regionalIds(sourcePhotos).length + unlocatedCountries],
   ] as const) {
     const nodes = getMapNodes(travelPlaces, kind);
@@ -68,14 +76,33 @@ test("country aggregates and real locations each partition the map photos", () =
   }
   assert.deepEqual(
     getMapNodes(travelPlaces, "country").map((node) => node.id),
-    travelPlaces.map((place) => `country:${place.id}`),
+    unitIds(sourcePhotos),
   );
+});
+
+test("the United States breaks out by state at the top level", () => {
+  const countries = getMapNodes(travelPlaces, "country");
+  const states = countries.filter(
+    (node) => node.collectionId === "united-states",
+  );
+  assert.ok(states.length > 1);
+  assert.ok(!countries.some((node) => node.id === "country:united-states"));
+  assert.ok(states.some((node) => node.label === "North Carolina"));
+  for (const state of states)
+    assert.ok(
+      state.photos.every((photo) => `country:${unitOf(photo)}` === state.id),
+    );
+  assert.equal(
+    getCountryChildBounds("country:united-states", travelPlaces),
+    null,
+  );
+  assert.equal(getCountryChildBounds("country:raleigh", travelPlaces), null);
 });
 
 test("country photo stacks center the eligible photographed regions while preserving identity", () => {
   const countries = getMapNodes(travelPlaces, "country");
   const leaves = getMapNodes(travelPlaces, "location");
-  for (const [index, country] of countries.entries()) {
+  for (const country of countries) {
     const bounds = getCountryChildBounds(country.id, travelPlaces);
     assert.ok(bounds);
     const children = leaves.filter(
@@ -95,7 +122,10 @@ test("country photo stacks center the eligible photographed regions while preser
     assert.equal(country.coordinates[1], (bounds[0][1] + bounds[1][1]) / 2);
     assert.equal(country.countryId, country.id);
     assert.equal(country.precision, "country");
-    assert.equal(country.collectionId, travelPlaces[index].id);
+    assert.equal(
+      country.collectionId,
+      locationPath(photoLocations.get(country.cover.src)!)[0].id,
+    );
     assert.match(
       country.referenceLabel,
       /photographed-region cluster reference/,
@@ -110,11 +140,11 @@ test("country photo stacks center the eligible photographed regions while preser
           .map((node) => node.coordinates),
       ),
     );
-  const unitedStates = countries.find(
-    (node) => node.id === "country:united-states",
+  const northCarolina = countries.find(
+    (node) => node.id === "country:north-carolina",
   )!;
-  assert.equal(unitedStates.label, "United States");
-  assert.equal(unitedStates.collectionId, "united-states");
+  assert.equal(northCarolina.label, "North Carolina");
+  assert.equal(northCarolina.collectionId, "united-states");
 });
 
 test("single-child and filtered country anchors follow only remaining eligible photo locations", () => {
@@ -131,35 +161,41 @@ test("single-child and filtered country anchors follow only remaining eligible p
     },
   ];
   assert.deepEqual(
-    getCountryChildBounds("country:united-states", onlyRaleigh),
+    getCountryChildBounds("country:north-carolina", onlyRaleigh),
     [raleigh, raleigh],
   );
   assert.deepEqual(
-    getMapNode("country:united-states", onlyRaleigh)?.coordinates,
+    getMapNode("country:north-carolina", onlyRaleigh)?.coordinates,
     raleigh,
   );
   const horizontal = filterPlaces(travelPlaces, {
     ...defaultMapFilters(travelPlaces),
     orientation: "horizontal",
   });
+  const inCarolina = (photo: Photo) => unitOf(photo) === "north-carolina";
   const wide = horizontal.find((place) => place.id === "united-states")!;
-  assert.ok(wide.photos.length < unitedStates.photos.length);
-  const bounds = getCountryChildBounds("country:united-states", horizontal);
+  const wideCarolina = wide.photos.filter(inCarolina);
+  assert.ok(
+    wideCarolina.length < unitedStates.photos.filter(inCarolina).length,
+  );
+  const bounds = getCountryChildBounds("country:north-carolina", horizontal);
   assert.deepEqual(
     bounds,
     getCoordinateBounds(
-      wide.photos.map((photo) => placeOf(photo)!.coordinates!),
+      wideCarolina.map((photo) => placeOf(photo)!.coordinates!),
     ),
   );
-  const country = getMapNode("country:united-states", horizontal);
+  const country = getMapNode("country:north-carolina", horizontal);
   assert.deepEqual(country?.coordinates, [
     (bounds![0][0] + bounds![1][0]) / 2,
     (bounds![0][1] + bounds![1][1]) / 2,
   ]);
-  assert.equal(country?.photoCount, wide.photos.length);
-  assert.equal(country?.cover, wide.photos[0]);
+  assert.equal(country?.photoCount, wideCarolina.length);
+  assert.equal(country?.cover, wideCarolina[0]);
   const verticalOnly = travelPlaces.filter(
-    (place) => !horizontal.some((entry) => entry.id === place.id),
+    (place) =>
+      place.id !== "united-states" &&
+      !horizontal.some((entry) => entry.id === place.id),
   );
   assert.ok(verticalOnly.length);
   for (const place of verticalOnly)
@@ -167,7 +203,7 @@ test("single-child and filtered country anchors follow only remaining eligible p
       getCountryChildBounds(`country:${place.id}`, horizontal),
       null,
     );
-  assert.equal(getCountryChildBounds("country:united-states", []), null);
+  assert.equal(getCountryChildBounds("country:north-carolina", []), null);
   assert.equal(getCountryChildBounds("united-states", travelPlaces), null);
   assert.equal(getCountryChildBounds("country:invented", travelPlaces), null);
 });
@@ -308,7 +344,7 @@ test("filtered hierarchy shares the real photo, location and country count matri
       leaves.reduce((total, node) => total + node.photoCount, 0),
       photos.length,
     );
-    assert.equal(getMapNodes(places, "country").length, places.length);
+    assert.equal(getMapNodes(places, "country").length, unitIds(photos).length);
     if (orientation === "any") assert.equal(photos.length, sourcePhotos.length);
     else assert.ok(photos.length < sourcePhotos.length);
   }
@@ -337,8 +373,10 @@ test("lookup clears a filtered-out leaf even when its collection remains eligibl
       node.photos.filter(isWide).length,
     );
   assert.equal(
-    getMapNode("country:united-states", horizontal)?.photoCount,
-    horizontal.find((place) => place.id === "united-states")!.photos.length,
+    getMapNode("country:north-carolina", horizontal)?.photoCount,
+    horizontal
+      .find((place) => place.id === "united-states")!
+      .photos.filter((photo) => unitOf(photo) === "north-carolina").length,
   );
   assert.equal(getMapNode(null, horizontal), null);
   assert.equal(getMapNode("missing", travelPlaces), null);

@@ -29,6 +29,16 @@ export type MapNode = {
 
 const countries = locations.filter((node) => !node.parent);
 
+/** Too large for one top-level stack: their regions (states) stand in for the country. */
+const regionalCountries = new Set(["united-states"]);
+/** A photo's top-level map unit: its country, or its state for a regional country. */
+function unitFor(src: string, country: LocationNode) {
+  const id = photoLocations.get(src);
+  return (
+    (regionalCountries.has(country.id) && id && locationPath(id)[1]) || country
+  );
+}
+
 /** The map's pin for a photo: the place level (country, region, place) of its location. */
 function placeFor(src: string) {
   const id = photoLocations.get(src);
@@ -88,15 +98,20 @@ export function getCountryChildBounds(
   countryId: string,
   places: TravelPlace[],
 ): MapChildBounds | null {
-  const country = countries.find(
-    (entry) => `country:${entry.id}` === countryId,
+  const unit = locations.find(
+    (entry) =>
+      `country:${entry.id}` === countryId &&
+      (!entry.parent || regionalCountries.has(entry.parent)),
   );
+  const country = unit && locationPath(unit.id)[0];
   const place = places.find((entry) => entry.id === country?.id);
   if (!place?.photos.length) return null;
   return getCoordinateBounds(
     place.photos.flatMap((photo) => {
       const coordinates = placeFor(photo.src)?.coordinates;
-      return coordinates ? [coordinates] : [];
+      return coordinates && unitFor(photo.src, country!) === unit
+        ? [coordinates]
+        : [];
     }),
   );
 }
@@ -117,38 +132,43 @@ export function getMapNodes(
   return countries.flatMap((country) => {
     const place = places.find((entry) => entry.id === country.id);
     if (!place?.photos.length) return [];
-    const base = { collectionId: place.id, countryId: `country:${country.id}` };
-    if (kind === "country") {
-      const bounds = getCountryChildBounds(base.countryId, places);
-      const hasUnknownLocations = place.photos.some(
-        (photo) => !placeFor(photo.src),
-      );
+    const unitId = (photos: Photo[]) =>
+      `country:${unitFor(photos[0].src, country).id}`;
+    if (kind === "country")
       return [
-        {
-          ...base,
-          id: base.countryId,
+        ...Map.groupBy(place.photos, (photo) => unitFor(photo.src, country)),
+      ].map(([unit, photos]): MapNode => {
+        const id = `country:${unit.id}`;
+        const bounds = getCountryChildBounds(id, [{ ...place, photos }]);
+        const hasUnknownLocations = photos.some(
+          (photo) => !placeFor(photo.src),
+        );
+        return {
+          collectionId: place.id,
+          countryId: id,
+          id,
           kind,
-          label: country.name,
+          label: unit.name,
           coordinates: bounds
             ? boundsCenter(bounds)
             : countryCoordinates(country),
-          photos: [...place.photos],
-          photoCount: place.photos.length,
-          cover: place.photos[0],
+          photos: [...photos],
+          photoCount: photos.length,
+          cover: photos[0],
           precision: "country",
           referenceLabel: bounds
-            ? `${country.name} photographed-region cluster reference${hasUnknownLocations ? " · unknown photo locations excluded" : ""}`
-            : `${country.name} country reference · no verified photo locations`,
-        } satisfies MapNode,
-      ];
-    }
+            ? `${unit.name} photographed-region cluster reference${hasUnknownLocations ? " · unknown photo locations excluded" : ""}`
+            : `${unit.name} country reference · no verified photo locations`,
+        };
+      });
     const groups = Map.groupBy(place.photos, (photo) => placeFor(photo.src));
     const nodes = locations.flatMap((reference): MapNode[] => {
       const photos = groups.get(reference);
       if (!photos || !reference.coordinates) return [];
       return [
         {
-          ...base,
+          collectionId: place.id,
+          countryId: unitId(photos),
           id: `location:${reference.id}`,
           kind,
           label: reference.name,
@@ -165,7 +185,8 @@ export function getMapNodes(
     const unlocated = groups.get(undefined);
     if (unlocated)
       nodes.push({
-        ...base,
+        collectionId: place.id,
+        countryId: unitId(unlocated),
         id: `location:${place.id}-unlocated`,
         kind,
         label: `${country.name} · location unknown`,

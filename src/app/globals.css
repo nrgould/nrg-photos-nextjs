@@ -2880,13 +2880,13 @@ html[data-photo-theme="dark"] {
     line-height: 1.35;
   }
   .drawer-gallery figcaption span {
+    font-variant-numeric: tabular-nums;
+  }
+  .drawer-gallery figcaption span:first-child {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     color: var(--ink);
-  }
-  .drawer-gallery figcaption time {
-    font-variant-numeric: tabular-nums;
   }
   .location-search {
     border-radius: 14px;
@@ -3714,6 +3714,11 @@ html[data-photo-theme="dark"] {
   .drawer-commerce-header > button {
     width: 44px;
     min-height: 44px;
+    padding: 0;
+  }
+  .photo-drawer-header .drawer-up {
+    gap: 4px;
+    margin-bottom: 2px;
     padding: 0;
   }
   .drawer-commerce-header > .drawer-back {
