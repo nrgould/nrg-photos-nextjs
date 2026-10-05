@@ -333,7 +333,7 @@
   {
     "src": "/photos/lr-1906955.webp",
     "title": "Nusfjord",
-    "alt": "",
+    "alt": "A yellow wooden fish house on a pier in Nusfjord under falling snow, framed between red cabins, a snow-dusted granite mountain behind",
     "origin": "Lightroom 1906955",
     "width": 1280,
     "height": 1600,
@@ -1691,7 +1691,7 @@
   {
     "src": "/photos/lr-3739030.webp",
     "title": "Washington DC",
-    "alt": "",
+    "alt": "The Washington Monument from below against a clear blue sky, framed by soft out-of-focus pink cherry blossoms",
     "origin": "Lightroom 3739030",
     "width": 1067,
     "height": 1600,
@@ -1712,6 +1712,42 @@
     "placeSource": "nicholas",
     "lightroomId": 3777639,
     "hero": true
+  },
+  {
+    "src": "/photos/lr-3779577.webp",
+    "title": "Washington DC",
+    "alt": "A smiling woman in a floral dress reaches up to a branch of pale pink cherry blossoms on a hazy morning",
+    "origin": "Lightroom 3779577",
+    "width": 1280,
+    "height": 1600,
+    "taken": "2024-03-16T19:00:11.81",
+    "locationId": "washington-dc",
+    "placeSource": "curation",
+    "lightroomId": 3779577
+  },
+  {
+    "src": "/photos/lr-3779624.webp",
+    "title": "Washington DC",
+    "alt": "A woman in a floral dress and white sneakers stands under a blossoming cherry tree at dusk, one arm raised to a branch, a sprig of blossoms in her other hand",
+    "origin": "Lightroom 3779624",
+    "width": 1067,
+    "height": 1600,
+    "taken": "2024-03-16T19:01:03.77",
+    "locationId": "washington-dc",
+    "placeSource": "curation",
+    "lightroomId": 3779624
+  },
+  {
+    "src": "/photos/lr-3780293.webp",
+    "title": "Washington DC",
+    "alt": "A woman in a floral dress sits on a stone wall by the water, smiling, with cherry trees in bloom along the bank behind her in warm evening light",
+    "origin": "Lightroom 3780293",
+    "width": 1280,
+    "height": 1600,
+    "taken": "2024-03-16T18:39:02.18",
+    "locationId": "washington-dc",
+    "placeSource": "curation",
+    "lightroomId": 3780293
   },
   {
     "src": "/photos/lr-3827515.webp",
