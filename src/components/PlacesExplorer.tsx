@@ -15,6 +15,7 @@ import {
   ArrowRight,
   Download,
   Heart,
+  Star,
   Trash2,
   Mail,
   Menu as MenuIcon,
@@ -97,6 +98,7 @@ type DrawerView =
   | "preset"
   | "menu"
   | "contact";
+type PhotoMark = "remove" | "hero";
 // Pages nest above an open photo drawer; otherwise a page is the drawer.
 type PageView = Exclude<DrawerView, "photos">;
 const pageBackLabels: Record<DrawerView, string> = {
@@ -174,7 +176,7 @@ export default function PlacesExplorer({
   initialCatalogState?: PresetCatalogState;
   initialView?: "catalog" | "cart" | "library";
   contactEmailEnabled?: boolean;
-  /** Preview only: mark photos for removal (src/app/api/curate). */
+  /** Preview only: mark photos for removal or as heroes (src/app/api/curate). */
   curating?: boolean;
 }) {
   const initialNode = useMemo(
@@ -290,26 +292,32 @@ export default function PlacesExplorer({
   // The command bar names the place it stepped to until the visitor moves the map.
   const [stepped, setStepped] = useState(false);
   const [viewer, setViewer] = useState<string | null>(null);
-  const [removals, setRemovals] = useState<string[]>([]);
+  const [marks, setMarks] = useState<Record<PhotoMark, string[]>>({
+    remove: [],
+    hero: [],
+  });
   useEffect(() => {
     if (!curating) return;
     fetch("/api/curate")
-      .then((response) => (response.ok ? response.json() : { srcs: [] }))
-      .then(({ srcs }) => setRemovals(srcs));
+      .then((response) => response.ok && response.json())
+      .then((marks) => marks && setMarks(marks));
   }, [curating]);
-  function toggleRemoval(src: string) {
-    const removed = !removals.includes(src);
-    const previous = removals;
-    setRemovals(
-      removed ? [...removals, src] : removals.filter((entry) => entry !== src),
-    );
+  function toggleMark(mark: PhotoMark, src: string) {
+    const on = !marks[mark].includes(src);
+    const previous = marks;
+    setMarks({
+      ...marks,
+      [mark]: on
+        ? [...marks[mark], src]
+        : marks[mark].filter((entry) => entry !== src),
+    });
     fetch("/api/curate", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ src, removed }),
+      body: JSON.stringify({ src, mark, on }),
     }).then(
-      (response) => response.ok || setRemovals(previous),
-      () => setRemovals(previous),
+      (response) => response.ok || setMarks(previous),
+      () => setMarks(previous),
     );
   }
   const [drawerElement, setDrawerElement] = useState<HTMLDivElement | null>(
@@ -1420,7 +1428,9 @@ export default function PlacesExplorer({
                   : place?.photos.map((photo, index) => (
                       <figure
                         key={photo.src}
-                        data-removal={removals.includes(photo.src) || undefined}
+                        data-removal={
+                          marks.remove.includes(photo.src) || undefined
+                        }
                       >
                         <MotionButton
                           variant="quiet"
@@ -1451,12 +1461,22 @@ export default function PlacesExplorer({
                                   : "(max-width: 700px) calc(33vw - 16px), 114px"
                             }
                           />
-                          {removals.includes(photo.src) && (
-                            <Trash2
-                              className="gallery-removal"
-                              size={16}
-                              aria-label="Marked for removal"
-                            />
+                          {curating && (
+                            <span className="gallery-marks">
+                              {marks.hero.includes(photo.src) && (
+                                <Star
+                                  size={16}
+                                  fill="currentColor"
+                                  aria-label="Marked as hero"
+                                />
+                              )}
+                              {marks.remove.includes(photo.src) && (
+                                <Trash2
+                                  size={16}
+                                  aria-label="Marked for removal"
+                                />
+                              )}
+                            </span>
                           )}
                         </MotionButton>
                       </figure>
@@ -1615,19 +1635,40 @@ export default function PlacesExplorer({
         finalFocus={photoFocus}
         action={(photo) => {
           const saved = favorites.photoSrcs.includes(photo.src);
-          const removed = removals.includes(photo.src);
+          const hero = marks.hero.includes(photo.src);
+          const removed = marks.remove.includes(photo.src);
           return (
             <>
               {curating && (
-                <Button
-                  variant="quiet"
-                  className="lightbox-removal"
-                  aria-pressed={removed}
-                  onClick={() => toggleRemoval(photo.src)}
-                >
-                  <Trash2 size={16} aria-hidden="true" />
-                  {removed ? "Marked for removal" : "Mark for removal"}
-                </Button>
+                <>
+                  <Button
+                    variant="quiet"
+                    className="lightbox-removal"
+                    aria-pressed={hero}
+                    onClick={() => toggleMark("hero", photo.src)}
+                  >
+                    <Star
+                      size={16}
+                      fill={hero ? "currentColor" : "none"}
+                      aria-hidden="true"
+                    />
+                    {/* Phones keep only the icon, so the viewer's header fits. */}
+                    <span className="max-[700px]:sr-only">
+                      {hero ? "Hero" : "Mark as hero"}
+                    </span>
+                  </Button>
+                  <Button
+                    variant="quiet"
+                    className="lightbox-removal"
+                    aria-pressed={removed}
+                    onClick={() => toggleMark("remove", photo.src)}
+                  >
+                    <Trash2 size={16} aria-hidden="true" />
+                    <span className="max-[700px]:sr-only">
+                      {removed ? "Marked for removal" : "Mark for removal"}
+                    </span>
+                  </Button>
+                </>
               )}
               <Button
                 variant="icon"

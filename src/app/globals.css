@@ -851,16 +851,18 @@
     color: inherit;
     padding: 0 12px;
   }
-  .drawer-gallery figure[data-removal] .gallery-photo {
+  .drawer-gallery .gallery-photo {
     position: relative;
   }
   .drawer-gallery figure[data-removal] img {
     opacity: 0.3;
   }
-  .gallery-removal {
+  .gallery-marks {
     position: absolute;
     top: 8px;
     right: 8px;
+    display: flex;
+    gap: 4px;
     color: var(--ink);
   }
   .lightbox-image {
