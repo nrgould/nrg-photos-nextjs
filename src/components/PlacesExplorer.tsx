@@ -32,7 +32,7 @@ import Image from "next/image";
 import { photoUrl, takenLabel } from "@/lib/photography";
 import { drawerOwnsGesture, shouldDismissDrawer } from "@/lib/drawer-gesture";
 import { getMapNode, getMapNodes, type MapNode } from "@/lib/map-hierarchy";
-import { navigatePlaces, searchExplorer } from "@/lib/map-filters";
+import { searchExplorer, shufflePlace, stepLocation } from "@/lib/map-filters";
 import { Button } from "./ui/button";
 import MapZoom from "./MapZoom";
 import { Separator } from "./ui/separator";
@@ -75,7 +75,7 @@ import MenuPanel from "./MenuPanel";
 import ContactPanel from "./ContactPanel";
 import SavedPanel from "./SavedPanel";
 import { useFavorites } from "./useFavorites";
-import { nodeForPhoto, placeNode } from "@/lib/favorites";
+import { nodeForPhoto, placeNode, type FavoriteKind } from "@/lib/favorites";
 import { usePresetCart } from "./PresetCartProvider";
 import { usePresetCommerceBoundary } from "./CommerceCartProvider";
 import { AccountControl } from "./AccountControl";
@@ -214,7 +214,11 @@ export default function PlacesExplorer({
   const [photoFocusOpen, setPhotoFocusOpen] = useState(Boolean(initialNode));
   const { progress: explorationProgress, record: recordExploration } =
     useExplorationProgress();
-  const { favorites, toggle: toggleFavorite } = useFavorites();
+  const { favorites, toggle } = useFavorites();
+  function toggleFavorite(kind: FavoriteKind, id: string) {
+    if (!favorites[kind].includes(id)) explore({ type: "favorite-saved", id });
+    toggle(kind, id);
+  }
   const [toast, setToast] = useState<ExplorationToastMoment | null>(null);
   const toastKey = useRef(0);
   const dismissToast = useCallback(() => setToast(null), []);
@@ -469,11 +473,21 @@ export default function PlacesExplorer({
   const viewerIndex =
     place?.photos.findIndex((photo) => photo.src === viewer) ?? -1;
   const expanded = desktop || Number(snap) >= 0.75;
+  // Every step opens the new place's photos at the strip, like a marker tap.
   function navigate(direction: "back" | "next" | "shuffle") {
-    const id = navigatePlaces(filteredPlaces, selected, direction);
-    // Every step opens the new place's photos at the strip, like a marker tap.
-    if (id === null) return;
-    choose(id, true);
+    if (direction === "shuffle") {
+      const id = shufflePlace(filteredPlaces, selected);
+      if (id === null) return;
+      choose(id, true);
+    } else {
+      const node = stepLocation(
+        filteredPlaces,
+        selectedNodeId ?? selected,
+        direction,
+      );
+      if (!node) return;
+      chooseNode(node);
+    }
     setStepped(true);
   }
   useEffect(() => {

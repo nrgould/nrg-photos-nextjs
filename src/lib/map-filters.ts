@@ -100,26 +100,68 @@ export function retainSelection(
   return places.some((place) => place.id === selected) ? selected : null;
 }
 
-export function navigatePlaces(
+export function shufflePlace(
   places: TravelPlace[],
   selected: string | null,
-  direction: "back" | "next" | "shuffle",
   random = Math.random(),
 ) {
   if (!places.length) return null;
   const current = places.findIndex((place) => place.id === selected);
   const index =
-    direction === "shuffle"
-      ? current < 0
-        ? Math.floor(Math.min(Math.max(random, 0), 0.999999) * places.length)
-        : shuffleIndex(current, places.length, random)
-      : current < 0
-        ? direction === "back"
-          ? places.length - 1
-          : 0
-        : (current + (direction === "back" ? -1 : 1) + places.length) %
-          places.length;
+    current < 0
+      ? Math.floor(Math.min(Math.max(random, 0), 0.999999) * places.length)
+      : shuffleIndex(current, places.length, random);
   return places[index].id;
+}
+
+/** Great-circle angle between two [longitude, latitude] points, in radians. */
+function arc([lon1, lat1]: [number, number], [lon2, lat2]: [number, number]) {
+  const r = Math.PI / 180;
+  const cos =
+    Math.sin(lat1 * r) * Math.sin(lat2 * r) +
+    Math.cos(lat1 * r) * Math.cos(lat2 * r) * Math.cos((lon2 - lon1) * r);
+  return Math.acos(Math.min(1, Math.max(-1, cos)));
+}
+
+/** Every location once, walking to the nearest one not yet visited from the westernmost. */
+// ponytail: greedy nearest-neighbor, no 2-opt; fine for ~100 places, revisit if the walk crosses itself badly.
+export function locationTour(places: TravelPlace[]) {
+  const left = getMapNodes(places, "location").sort(
+    (a, b) => a.coordinates[0] - b.coordinates[0],
+  );
+  const tour = left.splice(0, 1);
+  while (left.length) {
+    const from = tour.at(-1)!.coordinates;
+    let nearest = 0;
+    for (let i = 1; i < left.length; i++)
+      if (arc(from, left[i].coordinates) < arc(from, left[nearest].coordinates))
+        nearest = i;
+    tour.push(...left.splice(nearest, 1));
+  }
+  return tour;
+}
+
+/**
+ * Previous and Next: the neighboring location on the tour. From a country,
+ * its first location on the tour; from nothing, either end.
+ */
+export function stepLocation(
+  places: TravelPlace[],
+  current: string | null,
+  direction: "back" | "next",
+): MapNode | null {
+  const tour = locationTour(places);
+  if (!tour.length) return null;
+  const index = tour.findIndex((node) => node.id === current);
+  if (index >= 0)
+    return tour[
+      (index + (direction === "back" ? -1 : 1) + tour.length) % tour.length
+    ];
+  return (
+    tour.find(
+      (node) => node.countryId === current || node.collectionId === current,
+    ) ?? (direction === "back" ? tour.at(-1)! : tour[0])
+  );
 }
 
 export type SearchHit<T> = T & { node: MapNode; collection: string };

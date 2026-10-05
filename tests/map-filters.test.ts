@@ -8,9 +8,11 @@ import {
   filterPlaces,
   getPhotoSubject,
   mapFilterFacetCounts,
-  navigatePlaces,
+  locationTour,
   retainSelection,
   searchExplorer,
+  shufflePlace,
+  stepLocation,
   type MapFilters,
 } from "../src/lib/map-filters";
 
@@ -139,28 +141,43 @@ test("filtering retains a valid selection and clears an excluded location withou
   assert.equal(retainSelection([], "austria"), null);
 });
 
-test("navigation wraps only eligible locations and handles no selection and empty results", () => {
+test("shuffle picks another eligible place and handles no selection and empty results", () => {
   const places = filterPlaces(travelPlaces, {
     ...defaults,
     orientation: "horizontal",
   });
   const ids = places.map((place) => place.id);
   const [first, second] = ids;
-  const last = ids.at(-1)!;
   assert.ok(ids.length > 2 && !ids.includes(verticalOnly.id));
-  const walk = [first];
-  while (walk.length < ids.length)
-    walk.push(navigatePlaces(places, walk.at(-1)!, "next")!);
-  assert.deepEqual(walk, ids);
-  assert.equal(navigatePlaces(places, last, "next"), first);
-  assert.equal(navigatePlaces(places, first, "back"), last);
-  assert.equal(navigatePlaces(places, null, "next"), first);
-  assert.equal(navigatePlaces(places, null, "back"), last);
-  assert.equal(navigatePlaces(places, null, "shuffle", 0.99), last);
-  assert.equal(navigatePlaces(places, first, "shuffle", 0), second);
-  assert.equal(navigatePlaces([places[0]], first, "shuffle"), first);
-  for (const direction of ["next", "back", "shuffle"] as const)
-    assert.equal(navigatePlaces([], null, direction), null);
+  assert.equal(shufflePlace(places, null, 0.99), ids.at(-1));
+  assert.equal(shufflePlace(places, first, 0), second);
+  assert.equal(shufflePlace([places[0]], first), first);
+  assert.equal(shufflePlace([], null), null);
+});
+
+test("Previous and Next walk every location once, each step to a near neighbor", () => {
+  const tour = locationTour(travelPlaces);
+  const ids = tour.map((node) => node.id);
+  assert.equal(new Set(ids).size, ids.length);
+  let id: string = ids[0];
+  for (let i = 1; i <= ids.length; i++) {
+    const next = stepLocation(travelPlaces, id, "next")!;
+    assert.equal(next.id, ids[i % ids.length]);
+    assert.equal(stepLocation(travelPlaces, next.id, "back")!.id, id);
+    id = next.id;
+  }
+  // From Hallstatt, Next stays in the Alps rather than jumping a continent.
+  const hallstatt = stepLocation(travelPlaces, "location:hallstatt", "next")!;
+  const [lon, lat] = hallstatt.coordinates;
+  assert.ok(Math.abs(lon - 13.65) < 5 && Math.abs(lat - 47.56) < 5);
+  // A country enters at its first location; nothing selected starts at either end.
+  assert.equal(
+    stepLocation(travelPlaces, "norway", "next")!.collectionId,
+    "norway",
+  );
+  assert.equal(stepLocation(travelPlaces, null, "next")!.id, tour[0].id);
+  assert.equal(stepLocation(travelPlaces, null, "back")!.id, tour.at(-1)!.id);
+  assert.equal(stepLocation([], null, "next"), null);
 });
 
 test("subject membership is explicitly grounded in every original map photo", () => {

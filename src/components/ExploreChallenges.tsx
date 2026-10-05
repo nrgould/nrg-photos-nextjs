@@ -5,6 +5,7 @@ import {
   useId,
   useState,
   useSyncExternalStore,
+  type ReactNode,
   type Ref,
 } from "react";
 import { createPortal } from "react-dom";
@@ -13,6 +14,7 @@ import {
   ArrowLeft,
   Check,
   Gift,
+  Heart,
   Leaf,
   LockKeyhole,
   MapPin,
@@ -26,6 +28,8 @@ import {
   type ExplorationMoment,
   type ExplorationProgress,
 } from "@/lib/exploration-progress";
+import { getMapNodes } from "@/lib/map-hierarchy";
+import type { Photo } from "@/lib/photography";
 import { travelPlaces } from "@/lib/places";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,6 +47,14 @@ import styles from "./ExploreChallenges.module.css";
 const photoBySrc = new Map(
   travelPlaces.flatMap((place) => place.photos).map((p) => [p.src, p]),
 );
+/** The thumbnail for anything the heart saved: the photo, or a place's cover. */
+const savedCover = new Map<string, Photo>([
+  ...photoBySrc,
+  ...[
+    ...getMapNodes(travelPlaces, "country"),
+    ...getMapNodes(travelPlaces, "location"),
+  ].map((node): [string, Photo] => [node.id, node.cover]),
+]);
 
 export type ExplorationClaimBoundary =
   | { status: "unavailable"; message?: string }
@@ -176,7 +188,7 @@ export function ExplorationToast({
                   : moment.kind === "location"
                     ? `${moment.count} of ${moment.goal} places`
                     : moment.kind === "challenge"
-                      ? "Found"
+                      ? moment.done
                       : `${moment.count} of ${moment.count} challenges`}
               </span>
             </span>
@@ -351,37 +363,13 @@ export default function ExploreChallenges({
           </p>
         )}
         <ItemGroup className={styles.rows}>
-          <Item
-            role="listitem"
-            className={styles.row}
-            data-complete={summary.milestoneComplete}
-          >
-            <ItemMedia className={styles.tile} aria-hidden="true">
-              <MapPin size={18} strokeWidth={1.5} />
-              {summary.milestoneComplete && <Badge />}
-            </ItemMedia>
-            <ItemContent className={styles.rowContent}>
-              <ItemTitle>
-                Visit {summary.requiredCount} places
-                <span className="sr-only">
-                  {summary.milestoneComplete ? ", complete" : ""}
-                </span>
-              </ItemTitle>
-              <div className={styles.slots} aria-hidden="true">
-                {Array.from({ length: summary.requiredCount }, (_, i) => (
-                  <span key={i}>
-                    {visited[i] && (
-                      <PhotoImage photo={visited[i].cover} sizes="28px" />
-                    )}
-                  </span>
-                ))}
-              </div>
-            </ItemContent>
-            <ItemActions className={styles.count}>
-              {Math.min(summary.visitedCount, summary.requiredCount)} of{" "}
-              {summary.requiredCount}
-            </ItemActions>
-          </Item>
+          <GoalRow
+            icon={<MapPin size={18} strokeWidth={1.5} />}
+            title={`Visit ${summary.requiredCount} places`}
+            covers={visited.map((location) => location.cover)}
+            goal={summary.requiredCount}
+            count={summary.visitedCount}
+          />
           {explorationChallenges.map((challenge) => {
             const src = summary.foundSrcs[challenge.id];
             const photo = src ? photoBySrc.get(src) : undefined;
@@ -416,6 +404,13 @@ export default function ExploreChallenges({
               </Item>
             );
           })}
+          <GoalRow
+            icon={<Heart size={18} strokeWidth={1.5} />}
+            title={`Save ${summary.saveGoal} favorites`}
+            covers={summary.savedIds.map((id) => savedCover.get(id)!)}
+            goal={summary.saveGoal}
+            count={summary.savedIds.length}
+          />
         </ItemGroup>
       </div>
     </section>
@@ -427,5 +422,46 @@ function Badge() {
     <span className={styles.badge}>
       <Check size={10} strokeWidth={2.5} />
     </span>
+  );
+}
+
+/** A count goal: its glyph tile, then one slot per step that fills with a cover. */
+function GoalRow({
+  icon,
+  title,
+  covers,
+  goal,
+  count,
+}: {
+  icon: ReactNode;
+  title: string;
+  covers: Photo[];
+  goal: number;
+  count: number;
+}) {
+  const complete = count >= goal;
+  return (
+    <Item role="listitem" className={styles.row} data-complete={complete}>
+      <ItemMedia className={styles.tile} aria-hidden="true">
+        {icon}
+        {complete && <Badge />}
+      </ItemMedia>
+      <ItemContent className={styles.rowContent}>
+        <ItemTitle>
+          {title}
+          <span className="sr-only">{complete ? ", complete" : ""}</span>
+        </ItemTitle>
+        <div className={styles.slots} aria-hidden="true">
+          {Array.from({ length: goal }, (_, i) => (
+            <span key={i}>
+              {covers[i] && <PhotoImage photo={covers[i]} sizes="28px" />}
+            </span>
+          ))}
+        </div>
+      </ItemContent>
+      <ItemActions className={styles.count}>
+        {Math.min(count, goal)} of {goal}
+      </ItemActions>
+    </Item>
   );
 }

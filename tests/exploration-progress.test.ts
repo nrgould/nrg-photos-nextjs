@@ -131,6 +131,23 @@ test("either Lund cat photograph finds the cat", () => {
   }
 });
 
+test("the third distinct save completes the saves challenge, and unsaving never undoes it", () => {
+  const save = (progress: unknown, id: string) =>
+    recordExplorationEvent(progress, { type: "favorite-saved", id });
+  let progress = save(save(empty, boat), boat);
+  progress = save(progress, "/not-a-photo");
+  assert.equal(getExplorationSummary(progress).savedIds.length, 1);
+  progress = save(progress, ids[0]);
+  const third = save(progress, ids[2]);
+  assert.deepEqual(describeExplorationProgress(progress, third), {
+    kind: "challenge",
+    title: "Save 3 favorites",
+    done: "Saved",
+  });
+  assert.equal(getExplorationSummary(third).savesComplete, true);
+  assert.equal(describeExplorationProgress(third, save(third, ids[3])), null);
+});
+
 test("the last challenge done raises one completion moment and readies the reward", () => {
   let progress = empty;
   for (const id of ids.slice(0, 5)) progress = visit(progress, id);
@@ -138,8 +155,10 @@ test("the last challenge done raises one completion moment and readies the rewar
     type: "photo-opened",
     photoSrc: boat,
   });
+  for (const id of [boat, ids[0], ids[1]])
+    progress = recordExplorationEvent(progress, { type: "favorite-saved", id });
   assert.equal(getExplorationSummary(progress).allComplete, false);
-  assert.equal(getExplorationSummary(progress).doneCount, 2);
+  assert.equal(getExplorationSummary(progress).doneCount, 3);
   const cat = explorationChallenges.find(
     (challenge) => challenge.id === "find-cat",
   )!.photoSrcs[1];
@@ -149,7 +168,7 @@ test("the last challenge done raises one completion moment and readies the rewar
   });
   assert.deepEqual(describeExplorationProgress(progress, done), {
     kind: "complete",
-    count: 3,
+    count: 4,
   });
   assert.equal(getExplorationSummary(done).allComplete, true);
   assert.equal(
@@ -188,6 +207,7 @@ test("each new place up to the goal and each found photo describe one toast", ()
   assert.deepEqual(describeExplorationProgress(progress, found), {
     kind: "challenge",
     title: "Find the red boat",
+    done: "Found",
   });
 });
 
@@ -206,6 +226,7 @@ test("storage accepts only versioned known IDs and derives completions instead o
     version: 1,
     visitedLocationIds: [ids[0]],
     openedPhotoSrcs: [boat],
+    savedIds: [],
   });
   assert.equal(getExplorationSummary(progress).entitlement, "not-verified");
   for (const bad of [
@@ -242,6 +263,9 @@ test("malformed and unrecognized events do not change progress or assert complet
     "foundSrcs",
     "milestoneComplete",
     "requiredCount",
+    "saveGoal",
+    "savedIds",
+    "savesComplete",
     "visitedCount",
   ]);
 });
