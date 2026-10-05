@@ -121,6 +121,12 @@ const pageBackLabels: Record<DrawerView, string> = {
   menu: "Menu",
   contact: "Contact",
 };
+// Escape in a filled search box clears it (PresetCatalog) before closing a drawer.
+const clearsSearch = ({ target }: KeyboardEvent) =>
+  target instanceof HTMLInputElement &&
+  target.type === "search" &&
+  target.value !== "";
+
 function stepTo<T>(stack: T[], view: T) {
   const index = stack.indexOf(view);
   return index < 0 ? [...stack, view] : stack.slice(0, index + 1);
@@ -734,7 +740,7 @@ export default function PlacesExplorer({
   }
   // Steps through the catalog as filtered when the preset was opened from it.
   function presetSiblings(id: string) {
-    const list = filterPresetCatalog({ ...catalogState, query: "" });
+    const list = filterPresetCatalog(catalogState);
     const index = list.findIndex((preset) => preset.id === id);
     return {
       previous: list[index - 1],
@@ -1287,7 +1293,8 @@ export default function PlacesExplorer({
             if (
               viewer !== null ||
               command ||
-              document.querySelector(".map-zoom-popover[data-open]")
+              document.querySelector(".map-zoom-popover[data-open]") ||
+              clearsSearch(event)
             )
               event.preventDefault();
           }}
@@ -1616,6 +1623,9 @@ export default function PlacesExplorer({
       >
         <DrawerContent
           className="location-drawer nested-drawer explorer-overlay"
+          onEscapeKeyDown={(event) => {
+            if (clearsSearch(event)) event.preventDefault();
+          }}
           onOpenAutoFocus={(event) => {
             event.preventDefault();
             // After the drawer's own autofocus when both open together.

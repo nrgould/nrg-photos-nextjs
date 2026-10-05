@@ -33,6 +33,16 @@ function depthFirst(nodes: LocationNode[], parent?: string): LocationNode[] {
 export const locations = depthFirst(locationTree as LocationNode[]);
 const byId = new Map(locations.map((node) => [node.id, node]));
 
+// Accent-blind, so "tromso" finds Tromsø.
+export const fold = (text: string) =>
+  text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .replace(/ø/g, "o")
+    .replace(/æ/g, "ae")
+    .replace(/ß/g, "ss");
+
 /** Country first, the node itself last. */
 export function locationPath(id: string): LocationNode[] {
   const node = byId.get(id);

@@ -1,4 +1,5 @@
 import presets from "../data/presets.json";
+import { fold, locationPath } from "./places";
 
 export type PresetCatalogItem = Readonly<{
   id: string;
@@ -64,9 +65,17 @@ export function filterPresetCatalog({
   query,
   category,
 }: Pick<PresetCatalogState, "query" | "category">) {
-  const terms = query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
+  const terms = fold(query).split(/\s+/).filter(Boolean);
   return presetCatalog.filter((preset) => {
-    const text = `${preset.name} ${preset.category}`.toLocaleLowerCase();
+    // Name, moods and the place it was made, up to its country.
+    const text = fold(
+      [
+        preset.name,
+        preset.category,
+        ...(preset.also ?? []),
+        ...locationPath(preset.location).map((node) => node.name),
+      ].join(" "),
+    );
     return (
       (category === "All" ||
         preset.category === category ||

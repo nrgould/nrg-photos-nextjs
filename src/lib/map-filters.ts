@@ -1,6 +1,7 @@
 import { getMapNodes, type MapNode } from "./map-hierarchy";
 import type { Photo } from "./photography";
 import {
+  fold,
   locationPath,
   locations as locationTree,
   photoLocations,
@@ -167,16 +168,6 @@ export function stepLocation(
 }
 
 export type SearchHit<T> = T & { node: MapNode; collection: string };
-
-// Accent-blind, so "tromso" finds Tromsø.
-const fold = (text: string) =>
-  text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .replace(/ø/g, "o")
-    .replace(/æ/g, "ae")
-    .replace(/ß/g, "ss");
 
 const treeIds = new Set(locationTree.map((node) => node.id));
 // A location's own name and every region above it, so "North Carolina" finds Boone.

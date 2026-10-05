@@ -66,9 +66,48 @@
   gap: 10px;
   padding: 0 16px;
 }
+.search {
+  position: relative;
+  grid-column: 1 / -1;
+}
+.search > svg {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  translate: 0 -50%;
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+.search input {
+  height: 44px;
+  min-height: 44px;
+  padding: 0 44px 0 36px;
+  border-radius: 10px;
+}
+.search input::-webkit-search-cancel-button {
+  appearance: none;
+}
+/* 4px inset inside the 10px field, so 6px keeps the corners concentric. */
+.clear {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+.clear button {
+  border-radius: 6px;
+  color: var(--muted-foreground);
+}
+.clear button:hover {
+  color: var(--ink);
+  text-decoration: none;
+}
 .categoryLabel {
   color: var(--muted-foreground);
   font-size: 11px;
+}
+/* Its label text is screen-reader only, so no gap above the select. */
+.categoryLabel > * {
+  margin-top: 0;
 }
 .category {
   color: var(--ink);

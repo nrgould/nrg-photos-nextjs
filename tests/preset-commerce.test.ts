@@ -55,12 +55,12 @@ test("categories are the moods in catalog order", () => {
   assert.equal(presetCategories.length, new Set(presetCategories).size);
 });
 
-test("search combines case-insensitive words with category filtering", () => {
+test("search combines case-insensitive words, places and category filtering", () => {
   assert.deepEqual(
     filterPresetCatalog({ query: "  RAINIER blue  ", category: "All" }).map(
       (preset) => preset.id,
     ),
-    ["mount-rainier-2"],
+    ["mount-rainier-2", "mount-fremont-1"],
   );
   assert.deepEqual(
     filterPresetCatalog({ query: "", category: "Mint" }).map(
@@ -75,6 +75,19 @@ test("search combines case-insensitive words with category filtering", () => {
   assert.equal(
     filterPresetCatalog({ query: "   ", category: "All" }).length,
     presetCatalog.length,
+  );
+  // Places match up to the country, without their accents.
+  assert.deepEqual(
+    filterPresetCatalog({ query: "allgau", category: "All" }).map(
+      (preset) => preset.id,
+    ),
+    ["allgau-1"],
+  );
+  assert.deepEqual(
+    filterPresetCatalog({ query: "norway", category: "All" }).map(
+      (preset) => preset.id,
+    ),
+    ["lofoten-1", "lofoten-2"],
   );
 });
 

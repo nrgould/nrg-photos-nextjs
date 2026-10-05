@@ -10,6 +10,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Plus,
+  Search,
+  X,
 } from "lucide-react";
 import { nodeForPhoto } from "@/lib/favorites";
 import { getLocationNode, getPresetPlaces } from "@/lib/map-hierarchy";
@@ -27,6 +29,7 @@ import {
 import { Button, buttonVariants } from "./ui/button";
 import { PresetDownloadButton } from "./PresetDownloadButton";
 import { useCommerceAccount } from "./CommerceProviders";
+import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { NativeSelect } from "./ui/native-select";
 import { Item, ItemActions, ItemContent, ItemGroup } from "./ui/item";
@@ -72,7 +75,7 @@ export default function PresetCatalog({
   const selected = onOpenPreset
     ? undefined
     : getCatalogPreset(state.selectedPresetId);
-  const results = filterPresetCatalog({ ...state, query: "" });
+  const results = filterPresetCatalog(state);
   const cart = new Set(
     cartIds.filter((presetId) => getCatalogPreset(presetId)),
   );
@@ -98,6 +101,11 @@ export default function PresetCatalog({
   }, [selected, scrollMemory]);
   const detailBack = useRef<HTMLButtonElement | null>(null);
   const categoryInput = useRef<HTMLSelectElement>(null);
+  const searchInput = useRef<HTMLInputElement>(null);
+  const iconTransition =
+    reducedMotion || keyboardInteraction
+      ? { duration: 0 }
+      : { type: "spring" as const, duration: 0.3, bounce: 0 };
 
   function update(next: Partial<PresetCatalogState>) {
     onStateChange({ ...state, ...next });
@@ -135,6 +143,49 @@ export default function PresetCatalog({
 
       <div className={styles.listPane} hidden={Boolean(selected)}>
         <div className={styles.filters}>
+          <div className={styles.search}>
+            <Search size={16} strokeWidth={1.5} aria-hidden="true" />
+            <Input
+              ref={searchInput}
+              type="search"
+              variant="boxed"
+              aria-label="Search presets"
+              placeholder="Search presets or places"
+              autoComplete="off"
+              enterKeyHint="search"
+              value={state.query}
+              onChange={(event) => update({ query: event.target.value })}
+              onKeyDown={(event) => {
+                // The drawer leaves this Escape to the field (clearsSearch).
+                if (event.key === "Escape" && state.query)
+                  update({ query: "" });
+              }}
+            />
+            <AnimatePresence initial={false}>
+              {state.query && (
+                <motion.span
+                  key="clear"
+                  className={styles.clear}
+                  initial={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
+                  animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
+                  transition={iconTransition}
+                >
+                  <Button
+                    variant="quiet"
+                    size="icon"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      update({ query: "" });
+                      searchInput.current?.focus();
+                    }}
+                  >
+                    <X size={16} strokeWidth={1.5} aria-hidden="true" />
+                  </Button>
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </div>
           <Label htmlFor={`${id}-category`} className={styles.categoryLabel}>
             <span className="sr-only">Category</span>
             <NativeSelect
@@ -162,7 +213,7 @@ export default function PresetCatalog({
               aria-label={
                 remainingCollectionIds.length === 0
                   ? "All presets selected"
-                  : "Add all 21 presets to cart"
+                  : `Add all ${remainingCollectionIds.length} presets to cart`
               }
             >
               {remainingCollectionIds.length === 0 ? "All selected" : "Add all"}
@@ -171,7 +222,9 @@ export default function PresetCatalog({
         </div>
         <p className="sr-only" role="status">
           {results.length} {results.length === 1 ? "preset" : "presets"}
-          {state.category !== "All" ? " found" : " in collection"}
+          {state.query || state.category !== "All"
+            ? " found"
+            : " in collection"}
         </p>
         <div
           ref={resultsElement}
@@ -275,11 +328,7 @@ export default function PresetCatalog({
                               scale: 0.25,
                               filter: "blur(4px)",
                             }}
-                            transition={
-                              reducedMotion || keyboardInteraction
-                                ? { duration: 0 }
-                                : { type: "spring", duration: 0.3, bounce: 0 }
-                            }
+                            transition={iconTransition}
                           >
                             {isOwned || inCart ? (
                               <Check size={18} />
@@ -297,12 +346,12 @@ export default function PresetCatalog({
           </ItemGroup>
           {results.length === 0 && (
             <div className={styles.empty}>
-              <p>No presets match these filters.</p>
+              <p>No presets match.</p>
               <Button
                 variant="outline"
                 onClick={() => {
                   update({ query: "", category: "All" });
-                  requestAnimationFrame(() => categoryInput.current?.focus());
+                  requestAnimationFrame(() => searchInput.current?.focus());
                 }}
               >
                 Clear filters
