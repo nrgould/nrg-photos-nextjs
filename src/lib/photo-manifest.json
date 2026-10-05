@@ -516,6 +516,18 @@
     "lightroomId": 2366155
   },
   {
+    "src": "/photos/lr-2366157.webp",
+    "title": "Stockholm",
+    "alt": "Blurred woman in a white beanie stands in a rock-walled station tunnel painted with a bright rainbow arch on blue",
+    "origin": "Lightroom 2366157",
+    "width": 2400,
+    "height": 1600,
+    "taken": "2023-02",
+    "locationId": "stockholm-stockholm",
+    "placeSource": "curation",
+    "lightroomId": 2366157
+  },
+  {
     "src": "/photos/lr-2366174.webp",
     "title": "Stockholm",
     "alt": "Commuters walk through a blue cave-like station tunnel painted with silhouetted figures, escalators glowing at the far end",
@@ -6873,6 +6885,18 @@
     "locationId": "finger-lakes",
     "placeSource": "curation",
     "lightroomId": 7636410
+  },
+  {
+    "src": "/photos/lr-7636449.webp",
+    "title": "Finger Lakes",
+    "alt": "Weeping willow backlit by a low sun glowing through its trunk, a picnic table on the lawn and a calm lake behind",
+    "origin": "Lightroom 7636449",
+    "width": 1800,
+    "height": 2400,
+    "taken": "2026-05",
+    "locationId": "finger-lakes",
+    "placeSource": "curation",
+    "lightroomId": 7636449
   },
   {
     "src": "/photos/lr-7760587.webp",

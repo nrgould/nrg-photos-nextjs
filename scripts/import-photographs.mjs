@@ -180,6 +180,12 @@ async function importLightroom(exportPath, dryRun) {
       await upload(entry.src, output);
       Object.assign(entry, { width, height });
     }
+    // A photo restored after a reject is still in the bucket but lost its size with its entry.
+    for (const { row, entry } of placed)
+      if (!entry.width) {
+        const { width, height } = await encode(row.input, row.copyright);
+        Object.assign(entry, { width, height });
+      }
     await writeJson(treePath, tree);
     await writeJson(manifestPath, next);
   }
