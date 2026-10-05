@@ -80,5 +80,6 @@ export function manifestEntry(row, locationId, title, previous) {
     ...(row.placeSource && { placeSource: row.placeSource }),
     lightroomId: row.lightroomId,
     ...(row.status === "hero" && { hero: true }),
+    ...(row.status === "hero" && row.lead && { lead: true }),
   };
 }

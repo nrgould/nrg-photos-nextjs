@@ -418,6 +418,13 @@ test("the location tree is whole: unique ids, real parents, every place a photo 
   }
 });
 
+test("a lead photo is a hero, one per place", () => {
+  const leads = manifest.filter((entry) => "lead" in entry && entry.lead);
+  for (const entry of leads) assert.equal(entry.hero, true, entry.src);
+  const places = leads.map((entry) => locationPath(entry.locationId!)[2]?.id);
+  assert.equal(new Set(places).size, places.length);
+});
+
 test("each place leads with its heroes, then runs in capture order", () => {
   for (const country of travelPlaces) {
     const byPlace = Map.groupBy(

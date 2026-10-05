@@ -3507,19 +3507,6 @@
     "lightroomId": 4434389
   },
   {
-    "src": "/photos/lr-4434733.webp",
-    "title": "Lago di Braies",
-    "alt": "Wooden boathouse on stilts beside red rowboats on glassy dark water, with a mountain and its reflection behind",
-    "origin": "Lightroom 4434733",
-    "width": 1800,
-    "height": 2400,
-    "taken": "2024-06-19T15:02:02.70",
-    "locationId": "braies",
-    "placeSource": "curation",
-    "lightroomId": 4434733,
-    "hero": true
-  },
-  {
     "src": "/photos/lr-4434635.webp",
     "title": "Lago di Braies",
     "alt": "Rippled lake water below a forested cliff with a narrow path cut into it, framed by dark green branches at the edges",
@@ -3580,6 +3567,20 @@
     "locationId": "braies",
     "placeSource": "curation",
     "lightroomId": 4434724
+  },
+  {
+    "src": "/photos/lr-4434733.webp",
+    "title": "Lago di Braies",
+    "alt": "Wooden boathouse on stilts beside red rowboats on glassy dark water, with a mountain and its reflection behind",
+    "origin": "Lightroom 4434733",
+    "width": 1800,
+    "height": 2400,
+    "taken": "2024-06-19T15:02:02.70",
+    "locationId": "braies",
+    "placeSource": "curation",
+    "lightroomId": 4434733,
+    "hero": true,
+    "lead": true
   },
   {
     "src": "/photos/lr-4434748.webp",

@@ -47,6 +47,7 @@ type ManifestEntry = Pick<
   title?: string;
   locationId?: string;
   hero?: boolean;
+  lead?: boolean;
 };
 const entries = new Map(
   (manifest as ManifestEntry[]).map((entry) => [entry.src, entry]),
@@ -62,6 +63,9 @@ export const photoLocations = new Map(
 export const heroSrcs = new Set(
   [...entries.values()].filter((entry) => entry.hero).map((entry) => entry.src),
 );
+// Lead first, then the other heroes, then everything else.
+const weight = (src: string) =>
+  entries.get(src)?.lead ? 2 : Number(heroSrcs.has(src));
 
 // Portfolio photographs keep their editorial titles; Lightroom ones carry theirs in the manifest.
 const portfolio = new Map(allPhotos.map((photo) => [photo.src, photo]));
@@ -82,12 +86,12 @@ export const travelPlaces: TravelPlace[] = locations
   .flatMap((country) => {
     const located = [...photoLocations]
       .filter(([, id]) => locationPath(id)[0] === country)
-      // Tree order by map place, heroes leading each place in pick order, then the rest by capture time.
+      // Tree order by map place, the lead and other heroes first, then the rest by capture time.
       .sort(
         ([srcA, a], [srcB, b]) =>
           rank(locationPath(a)[2] ?? byId.get(a)!) -
             rank(locationPath(b)[2] ?? byId.get(b)!) ||
-          Number(heroSrcs.has(srcB)) - Number(heroSrcs.has(srcA)) ||
+          weight(srcB) - weight(srcA) ||
           (heroSrcs.has(srcA) ? 0 : takenOrder(srcA, srcB)),
       );
     const pin = located
