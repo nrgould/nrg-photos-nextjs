@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { travelPlaces } from "../src/lib/places";
+import type { Photo } from "../src/lib/photography";
 import {
   activeFilterCount,
   defaultMapFilters,
@@ -20,39 +21,87 @@ const results = (filters: MapFilters) => {
     places.length,
   ];
 };
+type Keep = (photo: Photo) => boolean;
+const horizontal: Keep = (photo) => photo.width > photo.height;
+const vertical: Keep = (photo) => photo.height > photo.width;
+const subject =
+  (value: "places" | "people"): Keep =>
+  (photo) =>
+    getPhotoSubject(photo.src) === value;
+const both =
+  (a: Keep, b: Keep): Keep =>
+  (photo) =>
+    a(photo) && b(photo);
+/** Photo and location counts read straight from the source collections. */
+const expected = (keep: Keep, ids = defaults.locationIds) => {
+  const counts = travelPlaces
+    .filter((place) => ids.includes(place.id))
+    .map((place) => place.photos.filter(keep).length);
+  return [
+    counts.reduce((total, count) => total + count, 0),
+    counts.filter(Boolean).length,
+  ];
+};
+const total = travelPlaces.reduce((sum, place) => sum + place.photos.length, 0);
+const verticalOnly = travelPlaces.find((place) =>
+  place.photos.every(vertical),
+)!;
 
-test("orientation and location combinations reflect the eleven original photo dimensions", () => {
-  assert.deepEqual(results(defaults), [11, 4]);
-  assert.deepEqual(results({ ...defaults, orientation: "horizontal" }), [3, 2]);
-  assert.deepEqual(results({ ...defaults, orientation: "vertical" }), [8, 3]);
+test("orientation and location combinations reflect the original photo dimensions", () => {
+  assert.deepEqual(results(defaults), [total, travelPlaces.length]);
+  const [wide] = expected(horizontal);
+  const [tall] = expected(vertical);
+  assert.ok(wide > 0 && tall > 0);
+  assert.equal(wide + tall, total);
   assert.deepEqual(
-    results({ locationIds: ["austria"], orientation: "vertical" }),
+    results({ ...defaults, orientation: "horizontal" }),
+    expected(horizontal),
+  );
+  assert.deepEqual(
+    results({ ...defaults, orientation: "vertical" }),
+    expected(vertical),
+  );
+  assert.ok(verticalOnly);
+  assert.deepEqual(
+    results({ locationIds: [verticalOnly.id], orientation: "horizontal" }),
     [0, 0],
   );
   assert.deepEqual(
     results({ locationIds: ["norway"], orientation: "vertical" }),
-    [3, 1],
+    expected(vertical, ["norway"]),
   );
   assert.deepEqual(results({ ...defaults, locationIds: [] }), [0, 0]);
-  assert.deepEqual(results(defaultMapFilters(travelPlaces)), [11, 4]);
+  assert.deepEqual(results(defaultMapFilters(travelPlaces)), [
+    total,
+    travelPlaces.length,
+  ]);
 });
 
 test("matching photos preserve original identity and order without changing source collections", () => {
   const before = structuredClone(travelPlaces);
-  const places = filterPlaces(travelPlaces, {
-    ...defaults,
-    orientation: "horizontal",
-  });
-  assert.deepEqual(
-    places.map((place) => place.id),
-    ["austria", "united-states"],
+  for (const orientation of ["horizontal", "vertical"] as const) {
+    const places = filterPlaces(travelPlaces, { ...defaults, orientation });
+    const keep = orientation === "horizontal" ? horizontal : vertical;
+    assert.deepEqual(
+      places.map((place) => place.id),
+      travelPlaces
+        .filter((place) => place.photos.some(keep))
+        .map((place) => place.id),
+    );
+    for (const place of places) {
+      const source = travelPlaces.find((entry) => entry.id === place.id)!;
+      if (source.photos.every(keep)) assert.equal(place, source);
+      const kept = source.photos.filter(keep);
+      assert.equal(place.photos.length, kept.length);
+      place.photos.forEach((photo, index) => assert.equal(photo, kept[index]));
+    }
+  }
+  assert.equal(
+    filterPlaces(travelPlaces, { ...defaults, orientation: "vertical" }).find(
+      (place) => place.id === verticalOnly.id,
+    ),
+    verticalOnly,
   );
-  assert.equal(places[0], travelPlaces[0]);
-  assert.deepEqual(
-    places[1].photos.map((photo) => photo.title),
-    ["A new chapter"],
-  );
-  assert.equal(places[1].photos[0], travelPlaces[3].photos[1]);
   assert.deepEqual(travelPlaces, before);
 });
 
@@ -84,7 +133,7 @@ test("filtering retains a valid selection and clears an excluded location withou
     orientation: "horizontal",
   });
   assert.equal(retainSelection(places, "united-states"), "united-states");
-  assert.equal(retainSelection(places, "italy"), null);
+  assert.equal(retainSelection(places, verticalOnly.id), null);
   assert.equal(retainSelection(places, null), null);
   assert.equal(retainSelection([], "austria"), null);
 });
@@ -94,17 +143,21 @@ test("navigation wraps only eligible locations and handles no selection and empt
     ...defaults,
     orientation: "horizontal",
   });
-  assert.equal(navigatePlaces(places, "austria", "next"), "united-states");
-  assert.equal(navigatePlaces(places, "austria", "back"), "united-states");
-  assert.equal(navigatePlaces(places, "united-states", "next"), "austria");
-  assert.equal(navigatePlaces(places, null, "next"), "austria");
-  assert.equal(navigatePlaces(places, null, "back"), "united-states");
-  assert.equal(navigatePlaces(places, null, "shuffle", 0.99), "united-states");
-  assert.equal(
-    navigatePlaces(places, "austria", "shuffle", 0),
-    "united-states",
-  );
-  assert.equal(navigatePlaces([places[0]], "austria", "shuffle"), "austria");
+  const ids = places.map((place) => place.id);
+  const [first, second] = ids;
+  const last = ids.at(-1)!;
+  assert.ok(ids.length > 2 && !ids.includes(verticalOnly.id));
+  const walk = [first];
+  while (walk.length < ids.length)
+    walk.push(navigatePlaces(places, walk.at(-1)!, "next")!);
+  assert.deepEqual(walk, ids);
+  assert.equal(navigatePlaces(places, last, "next"), first);
+  assert.equal(navigatePlaces(places, first, "back"), last);
+  assert.equal(navigatePlaces(places, null, "next"), first);
+  assert.equal(navigatePlaces(places, null, "back"), last);
+  assert.equal(navigatePlaces(places, null, "shuffle", 0.99), last);
+  assert.equal(navigatePlaces(places, first, "shuffle", 0), second);
+  assert.equal(navigatePlaces([places[0]], first, "shuffle"), first);
   for (const direction of ["next", "back", "shuffle"] as const)
     assert.equal(navigatePlaces([], null, direction), null);
 });
@@ -143,34 +196,39 @@ test("subject membership is explicitly grounded in every original map photo", ()
 test("subject and format intersect without changing original identity or order", () => {
   assert.deepEqual(results({ ...defaults, subject: "places" }), [8, 4]);
   assert.deepEqual(results({ ...defaults, subject: "people" }), [3, 2]);
-  assert.deepEqual(
-    results({ ...defaults, subject: "places", orientation: "horizontal" }),
-    [2, 1],
-  );
-  assert.deepEqual(
-    results({ ...defaults, subject: "places", orientation: "vertical" }),
-    [6, 3],
-  );
-  assert.deepEqual(
-    results({ ...defaults, subject: "people", orientation: "horizontal" }),
-    [1, 1],
-  );
-  assert.deepEqual(
-    results({ ...defaults, subject: "people", orientation: "vertical" }),
-    [2, 1],
-  );
+  for (const value of ["places", "people"] as const)
+    for (const orientation of ["horizontal", "vertical"] as const)
+      assert.deepEqual(
+        results({ ...defaults, subject: value, orientation }),
+        expected(
+          both(
+            subject(value),
+            orientation === "horizontal" ? horizontal : vertical,
+          ),
+        ),
+      );
   const people = filterPlaces(travelPlaces, { ...defaults, subject: "people" });
-  assert.equal(people[0].photos[0], travelPlaces[2].photos[1]);
-  assert.equal(people[1].photos[0], travelPlaces[3].photos[1]);
+  for (const place of people) {
+    const source = travelPlaces.find((entry) => entry.id === place.id)!;
+    const kept = source.photos.filter(subject("people"));
+    assert.equal(place.photos.length, kept.length);
+    place.photos.forEach((photo, index) => assert.equal(photo, kept[index]));
+  }
   assert.equal(retainSelection(people, "austria"), null);
   assert.equal(retainSelection(people, "norway"), "norway");
 });
 
 test("facet counts predict the next choice while respecting the other filter", () => {
+  const count = (keep: Keep) => expected(keep)[0];
   assert.deepEqual(mapFilterFacetCounts(travelPlaces, defaults), {
-    subject: { all: 11, places: 8, people: 3 },
-    orientation: { any: 11, horizontal: 3, vertical: 8 },
+    subject: { all: total, places: 8, people: 3 },
+    orientation: {
+      any: total,
+      horizontal: count(horizontal),
+      vertical: count(vertical),
+    },
   });
+  const people = subject("people");
   assert.deepEqual(
     mapFilterFacetCounts(travelPlaces, {
       ...defaults,
@@ -178,8 +236,16 @@ test("facet counts predict the next choice while respecting the other filter", (
       orientation: "horizontal",
     }),
     {
-      subject: { all: 3, places: 2, people: 1 },
-      orientation: { any: 3, horizontal: 1, vertical: 2 },
+      subject: {
+        all: count(horizontal),
+        places: count(both(subject("places"), horizontal)),
+        people: count(both(people, horizontal)),
+      },
+      orientation: {
+        any: 3,
+        horizontal: count(both(people, horizontal)),
+        vertical: count(both(people, vertical)),
+      },
     },
   );
   assert.equal(
@@ -200,6 +266,6 @@ test("facet counts predict the next choice while respecting the other filter", (
   );
   assert.deepEqual(
     results({ locationIds: defaults.locationIds, orientation: "any" }),
-    [11, 4],
+    [total, travelPlaces.length],
   );
 });

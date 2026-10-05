@@ -18,8 +18,9 @@ const empty = createExplorationProgress();
 const visit = (progress: unknown, locationId: string) =>
   recordExplorationEvent(progress, { type: "location-opened", locationId });
 
-test("progress registry uses the nine verified regional leaves, never country aggregates", () => {
-  assert.equal(ids.length, 9);
+test("progress registry uses every verified regional leaf, never country aggregates", () => {
+  assert.equal(new Set(ids).size, ids.length);
+  assert.ok(ids.includes("location:lake-james"));
   assert.deepEqual(
     ids,
     getMapNodes(travelPlaces, "location")
@@ -29,7 +30,7 @@ test("progress registry uses the nine verified regional leaves, never country ag
   assert.ok(
     ids.every((id) => id.startsWith("location:") && !id.includes("unlocated")),
   );
-  assert.equal(getExplorationSummary(empty).availableLocationCount, 9);
+  assert.equal(getExplorationSummary(empty).availableLocationCount, ids.length);
 });
 
 test("five distinct verified location opens complete a local milestone without entitlement", () => {

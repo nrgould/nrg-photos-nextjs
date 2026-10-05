@@ -125,13 +125,19 @@ test("preview metadata clears inherited canonical and cannot advertise future do
 
 test("every published source has one stable direct route and unique metadata", () => {
   assert.equal(seoPhotos.length, 39);
-  assert.equal(seoLocations.length, 9);
+  assert.ok(seoLocations.some((node) => node.id === "location:lake-james"));
   assert.equal(seoPresets.length, 21);
   assert.equal(new Set(seoPhotos.map(photoPath)).size, 39);
-  assert.equal(new Set(seoLocations.map(locationPath)).size, 9);
+  assert.equal(
+    new Set(seoLocations.map(locationPath)).size,
+    seoLocations.length,
+  );
   assert.equal(new Set(seoPresets.map(presetPath)).size, 21);
   assert.equal(new Set(seoPhotos.map(photoDescription)).size, 39);
-  assert.equal(new Set(seoLocations.map(locationDescription)).size, 9);
+  assert.equal(
+    new Set(seoLocations.map(locationDescription)).size,
+    seoLocations.length,
+  );
   assert.equal(new Set(seoPresets.map(presetDescription)).size, 21);
   for (const photo of allPhotos)
     assert.equal(getSeoPhoto(photoSlug(photo)), photo);
@@ -140,8 +146,9 @@ test("every published source has one stable direct route and unique metadata", (
   assert.equal(getSeoLocation("italy"), undefined);
   assert.equal(getSeoPhoto("not-a-photo"), undefined);
   const sitemap = seoSitemapEntries(launched);
-  assert.equal(sitemap.length, 71); // Two indexes + 9 locations + 39 photos + 21 presets.
-  assert.equal(new Set(sitemap.map((item) => item.url)).size, 71);
+  // Two indexes + every location + 39 photos + 21 presets.
+  assert.equal(sitemap.length, 2 + seoLocations.length + 39 + 21);
+  assert.equal(new Set(sitemap.map((item) => item.url)).size, sitemap.length);
   assert.deepEqual(
     sitemap.flatMap((item) => item.images ?? []).sort(),
     seoPhotos.map((photo) => `https://nrgstudios.co${photo.src}`).sort(),

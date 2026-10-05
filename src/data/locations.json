@@ -1,21 +1,43 @@
 [
-  { "id": "austria", "name": "Austria", "naturalEarthId": "AUT" },
-  { "id": "upper-austria", "parent": "austria", "name": "Upper Austria" },
+  {
+    "id": "austria",
+    "name": "Austria",
+    "naturalEarthId": "AUT"
+  },
+  {
+    "id": "upper-austria",
+    "parent": "austria",
+    "name": "Upper Austria"
+  },
   {
     "id": "hallstatt",
     "parent": "upper-austria",
     "name": "Hallstatt",
-    "coordinates": [13.65, 47.56],
+    "coordinates": [
+      13.65,
+      47.56
+    ],
     "coordinateSource": "manual",
     "reference": "Hallstatt area reference"
   },
-  { "id": "italy", "name": "Italy", "naturalEarthId": "ITA" },
-  { "id": "south-tyrol", "parent": "italy", "name": "South Tyrol" },
+  {
+    "id": "italy",
+    "name": "Italy",
+    "naturalEarthId": "ITA"
+  },
+  {
+    "id": "south-tyrol",
+    "parent": "italy",
+    "name": "South Tyrol"
+  },
   {
     "id": "braies",
     "parent": "south-tyrol",
     "name": "Lago di Braies",
-    "coordinates": [12.08, 46.7],
+    "coordinates": [
+      12.08,
+      46.7
+    ],
     "coordinateSource": "manual",
     "reference": "Lago di Braies area reference"
   },
@@ -23,7 +45,10 @@
     "id": "seceda",
     "parent": "south-tyrol",
     "name": "Seceda",
-    "coordinates": [11.73, 46.6],
+    "coordinates": [
+      11.73,
+      46.6
+    ],
     "coordinateSource": "manual",
     "reference": "Seceda ridge area reference"
   },
@@ -31,39 +56,71 @@
     "id": "santa-magdalena",
     "parent": "south-tyrol",
     "name": "Santa Magdalena",
-    "coordinates": [11.71, 46.64],
+    "coordinates": [
+      11.71,
+      46.64
+    ],
     "coordinateSource": "manual",
     "reference": "Santa Magdalena village area reference"
   },
-  { "id": "veneto", "parent": "italy", "name": "Veneto" },
+  {
+    "id": "veneto",
+    "parent": "italy",
+    "name": "Veneto"
+  },
   {
     "id": "cadini",
     "parent": "veneto",
     "name": "Cadini di Misurina",
-    "coordinates": [12.29, 46.59],
+    "coordinates": [
+      12.29,
+      46.59
+    ],
     "coordinateSource": "manual",
     "reference": "Cadini area reference near Fonda Savio"
   },
-  { "id": "norway", "name": "Norway", "naturalEarthId": "NOR" },
-  { "id": "troms", "parent": "norway", "name": "Troms" },
+  {
+    "id": "norway",
+    "name": "Norway",
+    "naturalEarthId": "NOR"
+  },
+  {
+    "id": "troms",
+    "parent": "norway",
+    "name": "Troms"
+  },
   {
     "id": "tromso",
     "parent": "troms",
     "name": "Tromsø",
-    "coordinates": [18.96, 69.65],
+    "coordinates": [
+      18.96,
+      69.65
+    ],
     "coordinateSource": "manual",
     "reference": "Tromsø regional reference"
   },
-  { "id": "nordland", "parent": "norway", "name": "Nordland" },
+  {
+    "id": "nordland",
+    "parent": "norway",
+    "name": "Nordland"
+  },
   {
     "id": "lofoten",
     "parent": "nordland",
     "name": "Lofoten",
-    "coordinates": [13.38, 68.05],
+    "coordinates": [
+      13.38,
+      68.05
+    ],
     "coordinateSource": "manual",
     "reference": "Lofoten regional reference"
   },
-  { "id": "united-states", "name": "United States", "naturalEarthId": "USA" },
+  {
+    "id": "united-states",
+    "name": "United States",
+    "naturalEarthId": "USA"
+  },
   {
     "id": "north-carolina",
     "parent": "united-states",
@@ -73,7 +130,10 @@
     "id": "lake-james",
     "parent": "north-carolina",
     "name": "Lake James",
-    "coordinates": [-81.89, 35.75],
+    "coordinates": [
+      -81.89,
+      35.75
+    ],
     "coordinateSource": "manual",
     "reference": "Lake James area reference near Paddy’s Creek"
   },
@@ -81,8 +141,721 @@
     "id": "raleigh",
     "parent": "north-carolina",
     "name": "Raleigh",
-    "coordinates": [-78.68, 35.78],
+    "coordinates": [
+      -78.68,
+      35.78
+    ],
     "coordinateSource": "manual",
     "reference": "NC State campus area reference, Raleigh"
+  },
+  {
+    "id": "uttakleiv",
+    "parent": "nordland",
+    "name": "Uttakleiv",
+    "coordinates": [
+      13.52,
+      68.21
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "nusfjord",
+    "parent": "nordland",
+    "name": "Nusfjord",
+    "coordinates": [
+      13.35,
+      68.04
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "henningsvaer",
+    "parent": "nordland",
+    "name": "Henningsvær",
+    "coordinates": [
+      14.2,
+      68.15
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "sommaroy",
+    "parent": "troms",
+    "name": "Sommarøy",
+    "coordinates": [
+      18.01,
+      69.63
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "denmark",
+    "name": "Denmark",
+    "naturalEarthId": "DNK"
+  },
+  {
+    "id": "capital-region",
+    "parent": "denmark",
+    "name": "Capital Region"
+  },
+  {
+    "id": "copenhagen",
+    "parent": "capital-region",
+    "name": "Copenhagen",
+    "coordinates": [
+      12.57,
+      55.69
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "sweden",
+    "name": "Sweden",
+    "naturalEarthId": "SWE"
+  },
+  {
+    "id": "stockholm",
+    "parent": "sweden",
+    "name": "Stockholm"
+  },
+  {
+    "id": "stockholm-stockholm",
+    "parent": "stockholm",
+    "name": "Stockholm",
+    "coordinates": [
+      18.07,
+      59.33
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "haukland",
+    "parent": "nordland",
+    "name": "Haukland",
+    "coordinates": [
+      13.53,
+      68.2
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "svolvaer",
+    "parent": "nordland",
+    "name": "Svolvær",
+    "coordinates": [
+      14.56,
+      68.23
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "lapland",
+    "parent": "sweden",
+    "name": "Lapland"
+  },
+  {
+    "id": "kiruna",
+    "parent": "lapland",
+    "name": "Kiruna",
+    "coordinates": [
+      20.31,
+      67.85
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "skane",
+    "parent": "sweden",
+    "name": "Skåne"
+  },
+  {
+    "id": "lund",
+    "parent": "skane",
+    "name": "Lund",
+    "coordinates": [
+      13.19,
+      55.71
+    ],
+    "coordinateSource": "photo-gps"
+  },
+  {
+    "id": "united-kingdom",
+    "name": "United Kingdom",
+    "naturalEarthId": "GBR"
+  },
+  {
+    "id": "england",
+    "parent": "united-kingdom",
+    "name": "England"
+  },
+  {
+    "id": "manchester",
+    "parent": "england",
+    "name": "Manchester",
+    "coordinates": [
+      -2.23,
+      53.44
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "lake-district",
+    "parent": "england",
+    "name": "Lake District",
+    "coordinates": [
+      -3.07,
+      54.48
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "netherlands",
+    "name": "Netherlands",
+    "naturalEarthId": "NLD"
+  },
+  {
+    "id": "north-holland",
+    "parent": "netherlands",
+    "name": "North Holland"
+  },
+  {
+    "id": "amsterdam",
+    "parent": "north-holland",
+    "name": "Amsterdam",
+    "coordinates": [
+      4.89,
+      52.37
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "germany",
+    "name": "Germany",
+    "naturalEarthId": "DEU"
+  },
+  {
+    "id": "rhineland-palatinate",
+    "parent": "germany",
+    "name": "Rhineland-Palatinate"
+  },
+  {
+    "id": "koblenz",
+    "parent": "rhineland-palatinate",
+    "name": "Koblenz",
+    "coordinates": [
+      7.59,
+      50.35
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "bavaria",
+    "parent": "germany",
+    "name": "Bavaria"
+  },
+  {
+    "id": "eibsee",
+    "parent": "bavaria",
+    "name": "Eibsee",
+    "coordinates": [
+      10.97,
+      47.46
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "zugspitze",
+    "parent": "bavaria",
+    "name": "Zugspitze",
+    "coordinates": [
+      10.99,
+      47.42
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "grainau",
+    "parent": "bavaria",
+    "name": "Grainau",
+    "coordinates": [
+      11.01,
+      47.45
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "salzburg",
+    "parent": "austria",
+    "name": "Salzburg"
+  },
+  {
+    "id": "salzburg-salzburg",
+    "parent": "salzburg",
+    "name": "Salzburg",
+    "coordinates": [
+      13.05,
+      47.8
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "vastra-gotaland",
+    "parent": "sweden",
+    "name": "Västra Götaland"
+  },
+  {
+    "id": "gothenburg",
+    "parent": "vastra-gotaland",
+    "name": "Gothenburg",
+    "coordinates": [
+      11.97,
+      57.71
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "district-of-columbia",
+    "parent": "united-states",
+    "name": "District of Columbia"
+  },
+  {
+    "id": "washington-dc",
+    "parent": "district-of-columbia",
+    "name": "Washington DC",
+    "coordinates": [
+      -77.04,
+      38.9
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "maryland",
+    "parent": "united-states",
+    "name": "Maryland"
+  },
+  {
+    "id": "baltimore",
+    "parent": "maryland",
+    "name": "Baltimore",
+    "coordinates": [
+      -76.61,
+      39.29
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "bosjokloster",
+    "parent": "skane",
+    "name": "Bosjökloster",
+    "coordinates": [
+      13.52,
+      55.88
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "baden-wurttemberg",
+    "parent": "germany",
+    "name": "Baden-Württemberg"
+  },
+  {
+    "id": "stetten",
+    "parent": "baden-wurttemberg",
+    "name": "Stetten",
+    "coordinates": [
+      9.17,
+      48.67
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "linville-gorge",
+    "parent": "north-carolina",
+    "name": "Linville Gorge",
+    "coordinates": [
+      -81.9,
+      35.88
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "bolzano",
+    "parent": "south-tyrol",
+    "name": "Bolzano",
+    "coordinates": [
+      11.35,
+      46.5
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "seiser-alm",
+    "parent": "south-tyrol",
+    "name": "Seiser Alm",
+    "coordinates": [
+      11.62,
+      46.53
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "val-di-funes",
+    "parent": "south-tyrol",
+    "name": "Val di Funes",
+    "coordinates": [
+      11.68,
+      46.64
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "tre-cime-di-lavaredo",
+    "parent": "veneto",
+    "name": "Tre Cime di Lavaredo",
+    "coordinates": [
+      12.3,
+      46.62
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "lombardy",
+    "parent": "italy",
+    "name": "Lombardy"
+  },
+  {
+    "id": "milan",
+    "parent": "lombardy",
+    "name": "Milan",
+    "coordinates": [
+      9.19,
+      45.46
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "lazio",
+    "parent": "italy",
+    "name": "Lazio"
+  },
+  {
+    "id": "rome",
+    "parent": "lazio",
+    "name": "Rome",
+    "coordinates": [
+      12.48,
+      41.89
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "vienna",
+    "parent": "austria",
+    "name": "Vienna"
+  },
+  {
+    "id": "vienna-vienna",
+    "parent": "vienna",
+    "name": "Vienna",
+    "coordinates": [
+      16.42,
+      48.19
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "durham",
+    "parent": "north-carolina",
+    "name": "Durham",
+    "coordinates": [
+      -78.9,
+      36
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "duke-gardens",
+    "parent": "durham",
+    "name": "Duke Gardens"
+  },
+  {
+    "id": "cary",
+    "parent": "north-carolina",
+    "name": "Cary",
+    "coordinates": [
+      -78.78,
+      35.79
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "ulm",
+    "parent": "baden-wurttemberg",
+    "name": "Ulm",
+    "coordinates": [
+      10,
+      48.36
+    ],
+    "coordinateSource": "photo-gps"
+  },
+  {
+    "id": "esslingen",
+    "parent": "baden-wurttemberg",
+    "name": "Esslingen",
+    "coordinates": [
+      9.31,
+      48.74
+    ],
+    "coordinateSource": "photo-gps"
+  },
+  {
+    "id": "schwangau",
+    "parent": "bavaria",
+    "name": "Schwangau",
+    "coordinates": [
+      10.76,
+      47.58
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "hopfensee",
+    "parent": "bavaria",
+    "name": "Hopfensee",
+    "coordinates": [
+      10.67,
+      47.6
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "washington",
+    "parent": "united-states",
+    "name": "Washington"
+  },
+  {
+    "id": "mount-rainier",
+    "parent": "washington",
+    "name": "Mount Rainier",
+    "coordinates": [
+      -121.76,
+      46.85
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "sunrise",
+    "parent": "mount-rainier",
+    "name": "Sunrise"
+  },
+  {
+    "id": "hoh-rainforest",
+    "parent": "washington",
+    "name": "Hoh Rainforest",
+    "coordinates": [
+      -123.93,
+      47.86
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "seattle",
+    "parent": "washington",
+    "name": "Seattle",
+    "coordinates": [
+      -122.33,
+      47.6
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "munich",
+    "parent": "bavaria",
+    "name": "Munich",
+    "coordinates": [
+      11.58,
+      48.14
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "hohenschwangau",
+    "parent": "schwangau",
+    "name": "Hohenschwangau"
+  },
+  {
+    "id": "neuschwanstein",
+    "parent": "schwangau",
+    "name": "Neuschwanstein"
+  },
+  {
+    "id": "fussen",
+    "parent": "bavaria",
+    "name": "Füssen",
+    "coordinates": [
+      10.7,
+      47.57
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "allgau",
+    "parent": "bavaria",
+    "name": "Allgäu",
+    "coordinates": [
+      10.21,
+      47.59
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "sylvenstein",
+    "parent": "bavaria",
+    "name": "Sylvenstein",
+    "coordinates": [
+      11.53,
+      47.57
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "massachusetts",
+    "parent": "united-states",
+    "name": "Massachusetts"
+  },
+  {
+    "id": "boston",
+    "parent": "massachusetts",
+    "name": "Boston",
+    "coordinates": [
+      -71.06,
+      42.36
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "new-york",
+    "parent": "united-states",
+    "name": "New York"
+  },
+  {
+    "id": "new-york-city",
+    "parent": "new-york",
+    "name": "New York City",
+    "coordinates": [
+      -74.01,
+      40.71
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "finger-lakes",
+    "parent": "new-york",
+    "name": "Finger Lakes",
+    "coordinates": [
+      -76.77,
+      42.51
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "south-carolina",
+    "parent": "united-states",
+    "name": "South Carolina"
+  },
+  {
+    "id": "seabrook-island",
+    "parent": "south-carolina",
+    "name": "Seabrook Island",
+    "coordinates": [
+      -80.17,
+      32.58
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "bond-park",
+    "parent": "cary",
+    "name": "Bond Park"
+  },
+  {
+    "id": "apex",
+    "parent": "north-carolina",
+    "name": "Apex",
+    "coordinates": [
+      -78.85,
+      35.73
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "watkins-glen",
+    "parent": "new-york",
+    "name": "Watkins Glen",
+    "coordinates": [
+      -76.87,
+      42.38
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "oak-island",
+    "parent": "north-carolina",
+    "name": "Oak Island",
+    "coordinates": [
+      -78.11,
+      33.91
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "boone",
+    "parent": "north-carolina",
+    "name": "Boone",
+    "coordinates": [
+      -81.68,
+      36.22
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "oregon",
+    "parent": "united-states",
+    "name": "Oregon"
+  },
+  {
+    "id": "cannon-beach",
+    "parent": "oregon",
+    "name": "Cannon Beach",
+    "coordinates": [
+      -123.96,
+      45.89
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "haystack-rock",
+    "parent": "cannon-beach",
+    "name": "Haystack Rock"
+  },
+  {
+    "id": "black-mountain",
+    "parent": "north-carolina",
+    "name": "Black Mountain",
+    "coordinates": [
+      -82.32,
+      35.62
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "morganton",
+    "parent": "north-carolina",
+    "name": "Morganton",
+    "coordinates": [
+      -81.69,
+      35.75
+    ],
+    "coordinateSource": "geocoded"
   }
 ]

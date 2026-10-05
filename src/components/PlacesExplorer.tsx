@@ -449,7 +449,8 @@ export default function PlacesExplorer({
         const lift = Math.min(1, progress / 0.2);
         const width = galleryBounds.width - 32;
         const count = figures.length;
-        const compactWidth = (width - 8 * (count - 1)) / count;
+        const stripCount = Math.min(count, 4);
+        const compactWidth = (width - 8 * (stripCount - 1)) / stripCount;
         const headerHeight = galleryBounds.top - bounds.top;
         const safeArea =
           parseFloat(getComputedStyle(viewport!).paddingBottom) || 0;
@@ -470,8 +471,8 @@ export default function PlacesExplorer({
         let contentHeight = 0;
 
         figures.forEach((figure, index) => {
-          const lowerRow =
-            count === 2 ? index > 0 : count === 3 ? index > 0 : index > 1;
+          const row = count <= 3 ? Math.min(index, 1) : Math.floor(index / 2);
+          const inStrip = index < stripCount;
           const fullWidth = count <= 2 || (count === 3 && index === 0);
           const targetWidth = fullWidth ? width : halfWidth;
           const targetX = fullWidth
@@ -484,10 +485,16 @@ export default function PlacesExplorer({
                 ? width * 0.75
                 : halfWidth * 1.25;
           const imageHeight = mix(compactImageHeight, targetHeight, growth);
-          const x = mix(index * (compactWidth + 8), targetX, growth);
-          const y = lowerRow ? (firstHeight + captionHeight + gap) * lift : 0;
+          const x = mix(
+            Math.min(index, stripCount - 1) * (compactWidth + 8),
+            targetX,
+            growth,
+          );
+          const y = row * (firstHeight + captionHeight + gap) * lift;
           figure.style.width = `${mix(compactWidth, targetWidth, growth)}px`;
           figure.style.transform = `translate(${x}px, ${y}px)`;
+          figure.style.opacity = inStrip ? "" : String(growth);
+          figure.style.visibility = inStrip || growth > 0 ? "" : "hidden";
           images[index].style.height = `${imageHeight}px`;
           captions[index].style.opacity = String(growth);
           contentHeight = Math.max(
