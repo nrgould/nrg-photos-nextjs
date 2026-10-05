@@ -310,7 +310,8 @@
     "height": 2400,
     "taken": "2023-01",
     "locationId": "falsterbo",
-    "lightroomId": 1875096
+    "lightroomId": 1875096,
+    "hero": true
   },
   {
     "src": "/photos/lr-1875102.webp",
@@ -525,7 +526,8 @@
     "taken": "2023-02",
     "locationId": "stockholm-stockholm",
     "placeSource": "curation",
-    "lightroomId": 2366157
+    "lightroomId": 2366157,
+    "hero": true
   },
   {
     "src": "/photos/lr-2366174.webp",
@@ -573,7 +575,8 @@
     "taken": "2023-02",
     "locationId": "nusfjord",
     "placeSource": "curation",
-    "lightroomId": 2366195
+    "lightroomId": 2366195,
+    "hero": true
   },
   {
     "src": "/photos/lr-2366204.webp",
@@ -633,7 +636,8 @@
     "taken": "2023-02",
     "locationId": "haukland",
     "placeSource": "curation",
-    "lightroomId": 2366219
+    "lightroomId": 2366219,
+    "hero": true
   },
   {
     "src": "/photos/lr-2366222.webp",
@@ -669,7 +673,8 @@
     "taken": "2023-02",
     "locationId": "lofoten",
     "placeSource": "curation",
-    "lightroomId": 2366227
+    "lightroomId": 2366227,
+    "hero": true
   },
   {
     "src": "/photos/lr-2366228.webp",
@@ -957,7 +962,8 @@
     "taken": "2023-03",
     "locationId": "kiruna",
     "placeSource": "curation",
-    "lightroomId": 2366314
+    "lightroomId": 2366314,
+    "hero": true
   },
   {
     "src": "/photos/lr-2366321.webp",
@@ -1017,7 +1023,8 @@
     "taken": "2023-04",
     "locationId": "manchester",
     "placeSource": "curation",
-    "lightroomId": 2451864
+    "lightroomId": 2451864,
+    "hero": true
   },
   {
     "src": "/photos/lr-2452874.webp",
@@ -1065,7 +1072,8 @@
     "taken": "2023-04",
     "locationId": "lake-district",
     "placeSource": "curation",
-    "lightroomId": 2452884
+    "lightroomId": 2452884,
+    "hero": true
   },
   {
     "src": "/photos/lr-2452885.webp",
@@ -1461,7 +1469,8 @@
     "taken": "2023-06",
     "locationId": "koblenz",
     "placeSource": "curation",
-    "lightroomId": 2927490
+    "lightroomId": 2927490,
+    "hero": true
   },
   {
     "src": "/photos/lr-2927507.webp",
@@ -1618,7 +1627,8 @@
     "taken": "2023-04",
     "locationId": "gothenburg",
     "placeSource": "curation",
-    "lightroomId": 3109952
+    "lightroomId": 3109952,
+    "hero": true
   },
   {
     "src": "/photos/lr-3109988.webp",
@@ -1690,7 +1700,8 @@
     "taken": "2023-05",
     "locationId": "lund",
     "placeSource": "curation",
-    "lightroomId": 3110041
+    "lightroomId": 3110041,
+    "hero": true
   },
   {
     "src": "/photos/lr-3144653.webp",
@@ -1738,7 +1749,8 @@
     "taken": "2023-07",
     "locationId": "lake-james",
     "placeSource": "sibling",
-    "lightroomId": 3472823
+    "lightroomId": 3472823,
+    "hero": true
   },
   {
     "src": "/photos/lr-3472824.webp",
@@ -1750,7 +1762,8 @@
     "taken": "2023-07",
     "locationId": "lake-james",
     "placeSource": "sibling",
-    "lightroomId": 3472824
+    "lightroomId": 3472824,
+    "hero": true
   },
   {
     "src": "/photos/lr-3472825.webp",
@@ -1822,7 +1835,8 @@
     "taken": "2024-03",
     "locationId": "washington-dc",
     "placeSource": "curation",
-    "lightroomId": 3738604
+    "lightroomId": 3738604,
+    "hero": true
   },
   {
     "src": "/photos/lr-3777639.webp",
@@ -1834,7 +1848,8 @@
     "taken": "2024-03",
     "locationId": "baltimore",
     "placeSource": "nicholas",
-    "lightroomId": 3777639
+    "lightroomId": 3777639,
+    "hero": true
   },
   {
     "src": "/photos/lr-3827515.webp",
@@ -1846,7 +1861,8 @@
     "taken": "2023-02",
     "locationId": "lofoten",
     "placeSource": "curation",
-    "lightroomId": 3827515
+    "lightroomId": 3827515,
+    "hero": true
   },
   {
     "src": "/photos/lr-3827516.webp",
@@ -1870,7 +1886,8 @@
     "taken": "2023-02",
     "locationId": "henningsvaer",
     "placeSource": "curation",
-    "lightroomId": 3827519
+    "lightroomId": 3827519,
+    "hero": true
   },
   {
     "src": "/photos/lr-4147599.webp",
@@ -1930,7 +1947,8 @@
     "taken": "2023-01",
     "locationId": "bosjokloster",
     "placeSource": "curation",
-    "lightroomId": 4148022
+    "lightroomId": 4148022,
+    "hero": true
   },
   {
     "src": "/photos/lr-4148024.webp",
@@ -1978,7 +1996,8 @@
     "taken": "2023-02",
     "locationId": "svolvaer",
     "placeSource": "curation",
-    "lightroomId": 4148262
+    "lightroomId": 4148262,
+    "hero": true
   },
   {
     "src": "/photos/lr-4148361.webp",
@@ -2014,7 +2033,8 @@
     "taken": "2023-02",
     "locationId": "tromso",
     "placeSource": "curation",
-    "lightroomId": 4148370
+    "lightroomId": 4148370,
+    "hero": true
   },
   {
     "src": "/photos/lr-4148371.webp",
@@ -2026,7 +2046,8 @@
     "taken": "2023-02",
     "locationId": "tromso",
     "placeSource": "curation",
-    "lightroomId": 4148371
+    "lightroomId": 4148371,
+    "hero": true
   },
   {
     "src": "/photos/lr-4150160.webp",
@@ -2086,8 +2107,7 @@
     "taken": "2023-05",
     "locationId": "lund",
     "placeSource": "curation",
-    "lightroomId": 4150933,
-    "hero": true
+    "lightroomId": 4150933
   },
   {
     "src": "/photos/lr-4151066.webp",
@@ -2111,7 +2131,8 @@
     "taken": "2023-06",
     "locationId": "amsterdam",
     "placeSource": "curation",
-    "lightroomId": 4151068
+    "lightroomId": 4151068,
+    "hero": true
   },
   {
     "src": "/photos/lr-4151069.webp",
@@ -2532,7 +2553,8 @@
     "taken": "2023-06",
     "locationId": "zugspitze",
     "placeSource": "curation",
-    "lightroomId": 4151205
+    "lightroomId": 4151205,
+    "hero": true
   },
   {
     "src": "/photos/lr-4151209.webp",
@@ -2664,7 +2686,8 @@
     "taken": "2023-06",
     "locationId": "salzburg-salzburg",
     "placeSource": "curation",
-    "lightroomId": 4151291
+    "lightroomId": 4151291,
+    "hero": true
   },
   {
     "src": "/photos/lr-4151292.webp",
@@ -2736,7 +2759,8 @@
     "taken": "2023-02",
     "locationId": "uttakleiv",
     "placeSource": "curation",
-    "lightroomId": 4337374
+    "lightroomId": 4337374,
+    "hero": true
   },
   {
     "src": "/photos/lr-4337375.webp",
@@ -2748,7 +2772,8 @@
     "taken": "2023-02",
     "locationId": "henningsvaer",
     "placeSource": "curation",
-    "lightroomId": 4337375
+    "lightroomId": 4337375,
+    "hero": true
   },
   {
     "src": "/photos/lr-4337377.webp",
@@ -2784,7 +2809,8 @@
     "taken": "2023-02",
     "locationId": "lofoten",
     "placeSource": "curation",
-    "lightroomId": 4337379
+    "lightroomId": 4337379,
+    "hero": true
   },
   {
     "src": "/photos/lr-4337380.webp",
@@ -2796,7 +2822,8 @@
     "taken": "2023-02",
     "locationId": "henningsvaer",
     "placeSource": "curation",
-    "lightroomId": 4337380
+    "lightroomId": 4337380,
+    "hero": true
   },
   {
     "src": "/photos/lr-4337382.webp",
@@ -2941,7 +2968,8 @@
     "taken": "2023-04",
     "locationId": "copenhagen",
     "placeSource": "curation",
-    "lightroomId": 4337410
+    "lightroomId": 4337410,
+    "hero": true
   },
   {
     "src": "/photos/lr-4337422.webp",
@@ -3109,7 +3137,8 @@
     "taken": "2023-12",
     "locationId": "linville-gorge",
     "placeSource": "curation",
-    "lightroomId": 4337503
+    "lightroomId": 4337503,
+    "hero": true
   },
   {
     "src": "/photos/lr-4337504.webp",
@@ -3169,7 +3198,8 @@
     "taken": "2024-06",
     "locationId": "bolzano",
     "placeSource": "curation",
-    "lightroomId": 4373118
+    "lightroomId": 4373118,
+    "hero": true
   },
   {
     "src": "/photos/lr-4393361.webp",
@@ -3315,7 +3345,8 @@
     "taken": "2024-06",
     "locationId": "seiser-alm",
     "placeSource": "curation",
-    "lightroomId": 4393977
+    "lightroomId": 4393977,
+    "hero": true
   },
   {
     "src": "/photos/lr-4393991.webp",
@@ -3339,7 +3370,8 @@
     "taken": "2024-06",
     "locationId": "val-di-funes",
     "placeSource": "curation",
-    "lightroomId": 4394150
+    "lightroomId": 4394150,
+    "hero": true
   },
   {
     "src": "/photos/lr-4394188.webp",
@@ -3411,7 +3443,8 @@
     "taken": "2024-06",
     "locationId": "seceda",
     "placeSource": "curation",
-    "lightroomId": 4433864
+    "lightroomId": 4433864,
+    "hero": true
   },
   {
     "src": "/photos/lr-4433894.webp",
@@ -3483,7 +3516,8 @@
     "taken": "2024-06",
     "locationId": "braies",
     "placeSource": "curation",
-    "lightroomId": 4434635
+    "lightroomId": 4434635,
+    "hero": true
   },
   {
     "src": "/photos/lr-4434682.webp",
@@ -3519,7 +3553,8 @@
     "taken": "2024-06",
     "locationId": "braies",
     "placeSource": "curation",
-    "lightroomId": 4434710
+    "lightroomId": 4434710,
+    "hero": true
   },
   {
     "src": "/photos/lr-4434724.webp",
@@ -3737,8 +3772,7 @@
     "taken": "2024-06",
     "locationId": "milan",
     "placeSource": "curation",
-    "lightroomId": 4519858,
-    "hero": true
+    "lightroomId": 4519858
   },
   {
     "src": "/photos/lr-4519901.webp",
@@ -3750,8 +3784,7 @@
     "taken": "2024-06",
     "locationId": "milan",
     "placeSource": "curation",
-    "lightroomId": 4519901,
-    "hero": true
+    "lightroomId": 4519901
   },
   {
     "src": "/photos/lr-4519925.webp",
@@ -4173,7 +4206,8 @@
     "taken": "2024-06",
     "locationId": "vienna-vienna",
     "placeSource": "curation",
-    "lightroomId": 4574400
+    "lightroomId": 4574400,
+    "hero": true
   },
   {
     "src": "/photos/lr-4574421.webp",
@@ -4438,7 +4472,8 @@
     "taken": "2025-05",
     "locationId": "esslingen",
     "placeSource": "curation",
-    "lightroomId": 5170368
+    "lightroomId": 5170368,
+    "hero": true
   },
   {
     "src": "/photos/lr-5170377.webp",
@@ -5136,7 +5171,8 @@
     "taken": "2025-08",
     "locationId": "hoh-rainforest",
     "placeSource": "curation",
-    "lightroomId": 6530006
+    "lightroomId": 6530006,
+    "hero": true
   },
   {
     "src": "/photos/lr-6530007.webp",
@@ -5208,7 +5244,8 @@
     "taken": "2025-08",
     "locationId": "hoh-rainforest",
     "placeSource": "curation",
-    "lightroomId": 6530013
+    "lightroomId": 6530013,
+    "hero": true
   },
   {
     "src": "/photos/lr-6530014.webp",
@@ -5244,7 +5281,8 @@
     "taken": "2025-05",
     "locationId": "ulm",
     "placeSource": "curation",
-    "lightroomId": 7028887
+    "lightroomId": 7028887,
+    "hero": true
   },
   {
     "src": "/photos/lr-7028889.webp",
@@ -5292,7 +5330,8 @@
     "taken": "2025-05",
     "locationId": "munich",
     "placeSource": "curation",
-    "lightroomId": 7028892
+    "lightroomId": 7028892,
+    "hero": true
   },
   {
     "src": "/photos/lr-7028894.webp",
@@ -5800,7 +5839,8 @@
     "taken": "2025-05",
     "locationId": "fussen",
     "placeSource": "nicholas",
-    "lightroomId": 7028966
+    "lightroomId": 7028966,
+    "hero": true
   },
   {
     "src": "/photos/lr-7028967.webp",
@@ -5872,7 +5912,8 @@
     "taken": "2025-05",
     "locationId": "allgau",
     "placeSource": "curation",
-    "lightroomId": 7028983
+    "lightroomId": 7028983,
+    "hero": true
   },
   {
     "src": "/photos/lr-7028988.webp",
@@ -5980,8 +6021,7 @@
     "taken": "2025-05",
     "locationId": "hallstatt",
     "placeSource": "curation",
-    "lightroomId": 7029000,
-    "hero": true
+    "lightroomId": 7029000
   },
   {
     "src": "/photos/lr-7029001.webp",
@@ -6090,7 +6130,8 @@
     "taken": "2025-05",
     "locationId": "sylvenstein",
     "placeSource": "curation",
-    "lightroomId": 7029019
+    "lightroomId": 7029019,
+    "hero": true
   },
   {
     "src": "/photos/lr-7029021.webp",
@@ -6320,7 +6361,8 @@
     "taken": "2025-06",
     "locationId": "boston",
     "placeSource": "nicholas",
-    "lightroomId": 7029078
+    "lightroomId": 7029078,
+    "hero": true
   },
   {
     "src": "/photos/lr-7029080.webp",
@@ -6548,7 +6590,8 @@
     "taken": "2026-05",
     "locationId": "finger-lakes",
     "placeSource": "nicholas",
-    "lightroomId": 7449716
+    "lightroomId": 7449716,
+    "hero": true
   },
   {
     "src": "/photos/lr-7449730.webp",
@@ -6560,7 +6603,8 @@
     "taken": "2026-05",
     "locationId": "finger-lakes",
     "placeSource": "nicholas",
-    "lightroomId": 7449730
+    "lightroomId": 7449730,
+    "hero": true
   },
   {
     "src": "/photos/lr-7552804.webp",
@@ -6572,7 +6616,8 @@
     "taken": "2026-05",
     "locationId": "finger-lakes",
     "placeSource": "curation",
-    "lightroomId": 7552804
+    "lightroomId": 7552804,
+    "hero": true
   },
   {
     "src": "/photos/lr-7553025.webp",
@@ -6608,7 +6653,8 @@
     "taken": "2026-05",
     "locationId": "seabrook-island",
     "placeSource": "nicholas",
-    "lightroomId": 7607529
+    "lightroomId": 7607529,
+    "hero": true
   },
   {
     "src": "/photos/lr-7607582.webp",
@@ -6848,7 +6894,8 @@
     "taken": "2026-04",
     "locationId": "duke-gardens",
     "placeSource": "curation",
-    "lightroomId": 7610984
+    "lightroomId": 7610984,
+    "hero": true
   },
   {
     "src": "/photos/lr-7610986.webp",
@@ -6943,7 +6990,8 @@
     "height": 2400,
     "taken": "2026-05",
     "locationId": "chimney-bluffs-state-park",
-    "lightroomId": 7761544
+    "lightroomId": 7761544,
+    "hero": true
   },
   {
     "src": "/photos/lr-7768729.webp",
@@ -6955,7 +7003,8 @@
     "taken": "2026-07",
     "locationId": "apex",
     "placeSource": "nicholas",
-    "lightroomId": 7768729
+    "lightroomId": 7768729,
+    "hero": true
   },
   {
     "src": "/photos/lr-7768740.webp",
@@ -7123,7 +7172,8 @@
     "taken": "2026-05",
     "locationId": "watkins-glen",
     "placeSource": "curation",
-    "lightroomId": 7768804
+    "lightroomId": 7768804,
+    "hero": true
   },
   {
     "src": "/photos/lr-7768805.webp",
@@ -7219,7 +7269,8 @@
     "taken": "2026-05",
     "locationId": "new-york-city",
     "placeSource": "curation",
-    "lightroomId": 7768819
+    "lightroomId": 7768819,
+    "hero": true
   },
   {
     "src": "/photos/lr-7768820.webp",
@@ -7339,7 +7390,8 @@
     "taken": "2026-05",
     "locationId": "cary",
     "placeSource": "nicholas",
-    "lightroomId": 7768900
+    "lightroomId": 7768900,
+    "hero": true
   },
   {
     "src": "/photos/lr-7768901.webp",
@@ -7435,7 +7487,8 @@
     "taken": "2026-09",
     "locationId": "oak-island",
     "placeSource": "sibling",
-    "lightroomId": 7961934
+    "lightroomId": 7961934,
+    "hero": true
   },
   {
     "src": "/photos/lr-7961942.webp",
@@ -7555,7 +7608,8 @@
     "taken": "2026-09",
     "locationId": "boone",
     "placeSource": "nicholas",
-    "lightroomId": 8028098
+    "lightroomId": 8028098,
+    "hero": true
   },
   {
     "src": "/photos/lr-8028106.webp",
@@ -7687,7 +7741,8 @@
     "taken": "2025-08",
     "locationId": "seattle",
     "placeSource": "curation",
-    "lightroomId": 8059162
+    "lightroomId": 8059162,
+    "hero": true
   },
   {
     "src": "/photos/lr-8059163.webp",
@@ -7819,7 +7874,8 @@
     "taken": "2025-09",
     "locationId": "haystack-rock",
     "placeSource": "curation",
-    "lightroomId": 8059236
+    "lightroomId": 8059236,
+    "hero": true
   },
   {
     "src": "/photos/lr-8059237.webp",
@@ -7843,7 +7899,8 @@
     "taken": "2025-10",
     "locationId": "lake-james",
     "placeSource": "nicholas",
-    "lightroomId": 8059267
+    "lightroomId": 8059267,
+    "hero": true
   },
   {
     "src": "/photos/lr-8059269.webp",
@@ -7867,8 +7924,7 @@
     "taken": "2025-10",
     "locationId": "raleigh",
     "placeSource": "curation",
-    "lightroomId": 8059288,
-    "hero": true
+    "lightroomId": 8059288
   },
   {
     "src": "/photos/lr-8059290.webp",
@@ -7892,7 +7948,8 @@
     "taken": "2025-10",
     "locationId": "raleigh",
     "placeSource": "curation",
-    "lightroomId": 8059295
+    "lightroomId": 8059295,
+    "hero": true
   },
   {
     "src": "/photos/lr-8059296.webp",
@@ -7904,7 +7961,8 @@
     "taken": "2025-10",
     "locationId": "raleigh",
     "placeSource": "curation",
-    "lightroomId": 8059296
+    "lightroomId": 8059296,
+    "hero": true
   },
   {
     "src": "/photos/lr-8059300.webp",
@@ -7916,7 +7974,8 @@
     "taken": "2025-10",
     "locationId": "raleigh",
     "placeSource": "curation",
-    "lightroomId": 8059300
+    "lightroomId": 8059300,
+    "hero": true
   },
   {
     "src": "/photos/lr-8059314.webp",
@@ -7987,7 +8046,8 @@
     "taken": "2025-09",
     "locationId": "black-mountain",
     "placeSource": "curation",
-    "lightroomId": 8059397
+    "lightroomId": 8059397,
+    "hero": true
   },
   {
     "src": "/photos/lr-8059465.webp",
@@ -8011,7 +8071,8 @@
     "taken": "2025-09",
     "locationId": "morganton",
     "placeSource": "nicholas",
-    "lightroomId": 8059505
+    "lightroomId": 8059505,
+    "hero": true
   },
   {
     "src": "/photos/lr-8059513.webp",
