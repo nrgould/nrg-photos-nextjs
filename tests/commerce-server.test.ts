@@ -1,9 +1,13 @@
 import { presetCatalog } from "../src/lib/preset-commerce";
+import { readFileSync } from "node:fs";
 import { after, test } from "node:test";
 import assert from "node:assert/strict";
+import { parseLegacyOrders } from "../scripts/import-legacy-orders.mjs";
+import { legacyPackPresetIds } from "../src/lib/server/commerce/config";
 import {
   createCommerceService,
   quotePresets,
+  syncLegacyOrders,
 } from "../src/lib/server/commerce/service";
 import {
   CommerceError,
@@ -646,4 +650,76 @@ test("refund committed while the signer is awaited suppresses the signed downloa
   });
   release.resolve();
   await assert.rejects(pending, fails("not_owned"));
+});
+
+test("a legacy order credits the pack to its confirmed email account once; guests and other emails get nothing", async () => {
+  const store = makeStore();
+  const f = fixture(store);
+  const service = createCommerceService({
+    store,
+    payments: f.payments,
+    policy: { presetIds: ids, legacyPackPresetIds },
+  });
+  const rows = async (userId: string) =>
+    store.transaction(async (tx) => (await tx.entitlements(userId)).length);
+  const orders = parseLegacyOrders(
+    readFileSync(new URL("support/legacy-orders.csv", import.meta.url), "utf8"),
+  );
+  assert.deepEqual(orders, [
+    {
+      orderId: "00000000-0000-4000-8000-000000000001",
+      email: "buyer@example.test",
+    },
+    {
+      orderId: "00000000-0000-4000-8000-000000000002",
+      email: "two@example.test",
+    },
+  ]);
+  await syncLegacyOrders(store, orders, [], legacyPackPresetIds);
+
+  assert.equal(legacyPackPresetIds.length, 9);
+  assert.deepEqual(
+    (await service.ownership("buyer", "Buyer@Example.test")).presetIds.sort(),
+    [...legacyPackPresetIds].sort(),
+  );
+  assert.equal(await rows("buyer"), 9);
+  await service.ownership("buyer", "buyer@example.test");
+  assert.equal(await rows("buyer"), 9);
+  assert.deepEqual((await service.ownership("guest")).presetIds, []);
+  assert.deepEqual(
+    (await service.ownership("other", "other@example.test")).presetIds,
+    [],
+  );
+  assert.equal(await rows("guest"), 0);
+  assert.equal(await rows("other"), 0);
+});
+
+test("a legacy sync grants existing accounts, changes nothing on re-run, and revokes dropped orders", async () => {
+  const store = makeStore();
+  const f = fixture(store);
+  const service = createCommerceService({
+    store,
+    payments: f.payments,
+    policy: { presetIds: ids, legacyPackPresetIds },
+  });
+  const one = { orderId: "ls-1", email: "one@example.test" };
+  const two = { orderId: "ls-2", email: "two@example.test" };
+  const accounts = [
+    { userId: "one", email: one.email },
+    { userId: "two", email: two.email },
+  ];
+  const sync = (orders: { orderId: string; email: string }[]) =>
+    syncLegacyOrders(store, orders, accounts, legacyPackPresetIds);
+  assert.deepEqual(await sync([one, two]), { kept: 2, removed: 0, granted: 2 });
+  assert.deepEqual(await sync([one, two]), { kept: 2, removed: 0, granted: 0 });
+  assert.equal((await service.ownership("two", two.email)).presetIds.length, 9);
+
+  assert.deepEqual(await sync([one]), { kept: 1, removed: 1, granted: 0 });
+  assert.deepEqual((await service.ownership("two", two.email)).presetIds, []);
+  assert.equal((await service.ownership("one", one.email)).presetIds.length, 9);
+});
+
+test("the legacy order import refuses a file without its columns or orders", () => {
+  assert.throws(() => parseLegacyOrders("id,email\nx,y@z.test\n"));
+  assert.throws(() => parseLegacyOrders("identifier,user_email\n"));
 });

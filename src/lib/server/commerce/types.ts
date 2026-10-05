@@ -59,7 +59,12 @@ export interface CommerceTransaction {
   revokeOrderEntitlements(orderId: string): Promise<void>;
   rewardClaim(userId: string, campaignId: string): Promise<RewardClaim | null>;
   putRewardClaim(claim: RewardClaim): Promise<void>;
+  /** Lemon Squeezy order IDs bought with this lowercased email. */
+  legacyOrders(email: string): Promise<string[]>;
+  /** Make the stored legacy orders exactly these; returns the order IDs removed. */
+  replaceLegacyOrders(orders: readonly LegacyOrder[]): Promise<string[]>;
 }
+export type LegacyOrder = { orderId: string; email: string };
 export interface CommerceStore {
   readonly durability: "durable" | "test-only";
   /** Serializable isolation; rollback all writes on failure. */
@@ -95,6 +100,8 @@ export type CommercePolicy = {
     campaignId: string;
     eligiblePresetIds: readonly string[];
   };
+  /** Granted to an email account for each legacy order bought with its email. */
+  legacyPackPresetIds?: readonly string[];
 };
 export interface PrivateDelivery {
   readonly allowedOrigins: readonly string[];

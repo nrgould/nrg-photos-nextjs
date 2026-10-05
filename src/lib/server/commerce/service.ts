@@ -7,6 +7,7 @@ import {
   type CommercePolicy,
   type CommerceStore,
   type CommerceTransaction,
+  type LegacyOrder,
   type Order,
   type PaymentEvent,
   type PaymentGateway,
@@ -48,6 +49,59 @@ function assertSession(order: Order, session: CheckoutSession) {
     throw new CommerceError("payment_mismatch", 409);
 }
 
+const legacySource = (orderId: string) => `lemonsqueezy:${orderId}`;
+
+/** Grants the pack once per legacy order bought with this email; returns the rows added. */
+async function grantLegacyOrders(
+  tx: CommerceTransaction,
+  userId: string,
+  email: string,
+  presetIds: readonly string[],
+) {
+  const active = new Set(
+    (await tx.entitlements(userId))
+      .filter((entry) => !entry.revoked)
+      .map((entry) => JSON.stringify([entry.presetId, entry.sourceId])),
+  );
+  let added = 0;
+  for (const orderId of await tx.legacyOrders(email.trim().toLowerCase()))
+    for (const presetId of presetIds) {
+      const sourceId = legacySource(orderId);
+      if (active.has(JSON.stringify([presetId, sourceId]))) continue;
+      await tx.putEntitlement({
+        userId,
+        presetId,
+        sourceId,
+        kind: "order",
+        revoked: false,
+      });
+      added++;
+    }
+  return added;
+}
+
+/**
+ * Makes the stored legacy orders exactly `orders`, revokes the grants of removed ones,
+ * and grants to `accounts` (confirmed email accounts) right away.
+ */
+export async function syncLegacyOrders(
+  store: CommerceStore,
+  orders: readonly LegacyOrder[],
+  accounts: readonly { userId: string; email: string }[],
+  presetIds: readonly string[],
+) {
+  return store.transaction(async (tx) => {
+    const removed = await tx.replaceLegacyOrders(orders);
+    for (const orderId of removed)
+      await tx.revokeOrderEntitlements(legacySource(orderId));
+    let granted = 0;
+    for (const account of accounts)
+      if (await grantLegacyOrders(tx, account.userId, account.email, presetIds))
+        granted++;
+    return { kept: orders.length, removed: removed.length, granted };
+  });
+}
+
 export function createCommerceService({
   policy,
   store,
@@ -68,6 +122,9 @@ export function createCommerceService({
         eligiblePresetIds: [...new Set(policy.reward.eligiblePresetIds)],
       }
     : null;
+  const legacyPack = (policy.legacyPackPresetIds ?? []).filter((id) =>
+    allowed.includes(id),
+  );
 
   async function assertUnowned(
     tx: CommerceTransaction,
@@ -256,23 +313,28 @@ export function createCommerceService({
     async webhook(rawBody: string, signature: string) {
       return applyEvent(payments.verifyWebhook(rawBody, signature));
     },
-    async ownership(userId: string) {
+    /** `email` is the session's confirmed email, null for guests. */
+    async ownership(userId: string, email: string | null = null) {
       if (!userId) throw new CommerceError("unauthenticated", 401);
-      return store.transaction(async (tx) => ({
-        status: "verified" as const,
-        presetIds: [
-          ...new Set(
-            (await tx.entitlements(userId))
-              .filter((e) => !e.revoked)
-              .map((e) => e.presetId),
-          ),
-        ],
-        // So a claimed reward stays claimed across visits.
-        rewardPresetId: reward
-          ? ((await tx.rewardClaim(userId, reward.campaignId))?.presetId ??
-            null)
-          : null,
-      }));
+      return store.transaction(async (tx) => {
+        if (email && legacyPack.length)
+          await grantLegacyOrders(tx, userId, email, legacyPack);
+        return {
+          status: "verified" as const,
+          presetIds: [
+            ...new Set(
+              (await tx.entitlements(userId))
+                .filter((e) => !e.revoked)
+                .map((e) => e.presetId),
+            ),
+          ],
+          // So a claimed reward stays claimed across visits.
+          rewardPresetId: reward
+            ? ((await tx.rewardClaim(userId, reward.campaignId))?.presetId ??
+              null)
+            : null,
+        };
+      });
     },
     /**
      * One free preset per account and campaign, drawn at random from the eligible ones it doesn't own.

@@ -11,7 +11,9 @@ export function createCommerceHandlers({
   configuration: ConfigurationResult;
   store?: CommerceStore;
   service?: CommerceService;
-  authenticate?: (requireEmail?: boolean) => Promise<string>;
+  authenticate?: (
+    requireEmail?: boolean,
+  ) => Promise<{ userId: string; email: string | null }>;
 }) {
   const headers = { "Cache-Control": "private, no-store" };
   const ready = () => {
@@ -110,7 +112,7 @@ export function createCommerceHandlers({
       respond(async () => {
         const { service, authenticate, origin } = ready();
         sameOrigin(request, origin);
-        const user = await authenticate();
+        const { userId: user } = await authenticate();
         const input = await body(request, [
           "paidPresetIds",
           "requestId",
@@ -133,18 +135,19 @@ export function createCommerceHandlers({
     ownership: () =>
       respond(async () => {
         const { service, authenticate } = ready();
-        return service.ownership(await authenticate());
+        const { userId, email } = await authenticate();
+        return service.ownership(userId, email);
       }),
     claimReward: (request: Request) =>
       respond(async () => {
         const { service, authenticate, origin } = ready();
         sameOrigin(request, origin);
-        return service.claimReward(await authenticate(true));
+        return service.claimReward((await authenticate(true)).userId);
       }),
     download: (presetId: string) =>
       respond(async () => {
         const { service, authenticate } = ready();
-        return service.download(await authenticate(), presetId);
+        return service.download((await authenticate()).userId, presetId);
       }),
   };
 }

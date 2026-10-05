@@ -161,6 +161,24 @@ function bind(sql: Tx): CommerceTransaction {
         on conflict do nothing returning 1`;
       if (!row) throw new CommerceError("reward_already_claimed", 409);
     },
+    async legacyOrders(email) {
+      const rows = await sql<{ order_id: string }[]>`
+        select order_id from commerce_legacy_orders where email = ${email}`;
+      return rows.map((row) => row.order_id);
+    },
+    async replaceLegacyOrders(orders) {
+      const removed = await sql<{ order_id: string }[]>`
+        delete from commerce_legacy_orders
+        where order_id <> all(${sql.array(orders.map((o) => o.orderId))}::text[])
+        returning order_id`;
+      if (orders.length)
+        await sql`
+          insert into commerce_legacy_orders ${sql(
+            orders.map((o) => ({ order_id: o.orderId, email: o.email })),
+          )}
+          on conflict (order_id) do update set email = excluded.email`;
+      return removed.map((row) => row.order_id);
+    },
   };
 }
 

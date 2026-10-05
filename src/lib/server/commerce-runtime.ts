@@ -2,6 +2,7 @@ import "server-only";
 import { presetCatalog } from "../preset-commerce";
 import { readAccountConfiguration } from "./account-configuration";
 import {
+  legacyPackPresetIds,
   readCommerceConfiguration,
   type ConfigurationResult,
 } from "./commerce/config";
@@ -51,6 +52,7 @@ export async function composeCommerceRuntime(
     policy: {
       presetIds,
       reward: { campaignId: "explore-2026", eligiblePresetIds: presetIds },
+      legacyPackPresetIds,
     },
     store: adapters.store,
     payments,
@@ -77,9 +79,13 @@ export async function composeCommerceRuntime(
       );
       // getClaims verifies the JWT signature; getSession alone would trust the cookie.
       const { data } = await supabase.auth.getClaims();
+      // Sign-in is by email code, and an email change applies only once its code is verified.
       return {
         userId: data?.claims.sub ?? null,
-        emailAccount: !!data?.claims.email && !data.claims.is_anonymous,
+        email:
+          data?.claims.email && !data.claims.is_anonymous
+            ? data.claims.email
+            : null,
       };
     }),
   });

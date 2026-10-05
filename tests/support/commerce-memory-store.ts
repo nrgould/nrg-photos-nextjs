@@ -14,6 +14,7 @@ type State = {
   revokedPayments: Set<string>;
   entitlements: Map<string, Entitlement>;
   claims: Map<string, RewardClaim>;
+  legacyOrders: Map<string, string>;
 };
 const key = (...parts: string[]) => JSON.stringify(parts);
 
@@ -28,6 +29,7 @@ export class MemoryCommerceStore implements CommerceStore {
     revokedPayments: new Set(),
     entitlements: new Map(),
     claims: new Map(),
+    legacyOrders: new Map(),
   };
   async transaction<T>(
     work: (tx: CommerceTransaction) => Promise<T>,
@@ -116,6 +118,18 @@ export class MemoryCommerceStore implements CommerceStore {
         if (next.claims.has(id))
           throw new CommerceError("reward_already_claimed", 409);
         next.claims.set(id, structuredClone(claim));
+      },
+      legacyOrders: async (email) =>
+        [...next.legacyOrders].filter(([, e]) => e === email).map(([id]) => id),
+      replaceLegacyOrders: async (orders) => {
+        const kept = new Set(orders.map((order) => order.orderId));
+        const removed = [...next.legacyOrders.keys()].filter(
+          (id) => !kept.has(id),
+        );
+        next.legacyOrders = new Map(
+          orders.map((order) => [order.orderId, order.email]),
+        );
+        return removed;
       },
     };
     try {

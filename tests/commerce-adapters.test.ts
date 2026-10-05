@@ -181,7 +181,7 @@ test("unconfigured HTTP and test-memory-store HTTP make no provider/auth calls a
       service,
       authenticate: async () => {
         authCalls++;
-        return "user-A";
+        return { userId: "user-A", email: null };
       },
     });
     assert.deepEqual(await handlers.availability().json(), {
@@ -345,11 +345,11 @@ test("webhook forwards exact raw body/signature to SDK and rejects invalid signa
 });
 
 test("session authenticator awaits verified session identity, never a client-supplied account", async () => {
-  assert.equal(
+  assert.deepEqual(
     await createSessionAuthenticator(async () => ({
       userId: "verified-user",
     }))(),
-    "verified-user",
+    { userId: "verified-user", email: null },
   );
   await assert.rejects(
     createSessionAuthenticator(async () => ({ userId: null }))(),
@@ -359,12 +359,12 @@ test("session authenticator awaits verified session identity, never a client-sup
     createSessionAuthenticator(async () => ({ userId: "guest" }))(true),
     fails("email_required"),
   );
-  assert.equal(
+  assert.deepEqual(
     await createSessionAuthenticator(async () => ({
       userId: "member",
-      emailAccount: true,
+      email: "member@example.test",
     }))(true),
-    "member",
+    { userId: "member", email: "member@example.test" },
   );
 });
 

@@ -6,13 +6,17 @@ import type { CommerceStore } from "../../src/lib/server/commerce/types";
 import { MemoryCommerceStore } from "./commerce-memory-store";
 
 const url = process.env.COMMERCE_TEST_DATABASE_URL;
-const migration = readFileSync(
-  new URL(
-    "../../supabase/migrations/20261004000000_commerce.sql",
-    import.meta.url,
-  ),
-  "utf8",
-);
+const migration = [
+  "20261004000000_commerce.sql",
+  "20261005020000_commerce_legacy_orders.sql",
+]
+  .map((file) =>
+    readFileSync(
+      new URL(`../../supabase/migrations/${file}`, import.meta.url),
+      "utf8",
+    ),
+  )
+  .join("\n");
 const open: { sql: postgres.Sql; schema: string }[] = [];
 
 /** Memory store by default; with COMMERCE_TEST_DATABASE_URL (session pooler) a throwaway Postgres schema. */
