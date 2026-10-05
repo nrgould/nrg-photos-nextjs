@@ -71,6 +71,7 @@ import { useExplorationProgress } from "./useExplorationProgress";
 import type { ExplorationEvent } from "@/lib/exploration-progress";
 import PresetCartPanel from "./PresetCartPanel";
 import PresetLibraryPanel from "./PresetLibraryPanel";
+import MenuPanel from "./MenuPanel";
 import SavedPanel from "./SavedPanel";
 import { useFavorites } from "./useFavorites";
 import { nodeForPhoto, placeNode } from "@/lib/favorites";
@@ -86,7 +87,14 @@ import {
 } from "@/lib/preset-commerce";
 
 type DrawerView =
-  "photos" | "presets" | "saved" | "cart" | "library" | "challenges" | "preset";
+  | "photos"
+  | "presets"
+  | "saved"
+  | "cart"
+  | "library"
+  | "challenges"
+  | "preset"
+  | "menu";
 // Pages nest above an open photo drawer; otherwise a page is the drawer.
 type PageView = Exclude<DrawerView, "photos">;
 const pageBackLabels: Record<DrawerView, string> = {
@@ -97,6 +105,7 @@ const pageBackLabels: Record<DrawerView, string> = {
   library: "Your presets",
   challenges: "Challenges",
   preset: "Preset",
+  menu: "Menu",
 };
 function stepTo<T>(stack: T[], view: T) {
   const index = stack.indexOf(view);
@@ -739,7 +748,9 @@ export default function PlacesExplorer({
             ? "Your presets"
             : view === "challenges"
               ? "Exploration challenges"
-              : "All presets";
+              : view === "menu"
+                ? "Menu"
+                : "All presets";
   }
   // Pages nest only above photos, so at most one layer shows a page.
   const pageView = nested ?? (drawerMode === "photos" ? null : drawerMode);
@@ -805,6 +816,15 @@ export default function PlacesExplorer({
           backLabel={backLabel}
           onBack={onBack}
           onBrowse={() => openPage("presets")}
+        />
+      );
+    if (view === "menu")
+      return (
+        <MenuPanel
+          theme={theme}
+          onPresets={(trigger) => openPage("presets", trigger)}
+          onTheme={changeTheme}
+          onContact={() => setContact(true)}
         />
       );
     if (view === "challenges")
@@ -897,11 +917,13 @@ export default function PlacesExplorer({
               ref={presetsTrigger}
               variant="control"
               className="explorer-presets-trigger"
-              aria-label="Browse all presets"
-              onClick={(event) => openPage("presets", event.currentTarget)}
+              aria-expanded={desktop ? undefined : topView === "menu"}
+              onClick={(event) =>
+                openPage(desktop ? "presets" : "menu", event.currentTarget)
+              }
             >
               <span className="max-[700px]:hidden">All presets</span>
-              <span className="min-[701px]:hidden">Presets</span>
+              <span className="min-[701px]:hidden">Menu</span>
             </Button>
           </div>
           <PlacesMap
@@ -947,7 +969,11 @@ export default function PlacesExplorer({
           } as CSSProperties
         }
       >
-        <ButtonGroup orientation="vertical" className="explorer-utilities">
+        {/* Phones reach theme and contact through the Menu page. */}
+        <ButtonGroup
+          orientation="vertical"
+          className="explorer-utilities max-[700px]:hidden"
+        >
           <Control
             label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
             onClick={changeTheme}
