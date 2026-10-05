@@ -36,7 +36,7 @@ Six Node route handlers compose the server handlers:
 
 All responses are private/no-store. `composeCommerceRuntime` checks full test configuration and a durable store before importing either server SDK. `getCommerceHandlers()` intentionally supplies no store. Even complete provider configuration therefore remains unavailable. There is no filesystem or production memory fallback.
 
-Activation requires an approved durable transactional store satisfying the reservation/event/entitlement contract in [commerce-server-foundation.md](./commerce-server-foundation.md), test provider configuration, and private delivery. Reward issuance additionally needs trusted server evidence and an explicit campaign; local visits are insufficient. Rate limiting and provider sandbox end-to-end verification remain prerequisites before exposing configured commerce. Live operation is unsupported at this checkpoint.
+Activation requires an approved durable transactional store satisfying the reservation/event/entitlement contract in [commerce-server-foundation.md](./commerce-server-foundation.md), test provider configuration, and private delivery. Reward claims need a confirmed email account. Rate limiting and provider sandbox end-to-end verification remain prerequisites before exposing configured commerce. Live operation is unsupported at this checkpoint.
 
 ## Verification
 

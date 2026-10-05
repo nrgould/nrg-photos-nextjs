@@ -11,7 +11,7 @@ export function createCommerceHandlers({
   configuration: ConfigurationResult;
   store?: CommerceStore;
   service?: CommerceService;
-  authenticate?: () => Promise<string>;
+  authenticate?: (requireEmail?: boolean) => Promise<string>;
 }) {
   const headers = { "Cache-Control": "private, no-store" };
   const ready = () => {
@@ -139,7 +139,7 @@ export function createCommerceHandlers({
       respond(async () => {
         const { service, authenticate, origin } = ready();
         sameOrigin(request, origin);
-        return service.claimReward(await authenticate());
+        return service.claimReward(await authenticate(true));
       }),
     download: (presetId: string) =>
       respond(async () => {

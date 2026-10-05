@@ -161,11 +161,6 @@ function bind(sql: Tx): CommerceTransaction {
         on conflict do nothing returning 1`;
       if (!row) throw new CommerceError("reward_already_claimed", 409);
     },
-    // ponytail: no verified-visit evidence exists yet, so no reward is claimable.
-    // Add a table alongside the server workflow that writes it.
-    async verifiedLocations() {
-      return [];
-    },
   };
 }
 

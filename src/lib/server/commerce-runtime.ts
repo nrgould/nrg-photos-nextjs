@@ -48,7 +48,10 @@ export async function composeCommerceRuntime(
     configuration.configuration,
   );
   const service = createCommerceService({
-    policy: { presetIds },
+    policy: {
+      presetIds,
+      reward: { campaignId: "explore-2026", eligiblePresetIds: presetIds },
+    },
     store: adapters.store,
     payments,
     delivery: adapters.delivery,
@@ -74,7 +77,10 @@ export async function composeCommerceRuntime(
       );
       // getClaims verifies the JWT signature; getSession alone would trust the cookie.
       const { data } = await supabase.auth.getClaims();
-      return { userId: data?.claims.sub ?? null };
+      return {
+        userId: data?.claims.sub ?? null,
+        emailAccount: !!data?.claims.email && !data.claims.is_anonymous,
+      };
     }),
   });
 }

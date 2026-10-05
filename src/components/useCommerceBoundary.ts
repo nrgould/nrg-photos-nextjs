@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import { useCommerceAccount } from "./CommerceProviders";
+import type { ExplorationClaimBoundary } from "./ExploreChallenges";
 import type {
   PresetCheckoutBoundary,
   PresetCheckoutRequest,
@@ -265,8 +266,42 @@ export function useCommerceBoundary() {
       startGuestCheckout,
     ],
   );
+  const claimReward = useCallback(async () => {
+    const response = await fetch("/api/commerce/reward-claim", {
+      method: "POST",
+      credentials: "same-origin",
+    });
+    refreshOwnership();
+    const value: unknown = await response.json().catch(() => null);
+    if (
+      !response.ok ||
+      !value ||
+      typeof value !== "object" ||
+      !("presetId" in value) ||
+      typeof value.presetId !== "string"
+    )
+      throw new Error("Reward unavailable");
+    return { presetId: value.presetId };
+  }, [refreshOwnership]);
+  // The free preset is one per email account, so a guest signs in with an email first.
+  const reward = useMemo<ExplorationClaimBoundary>(
+    () =>
+      availability !== "test-ready" || account.userId === undefined
+        ? { status: "unavailable" }
+        : account.userId && !account.anonymous && account.email
+          ? { status: "ready", claim: claimReward }
+          : { status: "sign-in", claim: claimReward },
+    [
+      availability,
+      account.userId,
+      account.anonymous,
+      account.email,
+      claimReward,
+    ],
+  );
   return {
     checkout,
+    reward,
     ownedPresetIds: owned ?? emptyOwned,
     ownershipStatus: owned ? ("verified" as const) : ("unknown" as const),
     refreshOwnership,

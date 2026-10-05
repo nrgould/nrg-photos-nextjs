@@ -520,43 +520,17 @@ test("transaction rollback includes the event marker and grants", async () => {
   );
 });
 
-test("only five distinct known server-verified visits can claim one reward; duplicate claims are serialized", async () => {
-  const known = [
-    "fixture-1",
-    "fixture-2",
-    "fixture-3",
-    "fixture-4",
-    "fixture-5",
-  ];
-  const store = new MemoryCommerceStore([
-    { userId: "eligible", campaignId: "campaign", locationIds: known },
-    {
-      userId: "four",
-      campaignId: "campaign",
-      locationIds: [...known.slice(0, 4), known[0], "unknown"],
-    },
-  ]);
+test("one reward per account and campaign; duplicate claims are serialized", async () => {
+  const store = new MemoryCommerceStore();
   const f = fixture(store);
   const service = createCommerceService({
     store,
     payments: f.payments,
     policy: {
       presetIds: ids,
-      reward: {
-        campaignId: "campaign",
-        knownLocationIds: known,
-        eligiblePresetIds: ids,
-      },
+      reward: { campaignId: "campaign", eligiblePresetIds: ids },
     },
   });
-  await assert.rejects(
-    service.claimReward("four"),
-    fails("reward_not_eligible"),
-  );
-  await assert.rejects(
-    service.claimReward("client-progress-only"),
-    fails("reward_not_eligible"),
-  );
   const claimed = await Promise.all([
     service.claimReward("eligible"),
     service.claimReward("eligible"),
@@ -573,22 +547,6 @@ test("only five distinct known server-verified visits can claim one reward; dupl
     ),
     1,
   );
-  const fourReal = createCommerceService({
-    store,
-    payments: f.payments,
-    policy: {
-      presetIds: ids,
-      reward: {
-        campaignId: "campaign",
-        knownLocationIds: known.slice(0, 4),
-        eligiblePresetIds: ids,
-      },
-    },
-  });
-  await assert.rejects(
-    fourReal.claimReward("four"),
-    fails("reward_not_eligible"),
-  );
   await assert.rejects(
     f.service.claimReward("eligible"),
     fails("reward_not_configured"),
@@ -596,25 +554,14 @@ test("only five distinct known server-verified visits can claim one reward; dupl
 });
 
 test("the reward draw skips presets the account owns and fails once it owns them all", async () => {
-  const known = ["k1", "k2", "k3", "k4", "k5"];
-  const store = new MemoryCommerceStore(
-    ["one-left", "owns-all"].map((userId) => ({
-      userId,
-      campaignId: "campaign",
-      locationIds: known,
-    })),
-  );
+  const store = new MemoryCommerceStore();
   const f = fixture(store);
   const service = createCommerceService({
     store,
     payments: f.payments,
     policy: {
       presetIds: ids,
-      reward: {
-        campaignId: "campaign",
-        knownLocationIds: known,
-        eligiblePresetIds: ids.slice(0, 2),
-      },
+      reward: { campaignId: "campaign", eligiblePresetIds: ids.slice(0, 2) },
     },
   });
   const own = (userId: string, presetId: string) =>

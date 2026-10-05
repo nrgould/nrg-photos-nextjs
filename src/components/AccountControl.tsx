@@ -16,16 +16,79 @@ import { Label } from "./ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 export function AccountControl({ className }: { className?: string }) {
-  const { enabled, supabase, userId, email, anonymous, captcha } =
-    useCommerceAccount();
+  const { enabled, supabase, userId, email, anonymous } = useCommerceAccount();
   const [open, setOpen] = useState(false);
+  if (!enabled || !supabase || userId === undefined) return null;
+
+  return (
+    <>
+      {userId && !anonymous ? (
+        <Popover>
+          <PopoverTrigger
+            render={
+              <Button
+                variant="control"
+                className={cn("font-medium", className)}
+                aria-label={`Account, ${email}`}
+              />
+            }
+          >
+            {email?.[0]?.toUpperCase()}
+          </PopoverTrigger>
+          <PopoverContent
+            align="end"
+            className="explorer-overlay w-64 gap-3 p-4"
+          >
+            <p className="truncate text-sm text-muted-foreground">{email}</p>
+            <Button
+              variant="control"
+              onClick={() => void supabase.auth.signOut()}
+            >
+              Sign out
+            </Button>
+          </PopoverContent>
+        </Popover>
+      ) : (
+        <Button
+          variant="control"
+          className={className}
+          aria-label="Sign in"
+          onClick={() => setOpen(true)}
+        >
+          <UserRound size={18} className="min-[701px]:hidden" />
+          <span className="max-[700px]:hidden">Sign in</span>
+        </Button>
+      )}
+      <SignInDialog open={open} onOpenChange={setOpen} title="Sign in" />
+    </>
+  );
+}
+
+/** The email-code sign-in. A guest keeps its id and purchases by linking the email. */
+export function SignInDialog({
+  open,
+  onOpenChange,
+  title,
+  onSignedIn,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  onSignedIn?: () => void;
+}) {
+  const { supabase, userId, anonymous, captcha } = useCommerceAccount();
   const [sentTo, setSentTo] = useState<string | null>(null);
   // A guest links the email to keep its purchases; "email_change" is that code's type.
   const [codeType, setCodeType] = useState<"email" | "email_change">("email");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [signedIn, setSignedIn] = useState(userId);
   const field = useRef<HTMLInputElement>(null);
-  if (!enabled || !supabase || userId === undefined) return null;
+  // Signing out starts the next sign-in from the email step.
+  if (signedIn !== userId) {
+    setSignedIn(userId);
+    if (!userId) setSentTo(null);
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -69,138 +132,92 @@ export function AccountControl({ className }: { className?: string }) {
     }
     setPending(false);
     if (error) return setError(error.message);
-    if (sentTo) setOpen(false);
-    else setSentTo(value);
+    if (!sentTo) return setSentTo(value);
+    onOpenChange(false);
+    onSignedIn?.();
   }
 
+  // Also closes when the account turns permanent, so a verified code exits with the dialog's animation.
   return (
-    <>
-      {userId && !anonymous ? (
-        <Popover>
-          <PopoverTrigger
-            render={
-              <Button
-                variant="control"
-                className={cn("font-medium", className)}
-                aria-label={`Account, ${email}`}
-              />
-            }
-          >
-            {email?.[0]?.toUpperCase()}
-          </PopoverTrigger>
-          <PopoverContent
-            align="end"
-            className="explorer-overlay w-64 gap-3 p-4"
-          >
-            <p className="truncate text-sm text-muted-foreground">{email}</p>
+    <Dialog
+      open={open && (!userId || anonymous)}
+      onOpenChange={(next) => {
+        onOpenChange(next);
+        if (!next) setError(null);
+      }}
+    >
+      <DialogContent
+        variant="panel"
+        className="account-dialog explorer-overlay top-[max(16px,18vh)] w-[min(380px,calc(100vw-32px))] rounded-[14px] px-6 pt-5 pb-6"
+        initialFocus={field}
+      >
+        <div className="account-dialog-header">
+          <DialogTitle>{title}</DialogTitle>
+          <DialogClose render={<Button variant="quiet" aria-label="Close" />}>
+            <X size={18} />
+          </DialogClose>
+        </div>
+        {sentTo && (
+          <DialogDescription className="account-dialog-sent">
+            Code sent to <strong>{sentTo}</strong>
+          </DialogDescription>
+        )}
+        <form className="account-dialog-form" onSubmit={submit}>
+          <Label>
+            {sentTo ? "Code" : "Email"}
+            {/* Keyed so the email value never carries into the code field. */}
+            <Input
+              key={sentTo ? "code" : "email"}
+              ref={field}
+              name="value"
+              autoFocus={Boolean(sentTo)}
+              required
+              aria-invalid={Boolean(error)}
+              variant="boxed"
+              className={cn(sentTo && "tabular-nums tracking-[0.2em]")}
+              {...(sentTo
+                ? {
+                    inputMode: "numeric",
+                    autoComplete: "one-time-code",
+                    pattern: "[0-9]{6,10}",
+                    maxLength: 10,
+                  }
+                : {
+                    type: "email",
+                    autoComplete: "email",
+                    placeholder: "you@example.com",
+                  })}
+            />
+          </Label>
+          {error && (
+            <p role="alert" className="form-error">
+              {error}
+            </p>
+          )}
+          <Button type="submit" variant="default" size="lg" disabled={pending}>
+            {sentTo
+              ? pending
+                ? "Signing in…"
+                : "Sign in"
+              : pending
+                ? "Sending…"
+                : "Email me a code"}
+          </Button>
+          {sentTo && (
             <Button
-              variant="control"
+              type="button"
+              variant="quiet"
+              className="self-center"
               onClick={() => {
                 setSentTo(null);
-                void supabase.auth.signOut();
+                setError(null);
               }}
             >
-              Sign out
+              Use a different email
             </Button>
-          </PopoverContent>
-        </Popover>
-      ) : (
-        <Button
-          variant="control"
-          className={className}
-          aria-label="Sign in"
-          onClick={() => setOpen(true)}
-        >
-          <UserRound size={18} className="min-[701px]:hidden" />
-          <span className="max-[700px]:hidden">Sign in</span>
-        </Button>
-      )}
-      {/* Also closes when the account turns permanent, so a verified code exits with the dialog's animation. */}
-      <Dialog
-        open={open && (!userId || anonymous)}
-        onOpenChange={(next) => {
-          setOpen(next);
-          if (!next) setError(null);
-        }}
-      >
-        <DialogContent
-          variant="panel"
-          className="account-dialog explorer-overlay top-[max(16px,18vh)] w-[min(380px,calc(100vw-32px))] rounded-[14px] px-6 pt-5 pb-6"
-          initialFocus={field}
-        >
-          <div className="account-dialog-header">
-            <DialogTitle>Sign in</DialogTitle>
-            <DialogClose render={<Button variant="quiet" aria-label="Close" />}>
-              <X size={18} />
-            </DialogClose>
-          </div>
-          {sentTo && (
-            <DialogDescription className="account-dialog-sent">
-              Code sent to <strong>{sentTo}</strong>
-            </DialogDescription>
           )}
-          <form className="account-dialog-form" onSubmit={submit}>
-            <Label>
-              {sentTo ? "Code" : "Email"}
-              {/* Keyed so the email value never carries into the code field. */}
-              <Input
-                key={sentTo ? "code" : "email"}
-                ref={field}
-                name="value"
-                autoFocus={Boolean(sentTo)}
-                required
-                aria-invalid={Boolean(error)}
-                variant="boxed"
-                className={cn(sentTo && "tabular-nums tracking-[0.2em]")}
-                {...(sentTo
-                  ? {
-                      inputMode: "numeric",
-                      autoComplete: "one-time-code",
-                      pattern: "[0-9]{6,10}",
-                      maxLength: 10,
-                    }
-                  : {
-                      type: "email",
-                      autoComplete: "email",
-                      placeholder: "you@example.com",
-                    })}
-              />
-            </Label>
-            {error && (
-              <p role="alert" className="form-error">
-                {error}
-              </p>
-            )}
-            <Button
-              type="submit"
-              variant="default"
-              size="lg"
-              disabled={pending}
-            >
-              {sentTo
-                ? pending
-                  ? "Signing in…"
-                  : "Sign in"
-                : pending
-                  ? "Sending…"
-                  : "Email me a code"}
-            </Button>
-            {sentTo && (
-              <Button
-                type="button"
-                variant="quiet"
-                className="self-center"
-                onClick={() => {
-                  setSentTo(null);
-                  setError(null);
-                }}
-              >
-                Use a different email
-              </Button>
-            )}
-          </form>
-        </DialogContent>
-      </Dialog>
-    </>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

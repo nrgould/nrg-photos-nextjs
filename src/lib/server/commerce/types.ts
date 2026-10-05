@@ -59,8 +59,6 @@ export interface CommerceTransaction {
   revokeOrderEntitlements(orderId: string): Promise<void>;
   rewardClaim(userId: string, campaignId: string): Promise<RewardClaim | null>;
   putRewardClaim(claim: RewardClaim): Promise<void>;
-  /** Only server-verified evidence; never client/localStorage visit assertions. */
-  verifiedLocations(userId: string, campaignId: string): Promise<string[]>;
 }
 export interface CommerceStore {
   readonly durability: "durable" | "test-only";
@@ -95,7 +93,6 @@ export type CommercePolicy = {
   presetIds: readonly string[];
   reward?: {
     campaignId: string;
-    knownLocationIds: readonly string[];
     eligiblePresetIds: readonly string[];
   };
 };

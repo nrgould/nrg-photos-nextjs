@@ -355,6 +355,17 @@ test("session authenticator awaits verified session identity, never a client-sup
     createSessionAuthenticator(async () => ({ userId: null }))(),
     fails("unauthenticated"),
   );
+  await assert.rejects(
+    createSessionAuthenticator(async () => ({ userId: "guest" }))(true),
+    fails("email_required"),
+  );
+  assert.equal(
+    await createSessionAuthenticator(async () => ({
+      userId: "member",
+      emailAccount: true,
+    }))(true),
+    "member",
+  );
 });
 
 test("configured handler rejects forged account/price/reward fields, external origins and oversized bodies", async () => {
@@ -433,7 +444,7 @@ test("configured handler rejects forged account/price/reward fields, external or
         }),
       )
     ).status,
-    503,
+    403,
   );
   assert.equal(f.creations.length, 0);
   assert.equal((await handlers.ownership()).status, 200);

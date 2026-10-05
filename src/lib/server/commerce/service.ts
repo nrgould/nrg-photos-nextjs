@@ -65,7 +65,6 @@ export function createCommerceService({
   const reward = policy.reward
     ? {
         campaignId: policy.reward.campaignId,
-        knownLocationIds: [...new Set(policy.reward.knownLocationIds)],
         eligiblePresetIds: [...new Set(policy.reward.eligiblePresetIds)],
       }
     : null;
@@ -270,20 +269,16 @@ export function createCommerceService({
         ],
       }));
     },
-    /** The server draws the free preset at random from the eligible ones the account doesn't own. */
+    /**
+     * One free preset per account and campaign, drawn at random from the eligible ones it doesn't own.
+     * Challenges live in the browser, so the gate is the caller's: a confirmed email account.
+     */
     async claimReward(userId: string) {
       if (!userId) throw new CommerceError("unauthenticated", 401);
       if (!reward) throw new CommerceError("reward_not_configured", 503);
       return store.transaction(async (tx) => {
         const prior = await tx.rewardClaim(userId, reward.campaignId);
         if (prior) return prior;
-        const visits = new Set(
-          (await tx.verifiedLocations(userId, reward.campaignId)).filter((id) =>
-            reward.knownLocationIds.includes(id),
-          ),
-        );
-        if (visits.size < 5)
-          throw new CommerceError("reward_not_eligible", 403);
         const owned = new Set(
           (await tx.entitlements(userId))
             .filter((e) => !e.revoked)

@@ -42,6 +42,7 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@/components/ui/item";
+import { SignInDialog } from "./AccountControl";
 import PhotoImage from "./PhotoImage";
 import styles from "./ExploreChallenges.module.css";
 
@@ -60,7 +61,8 @@ const savedCover = new Map<string, Photo>([
 export type ExplorationClaimBoundary =
   | { status: "unavailable"; message?: string }
   | {
-      status: "ready";
+      /** "sign-in": the account needs a confirmed email before it can claim. */
+      status: "sign-in" | "ready";
       /** The server draws the preset; the client only shows it. */
       claim: () => Promise<{ presetId: string }>;
     };
@@ -304,10 +306,15 @@ export default function ExploreChallenges({
   const visited = progress.visitedLocationIds
     .slice(0, summary.requiredCount)
     .map((id) => explorationLocations.find((l) => l.id === id)!);
-  const claimable = claimBoundary.status === "ready" && summary.allComplete;
+  const claimable =
+    claimBoundary.status !== "unavailable" && summary.allComplete;
+  // A guest enters an email first; the claim runs once that code is verified.
+  const [signingIn, setSigningIn] = useState(false);
 
-  async function claimReward() {
-    if (claimBoundary.status !== "ready" || !claimable || pending) return;
+  async function claimReward(signedIn = false) {
+    if (claimBoundary.status === "unavailable" || !claimable || pending) return;
+    if (claimBoundary.status === "sign-in" && !signedIn)
+      return setSigningIn(true);
     setPending(true);
     setError(null);
     try {
@@ -386,7 +393,7 @@ export default function ExploreChallenges({
                 className={styles.claim}
                 disabled={!claimable || pending || claimedId !== null}
                 aria-busy={pending}
-                onClick={claimReward}
+                onClick={() => void claimReward()}
               >
                 {!claimable && (
                   <LockKeyhole size={14} strokeWidth={1.5} aria-hidden="true" />
@@ -398,6 +405,12 @@ export default function ExploreChallenges({
           <span className="sr-only" role="status">
             {claimedId && `${getCatalogPreset(claimedId)?.name} claimed`}
           </span>
+          <SignInDialog
+            open={signingIn}
+            onOpenChange={setSigningIn}
+            title="Enter your email to get it"
+            onSignedIn={() => void claimReward(true)}
+          />
           <div className={styles.segments} aria-hidden="true">
             {Array.from({ length: summary.challengeCount }, (_, i) => (
               <span key={i} data-done={i < summary.doneCount} />

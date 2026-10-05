@@ -260,7 +260,7 @@ export default function PlacesExplorer({
   const nested = nestedStack.at(-1) ?? null;
   const topView = nested ?? (open ? drawerMode : null);
   const selectedPreset = getCatalogPreset(catalogState.selectedPresetId);
-  const { checkout } = usePresetCommerceBoundary();
+  const { checkout, reward } = usePresetCommerceBoundary();
   const { cartIds, ownedPresetIds, addPreset, addPresets, removePreset } =
     usePresetCart();
   const checkoutParams = new URLSearchParams({ view: "cart" });
@@ -881,6 +881,7 @@ export default function PlacesExplorer({
           progress={explorationProgress}
           backLabel={backLabel}
           onBack={onBack}
+          claimBoundary={reward}
           onOpenPreset={(id) => {
             setCatalogState((state) => ({ ...state, selectedPresetId: id }));
             openPage("preset");

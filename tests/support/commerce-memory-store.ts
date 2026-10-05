@@ -14,7 +14,6 @@ type State = {
   revokedPayments: Set<string>;
   entitlements: Map<string, Entitlement>;
   claims: Map<string, RewardClaim>;
-  verified: Map<string, string[]>;
 };
 const key = (...parts: string[]) => JSON.stringify(parts);
 
@@ -29,20 +28,7 @@ export class MemoryCommerceStore implements CommerceStore {
     revokedPayments: new Set(),
     entitlements: new Map(),
     claims: new Map(),
-    verified: new Map(),
   };
-  constructor(
-    verified: {
-      userId: string;
-      campaignId: string;
-      locationIds: string[];
-    }[] = [],
-  ) {
-    for (const row of verified)
-      this.state.verified.set(key(row.userId, row.campaignId), [
-        ...row.locationIds,
-      ]);
-  }
   async transaction<T>(
     work: (tx: CommerceTransaction) => Promise<T>,
   ): Promise<T> {
@@ -131,9 +117,6 @@ export class MemoryCommerceStore implements CommerceStore {
           throw new CommerceError("reward_already_claimed", 409);
         next.claims.set(id, structuredClone(claim));
       },
-      verifiedLocations: async (userId, campaignId) => [
-        ...(next.verified.get(key(userId, campaignId)) ?? []),
-      ],
     };
     try {
       const result = await work(tx);
