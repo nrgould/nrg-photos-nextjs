@@ -8,3 +8,5 @@ Design planning only. No challenge or reward implementation belongs to the map c
 - Local exploration progress is separate from free-preset entitlement. Actual rewards require later server validation, authentication, once-per-account claim rules and delivery configuration. Do not represent a local UI event as an earned or delivered purchase entitlement.
 
 The user has now authorized sequential overnight implementation after the map checkpoints; this document remains design context until that stage. The current map still contains four regional collections.
+
+2026-10-05: the client now asks for every challenge (five places plus each photo find) before it shows the free preset as ready, but `src/lib/server/commerce/service.ts` still checks only five verified places. When the claim is wired, the server check must add the photo finds. Claim stays disabled until then, since nothing passes a `claimBoundary`.

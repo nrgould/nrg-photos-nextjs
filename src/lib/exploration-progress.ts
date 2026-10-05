@@ -6,7 +6,12 @@ export const EXPLORATION_STORAGE_KEY = "photography-exploration-progress-v1";
 
 export const explorationLocations = getMapNodes(travelPlaces, "location")
   .filter((node) => node.precision === "regional")
-  .map(({ id, label, photoCount }) => ({ id, label, photoCount }));
+  .map(({ id, label, photoCount, cover }) => ({
+    id,
+    label,
+    photoCount,
+    cover,
+  }));
 
 const locationIds = explorationLocations.map((location) => location.id);
 const photoSrcs = [
@@ -16,15 +21,29 @@ const photoSrcs = [
 ];
 
 // Only challenges whose photograph is published. Add one when its photo ships.
-export const explorationChallenges = [
+// Opening any of a challenge's photographs finds it.
+export const explorationChallenges: readonly {
+  id: string;
+  title: string;
+  clue: string;
+  photoSrcs: readonly string[];
+  photoTitle: string;
+}[] = [
   {
     id: "find-red-boat",
     title: "Find the red boat",
     clue: "A small flash of red, surrounded by Arctic water and snow.",
-    photoSrc: "/photos/lr-4337389.webp",
+    photoSrcs: ["/photos/lr-4337389.webp"],
     photoTitle: "Sommarøy",
   },
-] as const;
+  {
+    id: "find-cat",
+    title: "Find the cat",
+    clue: "A small traveler in a bag, among spring crocuses in a Swedish university town.",
+    photoSrcs: ["/photos/lr-2366344.webp", "/photos/lr-2366347.webp"],
+    photoTitle: "Lund",
+  },
+];
 
 export type ExplorationProgress = {
   version: 1;
@@ -93,25 +112,40 @@ export function recordExplorationEvent(
 
 export function getExplorationSummary(input: unknown) {
   const progress = createExplorationProgress(input);
+  /** Challenge id → the photograph that found it. */
+  const foundSrcs: Record<string, string> = {};
+  for (const challenge of explorationChallenges) {
+    const src = progress.openedPhotoSrcs.find((opened) =>
+      challenge.photoSrcs.includes(opened),
+    );
+    if (src) foundSrcs[challenge.id] = src;
+  }
   const completedChallengeIds = explorationChallenges
-    .filter((challenge) =>
-      progress.openedPhotoSrcs.includes(challenge.photoSrc),
-    )
+    .filter((challenge) => challenge.id in foundSrcs)
     .map((challenge) => challenge.id);
+  const milestoneComplete =
+    progress.visitedLocationIds.length >= EXPLORATION_LOCATION_GOAL;
+  // The places goal is one challenge; the free preset needs all of them.
+  const challengeCount = explorationChallenges.length + 1;
+  const doneCount = completedChallengeIds.length + Number(milestoneComplete);
   return {
     visitedCount: progress.visitedLocationIds.length,
     requiredCount: EXPLORATION_LOCATION_GOAL,
     availableLocationCount: locationIds.length,
-    milestoneComplete:
-      progress.visitedLocationIds.length >= EXPLORATION_LOCATION_GOAL,
+    milestoneComplete,
     completedChallengeIds,
+    foundSrcs,
+    challengeCount,
+    doneCount,
+    allComplete: doneCount === challengeCount,
     entitlement: "not-verified" as const,
   };
 }
 
 export type ExplorationMoment =
   | { kind: "location"; label: string; count: number; goal: number }
-  | { kind: "challenge"; title: string };
+  | { kind: "challenge"; title: string }
+  | { kind: "complete"; count: number };
 
 /** What a single recorded event just advanced, for the progress toast. */
 export function describeExplorationProgress(
@@ -120,6 +154,8 @@ export function describeExplorationProgress(
 ): ExplorationMoment | null {
   const a = getExplorationSummary(before);
   const b = getExplorationSummary(after);
+  if (b.allComplete && !a.allComplete)
+    return { kind: "complete", count: b.challengeCount };
   const found = b.completedChallengeIds.find(
     (id) => !a.completedChallengeIds.includes(id),
   );

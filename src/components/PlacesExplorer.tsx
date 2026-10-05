@@ -1016,8 +1016,9 @@ export default function PlacesExplorer({
           </Control>
         </ButtonGroup>
         <div className="explorer-command-bar" aria-label="Location navigation">
-          {/* Names the place Previous, Next and Shuffle landed on; at globe scale the marker alone is hard to find. */}
-          {stepped && place && (
+          {/* Names the place Previous, Next and Shuffle landed on; at globe scale the marker alone is hard to find.
+              Desktop only: on phones a step opens the 25% drawer, which carries the name. */}
+          {desktop && stepped && place && (
             <p className="command-place" aria-live="polite">
               {place.name}
             </p>
@@ -1315,8 +1316,9 @@ export default function PlacesExplorer({
                 >
                   {pageTitle(drawerMode)}.
                 </DrawerDescription>
-                {/* Menu pages carry their own back link, so the place link would be a second one. */}
-                {place && !baseStack.includes("menu") && (
+                {/* Menu pages carry their own back link, so the place link would be a second one.
+                    Desktop only: on phones, swiping the sheet down already leaves the page. */}
+                {desktop && place && !baseStack.includes("menu") && (
                   <Button
                     variant="quiet"
                     className="drawer-back"

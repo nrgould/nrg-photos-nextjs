@@ -103,7 +103,61 @@ test("red-boat completion requires the exact actual opened photograph; visits do
 test("only challenges with a published photograph are listed", () => {
   assert.deepEqual(
     explorationChallenges.map((challenge) => challenge.id),
-    ["find-red-boat"],
+    ["find-red-boat", "find-cat"],
+  );
+  const photos = travelPlaces.flatMap((place) => place.photos);
+  for (const challenge of explorationChallenges)
+    for (const src of challenge.photoSrcs)
+      assert.ok(
+        photos.some((photo) => photo.src === src),
+        src,
+      );
+});
+
+test("either Lund cat photograph finds the cat", () => {
+  const cats = explorationChallenges.find(
+    (challenge) => challenge.id === "find-cat",
+  )!.photoSrcs;
+  const photos = travelPlaces.flatMap((place) => place.photos);
+  for (const src of cats) {
+    const photo = photos.find((candidate) => candidate.src === src)!;
+    assert.equal(photo.title, "Lund");
+    assert.match(photo.alt, /\bcat\b/i);
+    const summary = getExplorationSummary(
+      recordExplorationEvent(empty, { type: "photo-opened", photoSrc: src }),
+    );
+    assert.deepEqual(summary.completedChallengeIds, ["find-cat"]);
+    assert.equal(summary.foundSrcs["find-cat"], src);
+  }
+});
+
+test("the last challenge done raises one completion moment and readies the reward", () => {
+  let progress = empty;
+  for (const id of ids.slice(0, 5)) progress = visit(progress, id);
+  progress = recordExplorationEvent(progress, {
+    type: "photo-opened",
+    photoSrc: boat,
+  });
+  assert.equal(getExplorationSummary(progress).allComplete, false);
+  assert.equal(getExplorationSummary(progress).doneCount, 2);
+  const cat = explorationChallenges.find(
+    (challenge) => challenge.id === "find-cat",
+  )!.photoSrcs[1];
+  const done = recordExplorationEvent(progress, {
+    type: "photo-opened",
+    photoSrc: cat,
+  });
+  assert.deepEqual(describeExplorationProgress(progress, done), {
+    kind: "complete",
+    count: 3,
+  });
+  assert.equal(getExplorationSummary(done).allComplete, true);
+  assert.equal(
+    describeExplorationProgress(
+      done,
+      recordExplorationEvent(done, { type: "photo-opened", photoSrc: boat }),
+    ),
+    null,
   );
 });
 
@@ -179,9 +233,13 @@ test("malformed and unrecognized events do not change progress or assert complet
   ])
     assert.deepEqual(recordExplorationEvent(empty, event), empty);
   assert.deepEqual(Object.keys(getExplorationSummary(empty)).sort(), [
+    "allComplete",
     "availableLocationCount",
+    "challengeCount",
     "completedChallengeIds",
+    "doneCount",
     "entitlement",
+    "foundSrcs",
     "milestoneComplete",
     "requiredCount",
     "visitedCount",

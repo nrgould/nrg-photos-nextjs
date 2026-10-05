@@ -2467,6 +2467,9 @@ html[data-photo-theme="dark"] {
     --white: var(--neutral-0);
     --ink: var(--neutral-900);
     --forest: var(--green-900);
+    /* Challenge progress and the ready free preset. */
+    --reward: var(--green-700);
+    --reward-surface: var(--green-150);
     --line: var(--neutral-200);
     --muted-foreground: var(--neutral-600);
     --input: var(--neutral-300);
@@ -2505,6 +2508,8 @@ html[data-photo-theme="dark"] {
     --white: var(--neutral-800);
     --ink: var(--neutral-100);
     --forest: var(--green-900);
+    --reward: var(--green-400);
+    --reward-surface: var(--green-950);
     --line: var(--neutral-700);
     --muted-foreground: var(--neutral-300);
     --input: var(--neutral-500);
@@ -3166,11 +3171,6 @@ html[data-photo-theme="dark"] {
     text-shadow:
       0 0 12px var(--paper),
       0 0 4px var(--paper);
-  }
-  @media (max-width: 700px) {
-    .explorer .command-place {
-      font-size: 22px;
-    }
   }
   .travel-commands button {
     display: inline-flex;

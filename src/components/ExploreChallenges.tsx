@@ -1,15 +1,32 @@
 "use client";
 
-import { useEffect, useId, useState, type Ref } from "react";
+import {
+  useEffect,
+  useId,
+  useState,
+  useSyncExternalStore,
+  type Ref,
+} from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ArrowLeft, Check, Gift, Leaf, LockKeyhole } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  Gift,
+  Leaf,
+  LockKeyhole,
+  MapPin,
+  Search,
+} from "lucide-react";
 import {
   createExplorationProgress,
   explorationChallenges,
+  explorationLocations,
   getExplorationSummary,
   type ExplorationMoment,
   type ExplorationProgress,
 } from "@/lib/exploration-progress";
+import { travelPlaces } from "@/lib/places";
 import { Button } from "@/components/ui/button";
 import {
   Item,
@@ -20,7 +37,12 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@/components/ui/item";
+import PhotoImage from "./PhotoImage";
 import styles from "./ExploreChallenges.module.css";
+
+const photoBySrc = new Map(
+  travelPlaces.flatMap((place) => place.photos).map((p) => [p.src, p]),
+);
 
 export type ExplorationClaimBoundary =
   | { status: "unavailable"; message?: string }
@@ -73,6 +95,7 @@ export function ExplorationToast({
   const [followUp, setFollowUp] = useState<number | null>(null);
   const complete =
     moment?.kind === "challenge" ||
+    moment?.kind === "complete" ||
     (moment?.kind === "location" && moment.count === moment.goal);
   const next = moment !== null && followUp === moment.key;
   useEffect(() => {
@@ -83,8 +106,19 @@ export function ExplorationToast({
     );
     return () => window.clearTimeout(timer);
   }, [moment, complete, next, onDismiss]);
-  return (
-    <div className={styles.toastRegion} role="status" aria-live="polite">
+  // On body, so it shows over the photo viewer: the fixed explorer is its own stacking context.
+  const mounted = useSyncExternalStore(
+    noSubscribe,
+    () => true,
+    () => false,
+  );
+  if (!mounted) return null;
+  return createPortal(
+    <div
+      className={`${styles.toastRegion} explorer-overlay`}
+      role="status"
+      aria-live="polite"
+    >
       <AnimatePresence mode="wait">
         {moment && (
           <motion.button
@@ -92,6 +126,7 @@ export function ExplorationToast({
             type="button"
             className={styles.toast}
             data-complete={complete && !next}
+            data-reward={moment.kind === "complete"}
             onClick={onOpen}
             initial={
               reducedMotion
@@ -108,7 +143,7 @@ export function ExplorationToast({
           >
             {next ? (
               <span className={styles.toastIcon} aria-hidden="true">
-                {moment.kind === "location" ? (
+                {moment.kind === "complete" ? (
                   <Gift size={16} strokeWidth={1.5} />
                 ) : (
                   <Leaf size={16} strokeWidth={1.5} />
@@ -124,21 +159,25 @@ export function ExplorationToast({
             <span className={styles.toastText}>
               <strong>
                 {next
-                  ? moment.kind === "location"
-                    ? "Free preset unlocked"
+                  ? moment.kind === "complete"
+                    ? "Free preset ready"
                     : "Challenge complete"
                   : moment.kind === "location"
                     ? moment.label
-                    : moment.title}
+                    : moment.kind === "challenge"
+                      ? moment.title
+                      : "All challenges complete"}
               </strong>
               <span>
                 {next
-                  ? moment.kind === "location"
+                  ? moment.kind === "complete"
                     ? "Claim it in Challenges"
                     : "View it in Challenges"
                   : moment.kind === "location"
                     ? `${moment.count} of ${moment.goal} places`
-                    : "Found"}
+                    : moment.kind === "challenge"
+                      ? "Found"
+                      : `${moment.count} of ${moment.count} challenges`}
               </span>
             </span>
             {moment.kind === "location" && !next && (
@@ -157,9 +196,11 @@ export function ExplorationToast({
           </motion.button>
         )}
       </AnimatePresence>
-    </div>
+    </div>,
+    document.body,
   );
 }
+const noSubscribe = () => () => {};
 
 export function ExploreChallengesTrigger({
   progress,
@@ -181,16 +222,32 @@ export function ExploreChallengesTrigger({
       onClick={onClick}
       aria-expanded={expanded}
       aria-label={
-        summary.milestoneComplete
-          ? `Explore challenges, ${summary.visitedCount} locations explored, local milestone complete`
-          : `Explore challenges, ${summary.visitedCount} of ${summary.requiredCount} locations explored`
+        summary.allComplete
+          ? "Challenges, all complete, free preset ready"
+          : `Challenges, ${summary.doneCount} of ${summary.challengeCount} complete`
       }
     >
-      <Leaf size={18} strokeWidth={1.5} aria-hidden="true" />
+      <AnimatePresence initial={false} mode="popLayout">
+        <motion.span
+          key={summary.allComplete ? "gift" : "leaf"}
+          className={styles.triggerIcon}
+          initial={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
+          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+          exit={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
+          transition={{ type: "spring", duration: 0.3, bounce: 0 }}
+          aria-hidden="true"
+        >
+          {summary.allComplete ? (
+            <Gift size={18} strokeWidth={1.5} />
+          ) : (
+            <Leaf size={18} strokeWidth={1.5} />
+          )}
+        </motion.span>
+      </AnimatePresence>
       <span
         className={styles.dot}
-        data-complete={summary.milestoneComplete}
-        data-started={summary.visitedCount > 0}
+        data-complete={summary.allComplete}
+        data-started={summary.visitedCount > 0 || summary.doneCount > 0}
         aria-hidden="true"
       />
     </Button>
@@ -214,10 +271,10 @@ export default function ExploreChallenges({
   const [pending, setPending] = useState(false);
   const [claimMessage, setClaimMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const completed = new Set<string>(summary.completedChallengeIds);
-  const remaining = summary.requiredCount - summary.visitedCount;
-  const claimable =
-    claimBoundary.status === "ready" && summary.milestoneComplete;
+  const visited = progress.visitedLocationIds
+    .slice(0, summary.requiredCount)
+    .map((id) => explorationLocations.find((l) => l.id === id)!);
+  const claimable = claimBoundary.status === "ready" && summary.allComplete;
 
   async function claimReward() {
     if (claimBoundary.status !== "ready" || !claimable || pending) return;
@@ -251,35 +308,25 @@ export default function ExploreChallenges({
         </h2>
       </header>
       <div className={styles.content}>
-        <section aria-labelledby={`${id}-places`}>
-          <div className={styles.sectionHeading}>
-            <h3 id={`${id}-places`}>Places</h3>
-            <span className={styles.count}>
-              {Math.min(summary.visitedCount, summary.requiredCount)} of{" "}
-              {summary.requiredCount}
-            </span>
-          </div>
-          <progress
-            className={styles.progress}
-            value={Math.min(summary.visitedCount, summary.requiredCount)}
-            max={summary.requiredCount}
-            aria-label="Places explored toward the free preset"
-          />
-          <Item className={styles.row}>
+        <div className={styles.reward} data-ready={summary.allComplete}>
+          <Item className={styles.rewardRow}>
+            <ItemMedia className={styles.rewardIcon} aria-hidden="true">
+              <Gift size={18} strokeWidth={1.5} />
+            </ItemMedia>
             <ItemContent className={styles.rowContent}>
               <ItemTitle>Free preset</ItemTitle>
               <ItemDescription className={styles.rowDescription}>
                 {claimMessage ??
-                  (!summary.milestoneComplete
-                    ? `${remaining} more ${remaining === 1 ? "place" : "places"}`
-                    : claimBoundary.status === "unavailable"
-                      ? (claimBoundary.message ?? "Unavailable")
-                      : "Ready")}
+                  (summary.allComplete
+                    ? (claimBoundary.status === "unavailable" &&
+                        claimBoundary.message) ||
+                      `All ${summary.challengeCount} challenges complete`
+                    : `${summary.doneCount} of ${summary.challengeCount} challenges`)}
               </ItemDescription>
             </ItemContent>
             <ItemActions>
               <Button
-                variant="control"
+                variant={summary.allComplete ? "default" : "control"}
                 className={styles.claim}
                 disabled={!claimable || pending || claimMessage !== null}
                 aria-busy={pending}
@@ -292,52 +339,93 @@ export default function ExploreChallenges({
               </Button>
             </ItemActions>
           </Item>
-          {error && (
-            <p className={styles.error} role="alert">
-              {error}
-            </p>
-          )}
-        </section>
-        <section
-          className={styles.challenges}
-          aria-labelledby={`${id}-challenges`}
-        >
-          <div className={styles.sectionHeading}>
-            <h3 id={`${id}-challenges`}>Photographs</h3>
-            <span className={styles.count}>
-              {completed.size} of {explorationChallenges.length}
-            </span>
+          <div className={styles.segments} aria-hidden="true">
+            {Array.from({ length: summary.challengeCount }, (_, i) => (
+              <span key={i} data-done={i < summary.doneCount} />
+            ))}
           </div>
-          <ItemGroup className={styles.rows}>
-            {explorationChallenges.map((challenge) => {
-              const found = completed.has(challenge.id);
-              return (
-                <Item
-                  key={challenge.id}
-                  role="listitem"
-                  className={styles.row}
-                  data-complete={found}
-                >
-                  <ItemMedia className={styles.check} aria-hidden="true">
-                    {found && <Check size={12} strokeWidth={2} />}
-                  </ItemMedia>
-                  <ItemContent className={styles.rowContent}>
-                    <ItemTitle>
-                      {challenge.title}
-                      <span className="sr-only">
-                        {found ? ", found" : ", not found"}
-                      </span>
-                    </ItemTitle>
-                    <ItemDescription className={styles.rowDescription}>
-                      {found ? challenge.photoTitle : challenge.clue}
-                    </ItemDescription>
-                  </ItemContent>
-                </Item>
-              );
-            })}
-          </ItemGroup>
-        </section>
+        </div>
+        {error && (
+          <p className={styles.error} role="alert">
+            {error}
+          </p>
+        )}
+        <ItemGroup className={styles.rows}>
+          <Item
+            role="listitem"
+            className={styles.row}
+            data-complete={summary.milestoneComplete}
+          >
+            <ItemMedia className={styles.tile} aria-hidden="true">
+              <MapPin size={18} strokeWidth={1.5} />
+              {summary.milestoneComplete && <Badge />}
+            </ItemMedia>
+            <ItemContent className={styles.rowContent}>
+              <ItemTitle>
+                Visit {summary.requiredCount} places
+                <span className="sr-only">
+                  {summary.milestoneComplete ? ", complete" : ""}
+                </span>
+              </ItemTitle>
+              <div className={styles.slots} aria-hidden="true">
+                {Array.from({ length: summary.requiredCount }, (_, i) => (
+                  <span key={i}>
+                    {visited[i] && (
+                      <PhotoImage photo={visited[i].cover} sizes="28px" />
+                    )}
+                  </span>
+                ))}
+              </div>
+            </ItemContent>
+            <ItemActions className={styles.count}>
+              {Math.min(summary.visitedCount, summary.requiredCount)} of{" "}
+              {summary.requiredCount}
+            </ItemActions>
+          </Item>
+          {explorationChallenges.map((challenge) => {
+            const src = summary.foundSrcs[challenge.id];
+            const photo = src ? photoBySrc.get(src) : undefined;
+            return (
+              <Item
+                key={challenge.id}
+                role="listitem"
+                className={styles.row}
+                data-complete={!!src}
+              >
+                <ItemMedia className={styles.tile} aria-hidden="true">
+                  {photo ? (
+                    <>
+                      <PhotoImage photo={photo} sizes="48px" />
+                      <Badge />
+                    </>
+                  ) : (
+                    <Search size={18} strokeWidth={1.5} />
+                  )}
+                </ItemMedia>
+                <ItemContent className={styles.rowContent}>
+                  <ItemTitle>
+                    {challenge.title}
+                    <span className="sr-only">
+                      {src ? ", found" : ", not found"}
+                    </span>
+                  </ItemTitle>
+                  <ItemDescription className={styles.rowDescription}>
+                    {src ? challenge.photoTitle : challenge.clue}
+                  </ItemDescription>
+                </ItemContent>
+              </Item>
+            );
+          })}
+        </ItemGroup>
       </div>
     </section>
+  );
+}
+
+function Badge() {
+  return (
+    <span className={styles.badge}>
+      <Check size={10} strokeWidth={2.5} />
+    </span>
   );
 }
