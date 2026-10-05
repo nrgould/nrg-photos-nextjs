@@ -448,7 +448,8 @@ export default function PlacesExplorer({
   const expanded = desktop || Number(snap) >= 0.75;
   function navigate(direction: "back" | "next" | "shuffle") {
     const id = navigatePlaces(filteredPlaces, selected, direction);
-    if (id !== null) choose(id);
+    // Shuffle opens the new place's photos at the strip, like a marker tap.
+    if (id !== null) choose(id, direction === "shuffle");
   }
   useEffect(() => {
     const viewport = drawerViewport.current;
