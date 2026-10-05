@@ -435,7 +435,7 @@ export default function ExploreChallenges({
           <SignInDialog
             open={signingIn}
             onOpenChange={setSigningIn}
-            title="Enter your email to get it"
+            title="Create a free account to claim"
             onSignedIn={() => void claimReward(true)}
           />
           <div className={styles.segments} aria-hidden="true">

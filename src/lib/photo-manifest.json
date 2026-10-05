@@ -6886,6 +6886,30 @@
     "hero": true
   },
   {
+    "src": "/photos/lr-7761545.webp",
+    "title": "Wolcott",
+    "alt": "Moss-covered base of a tree trunk wrapped in old barbed wire, with young green leaves and twigs around it in soft light",
+    "origin": "Lightroom 7761545",
+    "width": 1200,
+    "height": 1600,
+    "taken": "2026-05-13T14:20:11.54",
+    "locationId": "wolcott",
+    "placeSource": "nicholas",
+    "lightroomId": 7761545
+  },
+  {
+    "src": "/photos/lr-7761546.webp",
+    "title": "Wolcott",
+    "alt": "White and pale pink trillium flowers among broad green leaves in dappled sunlight",
+    "origin": "Lightroom 7761546",
+    "width": 1200,
+    "height": 1600,
+    "taken": "2026-05-13T14:16:24.46",
+    "locationId": "wolcott",
+    "placeSource": "nicholas",
+    "lightroomId": 7761546
+  },
+  {
     "src": "/photos/lr-7768729.webp",
     "title": "Apex",
     "alt": "Pale green hydrangea blooms spilling over a white picket fence, a dark-blue house with shutters softly blurred behind",
