@@ -15,6 +15,8 @@ export default function PhotoComparison({ pair }: { pair: ComparisonPair }) {
     <figure className="photo-comparison">
       <div
         className="comparison-stage"
+        // Dragging the split must not drag the drawer shut.
+        data-vaul-no-drag
         style={{ aspectRatio: `${pair.after.width} / ${pair.after.height}` }}
       >
         <PhotoImage photo={pair.after} sizes={sizes} />

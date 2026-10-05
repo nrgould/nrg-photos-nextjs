@@ -226,7 +226,8 @@
 .facts {
   margin-top: 24px;
 }
-.facts h4 {
+.facts h4,
+.facts h5 {
   margin: 0 0 7px;
   font-size: 13px;
   font-weight: 600;
@@ -244,6 +245,17 @@
   margin: 2px 0 12px;
   color: var(--muted-foreground);
   font-size: 13px;
+}
+/* The showcase and place grids sit under one label, apart from the usage text. */
+.edited {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.edited > h4 {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 600;
 }
 /* Hand-picked photos run larger than the place grids below. */
 .showcase {

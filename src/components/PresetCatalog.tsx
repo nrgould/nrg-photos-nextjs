@@ -481,35 +481,43 @@ export function PresetDetail({
           </>
         )}
       </dl>
-      {showcase.length > 0 && (
-        <section className={styles.facts} aria-label="Showcase">
-          {photoGrid(showcase, `${panel.savedPhotos} ${styles.showcase}`)}
+      {(showcase.length > 0 || places.length > 0) && (
+        <section
+          className={styles.edited}
+          aria-labelledby={`${preset.id}-edited`}
+        >
+          <h4 id={`${preset.id}-edited`}>Photos edited with {preset.name}</h4>
+          {showcase.length > 0 &&
+            photoGrid(showcase, `${panel.savedPhotos} ${styles.showcase}`)}
+          {places.map((place) => (
+            <section
+              key={place.id}
+              className={styles.facts}
+              aria-labelledby={`${preset.id}-${place.id}`}
+            >
+              <h5
+                id={`${preset.id}-${place.id}`}
+                className={panel.savedHeading}
+              >
+                {onSelectLocation ? (
+                  <Button
+                    variant="quiet"
+                    className={styles.placeLink}
+                    onClick={() => onSelectLocation(place.id, preset.id)}
+                  >
+                    {place.label}
+                    <ArrowUpRight size={14} aria-hidden="true" />
+                  </Button>
+                ) : (
+                  place.label
+                )}
+                <span>{place.photos.length}</span>
+              </h5>
+              {photoGrid(place.photos)}
+            </section>
+          ))}
         </section>
       )}
-      {places.map((place) => (
-        <section
-          key={place.id}
-          className={styles.facts}
-          aria-labelledby={`${preset.id}-${place.id}`}
-        >
-          <h4 id={`${preset.id}-${place.id}`} className={panel.savedHeading}>
-            {onSelectLocation ? (
-              <Button
-                variant="quiet"
-                className={styles.placeLink}
-                onClick={() => onSelectLocation(place.id, preset.id)}
-              >
-                {place.label}
-                <ArrowUpRight size={14} aria-hidden="true" />
-              </Button>
-            ) : (
-              place.label
-            )}
-            <span>{place.photos.length}</span>
-          </h4>
-          {photoGrid(place.photos)}
-        </section>
-      ))}
     </div>
   );
   return standalone ? (
