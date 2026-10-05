@@ -8,6 +8,9 @@ import {
 } from "./types";
 
 type Tx = postgres.TransactionSql;
+// The text[] oid. A fresh connection cannot infer an array parameter type, so the first
+// array query on each new pooled connection would fail without it.
+const textArray = 1009;
 type OrderRow = {
   id: string;
   user_id: string;
@@ -62,7 +65,7 @@ function bind(sql: Tx): CommerceTransaction {
       const rows = await sql<OrderRow[]>`
         select * from commerce_orders
         where user_id = ${userId} and status = 'pending'
-          and preset_ids && ${sql.array([...presetIds])}::text[]`;
+          and preset_ids && ${sql.array([...presetIds], textArray)}::text[]`;
       return rows.map(order);
     },
     async putOrder(next) {
@@ -71,7 +74,7 @@ function bind(sql: Tx): CommerceTransaction {
         const [overlap] = await sql`
           select 1 from commerce_orders
           where id <> ${next.id} and user_id = ${next.userId} and status = 'pending'
-            and preset_ids && ${sql.array(next.presetIds)}::text[]`;
+            and preset_ids && ${sql.array(next.presetIds, textArray)}::text[]`;
         if (overlap) throw new CommerceError("checkout_in_progress", 409);
       }
       const [identity] = await sql`
@@ -85,7 +88,7 @@ function bind(sql: Tx): CommerceTransaction {
           id, user_id, preset_ids, subtotal_cents, discount_cents, total_cents,
           currency, created_at, return_path, session_id, payment_intent_id, status
         ) values (
-          ${next.id}, ${next.userId}, ${sql.array(next.presetIds)}::text[],
+          ${next.id}, ${next.userId}, ${sql.array(next.presetIds, textArray)}::text[],
           ${next.subtotalCents}, ${next.discountCents}, ${next.totalCents},
           ${next.currency}, ${next.createdAt}, ${next.returnPath},
           ${next.sessionId}, ${next.paymentIntentId}, ${next.status}
@@ -169,7 +172,10 @@ function bind(sql: Tx): CommerceTransaction {
     async replaceLegacyOrders(orders) {
       const removed = await sql<{ order_id: string }[]>`
         delete from commerce_legacy_orders
-        where order_id <> all(${sql.array(orders.map((o) => o.orderId))}::text[])
+        where order_id <> all(${sql.array(
+          orders.map((o) => o.orderId),
+          textArray,
+        )}::text[])
         returning order_id`;
       if (orders.length)
         await sql`

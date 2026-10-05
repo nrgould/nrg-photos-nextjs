@@ -43,7 +43,7 @@ export const locationDescription = (node: MapNode) =>
 export const photoDescription = (photo: Photo) =>
   `${photo.alt}. Photograph by Nicholas Gould from ${getPhotoCollection(photo).title}.`;
 export const presetDescription = (preset: PresetCatalogItem) =>
-  `${preset.name}, a ${preset.category} Lightroom preset by Nicholas Gould. ${preset.bestFor} Catalog price ${presetPriceLabel}; checkout is not available.`;
+  `${preset.name}, a ${preset.category} Lightroom preset by Nicholas Gould. ${preset.bestFor} ${presetPriceLabel}.`;
 
 export function contentMetadata(
   title: string,
@@ -165,7 +165,7 @@ export function productData(
 export const serializeJsonLd = (data: unknown) =>
   JSON.stringify(data).replace(/</g, "\\u003c");
 
-/** Merge only after launch; no invented lastModified timestamps. */
+/** Empty until launch indexing is on; no invented lastModified timestamps. */
 export function seoSitemapEntries(
   config = getSeoConfig(),
 ): MetadataRoute.Sitemap {

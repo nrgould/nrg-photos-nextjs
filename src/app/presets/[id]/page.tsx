@@ -44,15 +44,9 @@ export default async function PresetPage({ params }: Props) {
       <dl className={styles.facts}>
         <dt>Category</dt>
         <dd>{preset.category}</dd>
-        <dt>Catalog price</dt>
+        <dt>Price</dt>
         <dd>{presetPriceLabel}</dd>
-        <dt>Purchase status</dt>
-        <dd>Checkout is not available.</dd>
       </dl>
-      <p>
-        Verified before-and-after previews and photograph associations are not
-        available for this preset yet.
-      </p>
       <a
         className="back-link"
         href={`/presets?preset=${encodeURIComponent(preset.id)}`}

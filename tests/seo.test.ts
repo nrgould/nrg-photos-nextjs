@@ -192,7 +192,7 @@ test("preset schema preserves price facts without fake purchasing or preview cla
       data.additionalProperty[0].value,
       (UNIT_PRICE_CENTS / 100).toFixed(2),
     );
-    assert.match(data.description, /\$1\.99 USD; checkout is not available/);
+    assert.match(data.description, /\$1\.99 USD\.$/);
     for (const unsupported of [
       "offers",
       "availability",

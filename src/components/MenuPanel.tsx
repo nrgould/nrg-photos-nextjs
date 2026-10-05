@@ -1,6 +1,14 @@
 "use client";
 import { useId } from "react";
-import { ChevronRight, Mail, Moon, SlidersHorizontal, Sun } from "lucide-react";
+import Link from "next/link";
+import {
+  ChevronRight,
+  FileText,
+  Mail,
+  Moon,
+  SlidersHorizontal,
+  Sun,
+} from "lucide-react";
 import { presetCatalog } from "@/lib/preset-commerce";
 import { Button } from "@/components/ui/button";
 import {
@@ -86,6 +94,14 @@ export default function MenuPanel({
             </ItemMedia>
             <ItemContent>
               <ItemTitle>Contact</ItemTitle>
+            </ItemContent>
+          </Item>
+          <Item render={<Link href="/terms" />} className={styles.menuRow}>
+            <ItemMedia variant="icon">
+              <FileText size={18} strokeWidth={1.5} aria-hidden />
+            </ItemMedia>
+            <ItemContent>
+              <ItemTitle>Terms and privacy</ItemTitle>
             </ItemContent>
           </Item>
         </ItemGroup>

@@ -705,6 +705,33 @@
     margin-top: 28px;
     font-size: 15px;
   }
+  .legal {
+    max-width: 640px;
+    padding-bottom: 110px;
+  }
+  .legal section + section {
+    margin-top: 48px;
+  }
+  .legal h2 {
+    font-size: 30px;
+    letter-spacing: -0.015em;
+    margin-bottom: 14px;
+  }
+  .legal p + p {
+    margin-top: 14px;
+  }
+  .legal ul {
+    padding-left: 1.2em;
+    list-style: disc;
+    line-height: 1.75;
+  }
+  .legal li + li {
+    margin-top: 8px;
+  }
+  .legal a {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
   .work-page {
     padding-bottom: 95px;
   }

@@ -67,7 +67,10 @@ async function main() {
     const accounts = await sql`
       select id::text as "userId", lower(email) as email from auth.users
       where email_confirmed_at is not null and not is_anonymous
-        and lower(email) = any(${sql.array(orders.map((o) => o.email))}::text[])`;
+        and lower(email) = any(${sql.array(
+          orders.map((o) => o.email),
+          1009,
+        )}::text[])`;
     const result = await syncLegacyOrders(
       createPostgresCommerceStore(sql),
       orders,

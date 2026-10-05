@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useId, useRef, useState } from "react";
 import { ArrowLeft, LockKeyhole, ShoppingBag, X } from "lucide-react";
 import { getCatalogPreset } from "@/lib/preset-commerce";
@@ -211,6 +212,16 @@ export default function PresetCartPanel({
                     : "Continue to checkout"}
               <LockKeyhole aria-hidden="true" />
             </Button>
+            {checkout.status === "ready" && (
+              <p className={styles.notice}>
+                <Link
+                  href="/terms#refunds"
+                  className="underline underline-offset-2"
+                >
+                  Terms and 14-day refunds
+                </Link>
+              </p>
+            )}
             {checkout.status !== "ready" && (
               <p className={styles.notice}>
                 {checkout.status === "unavailable"

@@ -8,7 +8,7 @@ import {
 
 export const metadata = contentMetadata(
   "Preset catalog",
-  `Browse Nicholas Gould’s ${presetCatalog.length} location presets for Lightroom, grouped by mood. Individual catalog price $1.99 USD; checkout is not available yet.`,
+  `Browse Nicholas Gould’s ${presetCatalog.length} location presets for Lightroom, grouped by mood. $1.99 USD each.`,
   "/presets",
 );
 
