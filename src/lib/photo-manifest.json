@@ -459,18 +459,6 @@
     "lightroomId": 2366056
   },
   {
-    "src": "/photos/lr-2366061.webp",
-    "title": "Copenhagen",
-    "alt": "Four friends pose in front of a pink building and a teal building on a cobblestone street, a bicycle parked at left",
-    "origin": "Lightroom 2366061",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2023-01",
-    "locationId": "copenhagen",
-    "placeSource": "curation",
-    "lightroomId": 2366061
-  },
-  {
     "src": "/photos/lr-2366071.webp",
     "title": "Stockholm",
     "alt": "Smiling man in a black parka with a fur-trimmed hood stands on a cobblestone alley lined with warm orange buildings",
@@ -543,18 +531,6 @@
     "lightroomId": 2366155
   },
   {
-    "src": "/photos/lr-2366157.webp",
-    "title": "Stockholm",
-    "alt": "Blurred woman in a white beanie stands in a rock-walled station tunnel painted with a bright rainbow arch on blue",
-    "origin": "Lightroom 2366157",
-    "width": 2400,
-    "height": 1600,
-    "taken": "2023-02",
-    "locationId": "stockholm-stockholm",
-    "placeSource": "curation",
-    "lightroomId": 2366157
-  },
-  {
     "src": "/photos/lr-2366174.webp",
     "title": "Stockholm",
     "alt": "Commuters walk through a blue cave-like station tunnel painted with silhouetted figures, escalators glowing at the far end",
@@ -565,18 +541,6 @@
     "locationId": "stockholm-stockholm",
     "placeSource": "curation",
     "lightroomId": 2366174
-  },
-  {
-    "src": "/photos/lr-2366175.webp",
-    "title": "Stockholm",
-    "alt": "Woman in a dark coat and white beanie looks back at the camera in a station tunnel painted with a vivid rainbow on blue rock",
-    "origin": "Lightroom 2366175",
-    "width": 2400,
-    "height": 1600,
-    "taken": "2023-02",
-    "locationId": "stockholm-stockholm",
-    "placeSource": "curation",
-    "lightroomId": 2366175
   },
   {
     "src": "/photos/lr-2366188.webp",
@@ -747,19 +711,6 @@
     "lightroomId": 2366231
   },
   {
-    "src": "/photos/lr-2366243.webp",
-    "title": "Tromsø",
-    "alt": "Wooden fishing boat with a white cabin moored at a snowy dock, still dark water below and a bridge and mountains in pale haze behind",
-    "origin": "Lightroom 2366243",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2023-02",
-    "locationId": "tromso",
-    "placeSource": "curation",
-    "lightroomId": 2366243,
-    "hero": true
-  },
-  {
     "src": "/photos/lr-2366244.webp",
     "title": "Tromsø",
     "alt": "Fluffy black-and-cream husky with amber-rimmed eyes peers through railings at a person with long dark hair in the blurred foreground",
@@ -928,18 +879,6 @@
     "lightroomId": 2366287
   },
   {
-    "src": "/photos/lr-2366288.webp",
-    "title": "Kiruna",
-    "alt": "Snowmobile and rider speeding along a groomed track across a frozen lake, motion-blurred ruts in the snow and a pale blue sky",
-    "origin": "Lightroom 2366288",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2023-03",
-    "locationId": "kiruna",
-    "placeSource": "curation",
-    "lightroomId": 2366288
-  },
-  {
     "src": "/photos/lr-2366289.webp",
     "title": "Kiruna",
     "alt": "Small round log hut with a hexagonal window and snow-heaped roof, tucked among pines lit by warm low sunlight",
@@ -998,18 +937,6 @@
     "locationId": "kiruna",
     "placeSource": "curation",
     "lightroomId": 2366303
-  },
-  {
-    "src": "/photos/lr-2366305.webp",
-    "title": "Kiruna",
-    "alt": "Snowmobile rounds a bend on a snowy forest trail lined with bare trees, motion-blurred snow and a washed-out grey sky",
-    "origin": "Lightroom 2366305",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2023-03",
-    "locationId": "kiruna",
-    "placeSource": "curation",
-    "lightroomId": 2366305
   },
   {
     "src": "/photos/lr-2366306.webp",
@@ -1180,30 +1107,6 @@
     "lightroomId": 2452934
   },
   {
-    "src": "/photos/lr-2452937.webp",
-    "title": "Manchester",
-    "alt": "Person in a long beige coat walks away down a dark stone-vaulted cloister, wall lamps glowing amber along the arches",
-    "origin": "Lightroom 2452937",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2023-04",
-    "locationId": "manchester",
-    "placeSource": "curation",
-    "lightroomId": 2452937
-  },
-  {
-    "src": "/photos/lr-2452951.webp",
-    "title": "Manchester",
-    "alt": "Person in a beige trench coat walks away through a dim vaulted stone passage, wall lamps lighting the ribbed ceiling and flagstones",
-    "origin": "Lightroom 2452951",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2023-04",
-    "locationId": "manchester",
-    "placeSource": "curation",
-    "lightroomId": 2452951
-  },
-  {
     "src": "/photos/lr-2452952.webp",
     "title": "Manchester",
     "alt": "Woman in a beige trench coat and glasses turns to look back, standing in a dark vaulted stone passage lit by warm wall lamps",
@@ -1262,18 +1165,6 @@
     "locationId": "copenhagen",
     "placeSource": "curation",
     "lightroomId": 2498381
-  },
-  {
-    "src": "/photos/lr-2498383.webp",
-    "title": "Copenhagen",
-    "alt": "Woman in cream top and tan trousers glances back inside a tall, pale brick hall, light spilling across a tiled floor and fluted walls",
-    "origin": "Lightroom 2498383",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2023-04",
-    "locationId": "copenhagen",
-    "placeSource": "curation",
-    "lightroomId": 2498383
   },
   {
     "src": "/photos/lr-2498384.webp",
@@ -1480,18 +1371,6 @@
     "lightroomId": 2706013
   },
   {
-    "src": "/photos/lr-2706016.webp",
-    "title": "Lund",
-    "alt": "A single duck rests on a wide green lawn, with low sun glowing through trees and flowering lilac bushes behind in warm evening light",
-    "origin": "Lightroom 2706016",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2023-05",
-    "locationId": "lund",
-    "placeSource": "curation",
-    "lightroomId": 2706016
-  },
-  {
     "src": "/photos/lr-2895337.webp",
     "title": "Amsterdam",
     "alt": "A brick townhouse front with a dark ornate door, house number 55 and a window where a cat sits beside an orange curtain, in dappled sun",
@@ -1562,18 +1441,6 @@
     "locationId": "amsterdam",
     "placeSource": "curation",
     "lightroomId": 2895784
-  },
-  {
-    "src": "/photos/lr-2927463.webp",
-    "title": "Koblenz",
-    "alt": "A wide stone plaza meets a river, framed by dark stone walls, with colorful flags along its edge, a few visitors and a wooded hill beyond",
-    "origin": "Lightroom 2927463",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2023-06",
-    "locationId": "koblenz",
-    "placeSource": "curation",
-    "lightroomId": 2927463
   },
   {
     "src": "/photos/lr-2927482.webp",
@@ -1755,30 +1622,6 @@
     "locationId": "gothenburg",
     "placeSource": "curation",
     "lightroomId": 3109952
-  },
-  {
-    "src": "/photos/lr-3109955.webp",
-    "title": "Lund",
-    "alt": "Pink bicycle leaning on a wooden rail in front of a granite monument with a carved male figure, trees dark behind it",
-    "origin": "Lightroom 3109955",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2023-05",
-    "locationId": "lund",
-    "placeSource": "curation",
-    "lightroomId": 3109955
-  },
-  {
-    "src": "/photos/lr-3109980.webp",
-    "title": "Lund",
-    "alt": "Ivy-covered red brick building with stepped gables under a blue sky and bright clouds, hedges and a few people at its foot",
-    "origin": "Lightroom 3109980",
-    "width": 2400,
-    "height": 1600,
-    "taken": "2023-05",
-    "locationId": "lund",
-    "placeSource": "curation",
-    "lightroomId": 3109980
   },
   {
     "src": "/photos/lr-3109988.webp",
@@ -2033,18 +1876,6 @@
     "lightroomId": 3827519
   },
   {
-    "src": "/photos/lr-4147497.webp",
-    "title": "Lund",
-    "alt": "Large Christmas tree strung with warm lights in a dark square, its glow reflected in a wet pavement puddle in the foreground",
-    "origin": "Lightroom 4147497",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2023-01",
-    "locationId": "lund",
-    "placeSource": "curation",
-    "lightroomId": 4147497
-  },
-  {
     "src": "/photos/lr-4147599.webp",
     "title": "Lund",
     "alt": "Cobbled street at sunset with a pink and orange sky, festive garlands overhead and a car approaching with headlights on",
@@ -2067,18 +1898,6 @@
     "locationId": "lund",
     "placeSource": "curation",
     "lightroomId": 4147600
-  },
-  {
-    "src": "/photos/lr-4147605.webp",
-    "title": "Lund",
-    "alt": "Woman in a long coat stands in a dark brick archway facing a courtyard with a stone fountain and a small fir tree",
-    "origin": "Lightroom 4147605",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2023-01",
-    "locationId": "lund",
-    "placeSource": "curation",
-    "lightroomId": 4147605
   },
   {
     "src": "/photos/lr-4147607.webp",
@@ -2223,18 +2042,6 @@
     "locationId": "lund",
     "placeSource": "curation",
     "lightroomId": 4150160
-  },
-  {
-    "src": "/photos/lr-4150927.webp",
-    "title": "Lund",
-    "alt": "Pink tulips in the foreground and a fountain spraying water before a cream neoclassical building under a clear pale blue sky",
-    "origin": "Lightroom 4150927",
-    "width": 2400,
-    "height": 1600,
-    "taken": "2023-05",
-    "locationId": "lund",
-    "placeSource": "curation",
-    "lightroomId": 4150927
   },
   {
     "src": "/photos/lr-4150930.webp",
@@ -3138,18 +2945,6 @@
     "locationId": "copenhagen",
     "placeSource": "curation",
     "lightroomId": 4337410
-  },
-  {
-    "src": "/photos/lr-4337421.webp",
-    "title": "Lund",
-    "alt": "Cobbled street leading to orange and red houses with a dark slate roof, with ivy on the left and a clear teal evening sky",
-    "origin": "Lightroom 4337421",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2023-05",
-    "locationId": "lund",
-    "placeSource": "curation",
-    "lightroomId": 4337421
   },
   {
     "src": "/photos/lr-4337422.webp",
@@ -4348,30 +4143,6 @@
     "lightroomId": 4574296
   },
   {
-    "src": "/photos/lr-4574326.webp",
-    "title": "Vienna",
-    "alt": "Iron-and-glass greenhouse behind round clipped shrubs and a lawn, framed by overhanging leaves under a grey sky",
-    "origin": "Lightroom 4574326",
-    "width": 1800,
-    "height": 2400,
-    "taken": "2024-06",
-    "locationId": "vienna-vienna",
-    "placeSource": "curation",
-    "lightroomId": 4574326
-  },
-  {
-    "src": "/photos/lr-4574329.webp",
-    "title": "Vienna",
-    "alt": "Narrow gravel path runs through a tunnel of dense green hedges toward a small bright opening in the far distance",
-    "origin": "Lightroom 4574329",
-    "width": 1800,
-    "height": 2400,
-    "taken": "2024-06",
-    "locationId": "vienna-vienna",
-    "placeSource": "curation",
-    "lightroomId": 4574329
-  },
-  {
     "src": "/photos/lr-4574356.webp",
     "title": "Vienna",
     "alt": "Pale Gothic spires and carved stonework glowing pink in low sun against a dark grey sky, dark trees below",
@@ -4492,18 +4263,6 @@
     "lightroomId": 4599385
   },
   {
-    "src": "/photos/lr-4599388.webp",
-    "title": "Lund",
-    "alt": "Stepped brick gable draped in green ivy, with arched windows and two glowing lanterns by the door under a muted grey sky",
-    "origin": "Lightroom 4599388",
-    "width": 1800,
-    "height": 2400,
-    "taken": "2024-07",
-    "locationId": "lund",
-    "placeSource": "curation",
-    "lightroomId": 4599388
-  },
-  {
     "src": "/photos/lr-4599399.webp",
     "title": "Lund",
     "alt": "Close view of vine leaves with yellow-edged tips, softly lit, filling the frame in layers of green",
@@ -4514,18 +4273,6 @@
     "locationId": "lund",
     "placeSource": "curation",
     "lightroomId": 4599399
-  },
-  {
-    "src": "/photos/lr-4599400.webp",
-    "title": "Lund",
-    "alt": "Dark green vine leaves with golden edges hang over a thick woody stem, lit gently against deep shadow",
-    "origin": "Lightroom 4599400",
-    "width": 1800,
-    "height": 2400,
-    "taken": "2024-07",
-    "locationId": "lund",
-    "placeSource": "curation",
-    "lightroomId": 4599400
   },
   {
     "src": "/photos/lr-4599401.webp",
@@ -4588,6 +4335,19 @@
     "lightroomId": 4687275
   },
   {
+    "src": "/photos/lr-4731984.webp",
+    "title": "Tromsø",
+    "alt": "Wooden fishing boat with a white cabin moored at a snowy dock, still dark water below and a bridge and mountains in pale haze behind",
+    "origin": "Lightroom 4731984",
+    "width": 1920,
+    "height": 2400,
+    "taken": "2023-02",
+    "locationId": "tromso",
+    "placeSource": "nicholas",
+    "lightroomId": 4731984,
+    "hero": true
+  },
+  {
     "src": "/photos/lr-4869809.webp",
     "title": "Tre Cime di Lavaredo",
     "alt": "Small orange car on a winding mountain road above green meadows, a rugged rocky peak rising through haze behind",
@@ -4612,18 +4372,6 @@
     "lightroomId": 4871360
   },
   {
-    "src": "/photos/lr-4890279.webp",
-    "title": "Cary",
-    "alt": "Glowing lantern sculptures at night: a large pink coral tree among sea plants and shells, with a blurred green leaf in the foreground",
-    "origin": "Lightroom 4890279",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2025-01",
-    "locationId": "cary",
-    "placeSource": "curation",
-    "lightroomId": 4890279
-  },
-  {
     "src": "/photos/lr-4890652.webp",
     "title": "Cary",
     "alt": "A woman in a dark belted coat stands on a green path under a tunnel of hanging white and violet lantern lights, looking off to the side",
@@ -4636,18 +4384,6 @@
     "lightroomId": 4890652
   },
   {
-    "src": "/photos/lr-4890654.webp",
-    "title": "Cary",
-    "alt": "A woman in a dark belted coat and scarf stands on a green path beneath hanging purple and white lights, smiling toward the camera",
-    "origin": "Lightroom 4890654",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2025-01",
-    "locationId": "cary",
-    "placeSource": "curation",
-    "lightroomId": 4890654
-  },
-  {
     "src": "/photos/lr-4890977.webp",
     "title": "Cary",
     "alt": "A glowing violet neon-outline dragon, its head and coiling body traced in lights against a deep navy night sky",
@@ -4658,18 +4394,6 @@
     "locationId": "cary",
     "placeSource": "curation",
     "lightroomId": 4890977
-  },
-  {
-    "src": "/photos/lr-4923578.webp",
-    "title": "Cary",
-    "alt": "A woman with wavy auburn hair and a striped scarf under a dark coat touches her hair, with soft purple and white lights blurred behind",
-    "origin": "Lightroom 4923578",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2025-01",
-    "locationId": "cary",
-    "placeSource": "curation",
-    "lightroomId": 4923578
   },
   {
     "src": "/photos/lr-4925802.webp",
@@ -4850,18 +4574,6 @@
     "locationId": "esslingen",
     "placeSource": "curation",
     "lightroomId": 5170743
-  },
-  {
-    "src": "/photos/lr-5188704.webp",
-    "title": "Schwangau",
-    "alt": "Pink-lit rocky mountain peak seen through an open window past clipped hedges, with dusk clouds and dark window frames on either side",
-    "origin": "Lightroom 5188704",
-    "width": 1800,
-    "height": 2400,
-    "taken": "2025-05",
-    "locationId": "schwangau",
-    "placeSource": "nicholas",
-    "lightroomId": 5188704
   },
   {
     "src": "/photos/lr-5277652.webp",
@@ -5524,30 +5236,6 @@
     "locationId": "hoh-rainforest",
     "placeSource": "curation",
     "lightroomId": 6530015
-  },
-  {
-    "src": "/photos/lr-6598430.webp",
-    "title": "Raleigh",
-    "alt": "Woman in a dark dress with a cream shoulder bag browses a night market stall of flowers and crafts under warm string lights",
-    "origin": "Lightroom 6598430",
-    "width": 2400,
-    "height": 1600,
-    "taken": "2025-10",
-    "locationId": "raleigh",
-    "placeSource": "curation",
-    "lightroomId": 6598430
-  },
-  {
-    "src": "/photos/lr-6598781.webp",
-    "title": "Raleigh",
-    "alt": "Smiling woman in sunglasses and a dark dress stands before a glowing ferris wheel, its blue and pink lights streaking behind her",
-    "origin": "Lightroom 6598781",
-    "width": 2400,
-    "height": 1600,
-    "taken": "2025-10",
-    "locationId": "raleigh",
-    "placeSource": "curation",
-    "lightroomId": 6598781
   },
   {
     "src": "/photos/lr-7028887.webp",
@@ -6335,18 +6023,6 @@
     "lightroomId": 7029005
   },
   {
-    "src": "/photos/lr-7029009.webp",
-    "title": "Hallstatt",
-    "alt": "Fast river running between dense green trees below a steep cliff half hidden in low cloud, a small bridge in the distance",
-    "origin": "Lightroom 7029009",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2025-05",
-    "locationId": "hallstatt",
-    "placeSource": "curation",
-    "lightroomId": 7029009
-  },
-  {
     "src": "/photos/lr-7029012.webp",
     "title": "Hallstatt",
     "alt": "White swan gliding on rippled blue-gray water beside the dark wooden wall and orange plaster corner of a lakeside house",
@@ -6418,18 +6094,6 @@
     "locationId": "sylvenstein",
     "placeSource": "curation",
     "lightroomId": 7029019
-  },
-  {
-    "src": "/photos/lr-7029020.webp",
-    "title": "Hallstatt",
-    "alt": "White cat with orange-tinted ears and amber eyes walking toward the camera on wet pavement, a misty lake and mountains behind",
-    "origin": "Lightroom 7029020",
-    "width": 1600,
-    "height": 2400,
-    "taken": "2025-05",
-    "locationId": "hallstatt",
-    "placeSource": "curation",
-    "lightroomId": 7029020
   },
   {
     "src": "/photos/lr-7029021.webp",
@@ -6505,18 +6169,6 @@
     "hero": true
   },
   {
-    "src": "/photos/lr-7029036.webp",
-    "title": "Hallstatt",
-    "alt": "Man in a dark green knit sweater and silver chain stands with hands in pockets, looking aside, a misty lake and mountains behind him",
-    "origin": "Lightroom 7029036",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2025-05",
-    "locationId": "hallstatt",
-    "placeSource": "curation",
-    "lightroomId": 7029036
-  },
-  {
     "src": "/photos/lr-7029039.webp",
     "title": "Hallstatt",
     "alt": "Dark mountain lake under broken cloud and warm light on a rocky peak, with rooftops and a single tree along the bottom edge",
@@ -6578,18 +6230,6 @@
     "lightroomId": 7029048
   },
   {
-    "src": "/photos/lr-7029050.webp",
-    "title": "Hallstatt",
-    "alt": "Lake village and tall church spire glowing in warm haze, seen through a dark leafy frame, with mist over steep mountains",
-    "origin": "Lightroom 7029050",
-    "width": 2400,
-    "height": 1600,
-    "taken": "2025-05",
-    "locationId": "hallstatt",
-    "placeSource": "curation",
-    "lightroomId": 7029050
-  },
-  {
     "src": "/photos/lr-7029057.webp",
     "title": "Hallstatt",
     "alt": "Red geranium in a clay pot on a window ledge, the dark glass in a wooden frame surrounded by thick ivy and bare tangled vines",
@@ -6600,18 +6240,6 @@
     "locationId": "hallstatt",
     "placeSource": "curation",
     "lightroomId": 7029057
-  },
-  {
-    "src": "/photos/lr-7029058.webp",
-    "title": "Hallstatt",
-    "alt": "Church with a clock tower and dark spire above orange and pink houses, a lake and green mountains beyond under a cloudy sky",
-    "origin": "Lightroom 7029058",
-    "width": 2400,
-    "height": 1600,
-    "taken": "2025-05",
-    "locationId": "hallstatt",
-    "placeSource": "curation",
-    "lightroomId": 7029058
   },
   {
     "src": "/photos/lr-7029061.webp",
@@ -6758,18 +6386,6 @@
     "lightroomId": 7029089
   },
   {
-    "src": "/photos/lr-7029107.webp",
-    "title": "Vienna",
-    "alt": "Large Victorian glass greenhouse behind round clipped shrubs and a lawn, seen through dark leaves under a clear blue sky",
-    "origin": "Lightroom 7029107",
-    "width": 1800,
-    "height": 2400,
-    "taken": "2025-05",
-    "locationId": "vienna-vienna",
-    "placeSource": "curation",
-    "lightroomId": 7029107
-  },
-  {
     "src": "/photos/lr-7029109.webp",
     "title": "Vienna",
     "alt": "Two ornate white Gothic spires with clock faces rising above green trees against a gray-blue sky, in warm sunlight",
@@ -6854,18 +6470,6 @@
     "lightroomId": 7029115
   },
   {
-    "src": "/photos/lr-7029116.webp",
-    "title": "Vienna",
-    "alt": "Gothic church interior with a tall stained glass window, a chandelier and painted ceiling ribs, strong sun flare across the upper right",
-    "origin": "Lightroom 7029116",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2025-05",
-    "locationId": "vienna-vienna",
-    "placeSource": "curation",
-    "lightroomId": 7029116
-  },
-  {
     "src": "/photos/lr-7447776.webp",
     "title": "New York City",
     "alt": "Indoor garden courtyard with a tiered stone fountain, tall columns and a glass roof, large green leaves in the foreground and people beyond",
@@ -6900,18 +6504,6 @@
     "locationId": "new-york-city",
     "placeSource": "curation",
     "lightroomId": 7448229
-  },
-  {
-    "src": "/photos/lr-7448249.webp",
-    "title": "New York City",
-    "alt": "Blue-gray steel bridge tower and deck with long suspension cables against a pale blue sky, leafy green trees at the bottom edges",
-    "origin": "Lightroom 7448249",
-    "width": 1800,
-    "height": 2400,
-    "taken": "2026-05",
-    "locationId": "new-york-city",
-    "placeSource": "curation",
-    "lightroomId": 7448249
   },
   {
     "src": "/photos/lr-7448426.webp",
@@ -7298,18 +6890,6 @@
     "lightroomId": 7636410
   },
   {
-    "src": "/photos/lr-7636449.webp",
-    "title": "Finger Lakes",
-    "alt": "Weeping willow backlit by a low sun glowing through its trunk, a picnic table on the lawn and a calm lake behind",
-    "origin": "Lightroom 7636449",
-    "width": 1800,
-    "height": 2400,
-    "taken": "2026-05",
-    "locationId": "finger-lakes",
-    "placeSource": "curation",
-    "lightroomId": 7636449
-  },
-  {
     "src": "/photos/lr-7760587.webp",
     "title": "Finger Lakes",
     "alt": "Waterfall tumbling down a rocky cliff, framed by spring leaves in the foreground and warm evening light on the trees above",
@@ -7320,18 +6900,6 @@
     "locationId": "finger-lakes",
     "placeSource": "curation",
     "lightroomId": 7760587
-  },
-  {
-    "src": "/photos/lr-7761525.webp",
-    "title": "Finger Lakes",
-    "alt": "Weeping willow backlit by a low sun glowing through its trunk, a picnic table on the lawn and a calm lake behind",
-    "origin": "Lightroom 7761525",
-    "width": 1800,
-    "height": 2400,
-    "taken": "2026-05",
-    "locationId": "finger-lakes",
-    "placeSource": "curation",
-    "lightroomId": 7761525
   },
   {
     "src": "/photos/lr-7761527.webp",
@@ -7585,18 +7153,6 @@
     "lightroomId": 7768811
   },
   {
-    "src": "/photos/lr-7768813.webp",
-    "title": "New York City",
-    "alt": "Huge spreading tree on a green lawn with a tiny figure in an orange jacket standing beneath it, soft overcast sky",
-    "origin": "Lightroom 7768813",
-    "width": 1800,
-    "height": 2400,
-    "taken": "2026-05",
-    "locationId": "new-york-city",
-    "placeSource": "curation",
-    "lightroomId": 7768813
-  },
-  {
     "src": "/photos/lr-7768814.webp",
     "title": "New York City",
     "alt": "Woman in a white dress seated on a rock under a leafy tree in a green meadow, red hair, seen from behind",
@@ -7619,18 +7175,6 @@
     "locationId": "new-york-city",
     "placeSource": "curation",
     "lightroomId": 7768815
-  },
-  {
-    "src": "/photos/lr-7768816.webp",
-    "title": "New York City",
-    "alt": "Suspension bridge silhouetted against an orange and pink sunset sky, a glass tower behind it and dark water below",
-    "origin": "Lightroom 7768816",
-    "width": 1800,
-    "height": 2400,
-    "taken": "2026-05",
-    "locationId": "new-york-city",
-    "placeSource": "curation",
-    "lightroomId": 7768816
   },
   {
     "src": "/photos/lr-7768817.webp",
@@ -7681,30 +7225,6 @@
     "lightroomId": 7768820
   },
   {
-    "src": "/photos/lr-7768823.webp",
-    "title": "New York City",
-    "alt": "Woman in a black jacket and boots standing on a pebbly shore, a suspension bridge and city skyline glowing at dusk behind her",
-    "origin": "Lightroom 7768823",
-    "width": 1800,
-    "height": 2400,
-    "taken": "2026-05",
-    "locationId": "new-york-city",
-    "placeSource": "curation",
-    "lightroomId": 7768823
-  },
-  {
-    "src": "/photos/lr-7768827.webp",
-    "title": "New York City",
-    "alt": "Pebble shore and a suspension bridge at dusk, city towers across the water and a pink-lit cloud above",
-    "origin": "Lightroom 7768827",
-    "width": 2400,
-    "height": 1350,
-    "taken": "2026-05",
-    "locationId": "new-york-city",
-    "placeSource": "curation",
-    "lightroomId": 7768827
-  },
-  {
     "src": "/photos/lr-7768830.webp",
     "title": "New York City",
     "alt": "Woman in boots and a dark jacket walking on a pebbly shore at dusk, a photographer, bridge and skyline behind her",
@@ -7715,18 +7235,6 @@
     "locationId": "new-york-city",
     "placeSource": "curation",
     "lightroomId": 7768830
-  },
-  {
-    "src": "/photos/lr-7768888.webp",
-    "title": "New York City",
-    "alt": "Goose standing on a small platform in a dark, calm pond, green trees and pale apartment buildings under a gray sky",
-    "origin": "Lightroom 7768888",
-    "width": 2400,
-    "height": 1350,
-    "taken": "2026-05",
-    "locationId": "new-york-city",
-    "placeSource": "curation",
-    "lightroomId": 7768888
   },
   {
     "src": "/photos/lr-7768889.webp",
@@ -7811,18 +7319,6 @@
     "locationId": "new-york-city",
     "placeSource": "curation",
     "lightroomId": 7768895
-  },
-  {
-    "src": "/photos/lr-7768899.webp",
-    "title": "Cary",
-    "alt": "White water lilies with yellow centers float among round green pads on dark water, with leafy plants crowding the right side",
-    "origin": "Lightroom 7768899",
-    "width": 2400,
-    "height": 1601,
-    "taken": "2026-05",
-    "locationId": "cary",
-    "placeSource": "nicholas",
-    "lightroomId": 7768899
   },
   {
     "src": "/photos/lr-7768900.webp",
@@ -8378,18 +7874,6 @@
     "lightroomId": 8059290
   },
   {
-    "src": "/photos/lr-8059293.webp",
-    "title": "Raleigh",
-    "alt": "The underside of a Ferris wheel lit in red and blue bulbs at night, with a glowing out-of-focus light at lower left",
-    "origin": "Lightroom 8059293",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2025-10",
-    "locationId": "raleigh",
-    "placeSource": "curation",
-    "lightroomId": 8059293
-  },
-  {
     "src": "/photos/lr-8059295.webp",
     "title": "Raleigh",
     "alt": "Part of a Ferris wheel with green-lit cabins and strings of lights stands against a pink and mauve dusk sky",
@@ -8412,30 +7896,6 @@
     "locationId": "raleigh",
     "placeSource": "curation",
     "lightroomId": 8059296
-  },
-  {
-    "src": "/photos/lr-8059298.webp",
-    "title": "Raleigh",
-    "alt": "A large Ferris wheel lit in blue, orange and white light, seen from below against a dark blue night sky",
-    "origin": "Lightroom 8059298",
-    "width": 1600,
-    "height": 2400,
-    "taken": "2025-10",
-    "locationId": "raleigh",
-    "placeSource": "curation",
-    "lightroomId": 8059298
-  },
-  {
-    "src": "/photos/lr-8059299.webp",
-    "title": "Raleigh",
-    "alt": "The curved edge of a lit Ferris wheel in blue and orange glows against a dark purple night sky, with pink cabins along the rim",
-    "origin": "Lightroom 8059299",
-    "width": 1920,
-    "height": 2400,
-    "taken": "2025-10",
-    "locationId": "raleigh",
-    "placeSource": "curation",
-    "lightroomId": 8059299
   },
   {
     "src": "/photos/lr-8059300.webp",
@@ -8519,18 +7979,6 @@
     "locationId": "black-mountain",
     "placeSource": "curation",
     "lightroomId": 8059397
-  },
-  {
-    "src": "/photos/lr-8059463.webp",
-    "title": "Cary",
-    "alt": "A hand holds up a rust-colored maple leaf pendant on a thin chain against warm, blurred autumn foliage glowing orange",
-    "origin": "Lightroom 8059463",
-    "width": 1800,
-    "height": 2400,
-    "taken": "2025-11",
-    "locationId": "cary",
-    "placeSource": "nicholas",
-    "lightroomId": 8059463
   },
   {
     "src": "/photos/lr-8059465.webp",

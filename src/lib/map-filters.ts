@@ -20,7 +20,6 @@ export function defaultMapFilters(places: TravelPlace[]): MapFilters {
 // and alt text. Portfolio copies of a Lightroom photo are keyed by the Lightroom
 // src. New sources stay unclassified until explicitly reviewed.
 const photoSubjects: Readonly<Record<string, Exclude<PhotoSubject, "all">>> = {
-  "/photos/lr-7029050.webp": "places",
   "/photos/lr-7029023.webp": "places",
   "/photos/3_landscape_lago_di_braies.webp": "places",
   "/photos/lr-4433864.webp": "places",
