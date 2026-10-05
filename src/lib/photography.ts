@@ -160,11 +160,6 @@ const lifestyle = [
     "Hiking boots and blue Smartwool socks on a woodland trail",
   ],
   [
-    "4_lifestyle_product_aileen_wearing_helly_hansen_jacket_lofoten_islands_norway",
-    "Out in the elements",
-    "A woman in a blue jacket sitting on a rock in the Lofoten Islands",
-  ],
-  [
     "product_lifestyle_eight_angles7",
     "Eight Angles",
     "A close-up of a sculptural dark plate and tableware",
@@ -205,11 +200,6 @@ const people = [
     "portrait_thomas_stockholm_street_sunset",
     "Thomas, Stockholm",
     "A man in a green sweater on a cobbled Stockholm street",
-  ],
-  [
-    "lifestyle_portrait_emily_wearing_satila_beanie_lofoten_islands_norway",
-    "Emily, Lofoten",
-    "A smiling woman in a knit beanie beside the water in Lofoten",
   ],
   [
     "2_portrait_couple_dancing_at_sunset",

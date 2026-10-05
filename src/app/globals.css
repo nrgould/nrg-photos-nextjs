@@ -2160,6 +2160,18 @@ html[data-photo-theme="dark"] {
     position: absolute;
     inset: 0;
   }
+  .comparison-skeleton {
+    position: absolute;
+    inset: 0;
+    border-radius: 0;
+  }
+  /* The skeleton pulses over the drawer, not over the stage's own matching fill. */
+  .comparison-stage[aria-busy="true"] {
+    background: none;
+  }
+  .comparison-stage[aria-busy="true"] .comparison-divider {
+    visibility: hidden;
+  }
   .comparison-divider {
     position: absolute;
     top: 0;

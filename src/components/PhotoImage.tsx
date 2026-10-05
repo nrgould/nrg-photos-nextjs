@@ -5,11 +5,13 @@ export default function PhotoImage({
   className = "",
   priority = false,
   sizes = "(max-width: 700px) 100vw, 50vw",
+  onLoad,
 }: {
   photo: Photo;
   className?: string;
   priority?: boolean;
   sizes?: string;
+  onLoad?: () => void;
 }) {
   return (
     <Image
@@ -21,6 +23,7 @@ export default function PhotoImage({
       sizes={sizes}
       quality={85}
       preload={priority}
+      onLoad={onLoad}
     />
   );
 }

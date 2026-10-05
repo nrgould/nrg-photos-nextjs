@@ -602,7 +602,7 @@ export function PresetDetail({
           </p>
         </div>
       </div>
-      {example && <PhotoComparison pair={example} />}
+      {example && <PhotoComparison key={example.after.src} pair={example} />}
       <div className={styles.purchase}>
         <p>{owned ? "Owned" : "$1.99"}</p>
         {owned ? (
