@@ -107,8 +107,11 @@ async function importLightroom(exportPath, dryRun) {
   const placed = [];
   for (const row of rows) {
     const { names, error } = locationFields(row);
-    if (!names?.length) {
-      unplaced.push(`${row.src} ${row.sourcePath} (${error ?? "no location"})`);
+    // A pin is a City; without one the photo would sit on the country's "location unknown" reference.
+    if (!(names?.length >= 3)) {
+      unplaced.push(
+        `${row.src} ${row.sourcePath} (${error ?? (names?.length ? "no City" : "no location")})`,
+      );
       continue;
     }
     let locationId;

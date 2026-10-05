@@ -857,5 +857,30 @@
       35.75
     ],
     "coordinateSource": "geocoded"
+  },
+  {
+    "id": "falsterbo",
+    "parent": "skane",
+    "name": "Falsterbo",
+    "coordinates": [
+      12.84,
+      55.4
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "rochester",
+    "parent": "new-york",
+    "name": "Rochester",
+    "coordinates": [
+      -77.62,
+      43.16
+    ],
+    "coordinateSource": "geocoded"
+  },
+  {
+    "id": "lake-ontario",
+    "parent": "rochester",
+    "name": "Lake Ontario"
   }
 ]

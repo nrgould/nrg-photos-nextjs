@@ -312,6 +312,40 @@
     "taken": "2023-05"
   },
   {
+    "src": "/photos/lr-1875090.webp",
+    "title": "Falsterbo",
+    "alt": "Striped brick lighthouse with a red cap lit by warm light, rising above dark grass against a purple-pink dusk sky",
+    "origin": "Lightroom 1875090",
+    "width": 1920,
+    "height": 2400,
+    "taken": "2023-01",
+    "locationId": "falsterbo",
+    "placeSource": "nicholas",
+    "lightroomId": 1875090
+  },
+  {
+    "src": "/photos/lr-1875096.webp",
+    "title": "Falsterbo",
+    "alt": "Woman in a beanie and backpack walks along a wet sandy shore toward distant walkers, pink dusk sky mirrored in the water",
+    "origin": "Lightroom 1875096",
+    "width": 1920,
+    "height": 2400,
+    "taken": "2023-01",
+    "locationId": "falsterbo",
+    "lightroomId": 1875096
+  },
+  {
+    "src": "/photos/lr-1875102.webp",
+    "title": "Falsterbo",
+    "alt": "Flock of ducks floats on a still marsh pond beneath a pink sunset sky and a band of dark cloud, reeds in front",
+    "origin": "Lightroom 1875102",
+    "width": 1920,
+    "height": 2400,
+    "taken": "2023-01",
+    "locationId": "falsterbo",
+    "lightroomId": 1875102
+  },
+  {
     "src": "/photos/lr-1906572.webp",
     "title": "Uttakleiv",
     "alt": "A man in a black hooded coat stands under a dark rock overhang beside smooth boulders and a fire bowl, with snow and an overcast sky behind",
@@ -7331,6 +7365,17 @@
     "lightroomId": 7761529
   },
   {
+    "src": "/photos/lr-7761544.webp",
+    "title": "Lake Ontario",
+    "alt": "Lone woman in jeans standing at a wooden fence facing a calm lake, beneath a large green tree on a bright grass lawn",
+    "origin": "Lightroom 7761544",
+    "width": 1800,
+    "height": 2400,
+    "taken": "2026-05",
+    "locationId": "lake-ontario",
+    "lightroomId": 7761544
+  },
+  {
     "src": "/photos/lr-7768729.webp",
     "title": "Apex",
     "alt": "Pale green hydrangea blooms spilling over a white picket fence, a dark-blue house with shutters softly blurred behind",
@@ -8410,6 +8455,17 @@
     "locationId": "raleigh",
     "placeSource": "curation",
     "lightroomId": 8059300
+  },
+  {
+    "src": "/photos/lr-8059314.webp",
+    "title": "Oak Island",
+    "alt": "A bank of dark storm clouds hangs over a calm sea, with dune grass and sandy mounds in the foreground",
+    "origin": "Lightroom 8059314",
+    "width": 1920,
+    "height": 2400,
+    "taken": "2025-10",
+    "locationId": "oak-island",
+    "lightroomId": 8059314
   },
   {
     "src": "/photos/lr-8059316.webp",
