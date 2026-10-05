@@ -53,10 +53,10 @@ export const metadata: Metadata = {
     siteName: "Nicholas Gould Photography",
     images: [
       {
-        url: photoUrl("/photos/hallstatt-1.webp"),
+        url: photoUrl("/photos/hallstatt-2.webp"),
         width: 2400,
         height: 1600,
-        alt: "Hallstatt through the trees, photographed by Nicholas Gould",
+        alt: "Hallstatt across the lake, photographed by Nicholas Gould",
       },
     ],
   },

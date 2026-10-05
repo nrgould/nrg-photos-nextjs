@@ -78,7 +78,7 @@ test("red-boat completion requires the exact actual opened photograph; visits do
   });
   progress = recordExplorationEvent(progress, {
     type: "photo-opened",
-    photoSrc: "/photos/hallstatt-1.webp",
+    photoSrc: "/photos/hallstatt-2.webp",
   });
   assert.deepEqual(getExplorationSummary(progress).completedChallengeIds, []);
   progress = recordExplorationEvent(progress, {

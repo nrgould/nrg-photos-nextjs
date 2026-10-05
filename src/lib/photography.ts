@@ -88,11 +88,6 @@ const green = [
 ].map(([file, title, alt]) => photo(file, title, alt, "a-study-in-green"));
 const travel = [
   [
-    "hallstatt-1",
-    "Scenes from Hallstatt",
-    "Hallstatt and its church beside the lake, framed by green leaves in soft mountain light",
-  ],
-  [
     "3_landscape_lago_di_braies",
     "Lago di Braies",
     "A wooden boathouse beside a turquoise lake reflecting the Dolomites",
@@ -227,11 +222,6 @@ const people = [
     "A woman in winter clothing in a snowy Swedish landscape at sunset",
   ],
   [
-    "portrait_ncsu_grad_photo_4",
-    "A new chapter",
-    "A graduate in a red cap and gown at North Carolina State University",
-  ],
-  [
     "portrait_erica_sitting_copenhagen_canal",
     "Erica, by the canal",
     "A woman sitting beside a Copenhagen canal",
@@ -266,7 +256,7 @@ export const collections: Collection[] = [
     title: "Far from here",
     category: "Landscape & travel",
     description: "Austria, Germany, Italy and Norway.",
-    cover: travel[1],
+    cover: travel[0],
     photos: travel,
   },
   {
@@ -287,7 +277,10 @@ export const collections: Collection[] = [
   },
 ];
 export const allPhotos = collections.flatMap((c) => c.photos);
-export const heroPhotos = [travel[0], travel[7], travel[5]];
+export const heroPhotos = [
+  "hallstatt-2",
+  "landscape_bavarian_alps_sunset_in_grainau",
+].map((file) => travel.find((photo) => photo.src === `/photos/${file}.webp`)!);
 export const portrait = photo(
   "nicholas_portrait",
   "Nicholas Gould",
