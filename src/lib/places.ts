@@ -73,19 +73,22 @@ function mapPhoto(src: string, collection: string): Photo {
 }
 
 const rank = (node: LocationNode) => locations.indexOf(node);
+// ISO capture times sort as strings; undated photos go last.
+const takenOrder = (a: string, b: string) =>
+  (entries.get(a)?.taken ?? "~").localeCompare(entries.get(b)?.taken ?? "~");
 // One collection per country, photos in tree order.
 export const travelPlaces: TravelPlace[] = locations
   .filter((country) => !country.parent)
   .flatMap((country) => {
     const located = [...photoLocations]
       .filter(([, id]) => locationPath(id)[0] === country)
-      // Tree order by map place, heroes leading each place, then tree order within it.
+      // Tree order by map place, heroes leading each place in pick order, then the rest by capture time.
       .sort(
         ([srcA, a], [srcB, b]) =>
           rank(locationPath(a)[2] ?? byId.get(a)!) -
             rank(locationPath(b)[2] ?? byId.get(b)!) ||
           Number(heroSrcs.has(srcB)) - Number(heroSrcs.has(srcA)) ||
-          rank(byId.get(a)!) - rank(byId.get(b)!),
+          (heroSrcs.has(srcA) ? 0 : takenOrder(srcA, srcB)),
       );
     const pin = located
       .map(([, id]) => locationPath(id)[2])

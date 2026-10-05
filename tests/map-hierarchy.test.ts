@@ -5,6 +5,7 @@ import manifest from "../src/lib/photo-manifest.json";
 import {
   locationPath,
   locations,
+  heroSrcs,
   photoLocations,
   travelPlaces,
 } from "../src/lib/places";
@@ -414,5 +415,20 @@ test("the location tree is whole: unique ids, real parents, every place a photo 
   for (const [src, id] of photoLocations) {
     const place = locationPath(id)[2];
     if (place) assert.ok(place.coordinates?.every(Number.isFinite), src);
+  }
+});
+
+test("each place leads with its heroes, then runs in capture order", () => {
+  for (const country of travelPlaces) {
+    const byPlace = Map.groupBy(
+      country.photos,
+      (photo) => locationPath(photoLocations.get(photo.src)!)[2]?.id,
+    );
+    for (const photos of byPlace.values()) {
+      const rest = photos.filter((photo) => !heroSrcs.has(photo.src));
+      assert.deepEqual(photos.slice(photos.length - rest.length), rest);
+      const times = rest.map((photo) => photo.taken ?? "~");
+      assert.deepEqual(times, times.toSorted());
+    }
   }
 });

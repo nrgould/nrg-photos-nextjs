@@ -74,7 +74,8 @@ export function manifestEntry(row, locationId, title, previous) {
     origin: `Lightroom ${row.lightroomId}`,
     width: row.width ?? previous?.width,
     height: row.height ?? previous?.height,
-    taken: row.capturedAt.slice(0, 7),
+    // Full capture time: places order their photos by it; labels read only year and month.
+    taken: row.capturedAt,
     locationId,
     ...(row.placeSource && { placeSource: row.placeSource }),
     lightroomId: row.lightroomId,
