@@ -41,13 +41,3 @@ test("hero count: all of a small set, else the marked ones, one to three", () =>
   assert.equal(heroCount(20, 2), 2);
   assert.equal(heroCount(20, 5), 3);
 });
-
-test("space left after the heroes pushes the grid down", () => {
-  const plain = galleryLayout(Array(5).fill(0.8), 358, { heroes: 1 });
-  const spaced = galleryLayout(Array(5).fill(0.8), 358, {
-    heroes: 1,
-    after: 120,
-  });
-  assert.equal(spaced[0].y, plain[0].y);
-  assert.equal(spaced[1].y, plain[1].y + 120);
-});

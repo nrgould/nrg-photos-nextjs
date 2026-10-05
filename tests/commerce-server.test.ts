@@ -541,6 +541,12 @@ test("one reward per account and campaign; duplicate claims are serialized", asy
   assert.deepEqual((await service.ownership("eligible")).presetIds, [
     claimed[0].presetId,
   ]);
+  // Ownership reports the claim, so a later visit shows it as claimed.
+  assert.equal(
+    (await service.ownership("eligible")).rewardPresetId,
+    claimed[0].presetId,
+  );
+  assert.equal((await service.ownership("someone-else")).rewardPresetId, null);
   assert.equal(
     await store.transaction(
       async (tx) => (await tx.entitlements("eligible")).length,

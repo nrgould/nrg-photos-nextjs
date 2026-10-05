@@ -6,6 +6,7 @@ import {
   checkoutReturnPath,
   currentOwnership,
   stripeCheckoutUrl,
+  claimedReward,
   verifiedOwnership,
 } from "../src/lib/commerce-checkout-client";
 
@@ -90,7 +91,11 @@ test("only verified published ownership is accepted; account switch, sign-out an
     sessionKey: "session-A:user-A",
     revision: 2,
     presetIds: ["eibsee-1"],
+    rewardPresetId: null,
   };
+  assert.equal(claimedReward({ rewardPresetId: "eibsee-1" }), "eibsee-1");
+  for (const value of [null, {}, { rewardPresetId: "signature-01" }])
+    assert.equal(claimedReward(value), null);
   assert.deepEqual(currentOwnership(snapshot, snapshot.sessionKey, 2, true), [
     "eibsee-1",
   ]);

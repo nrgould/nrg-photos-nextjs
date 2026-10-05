@@ -17,6 +17,7 @@ import {
   checkoutAttempt,
   checkoutAttemptStorageKey as attemptStorageKey,
   checkoutReturnPath,
+  claimedReward,
   currentOwnership,
   stripeCheckoutUrl,
   verifiedOwnership,
@@ -88,12 +89,20 @@ export function useCommerceBoundary() {
       cache: "no-store",
       signal: controller.signal,
     })
-      .then(async (response) =>
-        response.ok ? verifiedOwnership(await response.json()) : null,
-      )
-      .then((presetIds) => {
+      .then(async (response) => (response.ok ? response.json() : null))
+      .then((value: unknown) => {
+        const presetIds = verifiedOwnership(value);
         if (!controller.signal.aborted)
-          setOwnership(presetIds ? { sessionKey, revision, presetIds } : null);
+          setOwnership(
+            presetIds
+              ? {
+                  sessionKey,
+                  revision,
+                  presetIds,
+                  rewardPresetId: claimedReward(value),
+                }
+              : null,
+          );
       })
       .catch(() => {
         if (!controller.signal.aborted) setOwnership(null);
@@ -283,20 +292,22 @@ export function useCommerceBoundary() {
       throw new Error("Reward unavailable");
     return { presetId: value.presetId };
   }, [refreshOwnership]);
+  const claimedPresetId = owned ? (ownership?.rewardPresetId ?? null) : null;
   // The free preset is one per email account, so a guest signs in with an email first.
   const reward = useMemo<ExplorationClaimBoundary>(
     () =>
       availability !== "test-ready" || account.userId === undefined
         ? { status: "unavailable" }
         : account.userId && !account.anonymous && account.email
-          ? { status: "ready", claim: claimReward }
-          : { status: "sign-in", claim: claimReward },
+          ? { status: "ready", claim: claimReward, claimedPresetId }
+          : { status: "sign-in", claim: claimReward, claimedPresetId },
     [
       availability,
       account.userId,
       account.anonymous,
       account.email,
       claimReward,
+      claimedPresetId,
     ],
   );
   return {

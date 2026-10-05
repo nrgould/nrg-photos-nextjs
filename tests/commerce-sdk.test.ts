@@ -111,10 +111,12 @@ test("SDK-signed payment/replay/refund fixtures apply idempotently to account-bo
   assert.deepEqual(await service.ownership("user-fixture"), {
     status: "verified",
     presetIds: ["eibsee-1"],
+    rewardPresetId: null,
   });
   assert.deepEqual(await service.ownership("another-user"), {
     status: "verified",
     presetIds: [],
+    rewardPresetId: null,
   });
   const refund = event("evt_sdk_refund", "charge.refunded", {
     amount_refunded: 199,
@@ -126,6 +128,7 @@ test("SDK-signed payment/replay/refund fixtures apply idempotently to account-bo
   assert.deepEqual(await service.ownership("user-fixture"), {
     status: "verified",
     presetIds: [],
+    rewardPresetId: null,
   });
   assert.equal(networkCalls, 0);
 });

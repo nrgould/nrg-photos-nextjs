@@ -66,6 +66,8 @@ export type ExplorationClaimBoundary =
       status: "sign-in" | "ready";
       /** The server draws the preset; the client only shows it. */
       claim: () => Promise<{ presetId: string }>;
+      /** The account's claimed preset for this campaign, once the server confirms it. */
+      claimedPresetId: string | null;
     };
 const unavailableClaim: ExplorationClaimBoundary = { status: "unavailable" };
 
@@ -314,13 +316,19 @@ export default function ExploreChallenges({
   const [reelId, setReelId] = useState<string | null>(null);
   const [claimedId, setClaimedId] = useState<string | null>(null);
   const reducedMotion = useReducedMotion();
-  const reel = getCatalogPreset(reelId);
   const [error, setError] = useState<string | null>(null);
   const visited = progress.visitedLocationIds
     .slice(0, summary.requiredCount)
     .map((id) => explorationLocations.find((l) => l.id === id)!);
   const claimable =
     claimBoundary.status !== "unavailable" && summary.allComplete;
+  const claimed =
+    claimedId ??
+    (claimBoundary.status === "unavailable"
+      ? null
+      : claimBoundary.claimedPresetId);
+  // The spinning reel, then the claimed preset.
+  const reel = getCatalogPreset(reelId ?? claimed);
   // A guest enters an email first; the claim runs once that code is verified.
   const [signingIn, setSigningIn] = useState(false);
 
@@ -379,7 +387,7 @@ export default function ExploreChallenges({
                 {reel ? (
                   <motion.span
                     key={reel.id}
-                    aria-hidden="true"
+                    aria-hidden={pending}
                     initial={{ transform: "translateY(8px)", opacity: 0 }}
                     animate={{ transform: "translateY(0px)", opacity: 1 }}
                     transition={{ duration: 0.08, ease: "easeOut" }}
@@ -402,16 +410,22 @@ export default function ExploreChallenges({
             </ItemContent>
             <ItemActions>
               <Button
-                variant={summary.allComplete ? "default" : "control"}
+                variant={
+                  claimed
+                    ? "secondary"
+                    : summary.allComplete
+                      ? "default"
+                      : "control"
+                }
                 className={styles.claim}
-                disabled={!claimable || pending || claimedId !== null}
+                disabled={!claimable || pending || claimed !== null}
                 aria-busy={pending}
                 onClick={() => void claimReward()}
               >
                 {!claimable && (
                   <LockKeyhole size={14} strokeWidth={1.5} aria-hidden="true" />
                 )}
-                {claimedId ? "Claimed" : pending ? "Claiming…" : "Claim"}
+                {claimed ? "Claimed" : pending ? "Claiming…" : "Claim"}
               </Button>
             </ItemActions>
           </Item>

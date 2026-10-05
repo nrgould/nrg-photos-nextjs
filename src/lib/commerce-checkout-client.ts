@@ -23,6 +23,7 @@ export type OwnershipSnapshot = {
   sessionKey: string;
   revision: number;
   presetIds: string[];
+  rewardPresetId: string | null;
 };
 
 export function checkoutReturnPath(value: string): string {
@@ -74,6 +75,12 @@ export function checkoutAttempt(
     throw new Error("Invalid checkout request ID");
   return { key, requestId };
 }
+
+/** The campaign's claimed preset in an ownership response, if it is a catalog preset. */
+export const claimedReward = (value: unknown) =>
+  value && typeof value === "object" && "rewardPresetId" in value
+    ? (getCatalogPreset(value.rewardPresetId)?.id ?? null)
+    : null;
 
 export function verifiedOwnership(value: unknown): string[] | null {
   if (

@@ -10,13 +10,12 @@ const gap = 8;
 /**
  * Expanded drawer tiles, image boxes only (a caption sits below each when `caption` > 0).
  * Photos: the leading heroes large (the first full width, the next two side by side), then
- * the rest in a three-column grid, `after` px below the heroes left free. Places (`columns` 2):
- * two-column cards.
+ * the rest in a three-column grid. Places (`columns` 2): two-column cards.
  */
 export function galleryLayout(
   aspects: number[],
   width: number,
-  { heroes = 0, columns = 3, caption = 0, after = 0 } = {},
+  { heroes = 0, columns = 3, caption = 0 } = {},
 ): GalleryTile[] {
   const tiles: GalleryTile[] = [];
   let y = 0;
@@ -40,7 +39,6 @@ export function galleryLayout(
         ? Math.min(tileWidth / aspects[1], tileWidth * 1.25)
         : tileWidth * 1.25,
     );
-  y += after;
   for (let index = tiles.length; index < aspects.length; index += columns)
     row(columns, (tileWidth) => tileWidth * 1.25);
   return tiles.slice(0, aspects.length);

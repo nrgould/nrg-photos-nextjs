@@ -153,7 +153,6 @@ export default function PresetCatalog({
           <div>
             <h2 id={`${id}-heading`}>Presets</h2>
           </div>
-          <span className={styles.total}>$1.99 each · 20% off 10+</span>
         </div>
       </header>
 

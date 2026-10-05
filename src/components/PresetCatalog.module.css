@@ -185,12 +185,21 @@
   color: var(--muted-foreground);
   font-size: 10px;
 }
+/* 6px matches the row's inner radius, like the mood icon. */
 .add {
   width: 44px;
   height: 44px;
   min-height: 44px;
   padding: 0;
-  border-radius: 10px;
+  border-radius: 6px;
+}
+/* Unselected, the plus is borderless so the row doesn't end on a box. */
+.add:not([data-selected="true"]) {
+  border-color: transparent;
+  background: transparent;
+}
+.add:not([data-selected="true"]):hover {
+  background: var(--line);
 }
 .add[data-selected="true"] {
   background: var(--primary);

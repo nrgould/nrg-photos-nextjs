@@ -320,8 +320,9 @@ export default function PlacesExplorer({
   const [chosenSnap, setSnap] = useState<number | string | null>(
     initialView ? 0.75 : 0.25,
   );
-  // A phone's nested sheet is 75% tall; the drawer under it lifts to 75% so it shows receding above.
+  // A phone's nested sheet opens at 75%; the drawer under it lifts to 75% so it shows receding above.
   const snap = nested && !desktop && chosenSnap === 0.25 ? 0.75 : chosenSnap;
+  const [nestedSnap, setNestedSnap] = useState<number | string | null>(0.75);
   const [command, setCommand] = useState(false);
   const [query, setQuery] = useState("");
   // The command bar names the place it stepped to until the visitor moves the map.
@@ -405,6 +406,7 @@ export default function PlacesExplorer({
   }
   function closeNested() {
     setNestedStack([]);
+    setNestedSnap(0.75);
     clearPresetSelection();
   }
   function openPage(view: PageView, trigger?: HTMLElement | null) {
@@ -494,6 +496,9 @@ export default function PlacesExplorer({
     )?.id ??
     null;
   const placeSaved = placeId !== null && favorites.placeIds.includes(placeId);
+  // A place shows its first preset above the photos until all are asked for.
+  const [allPresetsPlace, setAllPresetsPlace] = useState<string | null>(null);
+  const allPlacePresets = placeId !== null && allPresetsPlace === placeId;
   const placePresets = useMemo(() => {
     const node = selectedNodeId?.startsWith("location:")
       ? getMapNode(selectedNodeId, filteredPlaces)
@@ -555,7 +560,7 @@ export default function PlacesExplorer({
     const figures = Array.from(
       layout.querySelectorAll<HTMLElement>(":scope > figure"),
     );
-    const presetSection = layout.querySelector<HTMLElement>(".place-presets");
+    const preface = layout.querySelector<HTMLElement>(".place-preface");
     const images = figures.map((figure) =>
       figure.querySelector<HTMLElement>(".gallery-photo")!,
     );
@@ -606,13 +611,10 @@ export default function PlacesExplorer({
         const tiles = galleryLayout(
           aspects,
           width,
-          placeList
-            ? { columns: 2, caption: captionHeight }
-            : {
-                heroes,
-                after: presetSection ? presetSection.offsetHeight + 8 : 0,
-              },
+          placeList ? { columns: 2, caption: captionHeight } : { heroes },
         );
+        // The preface (presets, then the photos heading) sits above the photos.
+        const top = preface ? preface.offsetHeight : 0;
         let contentHeight = 0;
         figures.forEach((figure, index) => {
           const tile = tiles[index];
@@ -623,7 +625,7 @@ export default function PlacesExplorer({
             tile.x,
             growth,
           );
-          const y = tile.y * growth;
+          const y = (tile.y + top) * growth;
           figure.style.width = `${mix(compactWidth, tile.width, growth)}px`;
           figure.style.transform = `translate(${x}px, ${y}px)`;
           figure.style.opacity = inStrip ? "" : String(growth);
@@ -635,17 +637,10 @@ export default function PlacesExplorer({
             y + imageHeight + captionHeight * growth,
           );
         });
-        if (presetSection) {
-          // Under the heroes, revealed with the grid like the captions.
-          const hero = tiles[Math.min(heroes, count) - 1];
-          const y = (hero.y + hero.height + 8) * growth;
-          presetSection.style.transform = `translateY(${y}px)`;
-          presetSection.style.opacity = String(growth);
-          presetSection.style.visibility = growth > 0 ? "" : "hidden";
-          contentHeight = Math.max(
-            contentHeight,
-            y + presetSection.offsetHeight * growth,
-          );
+        if (preface) {
+          // Revealed with the grid, like the captions.
+          preface.style.opacity = String(growth);
+          preface.style.visibility = growth > 0 ? "" : "hidden";
         }
         viewport!.style.height = `${height}px`;
         layout!.style.height = `${contentHeight}px`;
@@ -700,6 +695,7 @@ export default function PlacesExplorer({
     heroes,
     drawerMode,
     placePresets,
+    allPlacePresets,
   ]);
   function finishIntro() {
     setIntro(false);
@@ -1604,28 +1600,46 @@ export default function PlacesExplorer({
                       </figure>
                     ))}
                 {!placeList && placePresets.length > 0 && (
-                  <section
-                    className="place-presets"
-                    aria-labelledby="place-presets-heading"
-                  >
-                    <h3 id="place-presets-heading">
-                      Presets used at this location
-                    </h3>
-                    <PresetList
-                      presets={placePresets}
-                      cartIds={new Set(cartIds)}
-                      ownedIds={new Set(ownedPresetIds)}
-                      onAddPreset={(id) => addToCart([id])}
-                      onRemovePreset={removePreset}
-                      onOpenPreset={(id, trigger) => {
-                        setCatalogState((state) => ({
-                          ...state,
-                          selectedPresetId: id,
-                        }));
-                        openPage("preset", trigger);
-                      }}
-                    />
-                  </section>
+                  <div className="place-preface">
+                    <section aria-labelledby="place-presets-heading">
+                      <h3 id="place-presets-heading">
+                        Presets used at this location
+                      </h3>
+                      <PresetList
+                        presets={
+                          allPlacePresets
+                            ? placePresets
+                            : placePresets.slice(0, 1)
+                        }
+                        cartIds={new Set(cartIds)}
+                        ownedIds={new Set(ownedPresetIds)}
+                        onAddPreset={(id) => addToCart([id])}
+                        onRemovePreset={removePreset}
+                        onOpenPreset={(id, trigger) => {
+                          setCatalogState((state) => ({
+                            ...state,
+                            selectedPresetId: id,
+                          }));
+                          openPage("preset", trigger);
+                        }}
+                      />
+                      {placePresets.length > 1 && (
+                        <Button
+                          variant="quiet"
+                          className="place-presets-more"
+                          aria-expanded={allPlacePresets}
+                          onClick={() =>
+                            setAllPresetsPlace(allPlacePresets ? null : placeId)
+                          }
+                        >
+                          {allPlacePresets
+                            ? "Show fewer"
+                            : `Show all ${placePresets.length}`}
+                        </Button>
+                      )}
+                    </section>
+                    <h3>Photos from this location</h3>
+                  </div>
                 )}
               </div>
               {/* Phones end a place with its way back to the country's list of places. */}
@@ -1647,10 +1661,21 @@ export default function PlacesExplorer({
         }}
         modal={false}
         direction={desktop ? "right" : "bottom"}
+        {...(!desktop && {
+          snapPoints: [0.75, 1],
+          activeSnapPoint: nestedSnap,
+          setActiveSnapPoint: setNestedSnap,
+        })}
         repositionInputs={false}
       >
         <DrawerContent
           className="location-drawer nested-drawer explorer-overlay"
+          // The sheet is full height; the padding keeps content inside the visible snap.
+          style={
+            desktop
+              ? undefined
+              : { paddingBottom: `${(1 - Number(nestedSnap)) * 100}dvh` }
+          }
           onEscapeKeyDown={(event) => {
             if (clearsSearch(event)) event.preventDefault();
           }}

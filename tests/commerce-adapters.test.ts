@@ -451,6 +451,7 @@ test("configured handler rejects forged account/price/reward fields, external or
   assert.deepEqual(await (await handlers.ownership()).json(), {
     status: "verified",
     presetIds: [],
+    rewardPresetId: null,
   });
   assert.equal((await handlers.download(ids[0])).status, 403);
   assert.equal((await handlers.webhook(request({}))).status, 400);

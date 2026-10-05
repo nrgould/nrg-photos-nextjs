@@ -421,18 +421,6 @@
     "lightroomId": 2248186
   },
   {
-    "src": "/photos/lr-2366056.webp",
-    "title": "Copenhagen",
-    "alt": "Colorful row of townhouses behind a red boat moored on dark water, under a flat overcast sky",
-    "origin": "Lightroom 2366056",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-01-29T06:48:48.22",
-    "locationId": "copenhagen",
-    "placeSource": "curation",
-    "lightroomId": 2366056
-  },
-  {
     "src": "/photos/lr-2366071.webp",
     "title": "Stockholm",
     "alt": "Smiling man in a black parka with a fur-trimmed hood stands on a cobblestone alley lined with warm orange buildings",
@@ -762,18 +750,6 @@
     "lightroomId": 2366248
   },
   {
-    "src": "/photos/lr-2366253.webp",
-    "title": "Tromsø",
-    "alt": "Triangular glass-fronted church lit from within at night, houses glowing on the dark slope behind and light trails curving past",
-    "origin": "Lightroom 2366253",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-02-27T12:37:01.08",
-    "locationId": "tromso",
-    "placeSource": "curation",
-    "lightroomId": 2366253
-  },
-  {
     "src": "/photos/lr-2366255.webp",
     "title": "Tromsø",
     "alt": "Weathered red wooden barn with white-shuttered windows in deep snow, a small red shed at left and bare trees against a pale sky",
@@ -1079,18 +1055,6 @@
     "lightroomId": 2452937
   },
   {
-    "src": "/photos/lr-2498374.webp",
-    "title": "Copenhagen",
-    "alt": "Red-and-white flag on a wooden mast, with rigging lines across the frame, before a pale domed corner building in pink sunset cloud",
-    "origin": "Lightroom 2498374",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-04-05T12:35:34.68",
-    "locationId": "copenhagen",
-    "placeSource": "curation",
-    "lightroomId": 2498374
-  },
-  {
     "src": "/photos/lr-2498375.webp",
     "title": "Copenhagen",
     "alt": "Red brick castle with green copper roofs and slender spires under a stormy grey sky, rust-coloured leaves blurred in the foreground",
@@ -1125,19 +1089,6 @@
     "locationId": "copenhagen",
     "placeSource": "curation",
     "lightroomId": 2498381
-  },
-  {
-    "src": "/photos/lr-2498384.webp",
-    "title": "Copenhagen",
-    "alt": "Corner of an ornate pale building with a domed turret and balconies, lit by low sun, with dark blurred foreground and power lines",
-    "origin": "Lightroom 2498384",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-04-05T12:11:00.07",
-    "locationId": "copenhagen",
-    "placeSource": "curation",
-    "lightroomId": 2498384,
-    "presetId": "salzburg-2"
   },
   {
     "src": "/photos/lr-2498385.webp",
@@ -1210,18 +1161,6 @@
     "locationId": "copenhagen",
     "placeSource": "curation",
     "lightroomId": 2498433
-  },
-  {
-    "src": "/photos/lr-2498434.webp",
-    "title": "Copenhagen",
-    "alt": "Black and orange butterfly perched on a spiky green frond, set against soft, dark, out-of-focus foliage",
-    "origin": "Lightroom 2498434",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-04-05T10:02:13.08",
-    "locationId": "copenhagen",
-    "placeSource": "curation",
-    "lightroomId": 2498434
   },
   {
     "src": "/photos/lr-2498437.webp",
@@ -1693,18 +1632,6 @@
     "hero": true
   },
   {
-    "src": "/photos/lr-3472825.webp",
-    "title": "Lake James",
-    "alt": "Close view of a muddy brown backpack with a small leather fox-head patch, resting on rocks beside low green plants",
-    "origin": "Lightroom 3472825",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-07-30T13:22:39.83",
-    "locationId": "lake-james",
-    "placeSource": "sibling",
-    "lightroomId": 3472825
-  },
-  {
     "src": "/photos/lr-3472826.webp",
     "title": "Lake James",
     "alt": "Small green clearing among dark forest glimpsed through drifting mist, framed by blurred pine branches",
@@ -1928,19 +1855,6 @@
     "placeSource": "curation",
     "lightroomId": 4148262,
     "hero": true,
-    "presetId": "lofoten-2"
-  },
-  {
-    "src": "/photos/lr-4148361.webp",
-    "title": "Tromsø",
-    "alt": "Fluffy black and cream husky-type dog looks out from behind metal railings above a chipped red steel wall with a porthole",
-    "origin": "Lightroom 4148361",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-02-26T06:59:13.84",
-    "locationId": "tromso",
-    "placeSource": "curation",
-    "lightroomId": 4148361,
     "presetId": "lofoten-2"
   },
   {
@@ -3069,18 +2983,6 @@
     "placeSource": "curation",
     "lightroomId": 4337503,
     "hero": true
-  },
-  {
-    "src": "/photos/lr-4337504.webp",
-    "title": "Linville Gorge",
-    "alt": "Two people stand at a stone overlook with a log railing, facing a long forested ridge under heavy, glowing clouds",
-    "origin": "Lightroom 4337504",
-    "width": 1600,
-    "height": 1067,
-    "taken": "2023-12-29T17:35:53.52",
-    "locationId": "linville-gorge",
-    "placeSource": "curation",
-    "lightroomId": 4337504
   },
   {
     "src": "/photos/lr-4337506.webp",
@@ -4317,19 +4219,6 @@
     "placeSource": "curation",
     "lightroomId": 4663337,
     "presetId": "vienna-1"
-  },
-  {
-    "src": "/photos/lr-4687275.webp",
-    "title": "Duke Gardens",
-    "alt": "A red arched footbridge sits at the far end of a dark, still pond reflecting the surrounding dense green trees under a hazy sky",
-    "origin": "Lightroom 4687275",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2024-10-01T13:38:08.78",
-    "locationId": "duke-gardens",
-    "placeSource": "curation",
-    "lightroomId": 4687275,
-    "presetId": "bavaria-1"
   },
   {
     "src": "/photos/lr-4731984.webp",
@@ -6756,18 +6645,6 @@
     "lightroomId": 7610960
   },
   {
-    "src": "/photos/lr-7610963.webp",
-    "title": "Duke Gardens",
-    "alt": "Pink, deep plum and white tulips with a white daffodil in a spring garden, shallow focus melting into green foliage behind",
-    "origin": "Lightroom 7610963",
-    "width": 1200,
-    "height": 1600,
-    "taken": "2026-04-06T15:35:46.19",
-    "locationId": "duke-gardens",
-    "placeSource": "curation",
-    "lightroomId": 7610963
-  },
-  {
     "src": "/photos/lr-7610964.webp",
     "title": "Duke Gardens",
     "alt": "Dense clusters of bright pink azalea blossoms in soft focus, deep magenta tones fading into a blurred background",
@@ -6828,30 +6705,6 @@
     "lightroomId": 7610969
   },
   {
-    "src": "/photos/lr-7610970.webp",
-    "title": "Duke Gardens",
-    "alt": "Mass of pink and coral azalea blooms packed across the frame, warm light and a shallow depth of field",
-    "origin": "Lightroom 7610970",
-    "width": 1200,
-    "height": 1600,
-    "taken": "2026-04-06T15:46:00.65",
-    "locationId": "duke-gardens",
-    "placeSource": "curation",
-    "lightroomId": 7610970
-  },
-  {
-    "src": "/photos/lr-7610972.webp",
-    "title": "Duke Gardens",
-    "alt": "Red-and-white striped tulip open in a green garden bed, with pale buds and fern leaves softly blurred nearby",
-    "origin": "Lightroom 7610972",
-    "width": 1200,
-    "height": 1600,
-    "taken": "2026-04-06T15:38:24.26",
-    "locationId": "duke-gardens",
-    "placeSource": "curation",
-    "lightroomId": 7610972
-  },
-  {
     "src": "/photos/lr-7610973.webp",
     "title": "Duke Gardens",
     "alt": "White daffodil with a yellow cup in sharp focus against a dreamy blur of green stems and pink flowers",
@@ -6862,18 +6715,6 @@
     "locationId": "duke-gardens",
     "placeSource": "curation",
     "lightroomId": 7610973
-  },
-  {
-    "src": "/photos/lr-7610974.webp",
-    "title": "Duke Gardens",
-    "alt": "Red-haired woman in a green dress seated on a wooden garden bench beneath a blooming pink tree, flagstone path in front",
-    "origin": "Lightroom 7610974",
-    "width": 1200,
-    "height": 1600,
-    "taken": "2026-04-06T13:22:10.36",
-    "locationId": "duke-gardens",
-    "placeSource": "curation",
-    "lightroomId": 7610974
   },
   {
     "src": "/photos/lr-7610976.webp",
@@ -6934,18 +6775,6 @@
     "locationId": "duke-gardens",
     "placeSource": "curation",
     "lightroomId": 7610981
-  },
-  {
-    "src": "/photos/lr-7610982.webp",
-    "title": "Duke Gardens",
-    "alt": "Red-haired woman in a green dress standing in a garden crowded with tulips, trees and a terracotta pot behind her",
-    "origin": "Lightroom 7610982",
-    "width": 1600,
-    "height": 900,
-    "taken": "2026-04-06T15:40:55.72",
-    "locationId": "duke-gardens",
-    "placeSource": "curation",
-    "lightroomId": 7610982
   },
   {
     "src": "/photos/lr-7610983.webp",
@@ -7033,18 +6862,6 @@
     "lightroomId": 7760587
   },
   {
-    "src": "/photos/lr-7761527.webp",
-    "title": "Finger Lakes",
-    "alt": "Woman with vivid red hair and a green knit shrug over a strawberry-print top, a wide blue lake and green hills behind a stone wall",
-    "origin": "Lightroom 7761527",
-    "width": 1200,
-    "height": 1600,
-    "taken": "2026-05-12T14:50:31.90",
-    "locationId": "finger-lakes",
-    "placeSource": "curation",
-    "lightroomId": 7761527
-  },
-  {
     "src": "/photos/lr-7761529.webp",
     "title": "Bond Park",
     "alt": "Bare trees lit orange by low sun at the edge of a grassy slope, two tiny figures sitting in the light, dark shadow in front",
@@ -7106,30 +6923,6 @@
     "lightroomId": 7768742
   },
   {
-    "src": "/photos/lr-7768743.webp",
-    "title": "Duke Gardens",
-    "alt": "Woman in a green dress playfully balanced on one leg on a red arched wooden bridge, leafy green woods and a path beyond",
-    "origin": "Lightroom 7768743",
-    "width": 1600,
-    "height": 900,
-    "taken": "2026-04-06T14:31:55.01",
-    "locationId": "duke-gardens",
-    "placeSource": "curation",
-    "lightroomId": 7768743
-  },
-  {
-    "src": "/photos/lr-7768745.webp",
-    "title": "Duke Gardens",
-    "alt": "Woman in a green dress seen through blurred magenta blossoms in the foreground, pink azaleas and a boulder behind her",
-    "origin": "Lightroom 7768745",
-    "width": 1200,
-    "height": 1600,
-    "taken": "2026-04-06T15:17:29.70",
-    "locationId": "duke-gardens",
-    "placeSource": "curation",
-    "lightroomId": 7768745
-  },
-  {
     "src": "/photos/lr-7768750.webp",
     "title": "Duke Gardens",
     "alt": "Close cluster of pink azalea flowers with a few green leaves, soft pink blur behind and gentle light",
@@ -7152,30 +6945,6 @@
     "locationId": "duke-gardens",
     "placeSource": "curation",
     "lightroomId": 7768772
-  },
-  {
-    "src": "/photos/lr-7768782.webp",
-    "title": "Duke Gardens",
-    "alt": "Woman in a long green dress on a wooden dock beside a pond, reaching out under spring branches, with rocks and irises across the water",
-    "origin": "Lightroom 7768782",
-    "width": 1200,
-    "height": 1600,
-    "taken": "2026-04-06T15:01:23.76",
-    "locationId": "duke-gardens",
-    "placeSource": "curation",
-    "lightroomId": 7768782
-  },
-  {
-    "src": "/photos/lr-7768797.webp",
-    "title": "Watkins Glen",
-    "alt": "Golden-hour light over a grassy hillside with a small wooden wagon, vineyard posts and a lake in the distance",
-    "origin": "Lightroom 7768797",
-    "width": 1200,
-    "height": 1600,
-    "taken": "2026-05-10T19:00:01.34",
-    "locationId": "watkins-glen",
-    "placeSource": "curation",
-    "lightroomId": 7768797
   },
   {
     "src": "/photos/lr-7768799.webp",
@@ -7529,18 +7298,6 @@
     "lightroomId": 7768909
   },
   {
-    "src": "/photos/lr-7961921.webp",
-    "title": "Oak Island",
-    "alt": "Orange and purple clouds streak across the sky above small waves washing a sandy beach at dusk, with houses at the far end",
-    "origin": "Lightroom 7961921",
-    "width": 1600,
-    "height": 1067,
-    "taken": "2026-09-13T18:34:09.20",
-    "locationId": "oak-island",
-    "placeSource": "nicholas",
-    "lightroomId": 7961921
-  },
-  {
     "src": "/photos/lr-7961928.webp",
     "title": "Oak Island",
     "alt": "Pink, orange and violet clouds fill a tall sky over shallow waves running onto a darkening beach, a few dark houses at right",
@@ -7564,18 +7321,6 @@
     "placeSource": "sibling",
     "lightroomId": 7961934,
     "hero": true
-  },
-  {
-    "src": "/photos/lr-7961942.webp",
-    "title": "Oak Island",
-    "alt": "Blue-grey sky streaked with pink and orange clouds above a dark, rippled shoreline, with silhouetted houses along the beach",
-    "origin": "Lightroom 7961942",
-    "width": 1200,
-    "height": 1600,
-    "taken": "2026-09-13T18:37:47.27",
-    "locationId": "oak-island",
-    "placeSource": "nicholas",
-    "lightroomId": 7961942
   },
   {
     "src": "/photos/lr-7961944.webp",

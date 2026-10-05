@@ -118,7 +118,7 @@
     "name": "Hallstatt I",
     "category": "Natural",
     "location": "hallstatt",
-    "bestFor": "Lakeside village views framed by foliage, in mist or overcast.",
+    "bestFor": "Overcast lake towns where you want the mist to stay cool and quiet.",
     "whatItDoes": "The base color with a strong shadow lift, a dehaze cut, greens shifted further and heavily desaturated, and green primary saturation raised in calibration.",
     "showcase": [
       "/photos/lr-7029043.webp"
@@ -256,10 +256,10 @@
     "whatItDoes": "More contrast and less shadow lift than Salzburg I, darker yellows, muted aquas and blues, and the red primary shifted toward orange and desaturated in calibration.",
     "watchOut": "Red flowers and signs go dull from the red primary cut.",
     "showcase": [
-      "/photos/lr-2498384.webp",
       "/photos/lr-2927561.webp",
       "/photos/lr-4151297.webp",
-      "/photos/lr-4151292.webp"
+      "/photos/lr-4151292.webp",
+      "/photos/lr-4151293.webp"
     ]
   },
   {
@@ -374,7 +374,7 @@
     "name": "Hallstatt II",
     "category": "Golden",
     "location": "hallstatt",
-    "bestFor": "Misty lakes, rivers and lakeside towns on gray days.",
+    "bestFor": "Gray days you want to feel warm, a soft golden haze over lake and mountains.",
     "whatItDoes": "Brightens whites while pulling highlights far down, so fog and cloud keep their detail. Adds saturation, a blue and warm split, grain, and masks for sky, water and subject.",
     "showcase": [
       "/photos/lr-7029000.webp",

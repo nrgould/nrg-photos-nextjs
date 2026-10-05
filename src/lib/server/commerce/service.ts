@@ -267,6 +267,11 @@ export function createCommerceService({
               .map((e) => e.presetId),
           ),
         ],
+        // So a claimed reward stays claimed across visits.
+        rewardPresetId: reward
+          ? ((await tx.rewardClaim(userId, reward.campaignId))?.presetId ??
+            null)
+          : null,
       }));
     },
     /**

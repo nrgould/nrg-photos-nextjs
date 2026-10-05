@@ -2734,18 +2734,25 @@ html[data-photo-theme="dark"] {
   .photo-drawer-header:has(.photo-drawer-back) {
     align-items: flex-end;
   }
-  /* Placed under the heroes by the drawer gallery's layout. */
-  .place-presets {
+  /* Presets, then the photos heading, above the drawer gallery's laid-out photos. */
+  .place-preface {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    padding: 16px 0 8px;
+    padding: 12px 0 8px;
   }
-  .place-presets h3 {
+  .place-preface h3 {
     margin: 0 0 4px;
     font-size: 13px;
     font-weight: 600;
+  }
+  .place-preface section + h3 {
+    margin-top: 16px;
+  }
+  .place-presets-more {
+    min-height: 36px;
+    padding: 0 8px;
   }
   .photo-drawer-back {
     gap: 6px;
@@ -2892,9 +2899,8 @@ html[data-photo-theme="dark"] {
     translate: 0 -16px;
     transform-origin: 50% 0;
   }
-  /* Shorter than the drawer's 75% snap so the receding drawer shows above. */
+  /* Snaps at 75% and 100%; at 75% the receding drawer shows above. */
   .location-drawer.nested-drawer[data-vaul-drawer] {
-    height: calc(75dvh - 8px);
     border-top: 1px solid var(--line);
   }
   .nested-drawer > .drawer-commerce-header {
