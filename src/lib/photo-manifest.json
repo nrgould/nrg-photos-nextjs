@@ -7360,7 +7360,7 @@
   },
   {
     "src": "/photos/lr-8027811.webp",
-    "title": "Boone",
+    "title": "Boone Fork Trail",
     "alt": "A single small tan mushroom stands in a shaft of light inside a hollow of mossy, shadowed tree bark with fallen leaves around it",
     "origin": "Lightroom 8027811",
     "width": 1200,
@@ -7372,7 +7372,7 @@
   },
   {
     "src": "/photos/lr-8027960.webp",
-    "title": "Boone",
+    "title": "Boone Fork Trail",
     "alt": "A single green leaf rests among gnarled, moss-covered roots and brown leaf litter on a dim forest floor",
     "origin": "Lightroom 8027960",
     "width": 1200,
@@ -7384,7 +7384,7 @@
   },
   {
     "src": "/photos/lr-8027975.webp",
-    "title": "Boone",
+    "title": "Boone Fork Trail",
     "alt": "A small red-capped mushroom glows in a pool of light on a dark forest floor, among scattered fallen leaves",
     "origin": "Lightroom 8027975",
     "width": 1200,
@@ -7396,7 +7396,7 @@
   },
   {
     "src": "/photos/lr-8028039.webp",
-    "title": "Boone",
+    "title": "Boone Fork Trail",
     "alt": "A moss-streaked grey rock face split by deep cracks, half in shadow, with a dry brown leaf resting on the right",
     "origin": "Lightroom 8028039",
     "width": 1200,
@@ -7408,7 +7408,7 @@
   },
   {
     "src": "/photos/lr-8028041.webp",
-    "title": "Boone",
+    "title": "Boone Fork Trail",
     "alt": "Bright green moss on a rock, patterned by the dark shadows of leaves, with a few fallen brown leaves at the left edge",
     "origin": "Lightroom 8028041",
     "width": 1200,
@@ -7420,7 +7420,7 @@
   },
   {
     "src": "/photos/lr-8028044.webp",
-    "title": "Boone",
+    "title": "Boone Fork Trail",
     "alt": "A large mossy boulder overhangs a shaded hollow beneath green forest foliage, with leaf litter and small stones on the ground",
     "origin": "Lightroom 8028044",
     "width": 1200,
@@ -7432,7 +7432,7 @@
   },
   {
     "src": "/photos/lr-8028056.webp",
-    "title": "Boone",
+    "title": "Boone Fork Trail",
     "alt": "A shallow forest stream winds between large grey boulders under a canopy of green leaves, a few yellow leaves at top",
     "origin": "Lightroom 8028056",
     "width": 1200,
@@ -7444,7 +7444,7 @@
   },
   {
     "src": "/photos/lr-8028098.webp",
-    "title": "Boone",
+    "title": "Boone Fork Trail",
     "alt": "A stone and log staircase climbs a narrow forest path through dense green shrubs, bright with light filtering in from ahead",
     "origin": "Lightroom 8028098",
     "width": 1200,
@@ -7457,7 +7457,7 @@
   },
   {
     "src": "/photos/lr-8028106.webp",
-    "title": "Boone",
+    "title": "Boone Fork Trail",
     "alt": "Bright green ferns spill from a moss-covered tree stump in a sunlit forest thicket, with thin roots trailing across the ground",
     "origin": "Lightroom 8028106",
     "width": 1200,
@@ -7469,7 +7469,7 @@
   },
   {
     "src": "/photos/lr-8028138.webp",
-    "title": "Boone",
+    "title": "Boone Fork Trail",
     "alt": "Small purple daisy-like flowers with yellow centers catch the light among dark grasses and green leaves",
     "origin": "Lightroom 8028138",
     "width": 1200,
@@ -7481,7 +7481,7 @@
   },
   {
     "src": "/photos/lr-8028148.webp",
-    "title": "Boone",
+    "title": "Boone Fork Trail",
     "alt": "A single bright green fern frond lit against a dark, blurred forest background",
     "origin": "Lightroom 8028148",
     "width": 1200,
@@ -7493,7 +7493,7 @@
   },
   {
     "src": "/photos/lr-8028153.webp",
-    "title": "Boone",
+    "title": "Boone Fork Trail",
     "alt": "Tiny star-shaped moss tips glow green among dry brown leaves and small ferns on a dark forest floor",
     "origin": "Lightroom 8028153",
     "width": 1600,
@@ -7505,7 +7505,7 @@
   },
   {
     "src": "/photos/lr-8028167.webp",
-    "title": "Boone",
+    "title": "Boone Fork Trail",
     "alt": "Two purple thistle blooms on a slender prickly stem, set against a soft, blurred yellow-green background",
     "origin": "Lightroom 8028167",
     "width": 1200,
@@ -7517,7 +7517,7 @@
   },
   {
     "src": "/photos/lr-8028188.webp",
-    "title": "Boone",
+    "title": "Boone Fork Trail",
     "alt": "Low sun bursts through a gap in dark trees, throwing long shadows across a lawn where a few empty chairs sit near a fire pit",
     "origin": "Lightroom 8028188",
     "width": 1200,
@@ -7529,7 +7529,7 @@
   },
   {
     "src": "/photos/lr-8028237.webp",
-    "title": "Boone",
+    "title": "Boone Fork Trail",
     "alt": "Water cascades in a silky white stream over mossy boulders into a pool glowing amber with reflected autumn leaves",
     "origin": "Lightroom 8028237",
     "width": 1200,
@@ -7541,7 +7541,7 @@
   },
   {
     "src": "/photos/lr-8028245.webp",
-    "title": "Boone",
+    "title": "Boone Fork Trail",
     "alt": "A rocky stream bed of rounded boulders runs through a steep green hillside, with warm light touching the stones",
     "origin": "Lightroom 8028245",
     "width": 1200,
@@ -7872,6 +7872,18 @@
     "locationId": "oak-island",
     "placeSource": "nicholas",
     "lightroomId": 8059328
+  },
+  {
+    "src": "/photos/lr-8059334.webp",
+    "title": "Oak Island",
+    "alt": "Small orange daisy-like flowers on thin stems in sharp focus against a dark, blurred blue-green background at dusk",
+    "origin": "Lightroom 8059334",
+    "width": 1280,
+    "height": 1600,
+    "taken": "2025-10-09T18:50:44.76",
+    "locationId": "oak-island",
+    "placeSource": "nicholas",
+    "lightroomId": 8059334
   },
   {
     "src": "/photos/lr-8059465.webp",
