@@ -630,6 +630,15 @@ export default function PlacesExplorer({
     setMode("map");
     setZoom((current) => Math.max(current, 3.5));
   }
+  // A pick made inside an expanded drawer keeps it at 75% instead of dropping to the strip.
+  function chooseFromDrawer(node: MapNode) {
+    const keepOpen = !desktop && expanded;
+    chooseNode(node);
+    if (keepOpen) {
+      photoSnap.current = 0.75;
+      setSnap(0.75);
+    }
+  }
   function showLocation(locationId: string) {
     const node = placeNode(locationId);
     if (node) chooseNode(node);
@@ -1316,7 +1325,7 @@ export default function PlacesExplorer({
                           onClick={(event) => {
                             if (event.detail > 0 && dragged.current) return;
                             gallery.current?.scrollTo(0, 0);
-                            chooseNode(node);
+                            chooseFromDrawer(node);
                           }}
                         >
                           <PhotoImage
@@ -1383,7 +1392,7 @@ export default function PlacesExplorer({
                 <Button
                   variant="outline"
                   className="drawer-up"
-                  onClick={() => chooseNode(parentNode)}
+                  onClick={() => chooseFromDrawer(parentNode)}
                 >
                   View {parentNode.label}
                 </Button>
