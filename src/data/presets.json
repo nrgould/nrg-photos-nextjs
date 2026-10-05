@@ -187,8 +187,24 @@
     ]
   },
   {
-    "id": "lago-di-braies-2",
+    "id": "kiruna-2",
     "number": 13,
+    "name": "Kiruna II",
+    "category": "Alpine Blue",
+    "location": "kiruna",
+    "bestFor": "Arctic rivers, winter skies and buildings under heavy cloud, plus golden autumn birch.",
+    "whatItDoes": "A strong shadow lift with a strong grade (blue shadows, warm highlights, warm midtone), and yellows and greens shifted, saturated and brightened for golden foliage.",
+    "watchOut": "Nothing like Kiruna I. Yellows can go neon under artificial light.",
+    "showcase": [
+      "/photos/lr-4337410.webp",
+      "/photos/lr-4337392.webp",
+      "/photos/lr-4337395.webp",
+      "/photos/lr-4337391.webp"
+    ]
+  },
+  {
+    "id": "lago-di-braies-2",
+    "number": 14,
     "name": "Lago di Braies I",
     "category": "Alpine Blue",
     "location": "braies",
@@ -201,7 +217,7 @@
   },
   {
     "id": "lofoten-1",
-    "number": 14,
+    "number": 15,
     "name": "Lofoten I",
     "category": "Moody",
     "location": "nordland",
@@ -217,7 +233,7 @@
   },
   {
     "id": "lofoten-2",
-    "number": 15,
+    "number": 16,
     "name": "Lofoten II",
     "category": "Moody",
     "location": "lofoten",
@@ -232,7 +248,7 @@
   },
   {
     "id": "salzburg-2",
-    "number": 16,
+    "number": 17,
     "name": "Salzburg II",
     "category": "Moody",
     "location": "salzburg",
@@ -248,7 +264,7 @@
   },
   {
     "id": "vienna-2",
-    "number": 17,
+    "number": 18,
     "name": "Vienna II",
     "category": "Moody",
     "location": "vienna",
@@ -260,22 +276,6 @@
       "/photos/lr-7029115.webp",
       "/photos/lr-5148806.webp",
       "/photos/lr-7029114.webp"
-    ]
-  },
-  {
-    "id": "kiruna-2",
-    "number": 18,
-    "name": "Kiruna II",
-    "category": "Lush Green",
-    "location": "kiruna",
-    "bestFor": "Arctic rivers, winter skies and buildings under heavy cloud, plus golden autumn birch.",
-    "whatItDoes": "A strong shadow lift with a strong grade (blue shadows, warm highlights, warm midtone), and yellows and greens shifted, saturated and brightened for golden foliage.",
-    "watchOut": "Nothing like Kiruna I. Yellows can go neon under artificial light.",
-    "showcase": [
-      "/photos/lr-4337410.webp",
-      "/photos/lr-4337392.webp",
-      "/photos/lr-4337395.webp",
-      "/photos/lr-4337391.webp"
     ]
   },
   {

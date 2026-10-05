@@ -2734,12 +2734,18 @@ html[data-photo-theme="dark"] {
   .photo-drawer-header:has(.photo-drawer-back) {
     align-items: flex-end;
   }
+  /* Placed under the heroes by the drawer gallery's layout. */
   .place-presets {
-    display: flex;
-    flex-shrink: 0;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 0 16px 12px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 16px 0 8px;
+  }
+  .place-presets h3 {
+    margin: 0 0 4px;
+    font-size: 13px;
+    font-weight: 600;
   }
   .photo-drawer-back {
     gap: 6px;

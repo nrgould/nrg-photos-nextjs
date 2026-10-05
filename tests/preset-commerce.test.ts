@@ -23,10 +23,21 @@ test("commerce catalog exposes the kept lineup through a public field allowlist"
     new Set(presetCatalog.map((preset) => preset.id)).size,
     presets.length,
   );
+  // Lineup numbers stay whole; the catalog lists by place, not by number.
   assert.deepEqual(
-    presetCatalog.map((preset) => preset.number),
+    presetCatalog.map((preset) => preset.number).toSorted((a, b) => a - b),
     presetCatalog.map((_, index) => index + 1),
   );
+  assert.deepEqual(
+    presetCatalog
+      .filter((preset) => preset.name.startsWith("Lofoten"))
+      .map((preset) => preset.name),
+    ["Lofoten I", "Lofoten II"],
+  );
+  const lofoten = presetCatalog.findIndex(
+    (preset) => preset.id === "lofoten-1",
+  );
+  assert.equal(presetCatalog[lofoten + 1].id, "lofoten-2");
   const fields = [
     "also",
     "bestFor",
@@ -47,11 +58,16 @@ test("commerce catalog exposes the kept lineup through a public field allowlist"
   assert.ok(Object.isFrozen(presetCatalog));
 });
 
-test("categories are the moods in catalog order", () => {
-  assert.deepEqual(presetCategories, [
-    "All",
-    ...new Set(presetCatalog.map((preset) => preset.category)),
-  ]);
+test("categories are every mood, also-only ones included", () => {
+  for (const preset of presetCatalog)
+    for (const mood of [preset.category, ...(preset.also ?? [])])
+      assert.ok(presetCategories.includes(mood), mood);
+  assert.equal(presetCategories[0], "All");
+  for (const category of presetCategories.slice(1))
+    assert.ok(
+      filterPresetCatalog({ query: "", category }).length > 0,
+      category,
+    );
   assert.equal(presetCategories.length, new Set(presetCategories).size);
 });
 
@@ -60,7 +76,7 @@ test("search combines case-insensitive words, places and category filtering", ()
     filterPresetCatalog({ query: "  RAINIER blue  ", category: "All" }).map(
       (preset) => preset.id,
     ),
-    ["mount-rainier-2", "mount-fremont-1"],
+    ["mount-fremont-1", "mount-rainier-2"],
   );
   assert.deepEqual(
     filterPresetCatalog({ query: "", category: "Mint" }).map(

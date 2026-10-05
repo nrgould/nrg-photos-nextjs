@@ -9,9 +9,18 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  Aperture,
+  CloudFog,
+  Film,
+  Leaf,
+  MountainSnow,
   Plus,
   Search,
+  Sprout,
+  Sun,
+  Sunset,
   X,
+  type LucideIcon,
 } from "lucide-react";
 import { nodeForPhoto } from "@/lib/favorites";
 import { getLocationNode, getPresetPlaces } from "@/lib/map-hierarchy";
@@ -20,19 +29,26 @@ import { locationPath, photoPresets, travelPlaces } from "@/lib/places";
 import {
   filterPresetCatalog,
   getCatalogPreset,
-  presetCatalog,
   presetCategories,
   type PresetCatalogItem,
   type PresetCatalogState,
   type PresetCategory,
 } from "@/lib/preset-commerce";
-import { Button, buttonVariants } from "./ui/button";
+import { Button } from "./ui/button";
 import { PresetDownloadButton } from "./PresetDownloadButton";
 import { useCommerceAccount } from "./CommerceProviders";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { NativeSelect } from "./ui/native-select";
-import { Item, ItemActions, ItemContent, ItemGroup } from "./ui/item";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "./ui/item";
 import PhotoComparison from "./PhotoComparison";
 import PhotoImage from "./PhotoImage";
 import panel from "./ExploreChallenges.module.css";
@@ -82,7 +98,7 @@ export default function PresetCatalog({
   const owned = new Set(
     ownedPresetIds.filter((presetId) => getCatalogPreset(presetId)),
   );
-  const remainingCollectionIds = presetCatalog
+  const remainingCollectionIds = results
     .filter((preset) => !cart.has(preset.id) && !owned.has(preset.id))
     .map((preset) => preset.id);
   const selectedInCart = selected ? cart.has(selected.id) : false;
@@ -231,119 +247,21 @@ export default function PresetCatalog({
           className={styles.results}
           aria-label="Preset catalog"
         >
-          <ItemGroup className={styles.items}>
-            {results.map((preset) => {
-              const inCart = cart.has(preset.id);
-              const isOwned = owned.has(preset.id);
-              return (
-                <Item
-                  key={preset.id}
-                  role="listitem"
-                  size="sm"
-                  className={styles.item}
-                >
-                  <ItemContent className={styles.itemContent}>
-                    <Link
-                      href={`/?view=catalog&preset=${preset.id}`}
-                      prefetch={false}
-                      data-preset-id={preset.id}
-                      className={buttonVariants({
-                        variant: "quiet",
-                        className: styles.preset,
-                      })}
-                      aria-label={`${preset.name}, ${preset.category}. View details`}
-                      onClick={(event) => {
-                        if (
-                          event.metaKey ||
-                          event.ctrlKey ||
-                          event.shiftKey ||
-                          event.altKey ||
-                          event.button !== 0
-                        )
-                          return;
-                        event.preventDefault();
-                        if (onOpenPreset) {
-                          onOpenPreset(preset.id, event.currentTarget);
-                          return;
-                        }
-                        update({ selectedPresetId: preset.id });
-                        requestAnimationFrame(() =>
-                          detailBack.current?.focus(),
-                        );
-                      }}
-                    >
-                      <span className={styles.number} aria-hidden="true">
-                        {String(preset.number).padStart(2, "0")}
-                      </span>
-                      <span className={styles.presetName}>
-                        <strong>{preset.name}</strong>
-                        <small>{preset.category}</small>
-                      </span>
-                      <ChevronRight size={15} aria-hidden="true" />
-                    </Link>
-                  </ItemContent>
-                  <ItemActions className={styles.itemActions}>
-                    <span className={styles.rowPrice}>
-                      <span>$1.99</span>
-                      {(isOwned || inCart) && (
-                        <small>{isOwned ? "Owned" : "In cart"}</small>
-                      )}
-                    </span>
-                    <Button
-                      variant="control"
-                      className={styles.add}
-                      data-selected={inCart || isOwned}
-                      disabled={isOwned || (inCart && !onRemovePreset)}
-                      aria-label={
-                        isOwned
-                          ? `${preset.name} is owned`
-                          : inCart
-                            ? onRemovePreset
-                              ? `Remove ${preset.name} from cart`
-                              : `${preset.name} is in cart`
-                            : `Add ${preset.name} to cart`
-                      }
-                      onClick={() => {
-                        if (isOwned) return;
-                        if (inCart) onRemovePreset?.(preset.id);
-                        else onAddPreset(preset.id);
-                      }}
-                    >
-                      <span className={styles.selectionIcon} aria-hidden="true">
-                        <AnimatePresence initial={false}>
-                          <motion.span
-                            key={isOwned || inCart ? "selected" : "add"}
-                            initial={{
-                              opacity: 0,
-                              scale: 0.25,
-                              filter: "blur(4px)",
-                            }}
-                            animate={{
-                              opacity: 1,
-                              scale: 1,
-                              filter: "blur(0px)",
-                            }}
-                            exit={{
-                              opacity: 0,
-                              scale: 0.25,
-                              filter: "blur(4px)",
-                            }}
-                            transition={iconTransition}
-                          >
-                            {isOwned || inCart ? (
-                              <Check size={18} />
-                            ) : (
-                              <Plus size={18} />
-                            )}
-                          </motion.span>
-                        </AnimatePresence>
-                      </span>
-                    </Button>
-                  </ItemActions>
-                </Item>
-              );
-            })}
-          </ItemGroup>
+          <PresetList
+            presets={results}
+            cartIds={cart}
+            ownedIds={owned}
+            onAddPreset={onAddPreset}
+            onRemovePreset={onRemovePreset}
+            onOpenPreset={(presetId, trigger) => {
+              if (onOpenPreset) {
+                onOpenPreset(presetId, trigger);
+                return;
+              }
+              update({ selectedPresetId: presetId });
+              requestAnimationFrame(() => detailBack.current?.focus());
+            }}
+          />
           {results.length === 0 && (
             <div className={styles.empty}>
               <p>No presets match.</p>
@@ -400,6 +318,155 @@ function examplePhoto(
     height,
     collection: preset.id,
   };
+}
+
+// One icon per mood, so a row reads before its name does; the mood is also written under it.
+const moodIcons: Record<string, LucideIcon> = {
+  Natural: Sun,
+  "Alpine Blue": MountainSnow,
+  Moody: CloudFog,
+  "Lush Green": Leaf,
+  "Soft Film": Film,
+  Golden: Sunset,
+  Mint: Sprout,
+};
+
+/** Preset rows with add/remove, shared by All presets and a place's presets. */
+export function PresetList({
+  presets,
+  cartIds,
+  ownedIds,
+  onAddPreset,
+  onRemovePreset,
+  onOpenPreset,
+}: {
+  presets: readonly PresetCatalogItem[];
+  cartIds: ReadonlySet<string>;
+  ownedIds: ReadonlySet<string>;
+  onAddPreset: (id: string) => void;
+  onRemovePreset?: (id: string) => void;
+  onOpenPreset: (id: string, trigger: HTMLElement) => void;
+}) {
+  const reducedMotion = useReducedMotion();
+  const [keyboardInteraction, setKeyboardInteraction] = useState(false);
+  const iconTransition =
+    reducedMotion || keyboardInteraction
+      ? { duration: 0 }
+      : { type: "spring" as const, duration: 0.3, bounce: 0 };
+  return (
+    <div
+      onKeyDownCapture={() => setKeyboardInteraction(true)}
+      onPointerDownCapture={() => setKeyboardInteraction(false)}
+    >
+      <ItemGroup className={styles.presetRows}>
+        {presets.map((preset) => {
+          const inCart = cartIds.has(preset.id);
+          const isOwned = ownedIds.has(preset.id);
+          const Mood = moodIcons[preset.category] ?? Aperture;
+          return (
+            <Item
+              key={preset.id}
+              role="listitem"
+              size="sm"
+              className={styles.presetRow}
+            >
+              <ItemMedia variant="icon" className={styles.mood}>
+                <Mood className="size-5" strokeWidth={1.5} aria-hidden="true" />
+              </ItemMedia>
+              <ItemContent className={styles.itemContent}>
+                {/* Stretched over the row, so the whole item opens the preset. */}
+                <Link
+                  href={`/?view=catalog&preset=${preset.id}`}
+                  prefetch={false}
+                  data-preset-id={preset.id}
+                  className={styles.preset}
+                  aria-label={`${preset.name}, ${preset.category}. View details`}
+                  onClick={(event) => {
+                    if (
+                      event.metaKey ||
+                      event.ctrlKey ||
+                      event.shiftKey ||
+                      event.altKey ||
+                      event.button !== 0
+                    )
+                      return;
+                    event.preventDefault();
+                    onOpenPreset(preset.id, event.currentTarget);
+                  }}
+                >
+                  <ItemTitle>{preset.name}</ItemTitle>
+                </Link>
+                <ItemDescription>{preset.category}</ItemDescription>
+              </ItemContent>
+              <ItemActions className={styles.itemActions}>
+                <ChevronRight
+                  size={15}
+                  aria-hidden="true"
+                  className={styles.chevron}
+                />
+                <span className={styles.rowPrice}>
+                  <span>$1.99</span>
+                  {(isOwned || inCart) && (
+                    <small>{isOwned ? "Owned" : "In cart"}</small>
+                  )}
+                </span>
+                <Button
+                  variant="control"
+                  className={styles.add}
+                  data-selected={inCart || isOwned}
+                  disabled={isOwned || (inCart && !onRemovePreset)}
+                  aria-label={
+                    isOwned
+                      ? `${preset.name} is owned`
+                      : inCart
+                        ? onRemovePreset
+                          ? `Remove ${preset.name} from cart`
+                          : `${preset.name} is in cart`
+                        : `Add ${preset.name} to cart`
+                  }
+                  onClick={() => {
+                    if (isOwned) return;
+                    if (inCart) onRemovePreset?.(preset.id);
+                    else onAddPreset(preset.id);
+                  }}
+                >
+                  <span className={styles.selectionIcon} aria-hidden="true">
+                    <AnimatePresence initial={false}>
+                      <motion.span
+                        key={isOwned || inCart ? "selected" : "add"}
+                        initial={{
+                          opacity: 0,
+                          scale: 0.25,
+                          filter: "blur(4px)",
+                        }}
+                        animate={{
+                          opacity: 1,
+                          scale: 1,
+                          filter: "blur(0px)",
+                        }}
+                        exit={{
+                          opacity: 0,
+                          scale: 0.25,
+                          filter: "blur(4px)",
+                        }}
+                        transition={iconTransition}
+                      >
+                        {isOwned || inCart ? (
+                          <Check size={18} />
+                        ) : (
+                          <Plus size={18} />
+                        )}
+                      </motion.span>
+                    </AnimatePresence>
+                  </span>
+                </Button>
+              </ItemActions>
+            </Item>
+          );
+        })}
+      </ItemGroup>
+    </div>
+  );
 }
 
 export function PresetDetail({

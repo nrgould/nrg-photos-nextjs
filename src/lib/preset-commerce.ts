@@ -26,12 +26,31 @@ export type PresetCatalogItem = Readonly<{
 }>;
 
 // Written by scripts/import-presets.mjs from the preset library's public export.
+const placeNames = (preset: (typeof presets)[number]) =>
+  locationPath(preset.location).map((node) => node.name);
+
+// Grouped by place, country first, so a place's presets sit together (Lofoten I and II).
+function byPlace(a: (typeof presets)[number], b: (typeof presets)[number]) {
+  const [x, y] = [placeNames(a), placeNames(b)];
+  for (let index = 0; index < Math.min(x.length, y.length); index++) {
+    const order = x[index].localeCompare(y[index]);
+    if (order) return order;
+  }
+  return x.length - y.length || a.name.localeCompare(b.name);
+}
+
 export const presetCatalog: readonly PresetCatalogItem[] = Object.freeze(
-  presets.map((preset) => Object.freeze(preset)),
+  presets.toSorted(byPlace).map((preset) => Object.freeze(preset)),
 );
 export const presetCategories = [
   "All",
-  ...new Set(presetCatalog.map((preset) => preset.category)),
+  // A mood listed only under `also` still gets a filter.
+  ...new Set(
+    presetCatalog.flatMap((preset) => [
+      preset.category,
+      ...(preset.also ?? []),
+    ]),
+  ),
 ];
 export type PresetCategory = string;
 

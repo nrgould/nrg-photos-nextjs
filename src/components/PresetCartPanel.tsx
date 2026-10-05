@@ -93,7 +93,20 @@ export default function PresetCartPanel({
         )}
         <div className={styles.heading}>
           <h2 id={`${id}-heading`}>Cart</h2>
-          <span className={styles.total}>{quote.paidCount} in cart</span>
+          {cartIds.length > 0 && (
+            <span className={styles.cartCount}>
+              <span className={styles.total}>{quote.paidCount} in cart</span>
+              <Button
+                variant="quiet"
+                onClick={() => {
+                  clearCart();
+                  requestAnimationFrame(() => backButton.current?.focus());
+                }}
+              >
+                Clear cart
+              </Button>
+            </span>
+          )}
         </div>
       </header>
       {cartIds.length === 0 ? (
@@ -156,16 +169,6 @@ export default function PresetCartPanel({
                 );
               })}
             </ItemGroup>
-            <Button
-              variant="quiet"
-              className={styles.back}
-              onClick={() => {
-                clearCart();
-                requestAnimationFrame(() => backButton.current?.focus());
-              }}
-            >
-              Clear cart
-            </Button>
           </div>
           <footer className={styles.cartSummary}>
             {remaining > 0 && (

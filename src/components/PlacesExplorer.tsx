@@ -67,7 +67,7 @@ import {
 import PhotoImage from "./PhotoImage";
 import Lightbox from "./Lightbox";
 import PlacesMap from "./PlacesMap";
-import PresetCatalog, { PresetDetail } from "./PresetCatalog";
+import PresetCatalog, { PresetDetail, PresetList } from "./PresetCatalog";
 import ExploreChallenges, {
   ExploreChallengesTrigger,
   ExplorationToast,
@@ -552,7 +552,10 @@ export default function PlacesExplorer({
       !place
     )
       return;
-    const figures = Array.from(layout.children) as HTMLElement[];
+    const figures = Array.from(
+      layout.querySelectorAll<HTMLElement>(":scope > figure"),
+    );
+    const presetSection = layout.querySelector<HTMLElement>(".place-presets");
     const images = figures.map((figure) =>
       figure.querySelector<HTMLElement>(".gallery-photo")!,
     );
@@ -603,7 +606,12 @@ export default function PlacesExplorer({
         const tiles = galleryLayout(
           aspects,
           width,
-          placeList ? { columns: 2, caption: captionHeight } : { heroes },
+          placeList
+            ? { columns: 2, caption: captionHeight }
+            : {
+                heroes,
+                after: presetSection ? presetSection.offsetHeight + 8 : 0,
+              },
         );
         let contentHeight = 0;
         figures.forEach((figure, index) => {
@@ -627,6 +635,18 @@ export default function PlacesExplorer({
             y + imageHeight + captionHeight * growth,
           );
         });
+        if (presetSection) {
+          // Under the heroes, revealed with the grid like the captions.
+          const hero = tiles[Math.min(heroes, count) - 1];
+          const y = (hero.y + hero.height + 8) * growth;
+          presetSection.style.transform = `translateY(${y}px)`;
+          presetSection.style.opacity = String(growth);
+          presetSection.style.visibility = growth > 0 ? "" : "hidden";
+          contentHeight = Math.max(
+            contentHeight,
+            y + presetSection.offsetHeight * growth,
+          );
+        }
         viewport!.style.height = `${height}px`;
         layout!.style.height = `${contentHeight}px`;
         if (pendingPhotoScroll.current !== null) {
@@ -672,7 +692,15 @@ export default function PlacesExplorer({
       drawerElement.removeEventListener("transitionend", transition);
       drawerElement.removeEventListener("transitioncancel", transition);
     };
-  }, [drawerElement, compactFraction, place, placeList, heroes, drawerMode]);
+  }, [
+    drawerElement,
+    compactFraction,
+    place,
+    placeList,
+    heroes,
+    drawerMode,
+    placePresets,
+  ]);
   function finishIntro() {
     setIntro(false);
     setMode("map");
@@ -1417,30 +1445,6 @@ export default function PlacesExplorer({
                     <X size={18} />
                   </Button>
                 </div>
-                {placePresets.length > 0 && (
-                  <ul
-                    className="place-presets"
-                    aria-label="Presets for this place"
-                  >
-                    {placePresets.map((preset) => (
-                      <li key={preset.id}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={(event) => {
-                            setCatalogState((state) => ({
-                              ...state,
-                              selectedPresetId: preset.id,
-                            }));
-                            openPage("preset", event.currentTarget);
-                          }}
-                        >
-                          {preset.name}
-                        </Button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
               </>
             ) : (
               <div className="drawer-commerce-header">
@@ -1599,6 +1603,30 @@ export default function PlacesExplorer({
                         </MotionButton>
                       </figure>
                     ))}
+                {!placeList && placePresets.length > 0 && (
+                  <section
+                    className="place-presets"
+                    aria-labelledby="place-presets-heading"
+                  >
+                    <h3 id="place-presets-heading">
+                      Presets used at this location
+                    </h3>
+                    <PresetList
+                      presets={placePresets}
+                      cartIds={new Set(cartIds)}
+                      ownedIds={new Set(ownedPresetIds)}
+                      onAddPreset={(id) => addToCart([id])}
+                      onRemovePreset={removePreset}
+                      onOpenPreset={(id, trigger) => {
+                        setCatalogState((state) => ({
+                          ...state,
+                          selectedPresetId: id,
+                        }));
+                        openPage("preset", trigger);
+                      }}
+                    />
+                  </section>
+                )}
               </div>
               {/* Phones end a place with its way back to the country's list of places. */}
               {!desktop && expanded && placeActions}

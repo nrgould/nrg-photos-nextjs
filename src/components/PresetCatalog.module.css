@@ -39,6 +39,11 @@
   color: var(--muted-foreground);
   font-size: 12px;
 }
+.cartCount {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 .availability {
   margin: 10px 0 0;
   color: var(--muted-foreground);
@@ -142,6 +147,25 @@
   border-bottom: 1px solid var(--line);
   border-radius: 0;
 }
+.presetRows {
+  gap: 2px;
+}
+.presetRow {
+  position: relative;
+  flex-wrap: nowrap;
+  gap: 12px;
+  padding: 8px;
+  border: 0;
+  border-radius: 14px;
+}
+.presetRow:hover,
+.presetRow:has(.preset:focus-visible) {
+  background: var(--muted);
+}
+.presetRow:has(.preset:focus-visible) {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
 .itemContent {
   min-width: 0;
 }
@@ -178,42 +202,32 @@
   opacity: 1;
 }
 .preset {
-  display: flex;
-  justify-content: flex-start;
-  width: 100%;
-  min-height: 56px;
-  gap: 8px;
-  padding: 8px 4px;
-  border: 0;
-  border-radius: 8px;
-  text-align: left;
-  white-space: normal;
   color: var(--ink);
   text-decoration: none;
+  outline: none;
 }
-.preset > svg {
-  margin-left: auto;
+.preset::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+.chevron {
   color: var(--muted-foreground);
 }
-.number {
-  width: 22px;
-  flex-shrink: 0;
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
+/* The add button sits above the stretched link. */
+.itemActions > button {
+  position: relative;
+}
+/* 14px row radius less its 8px padding: 6px keeps the corners concentric. */
+.mood {
+  align-self: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
   color: var(--muted-foreground);
-}
-.presetName {
-  display: grid;
-  gap: 3px;
-}
-.presetName strong {
-  font-size: 14px;
-  font-weight: 550;
-  line-height: 1.3;
-}
-.presetName small {
-  font-size: 11px;
-  color: var(--muted-foreground);
+  translate: none;
 }
 .empty {
   padding: 24px 4px;
