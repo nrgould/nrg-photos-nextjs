@@ -53,7 +53,7 @@ const presets = kept.map((row, index) => {
     bestFor: row.usage.best_for,
     whatItDoes: row.usage.what_it_does,
     watchOut: row.usage.watch_out,
-    ...(example && {
+    ...(example?.before && {
       example: {
         before: example.before,
         after: example.after,

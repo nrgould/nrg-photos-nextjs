@@ -62,6 +62,16 @@
   background: var(--reward);
   color: var(--paper);
 }
+.reelNumber {
+  font: 600 15px/1 var(--font-explorer-display);
+  font-variant-numeric: tabular-nums;
+}
+.reelTitle {
+  overflow: hidden;
+}
+.reelTitle > span {
+  display: block;
+}
 .segments {
   display: flex;
   gap: 4px;

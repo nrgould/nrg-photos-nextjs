@@ -139,9 +139,7 @@ export function createCommerceHandlers({
       respond(async () => {
         const { service, authenticate, origin } = ready();
         sameOrigin(request, origin);
-        const user = await authenticate();
-        const input = await body(request, ["presetId"]);
-        return service.claimReward(user, input.presetId);
+        return service.claimReward(await authenticate());
       }),
     download: (presetId: string) =>
       respond(async () => {

@@ -433,7 +433,7 @@ test("configured handler rejects forged account/price/reward fields, external or
         }),
       )
     ).status,
-    400,
+    503,
   );
   assert.equal(f.creations.length, 0);
   assert.equal((await handlers.ownership()).status, 200);

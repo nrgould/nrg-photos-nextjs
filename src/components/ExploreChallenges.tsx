@@ -29,6 +29,7 @@ import {
   type ExplorationProgress,
 } from "@/lib/exploration-progress";
 import { getMapNodes } from "@/lib/map-hierarchy";
+import { getCatalogPreset, presetCatalog } from "@/lib/preset-commerce";
 import type { Photo } from "@/lib/photography";
 import { travelPlaces } from "@/lib/places";
 import { Button } from "@/components/ui/button";
@@ -60,9 +61,21 @@ export type ExplorationClaimBoundary =
   | { status: "unavailable"; message?: string }
   | {
       status: "ready";
-      claim: () => Promise<{ status: "confirmed"; message: string }>;
+      /** The server draws the preset; the client only shows it. */
+      claim: () => Promise<{ presetId: string }>;
     };
 const unavailableClaim: ExplorationClaimBoundary = { status: "unavailable" };
+
+const wait = (ms: number) => new Promise((done) => setTimeout(done, ms));
+/** Ticks through the catalog, slowing like a wheel, and stops on the drawn preset. */
+async function spin(target: string, show: (id: string) => void) {
+  let index = Math.floor(Math.random() * presetCatalog.length);
+  for (let step = 0; step < 16; step++) {
+    show(presetCatalog[index++ % presetCatalog.length].id);
+    await wait(50 + step * step);
+  }
+  show(target);
+}
 
 const toastSpring = { type: "spring", duration: 0.45, bounce: 0.3 } as const;
 
@@ -271,17 +284,22 @@ export default function ExploreChallenges({
   onBack,
   backLabel = "Back to photographs",
   claimBoundary = unavailableClaim,
+  onOpenPreset,
 }: {
   progress: ExplorationProgress;
   onBack?: () => void;
   backLabel?: string;
   claimBoundary?: ExplorationClaimBoundary;
+  onOpenPreset?: (id: string) => void;
 }) {
   const id = useId();
   const progress = createExplorationProgress(input);
   const summary = getExplorationSummary(progress);
   const [pending, setPending] = useState(false);
-  const [claimMessage, setClaimMessage] = useState<string | null>(null);
+  const [reelId, setReelId] = useState<string | null>(null);
+  const [claimedId, setClaimedId] = useState<string | null>(null);
+  const reducedMotion = useReducedMotion();
+  const reel = getCatalogPreset(reelId);
   const [error, setError] = useState<string | null>(null);
   const visited = progress.visitedLocationIds
     .slice(0, summary.requiredCount)
@@ -293,10 +311,15 @@ export default function ExploreChallenges({
     setPending(true);
     setError(null);
     try {
-      const result = await claimBoundary.claim();
-      if (result.status !== "confirmed") throw new Error("Unconfirmed reward");
-      setClaimMessage(result.message);
+      const { presetId } = await claimBoundary.claim();
+      if (!getCatalogPreset(presetId)) throw new Error("Unknown preset");
+      if (reducedMotion) setReelId(presetId);
+      else await spin(presetId, setReelId);
+      setClaimedId(presetId);
+      await wait(reducedMotion ? 0 : 700);
+      onOpenPreset?.(presetId);
     } catch {
+      setReelId(null);
       setError("The reward could not be confirmed. Try again.");
     } finally {
       setPending(false);
@@ -323,34 +346,58 @@ export default function ExploreChallenges({
         <div className={styles.reward} data-ready={summary.allComplete}>
           <Item className={styles.rewardRow}>
             <ItemMedia className={styles.rewardIcon} aria-hidden="true">
-              <Gift size={18} strokeWidth={1.5} />
+              {reel ? (
+                <span className={styles.reelNumber}>
+                  {String(reel.number).padStart(2, "0")}
+                </span>
+              ) : (
+                <Gift size={18} strokeWidth={1.5} />
+              )}
             </ItemMedia>
             <ItemContent className={styles.rowContent}>
-              <ItemTitle>Free preset</ItemTitle>
+              <ItemTitle className={styles.reelTitle}>
+                {reel ? (
+                  <motion.span
+                    key={reel.id}
+                    aria-hidden="true"
+                    initial={{ transform: "translateY(8px)", opacity: 0 }}
+                    animate={{ transform: "translateY(0px)", opacity: 1 }}
+                    transition={{ duration: 0.08, ease: "easeOut" }}
+                  >
+                    {reel.name}
+                  </motion.span>
+                ) : (
+                  "Free preset"
+                )}
+              </ItemTitle>
               <ItemDescription className={styles.rowDescription}>
-                {claimMessage ??
-                  (summary.allComplete
+                {reel
+                  ? reel.category
+                  : summary.allComplete
                     ? (claimBoundary.status === "unavailable" &&
                         claimBoundary.message) ||
                       `All ${summary.challengeCount} challenges complete`
-                    : `${summary.doneCount} of ${summary.challengeCount} challenges`)}
+                    : `${summary.doneCount} of ${summary.challengeCount} challenges`}
               </ItemDescription>
             </ItemContent>
             <ItemActions>
               <Button
                 variant={summary.allComplete ? "default" : "control"}
                 className={styles.claim}
-                disabled={!claimable || pending || claimMessage !== null}
+                disabled={!claimable || pending || claimedId !== null}
                 aria-busy={pending}
                 onClick={claimReward}
               >
                 {!claimable && (
                   <LockKeyhole size={14} strokeWidth={1.5} aria-hidden="true" />
                 )}
-                {pending ? "Claiming…" : claimMessage ? "Claimed" : "Claim"}
+                {claimedId ? "Claimed" : pending ? "Claiming…" : "Claim"}
               </Button>
             </ItemActions>
           </Item>
+          <span className="sr-only" role="status">
+            {claimedId && `${getCatalogPreset(claimedId)?.name} claimed`}
+          </span>
           <div className={styles.segments} aria-hidden="true">
             {Array.from({ length: summary.challengeCount }, (_, i) => (
               <span key={i} data-done={i < summary.doneCount} />

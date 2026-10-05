@@ -550,23 +550,23 @@ test("only five distinct known server-verified visits can claim one reward; dupl
     },
   });
   await assert.rejects(
-    service.claimReward("four", ids[0]),
+    service.claimReward("four"),
     fails("reward_not_eligible"),
   );
   await assert.rejects(
-    service.claimReward("client-progress-only", ids[0]),
+    service.claimReward("client-progress-only"),
     fails("reward_not_eligible"),
   );
   const claimed = await Promise.all([
-    service.claimReward("eligible", ids[0]),
-    service.claimReward("eligible", ids[0]),
+    service.claimReward("eligible"),
+    service.claimReward("eligible"),
   ]);
   assert.deepEqual(claimed[0], claimed[1]);
-  await assert.rejects(
-    service.claimReward("eligible", ids[1]),
-    fails("reward_already_claimed"),
-  );
-  assert.deepEqual((await service.ownership("eligible")).presetIds, [ids[0]]);
+  assert.ok(ids.includes(claimed[0].presetId));
+  assert.deepEqual(await service.claimReward("eligible"), claimed[0]);
+  assert.deepEqual((await service.ownership("eligible")).presetIds, [
+    claimed[0].presetId,
+  ]);
   assert.equal(
     await store.transaction(
       async (tx) => (await tx.entitlements("eligible")).length,
@@ -586,12 +586,54 @@ test("only five distinct known server-verified visits can claim one reward; dupl
     },
   });
   await assert.rejects(
-    fourReal.claimReward("four", ids[0]),
+    fourReal.claimReward("four"),
     fails("reward_not_eligible"),
   );
   await assert.rejects(
-    f.service.claimReward("eligible", ids[0]),
+    f.service.claimReward("eligible"),
     fails("reward_not_configured"),
+  );
+});
+
+test("the reward draw skips presets the account owns and fails once it owns them all", async () => {
+  const known = ["k1", "k2", "k3", "k4", "k5"];
+  const store = new MemoryCommerceStore(
+    ["one-left", "owns-all"].map((userId) => ({
+      userId,
+      campaignId: "campaign",
+      locationIds: known,
+    })),
+  );
+  const f = fixture(store);
+  const service = createCommerceService({
+    store,
+    payments: f.payments,
+    policy: {
+      presetIds: ids,
+      reward: {
+        campaignId: "campaign",
+        knownLocationIds: known,
+        eligiblePresetIds: ids.slice(0, 2),
+      },
+    },
+  });
+  const own = (userId: string, presetId: string) =>
+    store.transaction((tx) =>
+      tx.putEntitlement({
+        userId,
+        presetId,
+        sourceId: `order:${userId}:${presetId}`,
+        kind: "order",
+        revoked: false,
+      }),
+    );
+  await own("one-left", ids[0]);
+  await own("owns-all", ids[0]);
+  await own("owns-all", ids[1]);
+  assert.equal((await service.claimReward("one-left")).presetId, ids[1]);
+  await assert.rejects(
+    service.claimReward("owns-all"),
+    fails("reward_unavailable"),
   );
 });
 

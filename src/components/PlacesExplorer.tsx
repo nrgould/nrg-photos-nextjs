@@ -881,6 +881,10 @@ export default function PlacesExplorer({
           progress={explorationProgress}
           backLabel={backLabel}
           onBack={onBack}
+          onOpenPreset={(id) => {
+            setCatalogState((state) => ({ ...state, selectedPresetId: id }));
+            openPage("preset");
+          }}
         />
       );
     return (

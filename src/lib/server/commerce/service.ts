@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomInt } from "node:crypto";
 import { normalizeCommerceReturnPath } from "./return-path";
 import { getCatalogPreset } from "../../preset-commerce";
 import {
@@ -270,22 +270,13 @@ export function createCommerceService({
         ],
       }));
     },
-    async claimReward(userId: string, presetId: unknown) {
+    /** The server draws the free preset at random from the eligible ones the account doesn't own. */
+    async claimReward(userId: string) {
       if (!userId) throw new CommerceError("unauthenticated", 401);
       if (!reward) throw new CommerceError("reward_not_configured", 503);
-      if (
-        typeof presetId !== "string" ||
-        !allowed.includes(presetId) ||
-        !reward.eligiblePresetIds.includes(presetId)
-      )
-        throw new CommerceError("invalid_reward_preset");
       return store.transaction(async (tx) => {
         const prior = await tx.rewardClaim(userId, reward.campaignId);
-        if (prior) {
-          if (prior.presetId !== presetId)
-            throw new CommerceError("reward_already_claimed", 409);
-          return prior;
-        }
+        if (prior) return prior;
         const visits = new Set(
           (await tx.verifiedLocations(userId, reward.campaignId)).filter((id) =>
             reward.knownLocationIds.includes(id),
@@ -293,19 +284,30 @@ export function createCommerceService({
         );
         if (visits.size < 5)
           throw new CommerceError("reward_not_eligible", 403);
-        if (
-          (await tx.entitlements(userId)).some(
-            (e) => e.presetId === presetId && !e.revoked,
-          )
-        )
-          throw new CommerceError("already_owned", 409);
-        if ((await tx.pendingOrdersForPresets(userId, [presetId])).length)
-          throw new CommerceError("checkout_in_progress", 409);
-        const claim = { userId, campaignId: reward.campaignId, presetId };
+        const owned = new Set(
+          (await tx.entitlements(userId))
+            .filter((e) => !e.revoked)
+            .map((e) => e.presetId),
+        );
+        const candidates = reward.eligiblePresetIds.filter(
+          (id) => allowed.includes(id) && !owned.has(id),
+        );
+        const reserved = new Set(
+          (await tx.pendingOrdersForPresets(userId, candidates)).flatMap(
+            (order) => order.presetIds,
+          ),
+        );
+        const pool = candidates.filter((id) => !reserved.has(id));
+        if (!pool.length) throw new CommerceError("reward_unavailable", 409);
+        const claim = {
+          userId,
+          campaignId: reward.campaignId,
+          presetId: pool[randomInt(pool.length)],
+        };
         await tx.putRewardClaim(claim);
         await tx.putEntitlement({
           userId,
-          presetId,
+          presetId: claim.presetId,
           sourceId: `reward:${reward.campaignId}:${userId}`,
           kind: "reward",
           revoked: false,
