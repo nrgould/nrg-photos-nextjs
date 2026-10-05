@@ -353,8 +353,8 @@
     "id": "stetten",
     "parent": "baden-wurttemberg",
     "name": "Stetten",
-    "coordinates": [9.17, 48.67],
-    "coordinateSource": "geocoded"
+    "coordinates": [9.34, 48.79],
+    "coordinateSource": "manual"
   },
   {
     "id": "linville-gorge",
