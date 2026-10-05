@@ -1370,11 +1370,6 @@ export default function PlacesMap(props: {
                   data-map-node={node.id}
                   data-node-kind={node.kind}
                   aria-label={`${node.kind === "cluster" ? `Zoom in to ${node.referenceLabel}` : `Explore ${node.label}`}, ${node.photoCount} ${node.photoCount === 1 ? "photograph" : "photographs"}`}
-                  title={
-                    node.kind === "cluster"
-                      ? node.referenceLabel
-                      : `${node.referenceLabel} · ${node.precision === "country" ? "Country collection" : "Regional reference"}, not camera GPS`
-                  }
                   aria-pressed={
                     selectedNodeId
                       ? selectedNodeId === node.id ||

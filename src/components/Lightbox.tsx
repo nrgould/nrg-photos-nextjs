@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useState, type ReactNode, type RefObject } from "react";
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
+import { preload } from "react-dom";
 import { motion, useReducedMotion } from "motion/react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { photoUrl, takenLabel, type Photo } from "@/lib/photography";
@@ -11,6 +12,11 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";
+/** Rendered width: the image fits the stage between the bar and footer, so portraits are height-bound. */
+function sizes(photo: Photo) {
+  const fit = `calc((100vh - 140px) * ${(photo.width / photo.height).toFixed(3)})`;
+  return `(max-width: 700px) min(calc(100vw - 24px), ${fit}), min(calc(100vw - 140px), ${fit})`;
+}
 export default function Lightbox({
   photos,
   index,
@@ -32,6 +38,23 @@ export default function Lightbox({
     index !== null &&
     onIndexChange((index + direction + photos.length) % photos.length);
   const current = index === null ? null : photos[index];
+  if (index !== null)
+    for (const offset of [1, -1]) {
+      const photo = photos[(index + offset + photos.length) % photos.length];
+      const { props } = getImageProps({
+        src: photoUrl(photo.src),
+        alt: photo.alt,
+        width: photo.width,
+        height: photo.height,
+        sizes: sizes(photo),
+        quality: 85,
+      });
+      preload(props.src, {
+        as: "image",
+        imageSrcSet: props.srcSet,
+        imageSizes: props.sizes,
+      });
+    }
   return (
     <Dialog
       open={index !== null}
@@ -110,7 +133,7 @@ export default function Lightbox({
                   alt={current.alt}
                   width={current.width}
                   height={current.height}
-                  sizes="90vw"
+                  sizes={sizes(current)}
                   quality={85}
                 />
               </motion.div>

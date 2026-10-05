@@ -4,7 +4,8 @@ const config: NextConfig = {
   poweredByHeader: false,
   devIndicators: false,
   images: {
-    formats: ["image/avif", "image/webp"],
+    // AVIF encodes several times slower than WebP; a cold lightbox open waited on it.
+    formats: ["image/webp"],
     qualities: [75, 85],
     remotePatterns: [
       new URL(

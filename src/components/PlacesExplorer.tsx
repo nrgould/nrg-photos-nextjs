@@ -1140,9 +1140,6 @@ export default function PlacesExplorer({
                     {(place?.photos.length ?? 0) === 1
                       ? "photograph"
                       : "photographs"}
-                    <span className="sr-only">
-                      . Map reference: {place?.referenceLabel}.
-                    </span>
                   </DrawerDescription>
                 </div>
                 <Button
@@ -1381,7 +1378,7 @@ export default function PlacesExplorer({
               {searchNodes.map((node) => (
                 <CommandItem
                   key={node.id}
-                  value={`${node.label} ${node.referenceLabel} ${filteredPlaces.find((collection) => collection.id === node.collectionId)?.name ?? ""}`}
+                  value={`${node.label} ${filteredPlaces.find((collection) => collection.id === node.collectionId)?.name ?? ""}`}
                   onSelect={() => {
                     chooseNode(node);
                     setCommand(false);
@@ -1391,7 +1388,9 @@ export default function PlacesExplorer({
                   <span>
                     {node.kind === "country"
                       ? "All photographs"
-                      : node.referenceLabel}
+                      : filteredPlaces.find(
+                          (collection) => collection.id === node.collectionId,
+                        )?.name}
                   </span>
                 </CommandItem>
               ))}
