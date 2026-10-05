@@ -93,3 +93,19 @@ test("alt text comes from Lightroom, falling back to the manifest draft", () => 
   );
   assert.equal(manifestEntry(row, "lofoten", "Lofoten", undefined).alt, "");
 });
+
+test("an encoded photo keeps its dimensions when the export has none", () => {
+  const row = {
+    src: "/photos/lr-1.webp",
+    lightroomId: 1,
+    capturedAt: "2023-02-24T10:00:00",
+    width: null,
+    height: null,
+    status: "site",
+  };
+  const entry = manifestEntry(row, "lofoten", "Lofoten", {
+    width: 1600,
+    height: 2400,
+  });
+  assert.deepEqual([entry.width, entry.height], [1600, 2400]);
+});
