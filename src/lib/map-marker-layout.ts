@@ -1,3 +1,9 @@
+import {
+  boundsCenter,
+  getCoordinateBounds,
+  type MapNode,
+} from "./map-hierarchy";
+
 export type MarkerAnchor = {
   id: string;
   x: number;
@@ -278,4 +284,102 @@ export function layoutMapMarkers({
     solveGroup(group, viewport, offsets, prior, fixedIds);
   }
   return { offsets, unresolvedIds: collisionIds(active, offsets) };
+}
+
+/** Web Mercator world pixels at an engine zoom, in marker layout space. */
+function worldPoint([longitude, latitude]: [number, number], zoom: number) {
+  const size = 512 * 2 ** zoom;
+  const y = Math.log(Math.tan(Math.PI / 4 + (latitude * Math.PI) / 360));
+  return {
+    x: ((longitude + 180) / 360) * size,
+    y: (0.5 - y / (2 * Math.PI)) * size,
+  };
+}
+
+/**
+ * Location pins the callout layout cannot separate at this zoom become one cluster,
+ * which zooms in on click. Groups the layout can fan out stay individual pins.
+ */
+export function clusterMapNodes(
+  nodes: readonly MapNode[],
+  zoom: number,
+  scale = 1,
+): MapNode[] {
+  const originals = new Map(nodes.map((node) => [node.id, node]));
+  let result = [...nodes];
+  for (let pass = 0; pass < 5; pass++) {
+    const anchors = result.map((node) => {
+      const point = worldPoint(node.coordinates, zoom);
+      return { id: node.id, x: point.x / scale, y: point.y / scale };
+    });
+    const left = Math.min(...anchors.map((anchor) => anchor.x)) - 100;
+    const top = Math.min(...anchors.map((anchor) => anchor.y)) - 100;
+    for (const anchor of anchors) {
+      anchor.x -= left;
+      anchor.y -= top;
+    }
+    const viewport = {
+      width: Math.max(...anchors.map((anchor) => anchor.x)) + 100,
+      height: Math.max(...anchors.map((anchor) => anchor.y)) + 100,
+    };
+    const { unresolvedIds } = layoutMapMarkers({ anchors, viewport });
+    if (!unresolvedIds.length) return result;
+    const byId = new Map(result.map((node) => [node.id, node]));
+    const point = new Map(anchors.map((anchor) => [anchor.id, anchor]));
+    // Each unresolved pin seeds a group that takes in every same-country pin its target touches.
+    const pending = new Set(result.map((node) => node.id));
+    const merged = new Set<string>();
+    const clusters: MapNode[] = [];
+    for (const seed of unresolvedIds) {
+      if (!pending.delete(seed)) continue;
+      const group = [byId.get(seed)!];
+      for (let index = 0; index < group.length; index++)
+        for (const id of pending) {
+          const a = point.get(group[index].id)!;
+          const b = point.get(id)!;
+          if (
+            byId.get(id)!.countryId === group[0].countryId &&
+            Math.abs(a.x - b.x) < 56 &&
+            Math.abs(a.y - b.y) < 56
+          ) {
+            pending.delete(id);
+            group.push(byId.get(id)!);
+          }
+        }
+      if (group.length < 2) continue;
+      for (const node of group) merged.add(node.id);
+      clusters.push(cluster(group, originals));
+    }
+    if (!clusters.length) return result;
+    result = [...result.filter((node) => !merged.has(node.id)), ...clusters];
+  }
+  return result;
+}
+
+function cluster(
+  group: readonly MapNode[],
+  originals: ReadonlyMap<string, MapNode>,
+): MapNode {
+  const members = group
+    .flatMap((node) => node.memberIds ?? [node.id])
+    .map((id) => originals.get(id)!)
+    .sort((a, b) => b.photoCount - a.photoCount || a.id.localeCompare(b.id));
+  const memberIds = members.map((node) => node.id);
+  const photos = members.flatMap((node) => node.photos);
+  return {
+    id: `cluster:${[...memberIds].sort().join("+")}`,
+    kind: "cluster",
+    label: `${members[0].label} +${members.length - 1}`,
+    coordinates: boundsCenter(
+      getCoordinateBounds(members.map((node) => node.coordinates))!,
+    ),
+    collectionId: members[0].collectionId,
+    countryId: members[0].countryId,
+    photos,
+    photoCount: photos.length,
+    cover: members[0].cover,
+    precision: "regional",
+    referenceLabel: members.map((node) => node.label).join(", "),
+    memberIds,
+  };
 }

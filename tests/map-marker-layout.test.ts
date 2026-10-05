@@ -4,6 +4,7 @@ import { travelPlaces } from "../src/lib/places";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  clusterMapNodes,
   layoutMapMarkers,
   markerTargetVisible,
   type MarkerAnchor,
@@ -179,22 +180,51 @@ test("an unrelated new marker cannot reshuffle an already valid nearby group", (
     assert.deepEqual(added.offsets.get(id), offset);
 });
 
-test("verified Dolomites nodes remain separately tappable at country-click zoom", () => {
-  const worldSize = 512 * 2 ** engineZoom(3.5);
+test("dense places cluster until every drawn marker is separately tappable at country-click zoom", () => {
   const mercatorY = (latitude: number) =>
     Math.log(Math.tan(Math.PI / 4 + (latitude * Math.PI) / 360));
-  const anchors = getMapNodes(travelPlaces, "location")
-    .filter((node) => node.collectionId === "italy")
-    .map((node) => ({
-      id: node.id,
-      x: 195 + ((node.coordinates[0] - 12.08) / 360) * worldSize,
-      y:
-        300 -
-        ((mercatorY(node.coordinates[1]) - mercatorY(46.7)) / (2 * Math.PI)) *
-          worldSize,
-    }));
-  assert.equal(anchors.length, 4);
-  assertSeparated(anchors, layoutMapMarkers({ anchors, viewport }));
+  for (const country of ["italy", "germany"])
+    for (const scale of [1, 4 / 3]) {
+      const zoom = engineZoom(3.5);
+      const worldSize = (512 * 2 ** zoom) / scale;
+      const places = getMapNodes(travelPlaces, "location").filter(
+        (node) => node.collectionId === country,
+      );
+      const drawn = clusterMapNodes(places, zoom, scale);
+      assert.ok(drawn.some((node) => node.kind === "cluster"));
+      assert.deepEqual(
+        drawn.flatMap((node) => node.photos.map((photo) => photo.src)).sort(),
+        places.flatMap((node) => node.photos.map((photo) => photo.src)).sort(),
+      );
+      const [longitude, latitude] = drawn[0].coordinates;
+      const anchors = drawn.map((node) => ({
+        id: node.id,
+        x: 195 + ((node.coordinates[0] - longitude) / 360) * worldSize,
+        y:
+          422 -
+          ((mercatorY(node.coordinates[1]) - mercatorY(latitude)) /
+            (2 * Math.PI)) *
+            worldSize,
+      }));
+      assertSeparated(anchors, layoutMapMarkers({ anchors, viewport }));
+    }
+});
+
+test("clusters split once the camera zooms in", () => {
+  const italy = getMapNodes(travelPlaces, "location").filter(
+    (node) => node.collectionId === "italy",
+  );
+  assert.deepEqual(clusterMapNodes(italy, engineZoom(10)), italy);
+  const cluster = clusterMapNodes(italy, engineZoom(3.5)).find(
+    (node) => node.kind === "cluster",
+  )!;
+  assert.ok(cluster.memberIds!.includes("location:tre-cime-di-lavaredo"));
+  assert.equal(
+    cluster.photoCount,
+    italy
+      .filter((node) => cluster.memberIds!.includes(node.id))
+      .reduce((sum, node) => sum + node.photoCount, 0),
+  );
 });
 
 test("only rendered targets intersecting the viewport are keyboard accessible", () => {

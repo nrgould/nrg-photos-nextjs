@@ -22,7 +22,6 @@ import {
 
 import {
   zoomLevels,
-  zoomLabels,
   zoomPosition,
   zoomStopPosition,
 } from "@/lib/map-zoom-stops";
@@ -138,21 +137,10 @@ export default function MapZoom({
               : { left: thumbOffset, transform: "translateX(-50%)" }
           }
         />
-        {vertical && (
-          <motion.span
-            className="zoom-stage-label"
-            aria-hidden="true"
-            data-active={draft !== null}
-            style={{ bottom: thumbOffset }}
-          >
-            {zoomLabels[current]}
-          </motion.span>
-        )}
         <Slider
           orientation={vertical ? "vertical" : "horizontal"}
           className="map-zoom-slider [&_[data-slot=slider-thumb]]:size-9"
           aria-label="Map zoom level"
-          aria-valuetext={zoomLabels[current]}
           value={[current]}
           min={0}
           max={5}
@@ -190,13 +178,7 @@ export default function MapZoom({
       </div>
     </div>
   );
-  if (vertical)
-    return (
-      <>
-        <span className="map-zoom-cap">{modeIcon}</span>
-        {control}
-      </>
-    );
+  if (vertical) return control;
   return (
     <Popover
       onOpenChange={(open, details) => {

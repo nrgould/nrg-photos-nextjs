@@ -1,12 +1,4 @@
 export const zoomLevels = [0, 1, 2, 3, 5, 10] as const;
-export const zoomLabels = [
-  "Globe",
-  "World",
-  "Continent",
-  "Region",
-  "Area",
-  "Local",
-] as const;
 
 /** Continuous rail position (0-5): globe is 0, map zoom maps onto stops 1-5. */
 export function zoomPosition(mode: "globe" | "map", zoom: number) {

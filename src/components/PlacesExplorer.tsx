@@ -17,7 +17,6 @@ import {
   ChevronUp,
   Download,
   Heart,
-  Leaf,
   Mail,
   Moon,
   Search,
@@ -1204,62 +1203,16 @@ export default function PlacesExplorer({
                 >
                   {pageTitle(drawerMode)}.
                 </DrawerDescription>
-                <div
-                  className="drawer-mode-controls"
-                  role="group"
-                  aria-label="Drawer view"
-                >
-                  <AccountControl className="min-[701px]:hidden" />
+                {place && (
                   <Button
                     variant="quiet"
-                    disabled={!place}
+                    className="drawer-back"
                     onClick={showPhotos}
                   >
-                    Photos
+                    <ArrowLeft size={16} aria-hidden="true" />
+                    {place.name}
                   </Button>
-                  <Button
-                    variant="quiet"
-                    aria-pressed={drawerMode === "presets"}
-                    onClick={() => openPage("presets")}
-                  >
-                    Presets
-                  </Button>
-                  <Button
-                    variant="quiet"
-                    aria-label="Explore challenges"
-                    aria-pressed={drawerMode === "challenges"}
-                    onClick={() => openPage("challenges")}
-                  >
-                    <Leaf size={16} aria-hidden="true" />
-                  </Button>
-                  <Button
-                    variant="quiet"
-                    aria-label={`Saved, ${savedCount}`}
-                    aria-pressed={drawerMode === "saved"}
-                    onClick={() => openPage("saved")}
-                  >
-                    <Heart size={16} aria-hidden="true" />
-                  </Button>
-                  <Button
-                    variant="quiet"
-                    aria-label={`Cart, ${cartIds.length} presets`}
-                    aria-pressed={drawerMode === "cart"}
-                    onClick={() => openPage("cart")}
-                  >
-                    <ShoppingBag size={16} aria-hidden="true" />
-                    <span>{cartIds.length}</span>
-                  </Button>
-                  {ownedPresetIds.length > 0 && (
-                    <Button
-                      variant="quiet"
-                      aria-label="Your presets"
-                      aria-pressed={drawerMode === "library"}
-                      onClick={() => openPage("library")}
-                    >
-                      <Download size={16} aria-hidden="true" />
-                    </Button>
-                  )}
-                </div>
+                )}
                 <Button
                   variant="quiet"
                   aria-label="Close drawer"

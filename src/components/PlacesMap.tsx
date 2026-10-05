@@ -10,6 +10,7 @@ import type {
 } from "maplibre-gl";
 import { travelPlaces, type TravelPlace } from "@/lib/places";
 import {
+  getCoordinateBounds,
   getCountryChildBounds,
   getMapNodes,
   type MapNode,
@@ -36,6 +37,7 @@ import {
   type MarkerLevel,
 } from "@/lib/map-camera";
 import {
+  clusterMapNodes,
   layoutMapMarkers,
   markerTargetVisible,
   type MarkerLayout,
@@ -81,7 +83,8 @@ function colors() {
 function framePadding(width: number, height: number, canvasOpen: boolean) {
   return {
     top: 72,
-    left: 64,
+    // The desktop zoom rail covers the left edge.
+    left: width > 700 ? 128 : 64,
     right: canvasOpen && width > 700 ? 430 : 64,
     bottom:
       canvasOpen && width <= 700
@@ -354,10 +357,20 @@ export default function PlacesMap(props: {
   );
   const liveLevel = useRef(level);
   const breakoutZoom = useRef(toEngineZoom(breakoutScale));
-  const nodes = useMemo(
-    () => getMapNodes(props.places, level),
-    [props.places, level],
+  // Cluster membership follows the resting camera, never a gesture in progress.
+  const [settledZoom, setSettledZoom] = useState(() =>
+    toEngineZoom(mode === "globe" ? 0 : zoom),
   );
+  const nodes = useMemo(() => {
+    const placed = getMapNodes(props.places, level);
+    if (level !== "location") return placed;
+    const scale =
+      typeof window !== "undefined" &&
+      window.matchMedia("(min-width: 701px)").matches
+        ? desktopMarkerScale
+        : 1;
+    return clusterMapNodes(placed, settledZoom, scale);
+  }, [props.places, level, settledZoom]);
   const allNodes = useMemo(
     () => [
       ...getMapNodes(props.places, "country"),
@@ -556,6 +569,7 @@ export default function PlacesMap(props: {
           );
           if (next !== liveLevel.current) {
             liveLevel.current = next;
+            setSettledZoom(Math.round(instance.getZoom() * 4) / 4);
             setLevel(next);
             if (next === "country")
               breakoutZoom.current = toEngineZoom(breakoutScale);
@@ -696,6 +710,7 @@ export default function PlacesMap(props: {
           }
         });
         instance.on("moveend", () => {
+          setSettledZoom(Math.round(instance.getZoom() * 4) / 4);
           markerLayoutDirty.current = true;
           instance.triggerRepaint();
         });
@@ -860,6 +875,7 @@ export default function PlacesMap(props: {
       ({ node, marker }) => ({
         countryId: node.countryId,
         kind: node.kind,
+        memberIds: node.memberIds,
         coordinates: marker.getLngLat(),
       }),
     );
@@ -912,11 +928,12 @@ export default function PlacesMap(props: {
         element.dataset.entryMotion = "true";
         const stack =
           entry.node.kind !== "country" &&
-          nodes.find(
-            (node) =>
-              node.kind === "country" &&
-              node.countryId === entry.node.countryId,
-          );
+          (nodes.find((node) => node.memberIds?.includes(id)) ??
+            nodes.find(
+              (node) =>
+                node.kind === "country" &&
+                node.countryId === entry.node.countryId,
+            ));
         if (stack)
           travel(element, "exit", entry.node.coordinates, stack.coordinates);
         element.dataset.markerPhase = "exiting";
@@ -959,10 +976,11 @@ export default function PlacesMap(props: {
       element.dataset.layoutMotion = "false";
       const parent =
         node.kind !== "country" &&
-        previousEntries.find(
-          (entry) =>
-            entry.kind === "country" && entry.countryId === node.countryId,
-        );
+        (previousEntries.find((entry) => entry.memberIds?.includes(node.id)) ??
+          previousEntries.find(
+            (entry) =>
+              entry.kind === "country" && entry.countryId === node.countryId,
+          ));
       if (motion && parent)
         travel(element, "entry", node.coordinates, parent.coordinates);
       const marker = new Constructor({
@@ -1319,11 +1337,16 @@ export default function PlacesMap(props: {
                   data-location={node.collectionId}
                   data-map-node={node.id}
                   data-node-kind={node.kind}
-                  aria-label={`Explore ${node.label}, ${node.photoCount} ${node.photoCount === 1 ? "photograph" : "photographs"}`}
-                  title={`${node.referenceLabel} · ${node.precision === "country" ? "Country collection" : "Regional reference"}, not camera GPS`}
+                  aria-label={`${node.kind === "cluster" ? `Zoom in to ${node.referenceLabel}` : `Explore ${node.label}`}, ${node.photoCount} ${node.photoCount === 1 ? "photograph" : "photographs"}`}
+                  title={
+                    node.kind === "cluster"
+                      ? node.referenceLabel
+                      : `${node.referenceLabel} · ${node.precision === "country" ? "Country collection" : "Regional reference"}, not camera GPS`
+                  }
                   aria-pressed={
                     selectedNodeId
-                      ? selectedNodeId === node.id
+                      ? selectedNodeId === node.id ||
+                        Boolean(node.memberIds?.includes(selectedNodeId))
                       : props.selected === node.collectionId
                   }
                   onFocus={() => {
@@ -1336,6 +1359,37 @@ export default function PlacesMap(props: {
                       (event.detail !== 0 && gestureMoved.current)
                     )
                       return;
+                    if (node.kind === "cluster") {
+                      const instance = map.current;
+                      const box = container.current?.getBoundingClientRect();
+                      const bounds = getCoordinateBounds(
+                        allNodes
+                          .filter((entry) => node.memberIds!.includes(entry.id))
+                          .map((entry) => entry.coordinates),
+                      );
+                      const camera =
+                        instance &&
+                        box &&
+                        bounds &&
+                        instance.cameraForBounds(bounds, {
+                          padding: framePadding(
+                            box.width,
+                            box.height,
+                            props.canvasOpen,
+                          ),
+                          maxZoom: toEngineZoom(10),
+                        });
+                      if (camera?.zoom === undefined) return;
+                      navigationTarget.current = node.coordinates;
+                      props.onZoomChange(
+                        Math.max(
+                          toUiZoom(camera.zoom),
+                          toUiZoom(instance!.getZoom()) * 1.5,
+                        ),
+                        "map",
+                      );
+                      return;
+                    }
                     navigationTarget.current = node.coordinates;
                     if (props.onChooseNode) props.onChooseNode(node);
                     else props.onChoose(node.collectionId);
@@ -1346,7 +1400,7 @@ export default function PlacesMap(props: {
                       );
                   }}
                 >
-                  {node.kind === "country" &&
+                  {node.kind !== "location" &&
                     node.photos
                       .slice(1, 3)
                       .reverse()

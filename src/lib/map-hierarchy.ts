@@ -8,7 +8,8 @@ import {
   type TravelPlace,
 } from "./places";
 
-export type MapNodeKind = "country" | "location";
+/** A cluster is drawn only where location pins cannot be separated; see clusterMapNodes. */
+export type MapNodeKind = "country" | "location" | "cluster";
 export type MapNode = {
   id: string;
   kind: MapNodeKind;
@@ -22,6 +23,8 @@ export type MapNode = {
   cover: Photo;
   precision: "country" | "regional" | "unknown";
   referenceLabel: string;
+  /** Cluster only: the location node ids it stands for. */
+  memberIds?: string[];
 };
 
 const countries = locations.filter((node) => !node.parent);
@@ -98,7 +101,7 @@ export function getCountryChildBounds(
   );
 }
 
-function boundsCenter(bounds: MapChildBounds): [number, number] {
+export function boundsCenter(bounds: MapChildBounds): [number, number] {
   const longitude = (bounds[0][0] + bounds[1][0]) / 2;
   return [
     longitude >= 180 ? longitude - 360 : longitude,
