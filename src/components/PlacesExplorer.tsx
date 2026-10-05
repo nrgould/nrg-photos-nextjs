@@ -449,8 +449,8 @@ export default function PlacesExplorer({
   const expanded = desktop || Number(snap) >= 0.75;
   function navigate(direction: "back" | "next" | "shuffle") {
     const id = navigatePlaces(filteredPlaces, selected, direction);
-    // Shuffle opens the new place's photos at the strip, like a marker tap.
-    if (id !== null) choose(id, direction === "shuffle");
+    // Shuffle opens the new place's photos at the strip, like a marker tap; desktop opens the side drawer on every step.
+    if (id !== null) choose(id, desktop || direction === "shuffle");
   }
   useEffect(() => {
     const viewport = drawerViewport.current;
