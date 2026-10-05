@@ -299,14 +299,7 @@ test("regional memberships distinguish the Dolomites and Lofoten", () => {
   for (const [id, src] of [
     ["braies", "/photos/3_landscape_lago_di_braies.webp"],
     ["val-di-funes", "/photos/landscape_dolomites_santa_magdalena.webp"],
-    [
-      "lofoten",
-      "/photos/4_lifestyle_product_aileen_wearing_helly_hansen_jacket_lofoten_islands_norway.webp",
-    ],
-    [
-      "lofoten",
-      "/photos/lifestyle_portrait_emily_wearing_satila_beanie_lofoten_islands_norway.webp",
-    ],
+    ["lofoten", "/photos/lr-2366227.webp"],
   ])
     assert.ok(
       getMapNode(`location:${id}`, travelPlaces)?.photos.some(

@@ -47,8 +47,7 @@
     "origin": "Stills: 02 HOLD - model release/2023-02 Lofoten Norway/R6II5017.jpg",
     "width": 1280,
     "height": 1600,
-    "taken": "2023-02",
-    "locationId": "lofoten"
+    "taken": "2023-02"
   },
   {
     "src": "/photos/2_product_lifestyle_ravens_brew_ferns.webp",
@@ -195,8 +194,7 @@
     "origin": "Stills: 02 HOLD - model release/2023-02 Lofoten Norway/R6II5362.jpg",
     "width": 1280,
     "height": 1600,
-    "taken": "2023-02",
-    "locationId": "lofoten"
+    "taken": "2023-02"
   },
   {
     "src": "/photos/3_portrait_couple_holding_eachother_sunset.webp",
@@ -385,18 +383,6 @@
     "locationId": "uttakleiv",
     "placeSource": "curation",
     "lightroomId": 2135934
-  },
-  {
-    "src": "/photos/lr-2135935.webp",
-    "title": "Lofoten",
-    "alt": "Red wooden house with white trim in a snowy clearing, dark spruce forest and misty mountain slope rising behind it",
-    "origin": "Lightroom 2135935",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-02-23T07:16:38.34",
-    "locationId": "lofoten",
-    "placeSource": "curation",
-    "lightroomId": 2135935
   },
   {
     "src": "/photos/lr-2248168.webp",

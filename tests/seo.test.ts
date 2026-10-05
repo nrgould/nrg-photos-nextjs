@@ -173,7 +173,7 @@ test("image schema exposes only public preview identity and honest location memb
     assert.ok(!("license" in data));
     assert.ok(!JSON.stringify(data).includes("original"));
   }
-  assert.equal(seoPhotos.filter((photo) => getPhotoLocation(photo)).length, 4);
+  assert.equal(seoPhotos.filter((photo) => getPhotoLocation(photo)).length, 2);
   assert.equal(getPhotoLocation(seoPhotos[0]), undefined);
   assert.equal(imageData(seoPhotos[0], getSeoConfig({})), null);
   for (const location of seoLocations) {

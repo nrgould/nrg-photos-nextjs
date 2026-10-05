@@ -29,10 +29,6 @@ const photoSubjects: Readonly<Record<string, Exclude<PhotoSubject, "all">>> = {
   "/photos/lr-4475385.webp": "places",
   "/photos/lr-4337389.webp": "places",
   "/photos/lr-3472824.webp": "places",
-  "/photos/4_lifestyle_product_aileen_wearing_helly_hansen_jacket_lofoten_islands_norway.webp":
-    "people",
-  "/photos/lifestyle_portrait_emily_wearing_satila_beanie_lofoten_islands_norway.webp":
-    "people",
 };
 
 export function getPhotoSubject(src: string) {
