@@ -16,6 +16,7 @@ import {
   photoDescription,
   photoPath,
 } from "@/lib/seo-content";
+import { photoUrl } from "@/lib/photography";
 import styles from "@/components/seo/SeoContent.module.css";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -51,7 +52,7 @@ export default async function PhotographPage({ params }: Props) {
       <figure>
         <Image
           className={styles.detailImage}
-          src={photo.src}
+          src={photoUrl(photo.src)}
           alt={photo.alt}
           width={photo.width}
           height={photo.height}

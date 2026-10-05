@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { Photo } from "@/lib/photography";
+import { photoUrl, type Photo } from "@/lib/photography";
 export default function PhotoImage({
   photo,
   className = "",
@@ -13,7 +13,7 @@ export default function PhotoImage({
 }) {
   return (
     <Image
-      src={photo.src}
+      src={photoUrl(photo.src)}
       alt={photo.alt}
       width={photo.width}
       height={photo.height}

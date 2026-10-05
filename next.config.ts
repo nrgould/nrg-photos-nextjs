@@ -3,7 +3,15 @@ import { getSeoConfig } from "./src/lib/seo-config";
 const config: NextConfig = {
   poweredByHeader: false,
   devIndicators: false,
-  images: { formats: ["image/avif", "image/webp"], qualities: [75, 85] },
+  images: {
+    formats: ["image/avif", "image/webp"],
+    qualities: [75, 85],
+    remotePatterns: [
+      new URL(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/photos/**`,
+      ),
+    ],
+  },
   // The map is the whole site; retired pages land on it.
   async redirects() {
     return [

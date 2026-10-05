@@ -87,7 +87,14 @@ for (const path of ["/robots.txt", "/sitemap.xml"]) {
 }
 assert.equal((await fetch(base + "/prints")).status, 404);
 console.log("PASS removed prints route: HTTP 404");
-const imageResponse = await fetch(base + "/photos/hallstatt-2.webp");
+const imageResponse = await fetch(
+  base +
+    "/_next/image?url=" +
+    encodeURIComponent(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/photos/hallstatt-2.webp`,
+    ) +
+    "&w=640&q=75",
+);
 assert.equal(imageResponse.status, 200);
 if (!indexable)
   assert.match(

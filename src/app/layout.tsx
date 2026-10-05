@@ -9,6 +9,7 @@ import {
 import { CommerceCartProvider } from "@/components/CommerceCartProvider";
 import { CommerceProviders } from "@/components/CommerceProviders";
 import { getAccountPublicConfiguration } from "@/lib/server/commerce-runtime";
+import { photoUrl } from "@/lib/photography";
 import { site } from "@/lib/site";
 import { seoLaunchMetadata } from "@/lib/seo-config";
 import "./globals.css";
@@ -52,7 +53,7 @@ export const metadata: Metadata = {
     siteName: "Nicholas Gould Photography",
     images: [
       {
-        url: "/photos/hallstatt-1.webp",
+        url: photoUrl("/photos/hallstatt-1.webp"),
         width: 2400,
         height: 1600,
         alt: "Hallstatt through the trees, photographed by Nicholas Gould",

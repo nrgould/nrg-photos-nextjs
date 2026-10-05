@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import type { Photo } from "@/lib/photography";
+import { photoUrl, type Photo } from "@/lib/photography";
 import { Arrow } from "./Arrow";
 export default function Hero({ photos }: { photos: Photo[] }) {
   const [index, setIndex] = useState(0);
@@ -11,7 +11,7 @@ export default function Hero({ photos }: { photos: Photo[] }) {
     <section className="hero" aria-label="Featured photography">
       <div className="hero-image" key={photo.src}>
         <Image
-          src={photo.src}
+          src={photoUrl(photo.src)}
           alt={photo.alt}
           fill
           sizes="(max-width: 700px) 160vh, 100vw"

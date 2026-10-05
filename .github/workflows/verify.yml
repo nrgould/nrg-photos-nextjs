@@ -8,6 +8,9 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      # Public project URL; photos load from its Storage bucket.
+      NEXT_PUBLIC_SUPABASE_URL: https://zcypiskauedjzrwrhssw.supabase.co
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

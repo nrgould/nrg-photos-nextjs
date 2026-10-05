@@ -1,9 +1,15 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
+import { createClient } from "@supabase/supabase-js";
+// Run with: node --env-file=.env.local scripts/import-photographs.mjs
+const bucket = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SECRET_KEY,
+  { auth: { persistSession: false } },
+).storage.from("photos");
 const manifestPath = "src/lib/photo-manifest.json";
 const manifest = JSON.parse(await fs.readFile(manifestPath, "utf8"));
-await fs.mkdir("public/photos", { recursive: true });
 for (const item of manifest) {
   let input;
   if (item.origin.startsWith("Repository at ade778d: ")) {
@@ -35,10 +41,11 @@ for (const item of manifest) {
     })
     .webp({ quality: 88 })
     .toBuffer();
-  await fs.writeFile(
-    path.join("public/photos", path.basename(item.src)),
-    output,
-  );
+  const { error } = await bucket.upload(path.basename(item.src), output, {
+    contentType: "image/webp",
+    upsert: true,
+  });
+  if (error) throw new Error(`Upload failed: ${item.src}: ${error.message}`);
   const { width, height } = await sharp(output).metadata();
   item.width = width;
   item.height = height;

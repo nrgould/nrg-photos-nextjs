@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import type { Photo } from "@/lib/photography";
+import { photoUrl, type Photo } from "@/lib/photography";
 import type { MapNode } from "@/lib/map-hierarchy";
 import {
   breadcrumbData,
@@ -78,7 +78,7 @@ export function PhotographLinks({
         <li key={photo.src}>
           <Link href={photoPath(photo)}>
             <Image
-              src={photo.src}
+              src={photoUrl(photo.src)}
               alt={photo.alt}
               width={photo.width}
               height={photo.height}

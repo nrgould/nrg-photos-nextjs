@@ -3,7 +3,7 @@ import { useRef, useState, type ReactNode, type RefObject } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
-import { takenLabel, type Photo } from "@/lib/photography";
+import { photoUrl, takenLabel, type Photo } from "@/lib/photography";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -106,7 +106,7 @@ export default function Lightbox({
                 }}
               >
                 <Image
-                  src={current.src}
+                  src={photoUrl(current.src)}
                   alt={current.alt}
                   width={current.width}
                   height={current.height}

@@ -42,6 +42,7 @@ import {
 } from "@/lib/map-marker-layout";
 import { Button } from "./ui/button";
 import { zoomPosition } from "@/lib/map-zoom-stops";
+import { photoUrl } from "@/lib/photography";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 // Intro: an ease-in spin hands off to the ease-out settle at equal speed
@@ -1357,7 +1358,7 @@ export default function PlacesMap(props: {
                           aria-hidden="true"
                         >
                           <Image
-                            src={photo.src}
+                            src={photoUrl(photo.src)}
                             alt=""
                             width={44}
                             height={44}
@@ -1369,7 +1370,7 @@ export default function PlacesMap(props: {
                       ))}
                   <Image
                     className="map-marker-cover"
-                    src={node.cover.src}
+                    src={photoUrl(node.cover.src)}
                     alt=""
                     width={44}
                     height={44}
