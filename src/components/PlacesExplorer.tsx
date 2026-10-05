@@ -1377,6 +1377,8 @@ export default function PlacesExplorer({
           }}
           onInteractOutside={(event) => event.preventDefault()}
         >
+          {/* Drag-to-dismiss cue; Back is the keyboard path. */}
+          {!desktop && <div className="photo-drawer-grip" aria-hidden="true" />}
           <DrawerTitle className="sr-only">
             {nested ? pageTitle(nested) : "Page"}
           </DrawerTitle>

@@ -3019,6 +3019,13 @@ html[data-photo-theme="dark"] {
     height: calc(75dvh - 8px);
     border-top: 1px solid var(--line);
   }
+  /* The whole sheet drags, so its grip sits in the header's top padding. */
+  .nested-drawer .photo-drawer-grip {
+    position: absolute;
+    top: 0;
+    height: 20px;
+    min-height: 20px;
+  }
   @media (min-width: 701px) {
     .location-drawer[data-nested-open="true"] {
       translate: -16px 0;
