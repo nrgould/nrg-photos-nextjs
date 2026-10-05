@@ -2160,6 +2160,24 @@ html[data-photo-theme="dark"] {
     position: absolute;
     inset: 0;
   }
+  /* PhotoImage's skeleton: under the photo until it loads, then the photo fades in over it. */
+  .photo-skeleton {
+    position: absolute;
+    inset: 0;
+    border-radius: 0;
+    transition: visibility 0s 200ms;
+  }
+  .photo-skeleton + img {
+    position: relative;
+    opacity: 0;
+    transition: opacity 200ms var(--ease-out);
+  }
+  .photo-skeleton + img[data-loaded] {
+    opacity: 1;
+  }
+  .photo-skeleton:has(+ img[data-loaded]) {
+    visibility: hidden;
+  }
   .comparison-skeleton {
     position: absolute;
     inset: 0;
@@ -2840,7 +2858,6 @@ html[data-photo-theme="dark"] {
     border: 0;
     border-radius: 12px;
     overflow: hidden;
-    background: var(--pale);
   }
   .gallery-photo img {
     display: block;

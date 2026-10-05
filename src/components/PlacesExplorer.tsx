@@ -1548,6 +1548,7 @@ export default function PlacesExplorer({
                         >
                           <PhotoImage
                             photo={node.cover}
+                            skeleton
                             sizes="(max-width: 700px) calc(50vw - 20px), 175px"
                           />
                         </MotionButton>
@@ -1590,8 +1591,12 @@ export default function PlacesExplorer({
                         >
                           <PhotoImage
                             photo={photo}
+                            skeleton
                             sizes={
-                              index === 0 || (heroes === 2 && index === 1)
+                              // A grid landscape spans two cells, or the row when alone.
+                              index === 0 ||
+                              (heroes === 2 && index === 1) ||
+                              (index >= heroes && photo.width > photo.height)
                                 ? "(max-width: 700px) calc(100vw - 32px), 358px"
                                 : index < heroes
                                   ? "(max-width: 700px) calc(50vw - 20px), 175px"

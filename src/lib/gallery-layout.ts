@@ -10,8 +10,8 @@ const gap = 8;
 /**
  * Expanded drawer tiles, image boxes only (a caption sits below each when `caption` > 0).
  * Photos: the leading heroes large (the first full width, the next two side by side), then
- * the rest in a three-column grid with landscapes full width, `after` px below the heroes left
- * free. Places (`columns` 2): two-column cards.
+ * the rest in a three-column grid where a landscape takes two cells, `after` px below the heroes
+ * left free. Places (`columns` 2): two-column cards.
  */
 export function galleryLayout(
   aspects: number[],
@@ -49,26 +49,52 @@ export function galleryLayout(
         : tileWidth * 1.25,
     );
   y += after;
-  // Photo grids run a landscape full width at its own aspect, at the next row break,
-  // so the portrait rows stay whole and the grid isn't one repeating cell.
-  let cells: number[] = [];
-  let wide: number[] = [];
-  const flush = (all: boolean) => {
-    if (cells.length === columns || (all && cells.length))
-      row(cells, columns, (tileWidth) => tileWidth * 1.25);
-    if (cells.length === columns || all || !cells.length) {
-      cells = [];
-      for (const index of wide)
-        row([index], 1, (tileWidth) => tileWidth / aspects[index]);
-      wide = [];
+  // Photo grids give a landscape two cells of a row. A row it can't finish takes the next
+  // photo that fits, so rows stay whole; a landscape left alone runs full width instead.
+  const queue = aspects.map((_, index) => index).slice(first);
+  const span = (index: number) => (wideSpan(aspects, index, columns) ? 2 : 1);
+  while (queue.length) {
+    const cells: number[] = [];
+    let used = 0;
+    for (let look = 0; look < queue.length && look < 4 && used < columns;) {
+      if (used + span(queue[look]) > columns) look++;
+      else {
+        used += span(queue[look]);
+        cells.push(...queue.splice(look, 1));
+      }
     }
-  };
-  for (let index = first; index < aspects.length; index++) {
-    (columns === 3 && aspects[index] > 1 ? wide : cells).push(index);
-    flush(false);
+    // Two portraits and a landscape that can't join: the landscape takes the second
+    // portrait's place, which starts the next row.
+    const wide = queue.slice(0, 4).findIndex((index) => span(index) === 2);
+    if (used === columns - 1 && wide >= 0 && span(cells.at(-1)!) === 1) {
+      queue.unshift(cells.pop()!);
+      cells.push(...queue.splice(wide + 1, 1));
+      used = columns;
+    }
+    if (used < columns && cells.length === 1 && span(cells[0]) === 2) {
+      row(cells, 1, (tileWidth) => tileWidth / aspects[cells[0]]);
+      continue;
+    }
+    const cellWidth = (width - gap * (columns - 1)) / columns;
+    let x = 0;
+    for (const index of cells) {
+      const cellSpan = span(index);
+      tiles[index] = {
+        x,
+        y,
+        width: cellWidth * cellSpan + gap * (cellSpan - 1),
+        height: cellWidth * 1.25,
+      };
+      x += tiles[index].width + gap;
+    }
+    y += cellWidth * 1.25 + caption + gap;
   }
-  flush(true);
   return tiles;
+}
+
+/** A grid photo that takes two cells: a landscape in a three-column photo grid. */
+export function wideSpan(aspects: number[], index: number, columns = 3) {
+  return columns === 3 && aspects[index] > 1;
 }
 
 /** 1-3 leading heroes: every photo when there are three or fewer, else the marked ones (at least one). */

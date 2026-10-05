@@ -129,6 +129,7 @@ export default function SavedPanel({
                   >
                     <PhotoImage
                       photo={photo}
+                      skeleton
                       sizes="(max-width: 700px) 33vw, 120px"
                     />
                   </Button>

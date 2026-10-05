@@ -535,7 +535,11 @@ export function PresetDetail({
             disabled={!onOpenPhoto}
             onClick={(event) => onOpenPhoto?.(photo.src, event.currentTarget)}
           >
-            <PhotoImage photo={photo} sizes="(max-width: 700px) 50vw, 200px" />
+            <PhotoImage
+              photo={photo}
+              skeleton
+              sizes="(max-width: 700px) 50vw, 200px"
+            />
           </Button>
         </li>
       ))}

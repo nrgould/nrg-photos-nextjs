@@ -47,9 +47,7 @@
     "number": 3,
     "name": "Seiser Alm I",
     "category": "Natural",
-    "also": [
-      "Lush Green"
-    ],
+    "also": ["Lush Green"],
     "location": "seiser-alm",
     "bestFor": "Alpine meadows with peaks behind them and green paths in soft light.",
     "whatItDoes": "The shared base with vibrance cut and saturation up, and yellows shifted toward green and brightened for vivid grass.",
@@ -168,9 +166,7 @@
       "width": 1545,
       "height": 2048
     },
-    "showcase": [
-      "/photos/lr-7029043.webp"
-    ]
+    "showcase": ["/photos/lr-7029043.webp"]
   },
   {
     "id": "mount-rainier-2",
@@ -295,9 +291,7 @@
       "width": 1537,
       "height": 2048
     },
-    "showcase": [
-      "/photos/lr-4434635.webp"
-    ]
+    "showcase": ["/photos/lr-4434635.webp"]
   },
   {
     "id": "lofoten-1",

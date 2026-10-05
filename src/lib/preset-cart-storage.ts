@@ -25,10 +25,7 @@ export function safePresetReturnPath(value: unknown): string {
   if (typeof value !== "string" || value.length > 2048) return "/";
   try {
     const url = new URL(value, "https://photography.invalid");
-    if (
-      url.origin !== "https://photography.invalid" ||
-      url.pathname !== "/"
-    )
+    if (url.origin !== "https://photography.invalid" || url.pathname !== "/")
       return "/";
     return `${url.pathname}${url.search}${url.hash}`;
   } catch {

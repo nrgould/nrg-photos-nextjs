@@ -52,19 +52,35 @@ test("space left after the heroes pushes the grid down", () => {
   assert.equal(spaced[1].y, plain[1].y + 120);
 });
 
-test("a landscape in the grid runs full width after the row it lands in", () => {
-  // Heroes, then portrait, landscape, portrait, portrait, portrait.
-  const tiles = galleryLayout([0.8, 0.8, 1.5, 0.8, 0.8, 0.8], 358, {
+test("a landscape takes two cells of a grid row, and rows stay whole", () => {
+  const cell = (358 - 16) / 3;
+  // Hero, then portrait, landscape, landscape, portrait, portrait.
+  const tiles = galleryLayout([0.8, 0.8, 1.5, 1.5, 0.8, 0.8], 358, {
     heroes: 1,
   });
   assert.equal(tiles.length, 6);
-  const [, a, wide, b, c, d] = tiles;
-  assert.equal(a.y, b.y);
-  assert.equal(b.y, c.y);
-  assert.equal(wide.width, 358);
-  assert.equal(wide.height, 358 / 1.5);
-  assert.ok(wide.y > a.y && d.y > wide.y);
+  const [, a, wide, wide2, b, c] = tiles;
+  // Portrait + landscape fill a row; the second landscape pulls the next portrait up beside it.
+  assert.equal(a.y, wide.y);
+  assert.equal(wide.width, cell * 2 + 8);
+  assert.equal(wide.height, a.height);
+  assert.equal(wide2.y, b.y);
+  assert.equal(wide2.x, 0);
+  assert.equal(b.x, wide2.width + 8);
+  assert.ok(c.y > b.y);
   assert.ok(!overlaps(tiles));
+  // Five portraits then a landscape: the landscape joins the second row, a portrait moves on.
+  const late = galleryLayout([0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 1.5], 358, {
+    heroes: 1,
+  });
+  assert.equal(late[6].y, late[4].y);
+  assert.equal(late[6].width, cell * 2 + 8);
+  assert.ok(late[5].y > late[4].y);
+  assert.ok(!overlaps(late));
+  // A landscape with no portrait near enough to finish its row runs full width.
+  const lone = galleryLayout([0.8, 1.5, 1.5, 1.5], 358, { heroes: 1 });
+  assert.equal(lone[1].width, 358);
+  assert.ok(!overlaps(lone));
   // Places keep two-column cards whatever the cover's shape.
   const cards = galleryLayout([1.5, 1.5, 0.8], 300, { columns: 2 });
   assert.equal(cards[0].width, cards[1].width);

@@ -398,10 +398,10 @@
   display: block;
   width: 100%;
   padding: 0;
+  position: relative;
   aspect-ratio: 1;
   border-radius: 10px;
   overflow: hidden;
-  background: var(--pale);
 }
 .savedPhoto img {
   width: 100%;
