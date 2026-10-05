@@ -56,6 +56,7 @@ import {
   DrawerContent,
   DrawerTitle,
   DrawerDescription,
+  DrawerFooter,
 } from "./ui/drawer";
 import PhotoImage from "./PhotoImage";
 import Lightbox from "./Lightbox";
@@ -830,6 +831,16 @@ export default function PlacesExplorer({
       )
     );
   }
+  // A place's actions: pinned to the drawer foot on desktop, after the last photo on phones.
+  const placeActions = parentNode && (
+    <Button
+      variant="outline"
+      className="drawer-up"
+      onClick={() => chooseFromDrawer(parentNode)}
+    >
+      View {parentNode.label}
+    </Button>
+  );
   return (
     <TooltipProvider delay={500}>
       <h1 className="sr-only">Photographs on the map</h1>
@@ -1388,17 +1399,12 @@ export default function PlacesExplorer({
                       </figure>
                     ))}
               </div>
-              {/* A place ends with its way back to the country's list of places. */}
-              {parentNode && expanded && (
-                <Button
-                  variant="outline"
-                  className="drawer-up"
-                  onClick={() => chooseFromDrawer(parentNode)}
-                >
-                  View {parentNode.label}
-                </Button>
-              )}
+              {/* Phones end a place with its way back to the country's list of places. */}
+              {!desktop && expanded && placeActions}
             </div>
+            {desktop && drawerMode === "photos" && placeActions && (
+              <DrawerFooter className="pt-0">{placeActions}</DrawerFooter>
+            )}
             {drawerMode !== "photos" && (
               <div className="drawer-commerce-pane">{page}</div>
             )}
