@@ -1,6 +1,6 @@
 # Photo import and JEV classification boundary
 
-Photographs are public WebP derivatives in the Supabase Storage bucket `photos`, keyed by the basename of `src`. `src/lib/photo-manifest.json` records each one's provenance, size, alt text and, for map photos, `locationId`. On the site every `img` refuses the context menu, drag-out and the iOS long-press save sheet (`globals.css`, the head script in `layout.tsx`). That deters casual saving only: the bucket is public, so anyone with the URL can fetch the 2400px file.
+Photographs are public WebP derivatives in the Supabase Storage bucket `photos`, keyed by the basename of `src`. `src/lib/photo-manifest.json` records each one's provenance, size, alt text and, for map photos, `locationId`. On the site every `img` refuses the context menu, drag-out and the iOS long-press save sheet (`globals.css`, the head script in `layout.tsx`). That deters casual saving only: the bucket is public, so anyone with the URL can fetch the 1600px file.
 
 ## Import from Lightroom
 
@@ -8,12 +8,12 @@ Location and alt text are tagged in Lightroom Classic (IPTC Country, State/Provi
 
 1. `node --env-file=.env.local scripts/import-photographs.mjs <map-photos.json> --dry-run` and read the report.
 2. Fix labels it rejects in Lightroom, not in this repo, and re-export. A photo needs at least a City to be placed; one tagged only to Country or State is reported unplaced.
-3. Run without `--dry-run`. It matches each IPTC path to `src/data/locations.json` by name, adds new nodes, pins new places at their town center with one Nominatim lookup (photo GPS never sets a pin), encodes and uploads photos missing from the bucket from each row's `input` file (2400px WebP, metadata stripped except copyright) and rewrites the manifest.
+3. Run without `--dry-run`. It matches each IPTC path to `src/data/locations.json` by name, adds new nodes, pins new places at their town center with one Nominatim lookup (photo GPS never sets a pin), encodes and uploads photos missing from the bucket from each row's `input` file (1600px long edge WebP, metadata stripped except copyright) and rewrites the manifest.
 4. Fill Lightroom Alt Text for every entry the report lists and re-import (the manifest keeps an existing alt when Lightroom's is empty). Review the diff, commit, check the preview.
 
 Order within a place: rows with status `hero` lead, and a hero row with `lead: true` (set in decisions.json, at most one per place) comes first; the rest follow capture time, kept in full in `taken`.
 
-Removal marks: on a preview deployment (or local dev), "Mark for removal" in the lightbox records the photo's `src` in the `photo_removals` table (`/api/curate`). Marks are a request list, not a filter: read them with `select src from photo_removals`, reject those photos in Lightroom and re-export. A mark whose photo has left the manifest is no longer returned.
+Removal and hero marks: on a preview deployment (or local dev), "Mark for removal" and "Mark as hero" in the lightbox record the photo's `src` and `mark` (`remove` or `hero`) in the `photo_removals` table (`/api/curate`). Marks are a request list, not a filter: read them with `select src, mark from photo_removals`, then reject or hero those photos in Lightroom and re-export. A mark whose photo has left the manifest is no longer returned.
 
 Without an argument the script rebuilds the portfolio originals from their recorded origins.
 

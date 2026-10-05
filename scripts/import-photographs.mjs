@@ -11,6 +11,7 @@ import {
 // Portfolio originals: node --env-file=.env.local scripts/import-photographs.mjs
 // Lightroom map export: node --env-file=.env.local scripts/import-photographs.mjs <map-photos.json> [--dry-run]
 //   Rows missing from the bucket are encoded from their `input` file.
+// Shrink the bucket to maxEdge: BACKUP_DIR=<folder> node --env-file=.env.local scripts/import-photographs.mjs --resize
 const bucket = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SECRET_KEY,
@@ -22,14 +23,19 @@ const manifest = JSON.parse(await fs.readFile(manifestPath, "utf8"));
 const writeJson = (file, value) =>
   fs.writeFile(file, JSON.stringify(value, null, 2) + "\n");
 
+// Long edge of every stored photo; the lightbox never draws larger.
+const maxEdge = 1600;
+
 // sharp drops input metadata, GPS included; only a Lightroom copyright is written back.
-async function encode(input, copyright) {
+// keepExif carries over an already-stored photo's EXIF, which holds only that copyright.
+async function encode(input, copyright, keepExif = false) {
   let image = sharp(input).rotate().resize({
-    width: 2400,
-    height: 2400,
+    width: maxEdge,
+    height: maxEdge,
     fit: "inside",
     withoutEnlargement: true,
   });
+  if (keepExif) image = image.keepExif();
   if (copyright) image = image.withExif({ IFD0: { Copyright: copyright } });
   const output = await image.webp({ quality: 88 }).toBuffer();
   const { width, height } = await sharp(output).metadata();
@@ -74,6 +80,33 @@ async function rebuildOriginals() {
   }
   await writeJson(manifestPath, manifest);
   console.log(`Rebuilt ${manifest.length} original photographs.`);
+}
+
+// Re-encodes every stored photo larger than maxEdge from its bucket copy, saving that copy first.
+async function resizeAll() {
+  const backup = process.env.BACKUP_DIR;
+  if (!backup)
+    throw new Error("Set BACKUP_DIR to a folder for the current copies");
+  await fs.mkdir(backup, { recursive: true });
+  let resized = 0;
+  for (const entry of manifest) {
+    if (Math.max(entry.width, entry.height) <= maxEdge) continue;
+    const name = path.basename(entry.src);
+    const { data, error } = await bucket.download(name);
+    if (error)
+      throw new Error(`Download failed: ${entry.src}: ${error.message}`);
+    const input = Buffer.from(await data.arrayBuffer());
+    await fs.writeFile(path.join(backup, name), input);
+    const { output, width, height } = await encode(input, undefined, true);
+    await upload(entry.src, output);
+    Object.assign(entry, { width, height });
+    resized++;
+    // Written as it goes, so an interrupted run resumes where it stopped.
+    await writeJson(manifestPath, manifest);
+  }
+  console.log(
+    `Resized ${resized} of ${manifest.length} photographs to ${maxEdge}px.`,
+  );
 }
 
 // OSM Nominatim policy: one request per second, identified client, results cached (in locations.json).
@@ -223,6 +256,7 @@ async function importLightroom(exportPath, dryRun) {
 const [exportPath] = process.argv
   .slice(2)
   .filter((arg) => !arg.startsWith("--"));
-if (exportPath)
+if (process.argv.includes("--resize")) await resizeAll();
+else if (exportPath)
   await importLightroom(exportPath, process.argv.includes("--dry-run"));
 else await rebuildOriginals();
