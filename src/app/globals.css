@@ -3370,15 +3370,6 @@ html[data-photo-theme="dark"] {
     outline: 2px solid var(--ring);
     outline-offset: 4px;
   }
-  .photo-drawer-header > .drawer-browse {
-    width: auto;
-    gap: 4px;
-    padding: 0 8px;
-    font-size: 12px;
-    border-radius: 10px;
-    color: var(--ink);
-    background: transparent;
-  }
   .drawer-gallery .gallery-photo:focus-visible {
     outline-offset: 3px;
   }
@@ -3801,15 +3792,7 @@ html[data-photo-theme="dark"] {
     .photo-drawer-header {
       gap: 4px;
     }
-    .photo-drawer-header > .drawer-browse {
-      width: 44px;
-      padding: 0;
-      justify-content: center;
     }
-    .photo-drawer-header > .drawer-browse > span {
-      display: none;
-    }
-  }
 }
 
 /* At the scroll boundary, upward swipes scroll content and downward swipes pull

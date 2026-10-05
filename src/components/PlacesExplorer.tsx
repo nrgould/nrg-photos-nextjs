@@ -13,8 +13,6 @@ import { motion, useMotionValue, useReducedMotion } from "motion/react";
 import {
   ArrowLeft,
   ArrowRight,
-  ChevronDown,
-  ChevronUp,
   Download,
   Heart,
   Trash2,
@@ -1251,23 +1249,6 @@ export default function PlacesExplorer({
                 >
                   Presets
                 </Button>
-                {!desktop && (
-                  <Button
-                    variant="quiet"
-                    className="drawer-browse"
-                    aria-label={
-                      expanded ? "Collapse photographs" : "Browse photographs"
-                    }
-                    onClick={() => changeSnap(expanded ? 0.25 : 0.75)}
-                  >
-                    {!expanded && <span>Browse</span>}
-                    {expanded ? (
-                      <ChevronDown size={16} />
-                    ) : (
-                      <ChevronUp size={16} />
-                    )}
-                  </Button>
-                )}
                 {placeId && (
                   <Button
                     variant="quiet"
@@ -1406,6 +1387,8 @@ export default function PlacesExplorer({
                           aria-label={`View ${photo.title || place.name}${photo.taken ? `, ${takenLabel(photo.taken)}` : ""}`}
                           onClick={(event) => {
                             if (event.detail > 0 && dragged.current) return;
+                            // In the compact strip a tap expands the drawer; the photo opens from there.
+                            if (!expanded) return changeSnap(0.75);
                             photoFocus.current = event.currentTarget;
                             openPhotograph(photo.src);
                           }}
