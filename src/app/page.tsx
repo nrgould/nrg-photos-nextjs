@@ -1,4 +1,5 @@
 import PlacesExplorer from "@/components/PlacesExplorer";
+import { curating } from "@/lib/server/curate";
 import { getMapNode } from "@/lib/map-hierarchy";
 import { travelPlaces } from "@/lib/places";
 import {
@@ -42,6 +43,7 @@ export default async function Home({
         initialLocationId={initialLocationId}
         initialCatalogState={initialCatalogState}
         initialView={initialView}
+        curating={curating()}
         contactEmailEnabled={Boolean(
           process.env.RESEND_API_KEY && process.env.CONTACT_FROM_EMAIL,
         )}

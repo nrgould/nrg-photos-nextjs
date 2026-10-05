@@ -17,6 +17,7 @@ import {
   ChevronUp,
   Download,
   Heart,
+  Trash2,
   Mail,
   Moon,
   Search,
@@ -154,11 +155,14 @@ export default function PlacesExplorer({
   initialCatalogState,
   initialView,
   contactEmailEnabled = false,
+  curating = false,
 }: {
   initialLocationId?: string | null;
   initialCatalogState?: PresetCatalogState;
   initialView?: "catalog" | "cart" | "library";
   contactEmailEnabled?: boolean;
+  /** Preview only: mark photos for removal (src/app/api/curate). */
+  curating?: boolean;
 }) {
   const initialNode = useMemo(
     () => getMapNode(initialLocationId ?? null, travelPlaces),
@@ -267,6 +271,28 @@ export default function PlacesExplorer({
   const [command, setCommand] = useState(false);
   const [contact, setContact] = useState(false);
   const [viewer, setViewer] = useState<string | null>(null);
+  const [removals, setRemovals] = useState<string[]>([]);
+  useEffect(() => {
+    if (!curating) return;
+    fetch("/api/curate")
+      .then((response) => (response.ok ? response.json() : { srcs: [] }))
+      .then(({ srcs }) => setRemovals(srcs));
+  }, [curating]);
+  function toggleRemoval(src: string) {
+    const removed = !removals.includes(src);
+    const previous = removals;
+    setRemovals(
+      removed ? [...removals, src] : removals.filter((entry) => entry !== src),
+    );
+    fetch("/api/curate", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ src, removed }),
+    }).then(
+      (response) => response.ok || setRemovals(previous),
+      () => setRemovals(previous),
+    );
+  }
   const [drawerElement, setDrawerElement] = useState<HTMLDivElement | null>(
     null,
   );
@@ -1310,7 +1336,10 @@ export default function PlacesExplorer({
                       </figure>
                     ))
                   : place?.photos.map((photo, index) => (
-                      <figure key={photo.src}>
+                      <figure
+                        key={photo.src}
+                        data-removal={removals.includes(photo.src) || undefined}
+                      >
                         <MotionButton
                           variant="quiet"
                           press={false}
@@ -1338,6 +1367,13 @@ export default function PlacesExplorer({
                                   : "(max-width: 700px) calc(33vw - 16px), 114px"
                             }
                           />
+                          {removals.includes(photo.src) && (
+                            <Trash2
+                              className="gallery-removal"
+                              size={16}
+                              aria-label="Marked for removal"
+                            />
+                          )}
                         </MotionButton>
                       </figure>
                     ))}
@@ -1454,20 +1490,34 @@ export default function PlacesExplorer({
         finalFocus={photoFocus}
         action={(photo) => {
           const saved = favorites.photoSrcs.includes(photo.src);
+          const removed = removals.includes(photo.src);
           return (
-            <Button
-              variant="icon"
-              aria-label={`Save ${photo.title}`}
-              aria-pressed={saved}
-              onClick={() => toggleFavorite("photoSrcs", photo.src)}
-            >
-              <Heart
-                size={22}
-                strokeWidth={1.5}
-                fill={saved ? "currentColor" : "none"}
-                className={saved ? "text-favorite" : undefined}
-              />
-            </Button>
+            <>
+              {curating && (
+                <Button
+                  variant="quiet"
+                  className="lightbox-removal"
+                  aria-pressed={removed}
+                  onClick={() => toggleRemoval(photo.src)}
+                >
+                  <Trash2 size={16} aria-hidden="true" />
+                  {removed ? "Marked for removal" : "Mark for removal"}
+                </Button>
+              )}
+              <Button
+                variant="icon"
+                aria-label={`Save ${photo.title}`}
+                aria-pressed={saved}
+                onClick={() => toggleFavorite("photoSrcs", photo.src)}
+              >
+                <Heart
+                  size={22}
+                  strokeWidth={1.5}
+                  fill={saved ? "currentColor" : "none"}
+                  className={saved ? "text-favorite" : undefined}
+                />
+              </Button>
+            </>
           );
         }}
         photos={place?.photos ?? []}

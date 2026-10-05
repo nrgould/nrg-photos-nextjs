@@ -843,6 +843,22 @@
     align-items: center;
     gap: 4px;
   }
+  .lightbox-removal {
+    color: inherit;
+    padding: 0 12px;
+  }
+  .drawer-gallery figure[data-removal] .gallery-photo {
+    position: relative;
+  }
+  .drawer-gallery figure[data-removal] img {
+    opacity: 0.3;
+  }
+  .gallery-removal {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    color: var(--ink);
+  }
   .lightbox-image {
     position: relative;
     flex: 1;
