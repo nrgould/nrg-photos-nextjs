@@ -27,6 +27,7 @@ export function readAccountConfiguration(
       origin: origin.origin,
       supabaseUrl: supabase.origin,
       publishableKey: env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+      captchaSiteKey: env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || null,
     };
   } catch {
     return null;

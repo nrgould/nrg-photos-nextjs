@@ -16,7 +16,8 @@ import { Label } from "./ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 export function AccountControl({ className }: { className?: string }) {
-  const { enabled, supabase, userId, email, anonymous } = useCommerceAccount();
+  const { enabled, supabase, userId, email, anonymous, captcha } =
+    useCommerceAccount();
   const [open, setOpen] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
   // A guest links the email to keep its purchases; "email_change" is that code's type.
@@ -33,30 +34,38 @@ export function AccountControl({ className }: { className?: string }) {
     setPending(true);
     setError(null);
     const redirect = window.location.origin + window.location.pathname;
-    let error;
-    if (sentTo)
-      ({ error } = await supabase.auth.verifyOtp({
-        email: sentTo,
-        token: value,
-        type: codeType,
-      }));
-    else {
-      let type: typeof codeType = "email";
-      if (anonymous) {
-        ({ error } = await supabase.auth.updateUser(
-          { email: value },
-          { emailRedirectTo: redirect },
-        ));
-        if (!error) type = "email_change";
-      }
-      // ponytail: an email that already has an account signs into it, leaving guest
-      // purchases on the guest id; merging them needs a server endpoint that checks both sessions.
-      if (!anonymous || error?.code === "email_exists")
-        ({ error } = await supabase.auth.signInWithOtp({
-          email: value,
-          options: { emailRedirectTo: redirect },
+    let error: { message: string; code?: string } | null = null;
+    try {
+      if (sentTo)
+        ({ error } = await supabase.auth.verifyOtp({
+          email: sentTo,
+          token: value,
+          type: codeType,
+          options: { captchaToken: await captcha() },
         }));
-      setCodeType(type);
+      else {
+        let type: typeof codeType = "email";
+        if (anonymous) {
+          ({ error } = await supabase.auth.updateUser(
+            { email: value },
+            { emailRedirectTo: redirect },
+          ));
+          if (!error) type = "email_change";
+        }
+        // ponytail: an email that already has an account signs into it, leaving guest
+        // purchases on the guest id; merging them needs a server endpoint that checks both sessions.
+        if (!anonymous || error?.code === "email_exists")
+          ({ error } = await supabase.auth.signInWithOtp({
+            email: value,
+            options: {
+              emailRedirectTo: redirect,
+              captchaToken: await captcha(),
+            },
+          }));
+        setCodeType(type);
+      }
+    } catch (thrown) {
+      error = thrown instanceof Error ? thrown : new Error("Try again.");
     }
     setPending(false);
     if (error) return setError(error.message);

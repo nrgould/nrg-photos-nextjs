@@ -221,12 +221,17 @@ export function useCommerceBoundary() {
           guest.current = null;
           reject(error);
         };
-        setTimeout(() => fail(new Error("Checkout unavailable")), 15000);
-        supabase.auth
-          .signInAnonymously()
-          .then(({ error }) => error && fail(error), fail);
+        account
+          .captcha()
+          .then((captchaToken) =>
+            supabase.auth.signInAnonymously({ options: { captchaToken } }),
+          )
+          .then(({ error }) => {
+            if (error) return fail(error);
+            setTimeout(() => fail(new Error("Checkout unavailable")), 15000);
+          }, fail);
       }),
-    [account.supabase],
+    [account],
   );
   useEffect(() => {
     const queued = guest.current;

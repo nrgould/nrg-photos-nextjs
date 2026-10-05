@@ -19,6 +19,7 @@ export function getAccountPublicConfiguration() {
     ? {
         supabaseUrl: account.supabaseUrl,
         publishableKey: account.publishableKey,
+        captchaSiteKey: account.captchaSiteKey,
       }
     : null;
 }

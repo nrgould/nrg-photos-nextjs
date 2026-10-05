@@ -78,7 +78,11 @@ export function PresetDownloadButton({ presetId }: { presetId: string }) {
       >
         {busy ? "Preparing download…" : "Download preset"}
       </Button>
-      <span role="status">{message}</span>
+      <span role="status">
+        {message ||
+          (account.anonymous &&
+            "Saved in this browser only. Sign in to keep it.")}
+      </span>
     </>
   );
 }
