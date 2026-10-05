@@ -869,18 +869,18 @@
     "coordinateSource": "geocoded"
   },
   {
-    "id": "rochester",
+    "id": "wolcott",
     "parent": "new-york",
-    "name": "Rochester",
+    "name": "Wolcott",
     "coordinates": [
-      -77.62,
-      43.16
+      -76.81,
+      43.22
     ],
     "coordinateSource": "geocoded"
   },
   {
-    "id": "lake-ontario",
-    "parent": "rochester",
-    "name": "Lake Ontario"
+    "id": "chimney-bluffs-state-park",
+    "parent": "wolcott",
+    "name": "Chimney Bluffs State Park"
   }
 ]
