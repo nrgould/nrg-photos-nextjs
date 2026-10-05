@@ -3792,7 +3792,7 @@ html[data-photo-theme="dark"] {
     .photo-drawer-header {
       gap: 4px;
     }
-    }
+  }
 }
 
 /* At the scroll boundary, upward swipes scroll content and downward swipes pull
