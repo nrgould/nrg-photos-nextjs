@@ -12,6 +12,7 @@ import { getAccountPublicConfiguration } from "@/lib/server/commerce-runtime";
 import { photoUrl } from "@/lib/photography";
 import { site } from "@/lib/site";
 import { seoLaunchMetadata } from "@/lib/seo-config";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 const serif = Cormorant_Garamond({
   subsets: ["latin"],
@@ -89,6 +90,7 @@ export default async function RootLayout({
         <CommerceProviders account={account}>
           <CommerceCartProvider>{children}</CommerceCartProvider>
         </CommerceProviders>
+        <Analytics />
       </body>
     </html>
   );
