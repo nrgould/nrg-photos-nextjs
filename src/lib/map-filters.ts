@@ -1,3 +1,5 @@
+import { getMapNodes, type MapNode } from "./map-hierarchy";
+import type { Photo } from "./photography";
 import { shuffleIndex, type TravelPlace } from "./places";
 
 export type PhotoOrientation = "any" | "horizontal" | "vertical";
@@ -118,4 +120,48 @@ export function navigatePlaces(
         : (current + (direction === "back" ? -1 : 1) + places.length) %
           places.length;
   return places[index].id;
+}
+
+export type SearchHit<T> = T & { node: MapNode; collection: string };
+
+// Accent-blind, so "tromso" finds Tromsø.
+const fold = (text: string) =>
+  text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .replace(/ø/g, "o")
+    .replace(/æ/g, "ae")
+    .replace(/ß/g, "ss");
+
+/** Text search over places and photographs: every word must appear. */
+export function searchExplorer(
+  places: TravelPlace[],
+  query: string,
+  limit = 20,
+) {
+  const words = fold(query).split(/\s+/).filter(Boolean);
+  const matches = (...text: string[]) => {
+    const haystack = fold(text.join(" "));
+    return words.every((word) => haystack.includes(word));
+  };
+  const collection = (node: MapNode) =>
+    places.find((place) => place.id === node.collectionId)?.name ?? "";
+  const locations = getMapNodes(places, "location");
+  const placeHits = [...getMapNodes(places, "country"), ...locations]
+    .map((node) => ({ node, collection: collection(node) }))
+    .filter(({ node, collection }) => matches(node.label, collection));
+  if (!words.length) return { places: placeHits, photos: [] };
+  // Locations before countries, so a photo is listed under its own place.
+  const seen = new Set<string>();
+  const photos: SearchHit<{ photo: Photo }>[] = [];
+  for (const node of [...locations, ...getMapNodes(places, "country")])
+    for (const photo of node.photos) {
+      if (seen.has(photo.src)) continue;
+      seen.add(photo.src);
+      const name = collection(node);
+      if (matches(photo.title, photo.alt, node.label, name))
+        photos.push({ photo, node, collection: name });
+    }
+  return { places: placeHits, photos: photos.slice(0, limit) };
 }

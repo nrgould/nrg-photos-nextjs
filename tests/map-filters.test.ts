@@ -10,6 +10,7 @@ import {
   mapFilterFacetCounts,
   navigatePlaces,
   retainSelection,
+  searchExplorer,
   type MapFilters,
 } from "../src/lib/map-filters";
 
@@ -267,5 +268,29 @@ test("facet counts predict the next choice while respecting the other filter", (
   assert.deepEqual(
     results({ locationIds: defaults.locationIds, orientation: "any" }),
     [total, travelPlaces.length],
+  );
+});
+
+test("search matches every word across places and photographs", () => {
+  const empty = searchExplorer(travelPlaces, "");
+  assert.equal(empty.photos.length, 0);
+  assert.ok(empty.places.some(({ node }) => node.kind === "country"));
+
+  const braies = searchExplorer(travelPlaces, "braies italy");
+  assert.ok(braies.places.some(({ node }) => node.label === "Lago di Braies"));
+  assert.ok(braies.photos.length > 0);
+  assert.ok(braies.photos.length <= 20);
+  for (const { node, collection } of braies.photos)
+    assert.equal(`${node.label} ${collection}`.includes("Braies"), true);
+  assert.equal(
+    new Set(braies.photos.map(({ photo }) => photo.src)).size,
+    braies.photos.length,
+  );
+
+  assert.deepEqual(searchExplorer(travelPlaces, "braies norway").places, []);
+  assert.ok(
+    searchExplorer(travelPlaces, "tromso").places.some(
+      ({ node }) => node.label === "Tromsø",
+    ),
   );
 });

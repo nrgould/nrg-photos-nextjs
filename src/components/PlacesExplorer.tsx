@@ -28,10 +28,11 @@ import {
 import { selectionFeedback } from "@/lib/haptics";
 import { heroSrcs, travelPlaces } from "@/lib/places";
 import { galleryLayout, heroCount } from "@/lib/gallery-layout";
-import { takenLabel } from "@/lib/photography";
+import Image from "next/image";
+import { photoUrl, takenLabel } from "@/lib/photography";
 import { drawerOwnsGesture, shouldDismissDrawer } from "@/lib/drawer-gesture";
 import { getMapNode, getMapNodes, type MapNode } from "@/lib/map-hierarchy";
-import { navigatePlaces } from "@/lib/map-filters";
+import { navigatePlaces, searchExplorer } from "@/lib/map-filters";
 import { Button } from "./ui/button";
 import MapZoom from "./MapZoom";
 import { Separator } from "./ui/separator";
@@ -41,13 +42,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
-import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import {
   Command,
-  CommandInput,
-  CommandList,
-  CommandItem,
+  CommandDialog,
   CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
 } from "./ui/command";
 import {
   Drawer,
@@ -280,6 +282,7 @@ export default function PlacesExplorer({
   // A phone's nested sheet is 75% tall; the drawer under it lifts to 75% so it shows receding above.
   const snap = nested && !desktop && chosenSnap === 0.25 ? 0.75 : chosenSnap;
   const [command, setCommand] = useState(false);
+  const [query, setQuery] = useState("");
   const [viewer, setViewer] = useState<string | null>(null);
   const [removals, setRemovals] = useState<string[]>([]);
   useEffect(() => {
@@ -450,6 +453,14 @@ export default function PlacesExplorer({
     ],
     [filteredPlaces],
   );
+  const results = useMemo(
+    () => searchExplorer(filteredPlaces, query),
+    [filteredPlaces, query],
+  );
+  function closeSearch() {
+    setCommand(false);
+    setQuery("");
+  }
   const locationCount = searchNodes.filter(
     (node) => node.kind === "location",
   ).length;
@@ -704,6 +715,7 @@ export default function PlacesExplorer({
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
         setCommand((v) => !v);
+        setQuery("");
       }
     };
     window.addEventListener("keydown", listener);
@@ -717,7 +729,7 @@ export default function PlacesExplorer({
   const search = (
     <Control
       variant={desktop ? undefined : "quiet"}
-      label="Find a place"
+      label="Search"
       onClick={() => setCommand(true)}
     >
       <Search size={18} />
@@ -1097,9 +1109,7 @@ export default function PlacesExplorer({
             if (origin?.isConnected) origin.focus({ preventScroll: true });
             else
               document
-                .querySelector<HTMLButtonElement>(
-                  'button[aria-label="Find a place"]',
-                )
+                .querySelector<HTMLButtonElement>('button[aria-label="Search"]')
                 ?.focus({ preventScroll: true });
           }}
           onPointerOutCapture={(event) => {
@@ -1498,42 +1508,87 @@ export default function PlacesExplorer({
           <div className="drawer-commerce-pane">{nested && page}</div>
         </DrawerContent>
       </Drawer>
-      <Dialog open={command} onOpenChange={setCommand}>
-        <DialogContent
-          variant="panel"
-          className="location-search explorer-overlay"
-          finalFocus={() =>
-            open ? (drawerHandle.current ?? drawerElement) : true
-          }
-        >
-          <DialogTitle className="sr-only">Find a place</DialogTitle>
-          <Command>
-            <CommandInput placeholder="Find a place…" />
-            <CommandList>
-              <CommandEmpty>No places found.</CommandEmpty>
-              {searchNodes.map((node) => (
-                <CommandItem
-                  key={node.id}
-                  value={`${node.label} ${filteredPlaces.find((collection) => collection.id === node.collectionId)?.name ?? ""}`}
-                  onSelect={() => {
-                    chooseNode(node);
-                    setCommand(false);
-                  }}
-                >
-                  {node.label}
-                  <span>
-                    {node.kind === "country"
-                      ? "All photographs"
-                      : filteredPlaces.find(
-                          (collection) => collection.id === node.collectionId,
-                        )?.name}
-                  </span>
-                </CommandItem>
-              ))}
-            </CommandList>
-          </Command>
-        </DialogContent>
-      </Dialog>
+      <CommandDialog
+        open={command}
+        onOpenChange={(next) => (next ? setCommand(true) : closeSearch())}
+        title="Search"
+        description="Search places and photographs."
+        className="explorer-overlay"
+        finalFocus={() =>
+          open ? (drawerHandle.current ?? drawerElement) : true
+        }
+      >
+        <Command shouldFilter={false}>
+          <CommandInput
+            placeholder="Search places and photographs…"
+            value={query}
+            onValueChange={setQuery}
+          />
+          <CommandList>
+            <CommandEmpty>No results.</CommandEmpty>
+            {results.places.length > 0 && (
+              <CommandGroup heading="Places">
+                {results.places.map(({ node, collection }) => (
+                  <CommandItem
+                    key={node.id}
+                    value={node.id}
+                    className="min-h-11"
+                    onSelect={() => {
+                      chooseNode(node);
+                      closeSearch();
+                    }}
+                  >
+                    {node.label}
+                    <span className="ml-auto text-xs text-muted-foreground">
+                      {node.kind === "country" ? "All photographs" : collection}
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+            {results.photos.length > 0 && (
+              <CommandGroup heading="Photographs">
+                {results.photos.map(({ photo, node, collection }) => (
+                  <CommandItem
+                    key={photo.src}
+                    value={photo.src}
+                    onSelect={() => {
+                      chooseNode(node);
+                      openPhotograph(photo.src);
+                      closeSearch();
+                    }}
+                  >
+                    <Image
+                      className="size-11 shrink-0 rounded-md object-cover"
+                      src={photoUrl(photo.src)}
+                      alt=""
+                      width={44}
+                      height={44}
+                      sizes="44px"
+                      quality={75}
+                    />
+                    <span className="grid min-w-0">
+                      <span className="truncate">
+                        {photo.title || node.label}
+                      </span>
+                      <span className="truncate text-xs text-muted-foreground">
+                        {[
+                          node.kind === "country" || photo.title === node.label
+                            ? collection
+                            : node.label,
+                          takenLabel(photo.taken),
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </span>
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+          </CommandList>
+        </Command>
+      </CommandDialog>
       <Lightbox
         finalFocus={photoFocus}
         action={(photo) => {

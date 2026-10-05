@@ -2937,10 +2937,6 @@ html[data-photo-theme="dark"] {
     white-space: nowrap;
     color: var(--ink);
   }
-  .location-search {
-    border-radius: 14px;
-    padding: 8px;
-  }
   .account-dialog-header {
     display: flex;
     align-items: center;
@@ -2970,26 +2966,6 @@ html[data-photo-theme="dark"] {
     flex-direction: column;
     gap: 16px;
     margin-top: 16px;
-  }
-  .location-search [cmdk-root] {
-    background: var(--paper);
-    color: var(--ink);
-  }
-  .location-search [cmdk-input-wrapper] {
-    height: 48px;
-  }
-  .location-search [cmdk-item] {
-    min-height: 48px;
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-  }
-  .location-search [cmdk-item] span {
-    color: var(--muted-foreground);
-    font-size: 12px;
-  }
-  .location-search [cmdk-item][data-selected="true"] {
-    background: var(--pale);
   }
   @media (min-width: 701px) {
     .location-drawer[data-vaul-drawer] {
