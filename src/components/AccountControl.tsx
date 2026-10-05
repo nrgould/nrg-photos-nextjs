@@ -150,10 +150,8 @@ export function AccountControl({ className }: { className?: string }) {
                 autoFocus={Boolean(sentTo)}
                 required
                 aria-invalid={Boolean(error)}
-                className={cn(
-                  "h-12 rounded-[11px] border border-line px-3.5 py-0 focus-visible:outline-offset-0",
-                  sentTo && "tabular-nums tracking-[0.2em]",
-                )}
+                variant="boxed"
+                className={cn(sentTo && "tabular-nums tracking-[0.2em]")}
                 {...(sentTo
                   ? {
                       inputMode: "numeric",
@@ -173,7 +171,12 @@ export function AccountControl({ className }: { className?: string }) {
                 {error}
               </p>
             )}
-            <Button type="submit" className="justify-center" disabled={pending}>
+            <Button
+              type="submit"
+              variant="default"
+              size="lg"
+              disabled={pending}
+            >
               {sentTo
                 ? pending
                   ? "Signing in…"

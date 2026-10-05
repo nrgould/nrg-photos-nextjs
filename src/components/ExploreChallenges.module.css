@@ -230,7 +230,7 @@
 }
 .toastCheck {
   padding: 4px;
-  background: var(--forest);
+  background: var(--primary);
   stroke: var(--primary-foreground);
 }
 .toastText {

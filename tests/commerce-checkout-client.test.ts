@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  attemptPresetIds,
   checkoutAttempt,
   checkoutReturnPath,
   currentOwnership,
@@ -130,4 +131,21 @@ test("checkout redirects allow only the exact HTTPS Stripe Checkout origin", () 
   ])
     assert.equal(stripeCheckoutUrl({ url }), null);
   assert.equal(stripeCheckoutUrl({ status: "paid" }), null);
+});
+
+test("a stored attempt names its paid presets only for the user who started it", () => {
+  const stored = checkoutAttempt(
+    "user-a",
+    ["signature-02", "signature-01"],
+    "/?view=cart",
+    null,
+    () => "request-id-0000000001",
+  );
+  assert.deepEqual(attemptPresetIds(stored, "user-a"), [
+    "signature-01",
+    "signature-02",
+  ]);
+  assert.deepEqual(attemptPresetIds(stored, "user-b"), []);
+  assert.deepEqual(attemptPresetIds({ key: "not json" }, "user-a"), []);
+  assert.deepEqual(attemptPresetIds(null, "user-a"), []);
 });

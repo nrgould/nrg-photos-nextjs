@@ -1,9 +1,19 @@
 "use client";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState, type ComponentProps } from "react";
+import { Download } from "lucide-react";
+import { getCatalogPreset } from "@/lib/preset-commerce";
 import { useCommerceAccount } from "./CommerceProviders";
 import { Button } from "./ui/button";
 
-export function PresetDownloadButton({ presetId }: { presetId: string }) {
+export function PresetDownloadButton({
+  presetId,
+  variant = "default",
+  size,
+  className,
+}: { presetId: string } & Pick<
+  ComponentProps<typeof Button>,
+  "variant" | "size" | "className"
+>) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const account = useCommerceAccount();
@@ -72,17 +82,17 @@ export function PresetDownloadButton({ presetId }: { presetId: string }) {
   return (
     <>
       <Button
-        variant="control"
+        variant={variant}
+        size={size}
+        className={className}
         disabled={busy || !sessionKey}
+        aria-label={`Download ${getCatalogPreset(presetId)?.name ?? "preset"}`}
         onClick={download}
       >
-        {busy ? "Preparing download…" : "Download preset"}
+        <Download aria-hidden="true" />
+        {busy ? "Preparing…" : "Download"}
       </Button>
-      <span role="status">
-        {message ||
-          (account.anonymous &&
-            "Saved in this browser only. Sign in to keep it.")}
-      </span>
+      <span role="status">{message}</span>
     </>
   );
 }

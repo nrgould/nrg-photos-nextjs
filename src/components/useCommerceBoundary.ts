@@ -14,6 +14,7 @@ import type {
 } from "./PresetCartPanel";
 import {
   checkoutAttempt,
+  checkoutAttemptStorageKey as attemptStorageKey,
   checkoutReturnPath,
   currentOwnership,
   stripeCheckoutUrl,
@@ -22,7 +23,6 @@ import {
   type OwnershipSnapshot,
 } from "@/lib/commerce-checkout-client";
 
-const attemptStorageKey = "photography-checkout-attempt-v1";
 const emptyOwned: readonly string[] = [];
 
 export function useCommerceBoundary() {

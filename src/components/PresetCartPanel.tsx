@@ -11,6 +11,13 @@ import {
 } from "@/lib/preset-cart-storage";
 import { usePresetCart } from "./PresetCartProvider";
 import { Button } from "./ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "./ui/empty";
 import { Item, ItemActions, ItemContent, ItemGroup } from "./ui/item";
 import styles from "./PresetCatalog.module.css";
 
@@ -90,17 +97,19 @@ export default function PresetCartPanel({
         </div>
       </header>
       {cartIds.length === 0 ? (
-        <div className={styles.cartEmpty}>
-          <ShoppingBag size={28} strokeWidth={1.5} aria-hidden="true" />
-          <h3>Your cart is empty</h3>
-          <Button
-            variant="control"
-            className={styles.action}
-            onClick={onBrowse}
-          >
-            Browse presets
-          </Button>
-        </div>
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <ShoppingBag />
+            </EmptyMedia>
+            <EmptyTitle>Your cart is empty</EmptyTitle>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button variant="outline" onClick={onBrowse}>
+              Browse presets
+            </Button>
+          </EmptyContent>
+        </Empty>
       ) : (
         <>
           <div ref={list} className={styles.cartResults}>
@@ -181,8 +190,9 @@ export default function PresetCartPanel({
               </div>
             </dl>
             <Button
-              variant="solid"
-              className={styles.buy}
+              size="lg"
+              variant="default"
+              className="w-full"
               disabled={checkout.status === "unavailable" || pending}
               aria-busy={pending}
               onClick={beginCheckout}
@@ -192,7 +202,7 @@ export default function PresetCartPanel({
                 : checkout.status === "test-ready"
                   ? "Continue to test checkout"
                   : "Checkout unavailable"}
-              <LockKeyhole size={16} aria-hidden="true" />
+              <LockKeyhole aria-hidden="true" />
             </Button>
             <p className={styles.notice}>
               {checkout.status === "test-ready"

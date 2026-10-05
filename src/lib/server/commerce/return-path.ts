@@ -16,9 +16,7 @@ const hasControls = (value: string) =>
       character.charCodeAt(0) < 32 || character.charCodeAt(0) === 127,
   );
 
-export function normalizeCommerceReturnPath(
-  value: unknown = "/",
-): string {
+export function normalizeCommerceReturnPath(value: unknown = "/"): string {
   const invalid = () => new CommerceError("invalid_return_path");
   if (
     typeof value !== "string" ||
@@ -42,8 +40,7 @@ export function normalizeCommerceReturnPath(
     if (keys.has(key) || hasControls(parameter)) throw invalid();
     keys.add(key);
     if (key === "location") {
-      if (!locationIds.has(parameter))
-        throw invalid();
+      if (!locationIds.has(parameter)) throw invalid();
     } else if (key === "view") {
       if (parameter !== "catalog" && parameter !== "cart") throw invalid();
     } else if (key === "query") {
@@ -66,5 +63,7 @@ export function checkoutReturnUrl(
 ) {
   const url = new URL(normalizeCommerceReturnPath(returnPath), origin);
   url.searchParams.set("checkout", outcome);
+  // A paid order lands on the library, where its presets download.
+  if (outcome === "returned") url.searchParams.set("view", "library");
   return url.toString();
 }

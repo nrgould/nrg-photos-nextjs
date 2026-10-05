@@ -2,6 +2,23 @@ import { getCatalogPreset } from "./preset-commerce";
 import { safePresetReturnPath } from "./preset-cart-storage";
 
 export type CheckoutAttempt = { requestId: string; key: string };
+export const checkoutAttemptStorageKey = "photography-checkout-attempt-v1";
+
+/** Presets a stored checkout attempt paid for, when it belongs to this user. */
+export function attemptPresetIds(value: unknown, userId: string): string[] {
+  if (!value || typeof value !== "object" || !("key" in value)) return [];
+  try {
+    const [owner, ids] = JSON.parse(String(value.key)) as unknown[];
+    return owner === userId && Array.isArray(ids)
+      ? ids.filter(
+          (id): id is string =>
+            typeof id === "string" && Boolean(getCatalogPreset(id)),
+        )
+      : [];
+  } catch {
+    return [];
+  }
+}
 export type OwnershipSnapshot = {
   sessionKey: string;
   revision: number;

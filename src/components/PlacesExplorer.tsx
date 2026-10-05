@@ -15,6 +15,7 @@ import {
   ArrowRight,
   ChevronDown,
   ChevronUp,
+  Download,
   Heart,
   Leaf,
   Mail,
@@ -67,6 +68,7 @@ import ExploreChallenges, {
 import { useExplorationProgress } from "./useExplorationProgress";
 import type { ExplorationEvent } from "@/lib/exploration-progress";
 import PresetCartPanel from "./PresetCartPanel";
+import PresetLibraryPanel from "./PresetLibraryPanel";
 import SavedPanel from "./SavedPanel";
 import { useFavorites } from "./useFavorites";
 import { nodeForPhoto, placeNode } from "@/lib/favorites";
@@ -82,7 +84,7 @@ import {
 } from "@/lib/preset-commerce";
 
 type DrawerView =
-  "photos" | "presets" | "saved" | "cart" | "challenges" | "preset";
+  "photos" | "presets" | "saved" | "cart" | "library" | "challenges" | "preset";
 // Pages nest above an open photo drawer; otherwise a page is the drawer.
 type PageView = Exclude<DrawerView, "photos">;
 const pageBackLabels: Record<DrawerView, string> = {
@@ -90,6 +92,7 @@ const pageBackLabels: Record<DrawerView, string> = {
   presets: "All presets",
   saved: "Saved",
   cart: "Cart",
+  library: "Your presets",
   challenges: "Challenges",
   preset: "Preset",
 };
@@ -154,7 +157,7 @@ export default function PlacesExplorer({
 }: {
   initialLocationId?: string | null;
   initialCatalogState?: PresetCatalogState;
-  initialView?: "catalog" | "cart";
+  initialView?: "catalog" | "cart" | "library";
   contactEmailEnabled?: boolean;
 }) {
   const initialNode = useMemo(
@@ -217,8 +220,8 @@ export default function PlacesExplorer({
     createPresetCatalogState({ ...initialCatalogState, query: "" }),
   );
   const [initialPages] = useState<PageView[]>(() =>
-    initialView === "cart"
-      ? ["cart"]
+    initialView === "cart" || initialView === "library"
+      ? [initialView]
       : initialView === "catalog"
         ? getCatalogPreset(catalogState.selectedPresetId)
           ? ["presets", "preset"]
@@ -666,9 +669,11 @@ export default function PlacesExplorer({
         ? "Saved places and photographs"
         : view === "cart"
           ? "Your preset cart"
-          : view === "challenges"
-            ? "Exploration challenges"
-            : "All presets";
+          : view === "library"
+            ? "Your presets"
+            : view === "challenges"
+              ? "Exploration challenges"
+              : "All presets";
   }
   // Pages nest only above photos, so at most one layer shows a page.
   const pageView = nested ?? (drawerMode === "photos" ? null : drawerMode);
@@ -725,6 +730,14 @@ export default function PlacesExplorer({
           onBrowse={() => openPage("presets")}
           returnPath={`/?${checkoutParams}`}
           checkout={checkout}
+        />
+      );
+    if (view === "library")
+      return (
+        <PresetLibraryPanel
+          backLabel={backLabel}
+          onBack={onBack}
+          onBrowse={() => openPage("presets")}
         />
       );
     if (view === "challenges")
@@ -786,6 +799,16 @@ export default function PlacesExplorer({
               <span aria-hidden="true">{cartIds.length}</span>
             )}
           </Button>
+          {ownedPresetIds.length > 0 && (
+            <Button
+              variant="control"
+              aria-label={`Your presets, ${ownedPresetIds.length} owned`}
+              aria-expanded={topView === "library"}
+              onClick={(event) => openPage("library", event.currentTarget)}
+            >
+              <Download size={18} aria-hidden="true" />
+            </Button>
+          )}
           <AccountControl className="explorer-account-trigger" />
         </ButtonGroup>
       </div>
@@ -1217,6 +1240,16 @@ export default function PlacesExplorer({
                     <ShoppingBag size={16} aria-hidden="true" />
                     <span>{cartIds.length}</span>
                   </Button>
+                  {ownedPresetIds.length > 0 && (
+                    <Button
+                      variant="quiet"
+                      aria-label="Your presets"
+                      aria-pressed={drawerMode === "library"}
+                      onClick={() => openPage("library")}
+                    >
+                      <Download size={16} aria-hidden="true" />
+                    </Button>
+                  )}
                 </div>
                 <Button
                   variant="quiet"
@@ -1357,7 +1390,7 @@ export default function PlacesExplorer({
           className="contact-dialog explorer-overlay"
         >
           <DialogTitle>Contact</DialogTitle>
-          <ContactForm emailEnabled={contactEmailEnabled} />
+          <ContactForm emailEnabled={contactEmailEnabled} variant="boxed" />
         </DialogContent>
       </Dialog>
       <Dialog open={command} onOpenChange={setCommand}>

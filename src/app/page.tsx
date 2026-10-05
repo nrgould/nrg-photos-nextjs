@@ -26,7 +26,9 @@ export default async function Home({
     selectedPresetId: typeof params.preset === "string" ? params.preset : null,
   });
   const initialView =
-    params.view === "cart" || params.view === "catalog"
+    params.view === "cart" ||
+    params.view === "catalog" ||
+    params.view === "library"
       ? params.view
       : undefined;
   return (

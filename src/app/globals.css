@@ -131,10 +131,10 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --radius-sm: var(--radius);
-  --radius-md: var(--radius);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
-  --radius-xl: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
 }
 
 @layer base {
@@ -2435,9 +2435,10 @@ html[data-photo-theme="dark"] {
     --muted: var(--pale);
     --accent: var(--pale);
     --accent-foreground: var(--ink);
-    --primary: var(--forest);
+    --primary: var(--ink);
     --primary-foreground: var(--paper);
     --border: var(--line);
+    --radius: 0.625rem;
     --sans:
       var(--font-explorer-sans), -apple-system, BlinkMacSystemFont,
       "Helvetica Neue", sans-serif;
@@ -2526,10 +2527,6 @@ html[data-photo-theme="dark"] {
 }
 
 @layer components {
-  html[data-photo-theme="dark"] .explorer,
-  html[data-photo-theme="dark"] body:has(.explorer) .explorer-overlay {
-    --primary-foreground: var(--neutral-0);
-  }
   html[data-photo-theme="dark"] .explorer [aria-pressed="true"],
   html[data-photo-theme="dark"]
     body:has(.explorer)

@@ -17,7 +17,10 @@ test("checkout return keeps known catalog state and canonical location in fixed 
     );
     assert.equal(url.origin, "https://photo.example");
     assert.equal(url.pathname, "/");
-    assert.equal(url.searchParams.get("view"), "cart");
+    assert.equal(
+      url.searchParams.get("view"),
+      outcome === "returned" ? "library" : "cart",
+    );
     assert.equal(url.searchParams.get("query"), "alpine light");
     assert.equal(url.searchParams.get("category"), "Landscape & travel");
     assert.equal(url.searchParams.get("preset"), "signature-01");
@@ -33,7 +36,7 @@ test("checkout return keeps known catalog state and canonical location in fixed 
   );
   assert.equal(map.pathname, "/");
   assert.equal(map.searchParams.get("location"), "location:seceda");
-  assert.equal(map.searchParams.get("view"), "cart");
+  assert.equal(map.searchParams.get("view"), "library");
   assert.equal(map.searchParams.get("query"), "alpine");
   assert.equal(map.searchParams.get("category"), "Landscape & travel");
   assert.equal(map.searchParams.get("preset"), "signature-01");

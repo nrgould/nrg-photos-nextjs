@@ -9,15 +9,21 @@ import {
 } from "@/lib/contact";
 import { site } from "@/lib/site";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Input, type FieldVariant } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 export default function ContactForm({
   emailEnabled,
+  variant,
 }: {
   emailEnabled: boolean;
-}) {
+} & FieldVariant) {
+  const label = cn(
+    "mb-[31px] max-sm:mb-6",
+    variant === "boxed" && "mb-4 max-sm:mb-4",
+  );
   const [status, setStatus] = useState<
     "idle" | "sending" | "sent" | "draft" | "error"
   >("idle");
@@ -104,9 +110,10 @@ export default function ContactForm({
       onSubmit={submit}
     >
       <div className="form-row">
-        <Label htmlFor="name" className="mb-[31px] max-sm:mb-6">
+        <Label htmlFor="name" className={label}>
           Name
           <Input
+            variant={variant}
             id="name"
             name="name"
             defaultValue={lastInput?.name}
@@ -116,9 +123,10 @@ export default function ContactForm({
             placeholder="First and last name"
           />
         </Label>
-        <Label htmlFor="email" className="mb-[31px] max-sm:mb-6">
+        <Label htmlFor="email" className={label}>
           Email
           <Input
+            variant={variant}
             id="email"
             name="email"
             defaultValue={lastInput?.email}
@@ -130,9 +138,10 @@ export default function ContactForm({
           />
         </Label>
       </div>
-      <Label htmlFor="interest" className="mb-[31px] max-sm:mb-6">
+      <Label htmlFor="interest" className={label}>
         Project type
         <NativeSelect
+          variant={variant}
           id="interest"
           name="interest"
           defaultValue={lastInput?.interest ?? "Brand & lifestyle"}
@@ -142,9 +151,10 @@ export default function ContactForm({
           ))}
         </NativeSelect>
       </Label>
-      <Label htmlFor="message" className="mb-[31px] max-sm:mb-6">
+      <Label htmlFor="message" className={label}>
         Message
         <Textarea
+          variant={variant}
           id="message"
           name="message"
           rows={5}
@@ -167,7 +177,11 @@ export default function ContactForm({
         </p>
       )}
       <div className="form-submit">
-        <Button disabled={status === "sending"} type="submit">
+        <Button
+          disabled={status === "sending"}
+          type="submit"
+          {...(variant === "boxed" && { variant: "default", size: "lg" })}
+        >
           {status === "sending"
             ? "Sending…"
             : emailEnabled

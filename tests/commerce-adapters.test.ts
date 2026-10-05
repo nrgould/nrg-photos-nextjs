@@ -226,7 +226,7 @@ test("Stripe adapter validates server Price/coupon then emits only fixed test Ch
   ]);
   assert.equal(
     f.creations[0].params.success_url,
-    "http://localhost:3000/?checkout=returned",
+    "http://localhost:3000/?checkout=returned&view=library",
   );
   assert.equal(
     f.creations[0].params.cancel_url,
@@ -286,7 +286,10 @@ test("Stripe Checkout preserves approved catalog query state and appends one out
     const url = new URL(f.creations[0].params[key]);
     assert.equal(url.origin, config.origin);
     assert.equal(url.pathname, "/");
-    assert.equal(url.searchParams.get("view"), "cart");
+    assert.equal(
+      url.searchParams.get("view"),
+      outcome === "returned" ? "library" : "cart",
+    );
     assert.equal(url.searchParams.get("preset"), "signature-01");
     assert.equal(url.searchParams.get("query"), "alpine");
     assert.equal(url.searchParams.get("checkout"), outcome);

@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useState, type Ref } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ArrowLeft, Check, Leaf, LockKeyhole } from "lucide-react";
+import { ArrowLeft, Check, Gift, Leaf, LockKeyhole } from "lucide-react";
 import {
   createExplorationProgress,
   explorationChallenges,
@@ -69,23 +69,29 @@ export function ExplorationToast({
   onDismiss: () => void;
 }) {
   const reducedMotion = useReducedMotion();
-  useEffect(() => {
-    if (!moment) return;
-    const timer = window.setTimeout(onDismiss, 3200);
-    return () => window.clearTimeout(timer);
-  }, [moment, onDismiss]);
+  // A completed toast hands off to a pointer at Challenges, keyed to the moment it follows.
+  const [followUp, setFollowUp] = useState<number | null>(null);
   const complete =
     moment?.kind === "challenge" ||
     (moment?.kind === "location" && moment.count === moment.goal);
+  const next = moment !== null && followUp === moment.key;
+  useEffect(() => {
+    if (!moment) return;
+    const timer = window.setTimeout(
+      complete && !next ? () => setFollowUp(moment.key) : onDismiss,
+      next ? 5000 : 3200,
+    );
+    return () => window.clearTimeout(timer);
+  }, [moment, complete, next, onDismiss]);
   return (
     <div className={styles.toastRegion} role="status" aria-live="polite">
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {moment && (
           <motion.button
-            key={moment.key}
+            key={next ? `${moment.key}-next` : moment.key}
             type="button"
             className={styles.toast}
-            data-complete={complete}
+            data-complete={complete && !next}
             onClick={onOpen}
             initial={
               reducedMotion
@@ -100,7 +106,15 @@ export function ExplorationToast({
             }}
             transition={toastSpring}
           >
-            {complete ? (
+            {next ? (
+              <span className={styles.toastIcon} aria-hidden="true">
+                {moment.kind === "location" ? (
+                  <Gift size={16} strokeWidth={1.5} />
+                ) : (
+                  <Leaf size={16} strokeWidth={1.5} />
+                )}
+              </span>
+            ) : complete ? (
               <DrawnCheck delay={moment.kind === "location" ? 0.35 : 0.05} />
             ) : (
               <span className={styles.toastIcon} aria-hidden="true">
@@ -109,15 +123,25 @@ export function ExplorationToast({
             )}
             <span className={styles.toastText}>
               <strong>
-                {moment.kind === "location" ? moment.label : moment.title}
+                {next
+                  ? moment.kind === "location"
+                    ? "Free preset unlocked"
+                    : "Challenge complete"
+                  : moment.kind === "location"
+                    ? moment.label
+                    : moment.title}
               </strong>
               <span>
-                {moment.kind === "location"
-                  ? `${moment.count} of ${moment.goal} places`
-                  : "Found"}
+                {next
+                  ? moment.kind === "location"
+                    ? "Claim it in Challenges"
+                    : "View it in Challenges"
+                  : moment.kind === "location"
+                    ? `${moment.count} of ${moment.goal} places`
+                    : "Found"}
               </span>
             </span>
-            {moment.kind === "location" && (
+            {moment.kind === "location" && !next && (
               <span className={styles.toastTrack} aria-hidden="true">
                 <motion.span
                   initial={{

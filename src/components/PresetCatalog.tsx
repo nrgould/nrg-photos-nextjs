@@ -21,6 +21,7 @@ import {
 } from "@/lib/preset-commerce";
 import { Button, buttonVariants } from "./ui/button";
 import { PresetDownloadButton } from "./PresetDownloadButton";
+import { useCommerceAccount } from "./CommerceProviders";
 import { Label } from "./ui/label";
 import { NativeSelect } from "./ui/native-select";
 import { Item, ItemActions, ItemContent, ItemGroup } from "./ui/item";
@@ -290,8 +291,7 @@ export default function PresetCatalog({
             <div className={styles.empty}>
               <p>No presets match these filters.</p>
               <Button
-                variant="control"
-                className={styles.action}
+                variant="outline"
                 onClick={() => {
                   update({ query: "", category: "All" });
                   requestAnimationFrame(() => categoryInput.current?.focus());
@@ -355,6 +355,7 @@ export function PresetDetail({
   standalone?: boolean;
 }) {
   const locations = getVerifiedPresetLocations(preset.id);
+  const { anonymous } = useCommerceAccount();
   const detail = (
     <div className={styles.detail}>
       <Button
@@ -376,31 +377,42 @@ export function PresetDetail({
         </div>
       </div>
       <div className={styles.purchase}>
-        <p>$1.99</p>
-        <Button
-          variant="solid"
-          className={styles.buy}
-          disabled={owned || (inCart && !onRemovePreset)}
-          onClick={() => {
-            if (owned) return;
-            if (inCart) onRemovePreset?.(preset.id);
-            else onAddPreset(preset.id);
-          }}
-        >
-          {owned
-            ? "Owned"
-            : inCart
+        <p>{owned ? "Owned" : "$1.99"}</p>
+        {owned ? (
+          <>
+            <PresetDownloadButton
+              presetId={preset.id}
+              size="lg"
+              className="w-full"
+            />
+            {anonymous && (
+              <p className={styles.notice}>
+                Saved in this browser only. Sign in to keep it.
+              </p>
+            )}
+          </>
+        ) : (
+          <Button
+            size="lg"
+            variant={inCart ? "outline" : "default"}
+            className="w-full"
+            disabled={inCart && !onRemovePreset}
+            onClick={() =>
+              inCart ? onRemovePreset?.(preset.id) : onAddPreset(preset.id)
+            }
+          >
+            {inCart ? (
+              <Check aria-hidden="true" />
+            ) : (
+              <Plus aria-hidden="true" />
+            )}
+            {inCart
               ? onRemovePreset
                 ? "Remove from cart"
                 : "In cart"
               : "Add to cart"}
-          {owned || inCart ? (
-            <Check size={18} aria-hidden="true" />
-          ) : (
-            <Plus size={18} aria-hidden="true" />
-          )}
-        </Button>
-        {owned && <PresetDownloadButton presetId={preset.id} />}
+          </Button>
+        )}
       </div>
       <div className={styles.facts}>
         <h4>About this preset</h4>
@@ -417,8 +429,7 @@ export function PresetDetail({
               <li key={location.locationId}>
                 {onSelectLocation ? (
                   <Button
-                    variant="control"
-                    className={styles.action}
+                    variant="outline"
                     onClick={() =>
                       onSelectLocation(location.locationId, preset.id)
                     }

@@ -1,12 +1,21 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { field } from "./input";
+import { boxed, field, type FieldVariant } from "./input";
 
-function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
+function Textarea({
+  className,
+  variant,
+  ...props
+}: React.ComponentProps<"textarea"> & FieldVariant) {
   return (
     <textarea
       data-slot="textarea"
-      className={cn(field, "resize-y", className)}
+      className={cn(
+        field,
+        variant === "boxed" && [boxed, "py-3"],
+        "resize-y",
+        className,
+      )}
       {...props}
     />
   );
