@@ -25,6 +25,6 @@ Run `node scripts/plan-photo-pipeline.mjs /path/to/results.json` to validate can
 
 ## Proposed JEV integration
 
-JEV is an unconfigured adapter boundary: first confirm the actual image-capable endpoint, supported input format, batch limits, retention policy and cost. Run a small labeled evaluation, measure precision/recall against human tags, choose abstention thresholds, then scale through bounded batches with backoff/checkpointing. Do not infer preset usage from image appearance. Import verified XMP/edit associations separately and require Nicholas's approval before changing public content.
+JEV is an unconfigured adapter boundary: first confirm the actual image-capable endpoint, supported input format, batch limits, retention policy and cost. Run a small labeled evaluation, measure precision/recall against human tags, choose abstention thresholds, then scale through bounded batches with backoff/checkpointing. Do not infer preset usage from image appearance. Edit associations come from Lightroom's develop history as `presetId` on map export rows (see `docs/location-presets-spec.md`); they still need Nicholas's approval before changing public content.
 
 Production blockers: JEV API contract and credentials, authorized image set, approved private preset delivery, edit provenance and pricing/licensing. The dry-run plan and validator are working; JEV inference, checkout and entitlement are intentionally unconnected.

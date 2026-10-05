@@ -43,7 +43,7 @@ export const locationDescription = (node: MapNode) =>
 export const photoDescription = (photo: Photo) =>
   `${photo.alt}. Photograph by Nicholas Gould from ${getPhotoCollection(photo).title}.`;
 export const presetDescription = (preset: PresetCatalogItem) =>
-  `${preset.name}, preset ${String(preset.number).padStart(2, "0")} in Nicholas Gould’s Signature Collection. ${preset.category}. Catalog price ${presetPriceLabel}; checkout is not available.`;
+  `${preset.name}, a ${preset.category} Lightroom preset by Nicholas Gould. ${preset.bestFor} Catalog price ${presetPriceLabel}; checkout is not available.`;
 
 export function contentMetadata(
   title: string,

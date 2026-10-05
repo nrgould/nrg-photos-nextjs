@@ -17,7 +17,7 @@ const configuration: TestCommerceConfiguration = {
   webhookSecret: "whsec_fixture_not_a_credential",
   supabaseUrl: "https://fixture.supabase.co",
   supabasePublishableKey: "sb_publishable_fixture_not_a_credential",
-  priceIds: { "signature-01": "price_fixture" },
+  priceIds: { "eibsee-1": "price_fixture" },
   bulkCouponId: "coupon_fixture",
 };
 let networkCalls = 0;
@@ -29,7 +29,7 @@ const stripe = new Stripe(configuration.stripeSecretKey, {
 });
 const gateway = createStripeGateway(stripe, configuration);
 const order: Order = {
-  ...quotePresets(["signature-01"], ["signature-01"]),
+  ...quotePresets(["eibsee-1"], ["eibsee-1"]),
   id: "order-sdk-fixture",
   userId: "user-fixture",
   createdAt: Date.now(),
@@ -110,7 +110,7 @@ test("SDK-signed payment/replay/refund fixtures apply idempotently to account-bo
   });
   assert.deepEqual(await service.ownership("user-fixture"), {
     status: "verified",
-    presetIds: ["signature-01"],
+    presetIds: ["eibsee-1"],
   });
   assert.deepEqual(await service.ownership("another-user"), {
     status: "verified",

@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { normalizeCommerceReturnPath } from "./return-path";
+import { getCatalogPreset } from "../../preset-commerce";
 import {
   CommerceError,
   type CheckoutSession,
@@ -59,7 +60,7 @@ export function createCommerceService({
   delivery?: PrivateDelivery;
 }) {
   const allowed = Object.freeze([...new Set(policy.presetIds)]);
-  if (!allowed.length || allowed.some((id) => !/^signature-\d{2}$/.test(id)))
+  if (!allowed.length || allowed.some((id) => !getCatalogPreset(id)))
     throw new CommerceError("invalid_server_catalog", 503);
   const reward = policy.reward
     ? {

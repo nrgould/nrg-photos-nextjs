@@ -48,6 +48,8 @@ type ManifestEntry = Pick<
   locationId?: string;
   hero?: boolean;
   lead?: boolean;
+  /** The kept preset Lightroom last applied, from its develop history. */
+  presetId?: string;
 };
 const entries = new Map(
   (manifest as ManifestEntry[]).map((entry) => [entry.src, entry]),
@@ -56,6 +58,13 @@ const entries = new Map(
 export const photoLocations = new Map(
   [...entries.values()].flatMap((entry) =>
     entry.locationId ? [[entry.src, entry.locationId] as const] : [],
+  ),
+);
+
+/** The preset each map photograph was edited with, keyed by src. */
+export const photoPresets = new Map(
+  [...entries.values()].flatMap((entry) =>
+    entry.presetId ? [[entry.src, entry.presetId] as const] : [],
   ),
 );
 

@@ -32,7 +32,7 @@ async function main() {
           webhookSecret: "whsec_fixture",
           supabaseUrl: "https://fixture.supabase.co",
           supabasePublishableKey: "sb_publishable_fixture",
-          priceIds: { "signature-01": "price_fixture" },
+          priceIds: { "eibsee-1": "price_fixture" },
           bulkCouponId: "coupon_fixture",
         },
       },
@@ -58,7 +58,7 @@ async function main() {
             }),
           ),
           handlers.ownership(),
-          handlers.download("signature-01"),
+          handlers.download("eibsee-1"),
           handlers.claimReward(
             new Request(
               "https://photography.example/api/commerce/reward-claim",
@@ -99,7 +99,7 @@ async function main() {
       reward.POST(request()),
       webhook.POST(request()),
       download.GET(request(), {
-        params: Promise.resolve({ presetId: "signature-01" }),
+        params: Promise.resolve({ presetId: "eibsee-1" }),
       }),
     ]))
       assert.equal(response.status, 503);

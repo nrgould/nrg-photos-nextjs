@@ -13,14 +13,14 @@ const createId = () => "fixture-request-00001";
 test("checkout retry identity survives sorting, duplicate cart IDs and return query ordering", () => {
   const first = checkoutAttempt(
     "user-A",
-    ["signature-01", "signature-02"],
+    ["eibsee-1", "grainau-1"],
     "/?view=cart&query=travel",
     null,
     createId,
   );
   const retry = checkoutAttempt(
     "user-A",
-    ["signature-02", "signature-01", "signature-01"],
+    ["grainau-1", "eibsee-1", "eibsee-1"],
     "/?query=travel&view=cart&checkout=cancelled",
     JSON.parse(JSON.stringify(first)),
     () => {
@@ -33,33 +33,25 @@ test("checkout retry identity survives sorting, duplicate cart IDs and return qu
     "/?view=cart",
   );
   for (const [user, ids, path] of [
-    ["user-B", ["signature-01", "signature-02"], "/?view=cart&query=travel"],
-    ["user-A", ["signature-01"], "/?view=cart&query=travel"],
-    ["user-A", ["signature-01", "signature-02"], "/"],
+    ["user-B", ["eibsee-1", "grainau-1"], "/?view=cart&query=travel"],
+    ["user-A", ["eibsee-1"], "/?view=cart&query=travel"],
+    ["user-A", ["eibsee-1", "grainau-1"], "/"],
   ] as const)
     assert.equal(
       checkoutAttempt(user, ids, path, first, () => "fixture-request-00002")
         .requestId,
       "fixture-request-00002",
     );
-  for (const ids of [[], ["invented"], ["signature-01", "invented"]])
+  for (const ids of [[], ["invented"], ["eibsee-1", "invented"]])
     assert.throws(() => checkoutAttempt("user-A", ids, "/", null, createId));
+  assert.throws(() => checkoutAttempt("", ["eibsee-1"], "/", null, createId));
   assert.throws(() =>
-    checkoutAttempt("", ["signature-01"], "/", null, createId),
-  );
-  assert.throws(() =>
-    checkoutAttempt("user-A", ["signature-01"], "/", null, () => "bad"),
+    checkoutAttempt("user-A", ["eibsee-1"], "/", null, () => "bad"),
   );
 });
 
 test("malformed stored retry identity is replaced and external return URLs never enter the request key", () => {
-  const valid = checkoutAttempt(
-    "user-A",
-    ["signature-01"],
-    "/",
-    null,
-    createId,
-  );
+  const valid = checkoutAttempt("user-A", ["eibsee-1"], "/", null, createId);
   for (const prior of [
     null,
     [],
@@ -68,8 +60,7 @@ test("malformed stored retry identity is replaced and external return URLs never
     { ...valid, requestId: "x".repeat(101) },
   ])
     assert.equal(
-      checkoutAttempt("user-A", ["signature-01"], "/", prior, createId)
-        .requestId,
+      checkoutAttempt("user-A", ["eibsee-1"], "/", prior, createId).requestId,
       createId(),
     );
   assert.equal(checkoutReturnPath("https://evil.example/presets"), "/");
@@ -79,9 +70,9 @@ test("only verified published ownership is accepted; account switch, sign-out an
   assert.deepEqual(
     verifiedOwnership({
       status: "verified",
-      presetIds: ["signature-01", "signature-01"],
+      presetIds: ["eibsee-1", "eibsee-1"],
     }),
-    ["signature-01"],
+    ["eibsee-1"],
   );
   assert.deepEqual(
     verifiedOwnership({ status: "verified", presetIds: [] }),
@@ -89,19 +80,19 @@ test("only verified published ownership is accepted; account switch, sign-out an
   );
   for (const value of [
     null,
-    { status: "unavailable", presetIds: ["signature-01"] },
+    { status: "unavailable", presetIds: ["eibsee-1"] },
     { status: "verified", presetIds: ["forged"] },
-    { status: "verified", presetIds: "signature-01" },
+    { status: "verified", presetIds: "eibsee-1" },
     { checkout: "returned" },
   ])
     assert.equal(verifiedOwnership(value), null);
   const snapshot = {
     sessionKey: "session-A:user-A",
     revision: 2,
-    presetIds: ["signature-01"],
+    presetIds: ["eibsee-1"],
   };
   assert.deepEqual(currentOwnership(snapshot, snapshot.sessionKey, 2, true), [
-    "signature-01",
+    "eibsee-1",
   ]);
   for (const [key, revision, available] of [
     [null, 2, true],
@@ -136,14 +127,14 @@ test("checkout redirects allow only the exact HTTPS Stripe Checkout origin", () 
 test("a stored attempt names its paid presets only for the user who started it", () => {
   const stored = checkoutAttempt(
     "user-a",
-    ["signature-02", "signature-01"],
+    ["grainau-1", "eibsee-1"],
     "/?view=cart",
     null,
     () => "request-id-0000000001",
   );
   assert.deepEqual(attemptPresetIds(stored, "user-a"), [
-    "signature-01",
-    "signature-02",
+    "eibsee-1",
+    "grainau-1",
   ]);
   assert.deepEqual(attemptPresetIds(stored, "user-b"), []);
   assert.deepEqual(attemptPresetIds({ key: "not json" }, "user-a"), []);

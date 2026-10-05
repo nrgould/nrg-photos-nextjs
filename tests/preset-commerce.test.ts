@@ -1,106 +1,125 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import signatureCollection from "../src/lib/signature-collection.json";
+import presets from "../src/data/presets.json";
 import {
   createPresetCatalogState,
   filterPresetCatalog,
   getCatalogPreset,
   getPresetPurchaseStatus,
-  getVerifiedPresetLocations,
   presetCatalog,
+  presetCategories,
 } from "../src/lib/preset-commerce";
-import { placeNode } from "../src/lib/favorites";
+import { nodeForPhoto, placeNode } from "../src/lib/favorites";
+import { getPresetPlaces } from "../src/lib/map-hierarchy";
+import { photoPresets, travelPlaces } from "../src/lib/places";
 
-test("commerce catalog exposes every real preset through a public field allowlist", () => {
-  assert.equal(presetCatalog.length, 21);
-  assert.equal(new Set(presetCatalog.map((preset) => preset.id)).size, 21);
-  assert.deepEqual(presetCatalog, signatureCollection);
+test("commerce catalog exposes the kept lineup through a public field allowlist", () => {
+  assert.equal(presetCatalog.length, presets.length);
+  assert.equal(
+    new Set(presetCatalog.map((preset) => preset.id)).size,
+    presets.length,
+  );
+  assert.deepEqual(
+    presetCatalog.map((preset) => preset.number),
+    presetCatalog.map((_, index) => index + 1),
+  );
+  const fields = [
+    "bestFor",
+    "category",
+    "example",
+    "id",
+    "name",
+    "number",
+    "showcase",
+    "watchOut",
+    "whatItDoes",
+  ];
   for (const preset of presetCatalog) {
-    assert.deepEqual(Object.keys(preset).sort(), [
-      "category",
-      "id",
-      "name",
-      "number",
-    ]);
+    for (const key of Object.keys(preset)) assert.ok(fields.includes(key), key);
     assert.ok(Object.isFrozen(preset));
   }
   assert.ok(Object.isFrozen(presetCatalog));
 });
 
+test("categories are the moods in catalog order", () => {
+  assert.deepEqual(presetCategories, [
+    "All",
+    ...new Set(presetCatalog.map((preset) => preset.category)),
+  ]);
+  assert.equal(presetCategories.length, new Set(presetCategories).size);
+});
+
 test("search combines case-insensitive words with category filtering", () => {
   assert.deepEqual(
-    filterPresetCatalog({ query: "  ALPINE travel  ", category: "All" }).map(
+    filterPresetCatalog({ query: "  RAINIER blue  ", category: "All" }).map(
       (preset) => preset.id,
     ),
-    ["signature-01", "signature-12"],
+    ["mount-rainier-2"],
   );
   assert.deepEqual(
-    filterPresetCatalog({ query: "", category: "Film" }).map(
-      (preset) => preset.name,
+    filterPresetCatalog({ query: "", category: "Mint" }).map(
+      (preset) => preset.id,
     ),
-    ["Classic Film", "Muted Film"],
+    ["boston-2", "cary-4"],
   );
   assert.deepEqual(
-    filterPresetCatalog({ query: "Alpine", category: "Film" }),
+    filterPresetCatalog({ query: "Rainier", category: "Mint" }),
     [],
   );
   assert.equal(
     filterPresetCatalog({ query: "   ", category: "All" }).length,
-    21,
+    presetCatalog.length,
   );
 });
 
-test("catalog state restores known selection and filters without accepting sample IDs", () => {
+test("catalog state restores known selection and filters without accepting unknown IDs", () => {
   const state = {
-    query: "forest",
-    category: "Nature" as const,
-    selectedPresetId: "signature-04",
+    query: "lake",
+    category: "Natural",
+    selectedPresetId: "eibsee-1",
   };
   assert.deepEqual(createPresetCatalogState(state), state);
   assert.deepEqual(
-    createPresetCatalogState({ selectedPresetId: "alpine-soft" }),
-    {
-      query: "",
-      category: "All",
-      selectedPresetId: null,
-    },
+    createPresetCatalogState({
+      category: "Landscape & travel",
+      selectedPresetId: "signature-01",
+    }),
+    { query: "", category: "All", selectedPresetId: null },
   );
-  assert.deepEqual(createPresetCatalogState(), {
-    query: "",
-    category: "All",
-    selectedPresetId: null,
-  });
 });
 
-test("purchase availability rejects unknown and sample identities and never invents a price", () => {
+test("purchase availability rejects unknown identities and never invents a price", () => {
   for (const preset of presetCatalog)
     assert.deepEqual(getPresetPurchaseStatus(preset.id), {
       status: "not-configured",
       presetId: preset.id,
     });
-  for (const id of [
-    null,
-    undefined,
-    1,
-    {},
-    "",
-    "alpine-soft",
-    "__proto__",
-    "signature-99",
-  ])
+  for (const id of [null, undefined, 1, {}, "", "__proto__", "signature-01"])
     assert.deepEqual(getPresetPurchaseStatus(id), { status: "unknown-preset" });
+  assert.equal(getCatalogPreset("Eibsee I"), undefined);
 });
 
-test("location links remain unavailable until actual preset edit usage is verified", () => {
+test("showcase photos are map photos", () => {
   for (const preset of presetCatalog)
-    assert.deepEqual(getVerifiedPresetLocations(preset.id), []);
-  assert.deepEqual(getVerifiedPresetLocations("alpine-soft"), []);
-  assert.equal(getCatalogPreset("Alpine Light"), undefined);
-  assert.equal(getCatalogPreset("signature-01")?.name, "Alpine Light");
+    for (const src of preset.showcase) assert.ok(nodeForPhoto(src), src);
 });
 
-test("every verified preset location resolves to a place on the map", () => {
-  for (const preset of presetCatalog)
-    for (const location of getVerifiedPresetLocations(preset.id))
-      assert.ok(placeNode(location.locationId), location.locationId);
+test("preset places hold exactly the photos edited with that preset", () => {
+  for (const preset of presetCatalog) {
+    const places = getPresetPlaces(travelPlaces, preset.id);
+    const srcs = places.flatMap((place) => place.photos.map((p) => p.src));
+    assert.deepEqual(
+      srcs.toSorted(),
+      [...photoPresets]
+        .filter(([, id]) => id === preset.id)
+        .map(([src]) => src)
+        .filter((src) => nodeForPhoto(src))
+        .toSorted(),
+    );
+    for (const place of places) {
+      assert.ok(placeNode(place.id), place.id);
+      assert.equal(place.photoCount, place.photos.length);
+    }
+  }
+  assert.deepEqual(getPresetPlaces(travelPlaces, "signature-01"), []);
 });

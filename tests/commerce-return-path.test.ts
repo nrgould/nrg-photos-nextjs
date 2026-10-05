@@ -8,7 +8,7 @@ import { CommerceError } from "../src/lib/server/commerce/types";
 
 test("checkout return keeps known catalog state and canonical location in fixed application origin", () => {
   const input =
-    "/?view=cart&query=alpine%20light&category=Landscape%20%26%20travel&preset=signature-01";
+    "/?view=cart&query=alpine%20light&category=Alpine%20Blue&preset=eibsee-1";
   const normalized = normalizeCommerceReturnPath(input);
   assert.equal(normalizeCommerceReturnPath(normalized), normalized);
   for (const outcome of ["returned", "cancelled"] as const) {
@@ -22,15 +22,15 @@ test("checkout return keeps known catalog state and canonical location in fixed 
       outcome === "returned" ? "library" : "cart",
     );
     assert.equal(url.searchParams.get("query"), "alpine light");
-    assert.equal(url.searchParams.get("category"), "Landscape & travel");
-    assert.equal(url.searchParams.get("preset"), "signature-01");
+    assert.equal(url.searchParams.get("category"), "Alpine Blue");
+    assert.equal(url.searchParams.get("preset"), "eibsee-1");
     assert.equal(url.searchParams.get("checkout"), outcome);
     assert.equal(url.searchParams.size, 5);
   }
   const map = new URL(
     checkoutReturnUrl(
       "https://photo.example",
-      "/?location=location%3Aseceda&view=cart&query=alpine&category=Landscape%20%26%20travel&preset=signature-01",
+      "/?location=location%3Aseceda&view=cart&query=alpine&category=Alpine%20Blue&preset=eibsee-1",
       "returned",
     ),
   );
@@ -38,8 +38,8 @@ test("checkout return keeps known catalog state and canonical location in fixed 
   assert.equal(map.searchParams.get("location"), "location:seceda");
   assert.equal(map.searchParams.get("view"), "library");
   assert.equal(map.searchParams.get("query"), "alpine");
-  assert.equal(map.searchParams.get("category"), "Landscape & travel");
-  assert.equal(map.searchParams.get("preset"), "signature-01");
+  assert.equal(map.searchParams.get("category"), "Alpine Blue");
+  assert.equal(map.searchParams.get("preset"), "eibsee-1");
   assert.equal(
     normalizeCommerceReturnPath("/?location=country%3Aitaly"),
     "/?location=country%3Aitaly",

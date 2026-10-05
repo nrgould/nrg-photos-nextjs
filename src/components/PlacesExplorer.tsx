@@ -84,7 +84,6 @@ import { ButtonGroup } from "./ui/button-group";
 import {
   createPresetCatalogState,
   getCatalogPreset,
-  getVerifiedPresetLocations,
   type PresetCatalogState,
 } from "@/lib/preset-commerce";
 
@@ -692,6 +691,14 @@ export default function PlacesExplorer({
     const node = placeNode(locationId);
     if (node) chooseNode(node);
   }
+  // Saved and preset pages open a photo in its place, focus returning to the tile.
+  function openPhotoFromPage(src: string, trigger: HTMLButtonElement) {
+    const node = nodeForPhoto(src);
+    if (!node) return;
+    photoFocus.current = trigger;
+    chooseNode(node);
+    openPhotograph(src);
+  }
   function openPhotograph(photoSrc: string | null) {
     setViewer(photoSrc);
     if (photoSrc !== null) {
@@ -817,8 +824,6 @@ export default function PlacesExplorer({
           onBack={onBack}
           backLabel={backLabel}
           onOpenPreset={(id, trigger) => {
-            const location = getVerifiedPresetLocations(id)[0];
-            if (location) return showLocation(location.locationId);
             setCatalogState((state) => ({ ...state, selectedPresetId: id }));
             openPage("preset", trigger);
           }}
@@ -832,13 +837,7 @@ export default function PlacesExplorer({
           onBack={onBack}
           onToggle={toggleFavorite}
           onOpenPlace={chooseNode}
-          onOpenPhoto={(src, trigger) => {
-            const node = nodeForPhoto(src);
-            if (!node) return;
-            photoFocus.current = trigger;
-            chooseNode(node);
-            openPhotograph(src);
-          }}
+          onOpenPhoto={openPhotoFromPage}
         />
       );
     if (view === "cart")
@@ -894,6 +893,7 @@ export default function PlacesExplorer({
           onAddPreset={addPreset}
           onRemovePreset={removePreset}
           onSelectLocation={showLocation}
+          onOpenPhoto={openPhotoFromPage}
           backLabel={backLabel ?? pageBackLabels.presets}
           onBack={back}
         />

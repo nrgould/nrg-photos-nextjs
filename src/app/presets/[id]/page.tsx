@@ -39,9 +39,7 @@ export default async function PresetPage({ params }: Props) {
       <StructuredData data={productData(preset)} />
       <div className="page-heading">
         <h1>{preset.name}</h1>
-        <p>
-          Signature Collection · Preset {String(preset.number).padStart(2, "0")}
-        </p>
+        <p>Preset {String(preset.number).padStart(2, "0")}</p>
       </div>
       <dl className={styles.facts}>
         <dt>Category</dt>

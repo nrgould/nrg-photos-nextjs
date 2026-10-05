@@ -1,31 +1,38 @@
-import signatureCollection from "./signature-collection.json";
+import presets from "../data/presets.json";
 
-export const presetCategories = [
-  "All",
-  "Landscape & travel",
-  "Nature",
-  "Film",
-  "Portrait",
-] as const;
-export type PresetCategory = (typeof presetCategories)[number];
 export type PresetCatalogItem = Readonly<{
   id: string;
   number: number;
   name: string;
-  category: Exclude<PresetCategory, "All">;
+  /** The preset's mood, e.g. "Alpine Blue". */
+  category: string;
+  bestFor: string;
+  whatItDoes: string;
+  watchOut?: string;
+  /** Storage keys in the public preset-examples bucket; one shared size. */
+  example?: Readonly<{
+    before: string;
+    after: string;
+    width: number;
+    height: number;
+  }>;
+  /** Hand-picked map photo srcs, in display order. */
+  showcase: readonly string[];
 }>;
+
+// Written by scripts/import-presets.mjs from the preset library's public export.
+export const presetCatalog: readonly PresetCatalogItem[] = Object.freeze(
+  presets.map((preset) => Object.freeze(preset)),
+);
+export const presetCategories = [
+  "All",
+  ...new Set(presetCatalog.map((preset) => preset.category)),
+];
+export type PresetCategory = string;
 
 function isCategory(value: unknown): value is PresetCategory {
   return presetCategories.some((category) => category === value);
 }
-
-export const presetCatalog: readonly PresetCatalogItem[] = Object.freeze(
-  signatureCollection.map(({ id, number, name, category }) => {
-    if (!isCategory(category) || category === "All")
-      throw new Error(`Invalid public preset category: ${category}`);
-    return Object.freeze({ id, number, name, category });
-  }),
-);
 
 export function getCatalogPreset(id: unknown) {
   return typeof id === "string"
@@ -61,22 +68,6 @@ export function filterPresetCatalog({
       terms.every((term) => text.includes(term))
     );
   });
-}
-
-export type VerifiedPresetLocation = Readonly<{
-  presetId: string;
-  /** A map node id (e.g. "location:hallstatt"); tapping the preset flies there. */
-  locationId: string;
-  locationName: string;
-  photoIds: readonly string[];
-  provenance: "verified-edit-record";
-}>;
-
-// Populate only from approved edit provenance; sample recipes are not evidence.
-const verifiedPresetLocations: readonly VerifiedPresetLocation[] = [];
-export function getVerifiedPresetLocations(presetId: unknown) {
-  if (!getCatalogPreset(presetId)) return [];
-  return verifiedPresetLocations.filter((link) => link.presetId === presetId);
 }
 
 export type PresetPurchaseStatus =

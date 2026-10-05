@@ -218,7 +218,7 @@ test("storage accepts only versioned known IDs and derives completions instead o
     openedPhotoSrcs: [boat, boat, "/private"],
     revealedHintIds: ["find-red-boat"],
     completedChallengeIds: ["find-the-dog"],
-    ownedPresetIds: ["signature-01"],
+    ownedPresetIds: ["eibsee-1"],
     rewardEntitlement: true,
   });
   const progress = restoreExplorationProgress(raw);

@@ -135,6 +135,12 @@ async function importLightroom(exportPath, dryRun) {
     await fs.readFile("src/data/country-labels.json", "utf8"),
   );
   const previous = new Map(manifest.map((entry) => [entry.src, entry]));
+  // Only presets the site sells link photos; retired ones are dropped.
+  const presetIds = new Set(
+    JSON.parse(await fs.readFile("src/data/presets.json", "utf8")).map(
+      (preset) => preset.id,
+    ),
+  );
   const created = [];
   const unplaced = [];
   const placed = [];
@@ -158,7 +164,12 @@ async function importLightroom(exportPath, dryRun) {
     placed.push({
       row,
       names,
-      entry: manifestEntry(row, locationId, title, previous.get(row.src)),
+      entry: manifestEntry(
+        presetIds.has(row.presetId) ? row : { ...row, presetId: undefined },
+        locationId,
+        title,
+        previous.get(row.src),
+      ),
     });
   }
 

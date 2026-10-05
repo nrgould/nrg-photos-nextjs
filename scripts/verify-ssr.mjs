@@ -5,7 +5,7 @@ const canonicalOrigin =
   process.env.SEO_CANONICAL_ORIGIN || "https://nrgstudios.co";
 const cases = [
   ["/", "Photographs on the map", 0],
-  ["/?view=catalog&preset=signature-01", "Photographs on the map", 0],
+  ["/?view=catalog&preset=eibsee-1", "Photographs on the map", 0],
 ];
 for (const [path, text, count] of cases) {
   const response = await fetch(base + path);
@@ -48,7 +48,7 @@ for (const [path, text, count] of cases) {
     `PASS ${path}: HTTP 200, server HTML, metadata${count ? `, ${count} photographs` : ""}`,
   );
 }
-for (const path of ["/explore", "/presets/signature-01", "/work", "/about"]) {
+for (const path of ["/explore", "/presets/eibsee-1", "/work", "/about"]) {
   const response = await fetch(base + path, { redirect: "manual" });
   assert.ok([307, 308].includes(response.status), `${path}: redirects`);
   assert.equal(new URL(response.headers.get("location"), base).pathname, "/");
@@ -107,7 +107,7 @@ assert.equal(availability.status, 200);
 assert.deepEqual(await availability.json(), { status: "unavailable" });
 for (const [path, method] of [
   ["ownership", "GET"],
-  ["download/signature-01", "GET"],
+  ["download/eibsee-1", "GET"],
   ["checkout", "POST"],
   ["reward-claim", "POST"],
   ["webhook", "POST"],

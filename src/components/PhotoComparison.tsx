@@ -4,40 +4,28 @@ import { ChevronsLeftRight } from "lucide-react";
 import type { Photo } from "@/lib/photography";
 import PhotoImage from "./PhotoImage";
 
-export type ComparisonPair = {
-  before: Photo;
-  after: Photo;
-  presetId: string;
-  sourcePhotoId: string;
-  provenance: "verified-export" | "same-image-demo";
-};
+/** Matching exports of one photograph, before and after a preset. */
+export type ComparisonPair = { before: Photo; after: Photo };
 
 export default function PhotoComparison({ pair }: { pair: ComparisonPair }) {
   const [position, setPosition] = useState(50);
   const hintId = useId();
-  const demo = pair.provenance === "same-image-demo";
+  const sizes = "(max-width: 700px) calc(100vw - 32px), 400px";
   return (
     <figure className="photo-comparison">
-      <div className="comparison-stage">
-        <PhotoImage
-          photo={pair.after}
-          sizes="(max-width: 700px) calc(100vw - 64px), 832px"
-        />
+      <div
+        className="comparison-stage"
+        style={{ aspectRatio: `${pair.after.width} / ${pair.after.height}` }}
+      >
+        <PhotoImage photo={pair.after} sizes={sizes} />
         <div
           className="comparison-before"
           style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
         >
-          <PhotoImage
-            photo={pair.before}
-            sizes="(max-width: 700px) calc(100vw - 64px), 832px"
-          />
+          <PhotoImage photo={pair.before} sizes={sizes} />
         </div>
-        <span className="comparison-label before">
-          {demo ? "Same image" : "Before"}
-        </span>
-        <span className="comparison-label after">
-          {demo ? "Same image" : "After"}
-        </span>
+        <span className="comparison-label before">Before</span>
+        <span className="comparison-label after">After</span>
         <div
           className="comparison-divider"
           style={{ left: `${position}%` }}
@@ -55,17 +43,12 @@ export default function PhotoComparison({ pair }: { pair: ComparisonPair }) {
           value={position}
           aria-label="Before and after split"
           aria-describedby={hintId}
-          aria-valuetext={`${position}% ${demo ? "left image" : "before"}, ${100 - position}% ${demo ? "right image" : "after"}`}
+          aria-valuetext={`${position}% before, ${100 - position}% after`}
           onChange={(event) => setPosition(Number(event.target.value))}
         />
       </div>
-      <figcaption id={hintId}>
-        {demo
-          ? "Interaction demo · the same photograph on both sides. No preset effect is shown."
-          : "Matching exports of the same photograph, before and after this preset."}
-        <span>
-          Drag the line, or use arrow keys. Home / End reveal either side.
-        </span>
+      <figcaption id={hintId} className="sr-only">
+        Arrow keys move the line. Home and End reveal either side.
       </figcaption>
     </figure>
   );

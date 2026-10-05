@@ -1,3 +1,4 @@
+import { presetCatalog } from "../src/lib/preset-commerce";
 import { after, test } from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -16,10 +17,7 @@ import { dropStores, makeStore } from "./support/commerce-store";
 
 after(dropStores);
 
-const ids = Array.from(
-  { length: 21 },
-  (_, index) => `signature-${String(index + 1).padStart(2, "0")}`,
-);
+const ids = presetCatalog.map((preset) => preset.id);
 const requestId = "fixture-request-000001";
 const fails = (code: string) => (error: unknown) =>
   error instanceof CommerceError && error.code === code;
@@ -91,7 +89,7 @@ test("server quote ignores no client prices and deduplicates before the ten-item
     [9, 0, 1791],
     [10, 398, 1592],
     [11, 438, 1751],
-    [21, 836, 3343],
+    [28, 1114, 4458],
   ]) {
     const quote = quotePresets(ids.slice(0, count), ids);
     assert.equal(quote.discountCents, discount);
@@ -147,18 +145,18 @@ test("query-state Checkout retries normalize parameter order but reject a change
     "user-A",
     [ids[0]],
     requestId,
-    "/?view=cart&preset=signature-01&query=alpine",
+    "/?view=cart&preset=eibsee-1&query=alpine",
   );
   const second = await f.service.checkout(
     "user-A",
     [ids[0]],
     requestId,
-    "/?query=alpine&preset=signature-01&view=cart",
+    "/?query=alpine&preset=eibsee-1&view=cart",
   );
   assert.equal(first.orderId, second.orderId);
   assert.equal(
     f.created[0].returnPath,
-    "/?preset=signature-01&query=alpine&view=cart",
+    "/?preset=eibsee-1&query=alpine&view=cart",
   );
   await assert.rejects(
     f.service.checkout("user-A", [ids[0]], requestId, "/?view=catalog"),

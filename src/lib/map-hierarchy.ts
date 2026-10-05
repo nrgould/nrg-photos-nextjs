@@ -4,6 +4,7 @@ import {
   locationPath,
   locations,
   photoLocations,
+  photoPresets,
   type LocationNode,
   type TravelPlace,
 } from "./places";
@@ -198,6 +199,18 @@ export function getMapNodes(
         precision: "unknown",
       });
     return nodes;
+  });
+}
+
+/** Places with photographs edited with a preset, each holding only those photographs. */
+export function getPresetPlaces(places: TravelPlace[], presetId: string) {
+  return getMapNodes(places, "location").flatMap((node) => {
+    const photos = node.photos.filter(
+      (photo) => photoPresets.get(photo.src) === presetId,
+    );
+    return photos.length
+      ? [{ ...node, photos, photoCount: photos.length, cover: photos[0] }]
+      : [];
   });
 }
 

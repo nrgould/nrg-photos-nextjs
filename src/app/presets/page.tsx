@@ -2,12 +2,13 @@ import PresetStore from "@/components/PresetStore";
 import { contentMetadata } from "@/lib/seo-content";
 import {
   createPresetCatalogState,
+  presetCatalog,
   type PresetCategory,
 } from "@/lib/preset-commerce";
 
 export const metadata = contentMetadata(
   "Preset catalog",
-  "Browse the 21 presets in Nicholas Gould’s 2026 Signature Collection. Individual catalog price $1.99 USD; checkout is not available yet.",
+  `Browse Nicholas Gould’s ${presetCatalog.length} location presets for Lightroom, grouped by mood. Individual catalog price $1.99 USD; checkout is not available yet.`,
   "/presets",
 );
 

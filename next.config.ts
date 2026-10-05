@@ -11,6 +11,9 @@ const config: NextConfig = {
       new URL(
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/photos/**`,
       ),
+      new URL(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/preset-examples/**`,
+      ),
     ],
   },
   // The map is the whole site; retired pages land on it.

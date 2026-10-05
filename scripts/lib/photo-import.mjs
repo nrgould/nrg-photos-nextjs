@@ -81,5 +81,6 @@ export function manifestEntry(row, locationId, title, previous) {
     lightroomId: row.lightroomId,
     ...(row.status === "hero" && { hero: true }),
     ...(row.status === "hero" && row.lead && { lead: true }),
+    ...(row.presetId && { presetId: row.presetId }),
   };
 }

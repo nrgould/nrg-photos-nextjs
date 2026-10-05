@@ -1,3 +1,4 @@
+import { presetCatalog } from "../src/lib/preset-commerce";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -22,10 +23,7 @@ import {
 } from "../src/lib/server/commerce/types";
 import { MemoryCommerceStore } from "./support/commerce-memory-store";
 
-const ids = Array.from(
-  { length: 21 },
-  (_, index) => `signature-${String(index + 1).padStart(2, "0")}`,
-);
+const ids = presetCatalog.map((preset) => preset.id);
 const priceIds = Object.fromEntries(
   ids.map((id, index) => [id, `price_fixture${index}`]),
 );
@@ -277,7 +275,7 @@ test("Stripe Checkout preserves approved catalog query state and appends one out
   const f = sdkFixture();
   await createStripeGateway(f.client, config).createCheckout({
     ...f.current,
-    returnPath: "/?view=cart&query=alpine&preset=signature-01",
+    returnPath: "/?view=cart&query=alpine&preset=eibsee-1",
   });
   for (const [key, outcome] of [
     ["success_url", "returned"],
@@ -290,7 +288,7 @@ test("Stripe Checkout preserves approved catalog query state and appends one out
       url.searchParams.get("view"),
       outcome === "returned" ? "library" : "cart",
     );
-    assert.equal(url.searchParams.get("preset"), "signature-01");
+    assert.equal(url.searchParams.get("preset"), "eibsee-1");
     assert.equal(url.searchParams.get("query"), "alpine");
     assert.equal(url.searchParams.get("checkout"), outcome);
   }

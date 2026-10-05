@@ -9,9 +9,9 @@ export type Photo = {
   /** Shoot month as YYYY-MM, from the library folder; absent when unknown. */
   taken?: string;
 };
-// A photo's `src` is its id; the file lives in the public "photos" Storage bucket.
+// A photo's `src` is its id and its public Storage path: "/photos/x.webp" is in the "photos" bucket.
 export function photoUrl(src: string) {
-  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/photos/${src.replace(/^\/photos\//, "")}`;
+  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public${src}`;
 }
 
 export function takenLabel(taken?: string) {

@@ -10,10 +10,13 @@ import {
   ChevronRight,
   Plus,
 } from "lucide-react";
+import { nodeForPhoto } from "@/lib/favorites";
+import { getPresetPlaces } from "@/lib/map-hierarchy";
+import type { Photo } from "@/lib/photography";
+import { travelPlaces } from "@/lib/places";
 import {
   filterPresetCatalog,
   getCatalogPreset,
-  getVerifiedPresetLocations,
   presetCatalog,
   presetCategories,
   type PresetCatalogState,
@@ -25,6 +28,9 @@ import { useCommerceAccount } from "./CommerceProviders";
 import { Label } from "./ui/label";
 import { NativeSelect } from "./ui/native-select";
 import { Item, ItemActions, ItemContent, ItemGroup } from "./ui/item";
+import PhotoComparison from "./PhotoComparison";
+import PhotoImage from "./PhotoImage";
+import panel from "./ExploreChallenges.module.css";
 import styles from "./PresetCatalog.module.css";
 
 export type PresetCatalogProps = {
@@ -330,6 +336,21 @@ export default function PresetCatalog({
   );
 }
 
+function examplePhoto(
+  preset: NonNullable<ReturnType<typeof getCatalogPreset>>,
+  side: "before" | "after",
+): Photo {
+  const { width, height, [side]: key } = preset.example!;
+  return {
+    src: `/preset-examples/${key}`,
+    title: `${preset.name} ${side}`,
+    alt: `Example photograph, ${side === "before" ? "unedited" : `edited with ${preset.name}`}`,
+    width,
+    height,
+    collection: preset.id,
+  };
+}
+
 export function PresetDetail({
   preset,
   inCart,
@@ -337,6 +358,7 @@ export function PresetDetail({
   onAddPreset,
   onRemovePreset,
   onSelectLocation,
+  onOpenPhoto,
   onBack,
   backLabel = "All presets",
   backRef,
@@ -348,14 +370,46 @@ export function PresetDetail({
   onAddPreset: (id: string) => void;
   onRemovePreset?: (id: string) => void;
   onSelectLocation?: (locationId: string, presetId: string) => void;
+  onOpenPhoto?: (src: string, trigger: HTMLButtonElement) => void;
   onBack: () => void;
   backLabel?: string;
   backRef?: Ref<HTMLButtonElement>;
   /** Renders its own scroll container outside the catalog. */
   standalone?: boolean;
 }) {
-  const locations = getVerifiedPresetLocations(preset.id);
   const { anonymous } = useCommerceAccount();
+  const showcase = preset.showcase.flatMap((src) => {
+    const photo = nodeForPhoto(src)?.photos.find((p) => p.src === src);
+    return photo ? [photo] : [];
+  });
+  // Every map photo edited with the preset, by place, after the showcase.
+  const places = getPresetPlaces(travelPlaces, preset.id).flatMap((place) => {
+    const photos = place.photos.filter(
+      (photo) => !preset.showcase.includes(photo.src),
+    );
+    return photos.length ? [{ ...place, photos }] : [];
+  });
+  const example = preset.example && {
+    before: examplePhoto(preset, "before"),
+    after: examplePhoto(preset, "after"),
+  };
+  const photoGrid = (photos: Photo[], className = panel.savedPhotos) => (
+    <ul className={className}>
+      {photos.map((photo) => (
+        <li key={photo.src}>
+          <Button
+            variant="quiet"
+            className={panel.savedPhoto}
+            aria-label={`View ${photo.title}`}
+            disabled={!onOpenPhoto}
+            onClick={(event) => onOpenPhoto?.(photo.src, event.currentTarget)}
+          >
+            <PhotoImage photo={photo} sizes="(max-width: 700px) 50vw, 200px" />
+          </Button>
+        </li>
+      ))}
+    </ul>
+  );
   const detail = (
     <div className={styles.detail}>
       <Button
@@ -376,6 +430,7 @@ export function PresetDetail({
           <h3>{preset.name}</h3>
         </div>
       </div>
+      {example && <PhotoComparison pair={example} />}
       <div className={styles.purchase}>
         <p>{owned ? "Owned" : "$1.99"}</p>
         {owned ? (
@@ -414,40 +469,47 @@ export function PresetDetail({
           </Button>
         )}
       </div>
-      <div className={styles.facts}>
-        <h4>About this preset</h4>
-        <p>
-          Compatibility, included files and license details are not published
-          yet.
-        </p>
-      </div>
-      <div className={styles.facts}>
-        <h4>Photographs & locations</h4>
-        {locations.length > 0 ? (
-          <ul className={styles.locations}>
-            {locations.map((location) => (
-              <li key={location.locationId}>
-                {onSelectLocation ? (
-                  <Button
-                    variant="outline"
-                    onClick={() =>
-                      onSelectLocation(location.locationId, preset.id)
-                    }
-                  >
-                    {location.locationName}
-                    <ArrowUpRight size={16} aria-hidden="true" />
-                  </Button>
-                ) : (
-                  <span>{location.locationName}</span>
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>Photo and location links are not available yet.</p>
+      <dl className={styles.facts}>
+        <dt>Best for</dt>
+        <dd>{preset.bestFor}</dd>
+        <dt>What it does</dt>
+        <dd>{preset.whatItDoes}</dd>
+        {preset.watchOut && (
+          <>
+            <dt>Watch out</dt>
+            <dd>{preset.watchOut}</dd>
+          </>
         )}
-        <p>Before-and-after previews are not available yet.</p>
-      </div>
+      </dl>
+      {showcase.length > 0 && (
+        <section className={styles.facts} aria-label="Showcase">
+          {photoGrid(showcase, `${panel.savedPhotos} ${styles.showcase}`)}
+        </section>
+      )}
+      {places.map((place) => (
+        <section
+          key={place.id}
+          className={styles.facts}
+          aria-labelledby={`${preset.id}-${place.id}`}
+        >
+          <h4 id={`${preset.id}-${place.id}`} className={panel.savedHeading}>
+            {onSelectLocation ? (
+              <Button
+                variant="quiet"
+                className={styles.placeLink}
+                onClick={() => onSelectLocation(place.id, preset.id)}
+              >
+                {place.label}
+                <ArrowUpRight size={14} aria-hidden="true" />
+              </Button>
+            ) : (
+              place.label
+            )}
+            <span>{place.photos.length}</span>
+          </h4>
+          {photoGrid(place.photos)}
+        </section>
+      ))}
     </div>
   );
   return standalone ? (

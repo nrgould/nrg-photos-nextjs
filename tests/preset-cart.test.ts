@@ -71,7 +71,7 @@ test("ten distinct paid presets unlock twenty percent off the entire subtotal", 
     [9, 1791, 0, 1791],
     [10, 1990, 398, 1592],
     [11, 2189, 438, 1751],
-    [21, 4179, 836, 3343],
+    [28, 5572, 1114, 4458],
   ]) {
     const quote = pricePresetCart(
       createPresetCart({ paidPresetIds: ids.slice(0, count) }),

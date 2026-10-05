@@ -11,18 +11,12 @@ test("browser cart restoration accepts known paid IDs but never ownership or loc
   assert.deepEqual(
     restorePresetCart(
       JSON.stringify({
-        paidPresetIds: [
-          "signature-01",
-          "signature-01",
-          "signature-21",
-          "sample",
-          7,
-        ],
-        rewardPresetId: "signature-03",
-        ownedPresetIds: ["signature-01"],
+        paidPresetIds: ["eibsee-1", "eibsee-1", "amsterdam-2", "sample", 7],
+        rewardPresetId: "seiser-alm-1",
+        ownedPresetIds: ["eibsee-1"],
       }),
     ),
-    { paidPresetIds: ["signature-01", "signature-21"], rewardPresetId: null },
+    { paidPresetIds: ["eibsee-1", "amsterdam-2"], rewardPresetId: null },
   );
   for (const raw of [null, "{", "null", "42", "[]", '{"paidPresetIds":{}}']) {
     assert.deepEqual(restorePresetCart(raw), {
@@ -34,8 +28,8 @@ test("browser cart restoration accepts known paid IDs but never ownership or loc
 
 test("storage round trip preserves a custom pack and discards unverified free selections", () => {
   const cart = {
-    paidPresetIds: ["signature-02", "signature-10"],
-    rewardPresetId: "signature-01",
+    paidPresetIds: ["grainau-1", "hopfensee-2"],
+    rewardPresetId: "eibsee-1",
   };
   assert.deepEqual(restorePresetCart(serializePresetCart(cart)), {
     ...cart,
@@ -47,7 +41,7 @@ test("storage round trip preserves a custom pack and discards unverified free se
 
 test("checkout returns retain catalog context only on supported local routes", () => {
   const path =
-    "/?view=cart&query=alpine&category=Film&preset=signature-01#main";
+    "/?view=cart&query=alpine&category=Soft%20Film&preset=eibsee-1#main";
   assert.equal(safePresetReturnPath(path), path);
   assert.equal(
     safePresetReturnPath("/?location=italy&view=cart"),
