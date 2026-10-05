@@ -337,6 +337,8 @@ export default function PlacesMap(props: {
   onZoomChange: (zoom: number, mode: "globe" | "map") => void;
   /** Continuous zoom-rail position while a wheel or pinch zoom is in progress. */
   onZoomFrame?: (position: number) => void;
+  /** A visitor pan or zoom on the map itself, not a programmatic camera move. */
+  onGesture?: () => void;
 }) {
   const {
     selected,
@@ -756,6 +758,7 @@ export default function PlacesMap(props: {
         });
         instance.on("dragstart", () => {
           gestureMoved.current = true;
+          latest.current.onGesture?.();
           if (projection.current.mix > 0 && projection.current.mix < 1) {
             const settled = settleProjection(
               instance.getZoom(),
@@ -810,7 +813,10 @@ export default function PlacesMap(props: {
           }
         });
         instance.on("zoomstart", (event) => {
-          if (event.originalEvent) gestureMoved.current = true;
+          if (event.originalEvent) {
+            gestureMoved.current = true;
+            latest.current.onGesture?.();
+          }
           if (isZoomInput(event.originalEvent, instance.scrollZoom.isZooming()))
             nativeZoomIntent.current.active = true;
         });

@@ -283,6 +283,8 @@ export default function PlacesExplorer({
   const snap = nested && !desktop && chosenSnap === 0.25 ? 0.75 : chosenSnap;
   const [command, setCommand] = useState(false);
   const [query, setQuery] = useState("");
+  // The command bar names the place it stepped to until the visitor moves the map.
+  const [stepped, setStepped] = useState(false);
   const [viewer, setViewer] = useState<string | null>(null);
   const [removals, setRemovals] = useState<string[]>([]);
   useEffect(() => {
@@ -469,8 +471,10 @@ export default function PlacesExplorer({
   const expanded = desktop || Number(snap) >= 0.75;
   function navigate(direction: "back" | "next" | "shuffle") {
     const id = navigatePlaces(filteredPlaces, selected, direction);
-    // Shuffle opens the new place's photos at the strip, like a marker tap; desktop opens the side drawer on every step.
-    if (id !== null) choose(id, desktop || direction === "shuffle");
+    // Every step opens the new place's photos at the strip, like a marker tap.
+    if (id === null) return;
+    choose(id, true);
+    setStepped(true);
   }
   useEffect(() => {
     const viewport = drawerViewport.current;
@@ -615,6 +619,7 @@ export default function PlacesExplorer({
   }
   function choose(id: string, showPhotos = false) {
     selectionFeedback();
+    setStepped(false);
     gallery.current?.scrollTo(0, 0);
     photoScroll.current = 0;
     pendingPhotoScroll.current = null;
@@ -964,6 +969,7 @@ export default function PlacesExplorer({
               setIntro(false);
             }}
             onZoomFrame={(position) => liveZoom.set(position)}
+            onGesture={() => setStepped(false)}
             theme={theme}
             intro={intro}
             revision={revision}
@@ -1011,7 +1017,7 @@ export default function PlacesExplorer({
         </ButtonGroup>
         <div className="explorer-command-bar" aria-label="Location navigation">
           {/* Names the place Previous, Next and Shuffle landed on; at globe scale the marker alone is hard to find. */}
-          {place && (
+          {stepped && place && (
             <p className="command-place" aria-live="polite">
               {place.name}
             </p>
