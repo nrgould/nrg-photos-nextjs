@@ -3081,7 +3081,9 @@ html[data-photo-theme="dark"] {
   }
   .explorer .explorer-bottom-controls > .explorer-command-bar,
   .explorer .explorer-bottom-controls .floating-contact {
-    position: static;
+    /* Relative only to anchor the place label; flex places the bar. */
+    position: relative;
+    inset: auto;
     flex-shrink: 0;
     height: 54px;
     min-height: 54px;
@@ -3180,6 +3182,20 @@ html[data-photo-theme="dark"] {
     display: flex;
     align-items: center;
     gap: 4px;
+  }
+  .explorer .command-place {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    translate: -50% 0;
+    margin: 0;
+    white-space: nowrap;
+    pointer-events: none;
+    font: 500 28px/1.1 var(--serif);
+    color: var(--ink);
+    text-shadow:
+      0 0 12px var(--paper),
+      0 0 4px var(--paper);
   }
   .travel-commands button {
     display: inline-flex;
@@ -3447,6 +3463,23 @@ html[data-photo-theme="dark"] {
     .map-thumbnail-host:has(.map-photo-marker:hover) .map-marker-label {
       opacity: 1;
     }
+  }
+  /* Bucket-list pins: a hollow ring, quieter than any photo thumbnail. */
+  .bucket-pin::after {
+    content: "";
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--paper);
+    opacity: 0.7;
+  }
+  .bucket-pin:hover::after,
+  .bucket-pin[data-popup-open]::after {
+    opacity: 1;
+  }
+  .bucket-pin-title {
+    font: 500 18px/1.2 var(--serif);
   }
   .maplibregl-marker-covered {
     visibility: hidden;

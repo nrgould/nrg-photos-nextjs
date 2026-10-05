@@ -959,6 +959,12 @@ export default function PlacesExplorer({
           </Control>
         </ButtonGroup>
         <div className="explorer-command-bar" aria-label="Location navigation">
+          {/* Desktop names the place Previous, Next and Shuffle landed on; at globe scale the marker alone is hard to find. */}
+          {desktop && place && (
+            <p className="command-place" aria-live="polite">
+              {place.name}
+            </p>
+          )}
           <div className="travel-commands">
             <Control
               variant="quiet"

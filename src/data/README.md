@@ -5,7 +5,7 @@
 - https://github.com/topojson/world-atlas
 - https://www.naturalearthdata.com/about/terms-of-use/
 
-The map is bundled locally. Location pins in `src/lib/places.ts` are regional reference points associated with Nicholas's photographs, not camera GPS metadata or a claimed travel route.
+The map is bundled locally. Location pins in `src/lib/places.ts` are regional reference points associated with Nicholas's photographs, not camera GPS metadata or a claimed travel route. Bucket-list pins (`bucket-list.json`) mark places he has not photographed; countries take their Natural Earth label point from `country-labels.json`, the rest carry a rounded area point.
 
 ## Map context
 

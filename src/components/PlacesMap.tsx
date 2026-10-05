@@ -44,6 +44,14 @@ import {
   type MarkerLayout,
 } from "@/lib/map-marker-layout";
 import { Button } from "./ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverTitle,
+  PopoverTrigger,
+} from "./ui/popover";
+import { bucketList, type BucketPlace } from "@/lib/bucket-list";
 import { zoomPosition } from "@/lib/map-zoom-stops";
 import { photoUrl } from "@/lib/photography";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -360,6 +368,9 @@ export default function PlacesMap(props: {
   const [hosts, setHosts] = useState<
     Map<string, { element: HTMLElement; node: MapNode }>
   >(new Map());
+  const [bucketHosts, setBucketHosts] = useState<
+    { place: BucketPlace; element: HTMLElement }[]
+  >([]);
   const markers = useRef(
     new Map<
       string,
@@ -1028,6 +1039,27 @@ export default function PlacesMap(props: {
     instance.triggerRepaint();
   }, [nodes, ready]);
 
+  // Bucket-list pins sit 14px below their point, clear of a country's own label.
+  useEffect(() => {
+    const instance = map.current;
+    const Constructor = MarkerClass.current;
+    if (!ready || !instance || !Constructor) return;
+    const pins = bucketList.map((place) => {
+      const element = document.createElement("div");
+      const marker = new Constructor({
+        element,
+        anchor: "center",
+        offset: [0, 14],
+        opacityWhenCovered: 0,
+      })
+        .setLngLat(place.coordinates)
+        .addTo(instance);
+      return { place, element, marker };
+    });
+    setBucketHosts(pins);
+    return () => pins.forEach(({ marker }) => marker.remove());
+  }, [ready]);
+
   useEffect(() => {
     const instance = map.current;
     if (!ready || !instance) return;
@@ -1460,6 +1492,34 @@ export default function PlacesMap(props: {
           node.id,
         );
       })}
+      {bucketHosts.map(({ place, element }) =>
+        createPortal(
+          <Popover>
+            <PopoverTrigger
+              render={
+                <Button
+                  variant="quiet"
+                  size="icon"
+                  className="bucket-pin"
+                  aria-label={`${place.name}, not yet visited`}
+                />
+              }
+            />
+            <PopoverContent
+              side="top"
+              sideOffset={6}
+              className="explorer-overlay w-auto gap-0.5 px-3 py-2"
+            >
+              <PopoverTitle className="bucket-pin-title">
+                {place.name}
+              </PopoverTitle>
+              <PopoverDescription>Not yet visited</PopoverDescription>
+            </PopoverContent>
+          </Popover>,
+          element,
+          place.id,
+        ),
+      )}
       <span className="map-attribution">
         Natural Earth ·{" "}
         <a href="https://openfreemap.org" target="_blank" rel="noreferrer">
