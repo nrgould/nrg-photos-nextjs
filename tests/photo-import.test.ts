@@ -94,18 +94,23 @@ test("alt text comes from Lightroom, falling back to the manifest draft", () => 
   assert.equal(manifestEntry(row, "lofoten", "Lofoten", undefined).alt, "");
 });
 
-test("an encoded photo keeps its dimensions when the export has none", () => {
+test("a stored photo keeps its encoded size, not the export's", () => {
   const row = {
     src: "/photos/lr-1.webp",
     lightroomId: 1,
     capturedAt: "2023-02-24T10:00:00",
-    width: null,
-    height: null,
+    width: 1920,
+    height: 2400,
     status: "site",
   };
   const entry = manifestEntry(row, "lofoten", "Lofoten", {
-    width: 1600,
-    height: 2400,
+    width: 1280,
+    height: 1600,
   });
-  assert.deepEqual([entry.width, entry.height], [1600, 2400]);
+  assert.deepEqual([entry.width, entry.height], [1280, 1600]);
+  // A new photo has no size until it is encoded.
+  assert.equal(
+    manifestEntry(row, "lofoten", "Lofoten", undefined).width,
+    undefined,
+  );
 });

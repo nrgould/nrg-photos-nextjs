@@ -325,18 +325,6 @@
     "lightroomId": 1875102
   },
   {
-    "src": "/photos/lr-1906572.webp",
-    "title": "Uttakleiv",
-    "alt": "A man in a black hooded coat stands under a dark rock overhang beside smooth boulders and a fire bowl, with snow and an overcast sky behind",
-    "origin": "Lightroom 1906572",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-02-23T04:01:43.89",
-    "locationId": "uttakleiv",
-    "placeSource": "curation",
-    "lightroomId": 1906572
-  },
-  {
     "src": "/photos/lr-1906940.webp",
     "title": "Nusfjord",
     "alt": "A yellow wooden boathouse and moored boats at the edge of a grey fjord, snow-dusted mountains rising behind under heavy cloud",
@@ -370,7 +358,8 @@
     "taken": "2023-02-24T05:41:55.32",
     "locationId": "henningsvaer",
     "placeSource": "curation",
-    "lightroomId": 1993939
+    "lightroomId": 1993939,
+    "presetId": "lofoten-2"
   },
   {
     "src": "/photos/lr-2062157.webp",
@@ -382,7 +371,8 @@
     "taken": "2023-02-28T08:18:31.79",
     "locationId": "sommaroy",
     "placeSource": "curation",
-    "lightroomId": 2062157
+    "lightroomId": 2062157,
+    "presetId": "lofoten-2"
   },
   {
     "src": "/photos/lr-2135934.webp",
@@ -555,14 +545,14 @@
   },
   {
     "src": "/photos/lr-2366189.webp",
-    "title": "Lofoten",
+    "title": "Haukland",
     "alt": "Teal waves roll toward a rocky shore beneath a snow-covered mountain, with a heavy grey storm sky above",
     "origin": "Lightroom 2366189",
     "width": 1280,
     "height": 1600,
     "taken": "2023-02-23T02:58:19.71",
-    "locationId": "lofoten",
-    "placeSource": "curation",
+    "locationId": "haukland",
+    "placeSource": "nicholas",
     "lightroomId": 2366189
   },
   {
@@ -576,19 +566,8 @@
     "locationId": "nusfjord",
     "placeSource": "curation",
     "lightroomId": 2366195,
-    "hero": true
-  },
-  {
-    "src": "/photos/lr-2366204.webp",
-    "title": "Uttakleiv",
-    "alt": "Woman in a grey puffer jacket and pom beanie seen from behind, looking over a stormy rocky shore toward snowy mountains",
-    "origin": "Lightroom 2366204",
-    "width": 1600,
-    "height": 1067,
-    "taken": "2023-02-23T04:16:15.57",
-    "locationId": "uttakleiv",
-    "placeSource": "curation",
-    "lightroomId": 2366204
+    "hero": true,
+    "presetId": "lofoten-2"
   },
   {
     "src": "/photos/lr-2366209.webp",
@@ -640,27 +619,15 @@
     "hero": true
   },
   {
-    "src": "/photos/lr-2366222.webp",
-    "title": "Henningsvær",
-    "alt": "Small snow-covered village at the foot of two sharp, sunlit peaks, bare shrubs in the foreground and dark storm cloud to one side",
-    "origin": "Lightroom 2366222",
-    "width": 1600,
-    "height": 1067,
-    "taken": "2023-02-24T06:14:14.35",
-    "locationId": "henningsvaer",
-    "placeSource": "curation",
-    "lightroomId": 2366222
-  },
-  {
     "src": "/photos/lr-2366224.webp",
-    "title": "Lofoten",
+    "title": "Haukland",
     "alt": "Gentle waves wash a dark beach below snow-streaked mountain slopes, a glowing peach cloud and soft pink sky reflected in the water",
     "origin": "Lightroom 2366224",
     "width": 1280,
     "height": 1600,
     "taken": "2023-02-24T10:23:46.48",
-    "locationId": "lofoten",
-    "placeSource": "curation",
+    "locationId": "haukland",
+    "placeSource": "nicholas",
     "lightroomId": 2366224
   },
   {
@@ -699,18 +666,6 @@
     "locationId": "henningsvaer",
     "placeSource": "curation",
     "lightroomId": 2366229
-  },
-  {
-    "src": "/photos/lr-2366231.webp",
-    "title": "Henningsvær",
-    "alt": "Small white lighthouse with a red cap on a snow-covered rocky rise, backlit by warm glowing clouds, dry grass poking through snow",
-    "origin": "Lightroom 2366231",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-02-24T06:15:17.03",
-    "locationId": "henningsvaer",
-    "placeSource": "curation",
-    "lightroomId": 2366231
   },
   {
     "src": "/photos/lr-2366244.webp",
@@ -818,7 +773,8 @@
     "taken": "2023-02-28T07:35:46.63",
     "locationId": "sommaroy",
     "placeSource": "curation",
-    "lightroomId": 2366258
+    "lightroomId": 2366258,
+    "presetId": "lofoten-2"
   },
   {
     "src": "/photos/lr-2366262.webp",
@@ -869,18 +825,6 @@
     "lightroomId": 2366285
   },
   {
-    "src": "/photos/lr-2366287.webp",
-    "title": "Kiruna",
-    "alt": "Barrel-shaped sauna with red-lit windows on a snowy platform beneath a bright green aurora streaking across a starry sky",
-    "origin": "Lightroom 2366287",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-03-24T14:27:54.90",
-    "locationId": "kiruna",
-    "placeSource": "curation",
-    "lightroomId": 2366287
-  },
-  {
     "src": "/photos/lr-2366289.webp",
     "title": "Kiruna",
     "alt": "Small round log hut with a hexagonal window and snow-heaped roof, tucked among pines lit by warm low sunlight",
@@ -903,18 +847,6 @@
     "locationId": "kiruna",
     "placeSource": "curation",
     "lightroomId": 2366297
-  },
-  {
-    "src": "/photos/lr-2366298.webp",
-    "title": "Kiruna",
-    "alt": "Snowmobile rides straight toward the camera along a track over a frozen lake, pines and a low ridge under a hazy blue sky",
-    "origin": "Lightroom 2366298",
-    "width": 1600,
-    "height": 1067,
-    "taken": "2023-03-24T04:49:29.86",
-    "locationId": "kiruna",
-    "placeSource": "curation",
-    "lightroomId": 2366298
   },
   {
     "src": "/photos/lr-2366302.webp",
@@ -964,18 +896,6 @@
     "placeSource": "curation",
     "lightroomId": 2366314,
     "hero": true
-  },
-  {
-    "src": "/photos/lr-2366321.webp",
-    "title": "Kiruna",
-    "alt": "Smiling man in a fur-trimmed dark parka, knit scarf and blue mirrored sunglasses holds gloves, warm light on blurred pines behind",
-    "origin": "Lightroom 2366321",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-03-24T11:10:16.88",
-    "locationId": "kiruna",
-    "placeSource": "curation",
-    "lightroomId": 2366321
   },
   {
     "src": "/photos/lr-2366327.webp",
@@ -1076,18 +996,6 @@
     "hero": true
   },
   {
-    "src": "/photos/lr-2452885.webp",
-    "title": "Manchester",
-    "alt": "Ornate red and gold archway over a wet night street, parked cars at left, a lone walker and neon signs in the cool dark",
-    "origin": "Lightroom 2452885",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-04-11T14:39:35.67",
-    "locationId": "manchester",
-    "placeSource": "curation",
-    "lightroomId": 2452885
-  },
-  {
     "src": "/photos/lr-2452933.webp",
     "title": "Manchester",
     "alt": "Gothic cathedral nave with tall stone arches and a gilded organ at the far end, mirrored in a dark reflecting pool in the foreground",
@@ -1110,18 +1018,6 @@
     "locationId": "manchester",
     "placeSource": "curation",
     "lightroomId": 2452934
-  },
-  {
-    "src": "/photos/lr-2452952.webp",
-    "title": "Manchester",
-    "alt": "Woman in a beige trench coat and glasses turns to look back, standing in a dark vaulted stone passage lit by warm wall lamps",
-    "origin": "Lightroom 2452952",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-04-12T09:53:23.77",
-    "locationId": "manchester",
-    "placeSource": "curation",
-    "lightroomId": 2452952
   },
   {
     "src": "/photos/lr-2498374.webp",
@@ -1181,7 +1077,8 @@
     "taken": "2023-04-05T12:11:00.07",
     "locationId": "copenhagen",
     "placeSource": "curation",
-    "lightroomId": 2498384
+    "lightroomId": 2498384,
+    "presetId": "salzburg-2"
   },
   {
     "src": "/photos/lr-2498385.webp",
@@ -1301,7 +1198,8 @@
     "taken": "2023-05-25T11:14:27.92",
     "locationId": "lund",
     "placeSource": "curation",
-    "lightroomId": 2705401
+    "lightroomId": 2705401,
+    "presetId": "eibsee-1"
   },
   {
     "src": "/photos/lr-2705440.webp",
@@ -1313,7 +1211,8 @@
     "taken": "2023-05-25T11:16:18.02",
     "locationId": "lund",
     "placeSource": "curation",
-    "lightroomId": 2705440
+    "lightroomId": 2705440,
+    "presetId": "grainau-1"
   },
   {
     "src": "/photos/lr-2705478.webp",
@@ -1325,7 +1224,8 @@
     "taken": "2023-05-25T11:27:33.03",
     "locationId": "lund",
     "placeSource": "curation",
-    "lightroomId": 2705478
+    "lightroomId": 2705478,
+    "presetId": "eibsee-1"
   },
   {
     "src": "/photos/lr-2705646.webp",
@@ -1337,7 +1237,8 @@
     "taken": "2023-05-25T11:50:05.27",
     "locationId": "lund",
     "placeSource": "curation",
-    "lightroomId": 2705646
+    "lightroomId": 2705646,
+    "presetId": "grainau-1"
   },
   {
     "src": "/photos/lr-2705667.webp",
@@ -1349,7 +1250,8 @@
     "taken": "2023-05-25T11:55:04.63",
     "locationId": "lund",
     "placeSource": "curation",
-    "lightroomId": 2705667
+    "lightroomId": 2705667,
+    "presetId": "eibsee-1"
   },
   {
     "src": "/photos/lr-2705805.webp",
@@ -1361,7 +1263,8 @@
     "taken": "2023-05-25T12:28:00.14",
     "locationId": "lund",
     "placeSource": "curation",
-    "lightroomId": 2705805
+    "lightroomId": 2705805,
+    "presetId": "eibsee-1"
   },
   {
     "src": "/photos/lr-2706013.webp",
@@ -1373,7 +1276,8 @@
     "taken": "2023-05-25T13:07:02.05",
     "locationId": "lund",
     "placeSource": "curation",
-    "lightroomId": 2706013
+    "lightroomId": 2706013,
+    "presetId": "grainau-1"
   },
   {
     "src": "/photos/lr-2895337.webp",
@@ -1385,31 +1289,8 @@
     "taken": "2023-06-04T10:46:32.91",
     "locationId": "amsterdam",
     "placeSource": "curation",
-    "lightroomId": 2895337
-  },
-  {
-    "src": "/photos/lr-2895420.webp",
-    "title": "Amsterdam",
-    "alt": "A vintage grey car parked on a canal edge in front of narrow brick townhouses, a red boat in the foreground and warm low sun on the facades",
-    "origin": "Lightroom 2895420",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-06-04T12:48:17.05",
-    "locationId": "amsterdam",
-    "placeSource": "curation",
-    "lightroomId": 2895420
-  },
-  {
-    "src": "/photos/lr-2895475.webp",
-    "title": "Amsterdam",
-    "alt": "A tree-lined canal stretches toward a distant stone bridge, with parked cars and small boats along both banks under a soft pale sky",
-    "origin": "Lightroom 2895475",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-06-04T12:45:28.49",
-    "locationId": "amsterdam",
-    "placeSource": "curation",
-    "lightroomId": 2895475
+    "lightroomId": 2895337,
+    "presetId": "amsterdam-2"
   },
   {
     "src": "/photos/lr-2895508.webp",
@@ -1421,7 +1302,8 @@
     "taken": "2023-06-04T12:40:18.53",
     "locationId": "amsterdam",
     "placeSource": "curation",
-    "lightroomId": 2895508
+    "lightroomId": 2895508,
+    "presetId": "rome-2"
   },
   {
     "src": "/photos/lr-2895522.webp",
@@ -1445,7 +1327,8 @@
     "taken": "2023-06-04T11:01:38.63",
     "locationId": "amsterdam",
     "placeSource": "curation",
-    "lightroomId": 2895784
+    "lightroomId": 2895784,
+    "presetId": "amsterdam-2"
   },
   {
     "src": "/photos/lr-2927482.webp",
@@ -1494,7 +1377,8 @@
     "taken": "2023-06-05T12:58:39.16",
     "locationId": "koblenz",
     "placeSource": "curation",
-    "lightroomId": 2927521
+    "lightroomId": 2927521,
+    "presetId": "lofoten-2"
   },
   {
     "src": "/photos/lr-2927561.webp",
@@ -1506,7 +1390,8 @@
     "taken": "2023-06-05T13:08:15.47",
     "locationId": "koblenz",
     "placeSource": "curation",
-    "lightroomId": 2927561
+    "lightroomId": 2927561,
+    "presetId": "salzburg-2"
   },
   {
     "src": "/photos/lr-2956733.webp",
@@ -1518,7 +1403,8 @@
     "taken": "2023-06-08T12:40:17.13",
     "locationId": "eibsee",
     "placeSource": "curation",
-    "lightroomId": 2956733
+    "lightroomId": 2956733,
+    "presetId": "eibsee-1"
   },
   {
     "src": "/photos/lr-2974081.webp",
@@ -1530,7 +1416,8 @@
     "taken": "2023-06-09T04:15:41.80",
     "locationId": "zugspitze",
     "placeSource": "curation",
-    "lightroomId": 2974081
+    "lightroomId": 2974081,
+    "presetId": "eibsee-1"
   },
   {
     "src": "/photos/lr-3010829.webp",
@@ -1545,18 +1432,6 @@
     "lightroomId": 3010829
   },
   {
-    "src": "/photos/lr-3044842.webp",
-    "title": "Eibsee",
-    "alt": "A clear green-blue lake with a rocky shoreline in the foreground and a forested shore below a cloud-covered, snow-streaked mountain",
-    "origin": "Lightroom 3044842",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-06-10T13:11:07.78",
-    "locationId": "eibsee",
-    "placeSource": "curation",
-    "lightroomId": 3044842
-  },
-  {
     "src": "/photos/lr-3045082.webp",
     "title": "Eibsee",
     "alt": "Rocky mountain peaks lit orange under a low cloud above a dark forested shore and a deep blue lake rippling in the foreground",
@@ -1567,18 +1442,6 @@
     "locationId": "eibsee",
     "placeSource": "curation",
     "lightroomId": 3045082
-  },
-  {
-    "src": "/photos/lr-3045125.webp",
-    "title": "Eibsee",
-    "alt": "A still teal lake reflects pink clouds, with a conifer-covered shore on both sides and misty mountains fading into a soft evening sky",
-    "origin": "Lightroom 3045125",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-06-10T14:06:55.84",
-    "locationId": "eibsee",
-    "placeSource": "curation",
-    "lightroomId": 3045125
   },
   {
     "src": "/photos/lr-3045141.webp",
@@ -1615,7 +1478,8 @@
     "taken": "2023-06-11T12:12:00.56",
     "locationId": "salzburg-salzburg",
     "placeSource": "curation",
-    "lightroomId": 3063119
+    "lightroomId": 3063119,
+    "presetId": "rome-2"
   },
   {
     "src": "/photos/lr-3109952.webp",
@@ -1628,7 +1492,8 @@
     "locationId": "gothenburg",
     "placeSource": "curation",
     "lightroomId": 3109952,
-    "hero": true
+    "hero": true,
+    "presetId": "eibsee-1"
   },
   {
     "src": "/photos/lr-3109988.webp",
@@ -1676,7 +1541,8 @@
     "taken": "2023-05-16T07:40:55.26",
     "locationId": "lund",
     "placeSource": "curation",
-    "lightroomId": 3110028
+    "lightroomId": 3110028,
+    "presetId": "grainau-1"
   },
   {
     "src": "/photos/lr-3110036.webp",
@@ -1688,7 +1554,8 @@
     "taken": "2023-05-16T08:03:01.11",
     "locationId": "lund",
     "placeSource": "curation",
-    "lightroomId": 3110036
+    "lightroomId": 3110036,
+    "presetId": "grainau-1"
   },
   {
     "src": "/photos/lr-3110041.webp",
@@ -1737,7 +1604,8 @@
     "taken": "2023-06-10T04:43:42.90",
     "locationId": "zugspitze",
     "placeSource": "curation",
-    "lightroomId": 3248114
+    "lightroomId": 3248114,
+    "presetId": "stetten-1"
   },
   {
     "src": "/photos/lr-3472823.webp",
@@ -1862,7 +1730,8 @@
     "locationId": "lofoten",
     "placeSource": "curation",
     "lightroomId": 3827515,
-    "hero": true
+    "hero": true,
+    "presetId": "lofoten-2"
   },
   {
     "src": "/photos/lr-3827516.webp",
@@ -1874,7 +1743,8 @@
     "taken": "2023-02-24T05:44:05.71",
     "locationId": "henningsvaer",
     "placeSource": "curation",
-    "lightroomId": 3827516
+    "lightroomId": 3827516,
+    "presetId": "lofoten-2"
   },
   {
     "src": "/photos/lr-3827519.webp",
@@ -1887,7 +1757,8 @@
     "locationId": "henningsvaer",
     "placeSource": "curation",
     "lightroomId": 3827519,
-    "hero": true
+    "hero": true,
+    "presetId": "lofoten-2"
   },
   {
     "src": "/photos/lr-4147599.webp",
@@ -1997,7 +1868,8 @@
     "locationId": "svolvaer",
     "placeSource": "curation",
     "lightroomId": 4148262,
-    "hero": true
+    "hero": true,
+    "presetId": "lofoten-2"
   },
   {
     "src": "/photos/lr-4148361.webp",
@@ -2009,7 +1881,8 @@
     "taken": "2023-02-26T06:59:13.84",
     "locationId": "tromso",
     "placeSource": "curation",
-    "lightroomId": 4148361
+    "lightroomId": 4148361,
+    "presetId": "lofoten-2"
   },
   {
     "src": "/photos/lr-4148369.webp",
@@ -2021,7 +1894,8 @@
     "taken": "2023-02-26T06:58:18.26",
     "locationId": "tromso",
     "placeSource": "curation",
-    "lightroomId": 4148369
+    "lightroomId": 4148369,
+    "presetId": "lofoten-2"
   },
   {
     "src": "/photos/lr-4148370.webp",
@@ -2034,7 +1908,8 @@
     "locationId": "tromso",
     "placeSource": "curation",
     "lightroomId": 4148370,
-    "hero": true
+    "hero": true,
+    "presetId": "lofoten-2"
   },
   {
     "src": "/photos/lr-4148371.webp",
@@ -2107,7 +1982,8 @@
     "taken": "2023-05-25T11:50:09.14",
     "locationId": "lund",
     "placeSource": "curation",
-    "lightroomId": 4150933
+    "lightroomId": 4150933,
+    "presetId": "grainau-1"
   },
   {
     "src": "/photos/lr-4151066.webp",
@@ -2119,7 +1995,8 @@
     "taken": "2023-06-04T12:25:47.11",
     "locationId": "amsterdam",
     "placeSource": "curation",
-    "lightroomId": 4151066
+    "lightroomId": 4151066,
+    "presetId": "rome-2"
   },
   {
     "src": "/photos/lr-4151068.webp",
@@ -2207,30 +2084,6 @@
     "lightroomId": 4151078
   },
   {
-    "src": "/photos/lr-4151079.webp",
-    "title": "Amsterdam",
-    "alt": "Gothic brick church seen from below, with tall pointed windows and stepped gables in warm low sun against a pale sky",
-    "origin": "Lightroom 4151079",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-06-04T11:54:21.49",
-    "locationId": "amsterdam",
-    "placeSource": "curation",
-    "lightroomId": 4151079
-  },
-  {
-    "src": "/photos/lr-4151081.webp",
-    "title": "Amsterdam",
-    "alt": "Vintage grey car parked on a canal quay in golden light, a red rowing boat in the dark water in front, brick houses behind",
-    "origin": "Lightroom 4151081",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-06-04T12:49:13.78",
-    "locationId": "amsterdam",
-    "placeSource": "curation",
-    "lightroomId": 4151081
-  },
-  {
     "src": "/photos/lr-4151083.webp",
     "title": "Amsterdam",
     "alt": "Red bicycle leaning on a canal bridge railing, tree-lined water and a distant arched bridge behind under a hazy sky",
@@ -2288,7 +2141,8 @@
     "taken": "2023-06-06T12:31:50.04",
     "locationId": "stetten",
     "placeSource": "curation",
-    "lightroomId": 4151109
+    "lightroomId": 4151109,
+    "presetId": "stetten-1"
   },
   {
     "src": "/photos/lr-4151111.webp",
@@ -2384,7 +2238,8 @@
     "taken": "2023-06-06T14:36:56.24",
     "locationId": "stetten",
     "placeSource": "curation",
-    "lightroomId": 4151127
+    "lightroomId": 4151127,
+    "presetId": "rome-2"
   },
   {
     "src": "/photos/lr-4151128.webp",
@@ -2396,7 +2251,8 @@
     "taken": "2023-06-06T12:06:04.92",
     "locationId": "stetten",
     "placeSource": "curation",
-    "lightroomId": 4151128
+    "lightroomId": 4151128,
+    "presetId": "stetten-1"
   },
   {
     "src": "/photos/lr-4151134.webp",
@@ -2456,7 +2312,8 @@
     "taken": "2023-06-07T06:43:31.80",
     "locationId": "stetten",
     "placeSource": "curation",
-    "lightroomId": 4151153
+    "lightroomId": 4151153,
+    "presetId": "stetten-1"
   },
   {
     "src": "/photos/lr-4151183.webp",
@@ -2468,31 +2325,8 @@
     "taken": "2023-06-08T12:54:56.22",
     "locationId": "eibsee",
     "placeSource": "curation",
-    "lightroomId": 4151183
-  },
-  {
-    "src": "/photos/lr-4151186.webp",
-    "title": "Zugspitze",
-    "alt": "Rocky mountain peak with patches of snow above dark pine forest, a red and white cable car pylon standing on the slope",
-    "origin": "Lightroom 4151186",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-06-08T12:31:05.46",
-    "locationId": "zugspitze",
-    "placeSource": "curation",
-    "lightroomId": 4151186
-  },
-  {
-    "src": "/photos/lr-4151195.webp",
-    "title": "Eibsee",
-    "alt": "Sunlit rocky mountain range above a dark forested shore and a few small buildings on a calm lake, in warm evening light",
-    "origin": "Lightroom 4151195",
-    "width": 1600,
-    "height": 1067,
-    "taken": "2023-06-08T13:01:16.22",
-    "locationId": "eibsee",
-    "placeSource": "curation",
-    "lightroomId": 4151195
+    "lightroomId": 4151183,
+    "presetId": "eibsee-1"
   },
   {
     "src": "/photos/lr-4151201.webp",
@@ -2504,7 +2338,8 @@
     "taken": "2023-06-09T13:52:39.18",
     "locationId": "grainau",
     "placeSource": "curation",
-    "lightroomId": 4151201
+    "lightroomId": 4151201,
+    "presetId": "zugspitze-1"
   },
   {
     "src": "/photos/lr-4151202.webp",
@@ -2529,7 +2364,8 @@
     "locationId": "grainau",
     "placeSource": "curation",
     "lightroomId": 4151203,
-    "hero": true
+    "hero": true,
+    "presetId": "zugspitze-1"
   },
   {
     "src": "/photos/lr-4151204.webp",
@@ -2554,7 +2390,8 @@
     "locationId": "zugspitze",
     "placeSource": "curation",
     "lightroomId": 4151205,
-    "hero": true
+    "hero": true,
+    "presetId": "grainau-1"
   },
   {
     "src": "/photos/lr-4151209.webp",
@@ -2578,7 +2415,8 @@
     "taken": "2023-06-10T08:42:23.54",
     "locationId": "grainau",
     "placeSource": "curation",
-    "lightroomId": 4151211
+    "lightroomId": 4151211,
+    "presetId": "grainau-1"
   },
   {
     "src": "/photos/lr-4151216.webp",
@@ -2590,7 +2428,8 @@
     "taken": "2023-06-10T13:47:47.84",
     "locationId": "eibsee",
     "placeSource": "curation",
-    "lightroomId": 4151216
+    "lightroomId": 4151216,
+    "presetId": "eibsee-1"
   },
   {
     "src": "/photos/lr-4151218.webp",
@@ -2602,7 +2441,8 @@
     "taken": "2023-06-10T08:26:49.89",
     "locationId": "grainau",
     "placeSource": "curation",
-    "lightroomId": 4151218
+    "lightroomId": 4151218,
+    "presetId": "grainau-1"
   },
   {
     "src": "/photos/lr-4151225.webp",
@@ -2626,7 +2466,8 @@
     "taken": "2023-06-12T08:30:10.65",
     "locationId": "salzburg-salzburg",
     "placeSource": "curation",
-    "lightroomId": 4151238
+    "lightroomId": 4151238,
+    "presetId": "salzburg-1"
   },
   {
     "src": "/photos/lr-4151240.webp",
@@ -2638,7 +2479,8 @@
     "taken": "2023-06-12T08:01:09.73",
     "locationId": "salzburg-salzburg",
     "placeSource": "curation",
-    "lightroomId": 4151240
+    "lightroomId": 4151240,
+    "presetId": "salzburg-1"
   },
   {
     "src": "/photos/lr-4151244.webp",
@@ -2650,7 +2492,8 @@
     "taken": "2023-06-12T08:34:28.02",
     "locationId": "salzburg-salzburg",
     "placeSource": "curation",
-    "lightroomId": 4151244
+    "lightroomId": 4151244,
+    "presetId": "salzburg-1"
   },
   {
     "src": "/photos/lr-4151245.webp",
@@ -2662,7 +2505,8 @@
     "taken": "2023-06-12T10:52:23.53",
     "locationId": "salzburg-salzburg",
     "placeSource": "curation",
-    "lightroomId": 4151245
+    "lightroomId": 4151245,
+    "presetId": "eibsee-1"
   },
   {
     "src": "/photos/lr-4151246.webp",
@@ -2674,7 +2518,8 @@
     "taken": "2023-06-12T08:00:30.16",
     "locationId": "salzburg-salzburg",
     "placeSource": "curation",
-    "lightroomId": 4151246
+    "lightroomId": 4151246,
+    "presetId": "eibsee-1"
   },
   {
     "src": "/photos/lr-4151291.webp",
@@ -2699,7 +2544,8 @@
     "taken": "2023-06-11T13:42:29.87",
     "locationId": "salzburg-salzburg",
     "placeSource": "curation",
-    "lightroomId": 4151292
+    "lightroomId": 4151292,
+    "presetId": "salzburg-2"
   },
   {
     "src": "/photos/lr-4151293.webp",
@@ -2735,7 +2581,8 @@
     "taken": "2023-06-11T13:17:35.27",
     "locationId": "salzburg-salzburg",
     "placeSource": "curation",
-    "lightroomId": 4151296
+    "lightroomId": 4151296,
+    "presetId": "salzburg-1"
   },
   {
     "src": "/photos/lr-4151297.webp",
@@ -2747,7 +2594,8 @@
     "taken": "2023-06-11T11:53:07.17",
     "locationId": "salzburg-salzburg",
     "placeSource": "curation",
-    "lightroomId": 4151297
+    "lightroomId": 4151297,
+    "presetId": "salzburg-2"
   },
   {
     "src": "/photos/lr-4337374.webp",
@@ -2760,7 +2608,8 @@
     "locationId": "uttakleiv",
     "placeSource": "curation",
     "lightroomId": 4337374,
-    "hero": true
+    "hero": true,
+    "presetId": "eibsee-1"
   },
   {
     "src": "/photos/lr-4337375.webp",
@@ -2785,7 +2634,8 @@
     "taken": "2023-02-24T08:16:46.10",
     "locationId": "lofoten",
     "placeSource": "curation",
-    "lightroomId": 4337377
+    "lightroomId": 4337377,
+    "presetId": "lofoten-2"
   },
   {
     "src": "/photos/lr-4337378.webp",
@@ -2797,7 +2647,8 @@
     "taken": "2023-02-24T05:55:41.27",
     "locationId": "henningsvaer",
     "placeSource": "curation",
-    "lightroomId": 4337378
+    "lightroomId": 4337378,
+    "presetId": "lofoten-2"
   },
   {
     "src": "/photos/lr-4337379.webp",
@@ -2810,7 +2661,8 @@
     "locationId": "lofoten",
     "placeSource": "curation",
     "lightroomId": 4337379,
-    "hero": true
+    "hero": true,
+    "presetId": "lofoten-2"
   },
   {
     "src": "/photos/lr-4337380.webp",
@@ -2835,7 +2687,8 @@
     "taken": "2023-02-24T06:16:16.38",
     "locationId": "henningsvaer",
     "placeSource": "curation",
-    "lightroomId": 4337382
+    "lightroomId": 4337382,
+    "presetId": "lofoten-2"
   },
   {
     "src": "/photos/lr-4337384.webp",
@@ -2860,7 +2713,8 @@
     "locationId": "sommaroy",
     "placeSource": "curation",
     "lightroomId": 4337389,
-    "hero": true
+    "hero": true,
+    "presetId": "lofoten-2"
   },
   {
     "src": "/photos/lr-4337391.webp",
@@ -2872,7 +2726,8 @@
     "taken": "2023-03-24T12:04:18.39",
     "locationId": "kiruna",
     "placeSource": "curation",
-    "lightroomId": 4337391
+    "lightroomId": 4337391,
+    "presetId": "kiruna-2"
   },
   {
     "src": "/photos/lr-4337392.webp",
@@ -2884,7 +2739,8 @@
     "taken": "2023-03-24T05:56:21.87",
     "locationId": "kiruna",
     "placeSource": "curation",
-    "lightroomId": 4337392
+    "lightroomId": 4337392,
+    "presetId": "kiruna-2"
   },
   {
     "src": "/photos/lr-4337394.webp",
@@ -2908,7 +2764,8 @@
     "taken": "2023-03-24T09:14:19.79",
     "locationId": "kiruna",
     "placeSource": "curation",
-    "lightroomId": 4337395
+    "lightroomId": 4337395,
+    "presetId": "kiruna-2"
   },
   {
     "src": "/photos/lr-4337400.webp",
@@ -2920,7 +2777,8 @@
     "taken": "2023-04-01T12:19:40.79",
     "locationId": "lund",
     "placeSource": "curation",
-    "lightroomId": 4337400
+    "lightroomId": 4337400,
+    "presetId": "zugspitze-1"
   },
   {
     "src": "/photos/lr-4337402.webp",
@@ -2932,7 +2790,8 @@
     "taken": "2023-04-05T11:09:32.00",
     "locationId": "copenhagen",
     "placeSource": "curation",
-    "lightroomId": 4337402
+    "lightroomId": 4337402,
+    "presetId": "eibsee-1"
   },
   {
     "src": "/photos/lr-4337403.webp",
@@ -2944,7 +2803,8 @@
     "taken": "2023-04-05T04:54:38.85",
     "locationId": "copenhagen",
     "placeSource": "curation",
-    "lightroomId": 4337403
+    "lightroomId": 4337403,
+    "presetId": "stetten-1"
   },
   {
     "src": "/photos/lr-4337408.webp",
@@ -2956,7 +2816,8 @@
     "taken": "2023-04-05T10:57:26.78",
     "locationId": "copenhagen",
     "placeSource": "curation",
-    "lightroomId": 4337408
+    "lightroomId": 4337408,
+    "presetId": "zugspitze-1"
   },
   {
     "src": "/photos/lr-4337410.webp",
@@ -2969,7 +2830,8 @@
     "locationId": "copenhagen",
     "placeSource": "curation",
     "lightroomId": 4337410,
-    "hero": true
+    "hero": true,
+    "presetId": "kiruna-2"
   },
   {
     "src": "/photos/lr-4337422.webp",
@@ -2981,7 +2843,8 @@
     "taken": "2023-05-25T12:58:44.72",
     "locationId": "lund",
     "placeSource": "curation",
-    "lightroomId": 4337422
+    "lightroomId": 4337422,
+    "presetId": "eibsee-1"
   },
   {
     "src": "/photos/lr-4337423.webp",
@@ -3005,7 +2868,8 @@
     "taken": "2023-05-29T14:07:32.23",
     "locationId": "lund",
     "placeSource": "curation",
-    "lightroomId": 4337426
+    "lightroomId": 4337426,
+    "presetId": "zugspitze-1"
   },
   {
     "src": "/photos/lr-4337429.webp",
@@ -3017,7 +2881,8 @@
     "taken": "2023-06-09T03:18:57.41",
     "locationId": "zugspitze",
     "placeSource": "curation",
-    "lightroomId": 4337429
+    "lightroomId": 4337429,
+    "presetId": "grainau-1"
   },
   {
     "src": "/photos/lr-4337431.webp",
@@ -3041,7 +2906,8 @@
     "taken": "2023-06-09T04:06:21.63",
     "locationId": "zugspitze",
     "placeSource": "curation",
-    "lightroomId": 4337432
+    "lightroomId": 4337432,
+    "presetId": "zugspitze-1"
   },
   {
     "src": "/photos/lr-4337435.webp",
@@ -3053,7 +2919,8 @@
     "taken": "2023-06-09T07:58:17.00",
     "locationId": "zugspitze",
     "placeSource": "curation",
-    "lightroomId": 4337435
+    "lightroomId": 4337435,
+    "presetId": "grainau-1"
   },
   {
     "src": "/photos/lr-4337437.webp",
@@ -3077,7 +2944,8 @@
     "taken": "2023-06-09T13:40:10.19",
     "locationId": "grainau",
     "placeSource": "curation",
-    "lightroomId": 4337441
+    "lightroomId": 4337441,
+    "presetId": "zugspitze-1"
   },
   {
     "src": "/photos/lr-4337446.webp",
@@ -3089,19 +2957,21 @@
     "taken": "2023-06-10T06:24:40.72",
     "locationId": "grainau",
     "placeSource": "curation",
-    "lightroomId": 4337446
+    "lightroomId": 4337446,
+    "presetId": "grainau-1"
   },
   {
     "src": "/photos/lr-4337448.webp",
-    "title": "Zugspitze",
+    "title": "Grainau",
     "alt": "A small flock of sheep grazes on a steep green meadow between dark trees, a hazy gray mountain rising in the distance",
     "origin": "Lightroom 4337448",
     "width": 1280,
     "height": 1600,
     "taken": "2023-06-10T06:57:30.66",
-    "locationId": "zugspitze",
-    "placeSource": "curation",
-    "lightroomId": 4337448
+    "locationId": "grainau",
+    "placeSource": "nicholas",
+    "lightroomId": 4337448,
+    "presetId": "grainau-1"
   },
   {
     "src": "/photos/lr-4337449.webp",
@@ -3113,7 +2983,8 @@
     "taken": "2023-06-10T06:22:57.49",
     "locationId": "grainau",
     "placeSource": "curation",
-    "lightroomId": 4337449
+    "lightroomId": 4337449,
+    "presetId": "grainau-1"
   },
   {
     "src": "/photos/lr-4337456.webp",
@@ -3199,7 +3070,8 @@
     "locationId": "bolzano",
     "placeSource": "curation",
     "lightroomId": 4373118,
-    "hero": true
+    "hero": true,
+    "presetId": "rome-2"
   },
   {
     "src": "/photos/lr-4393361.webp",
@@ -3211,7 +3083,8 @@
     "taken": "2024-06-18T06:31:10.91",
     "locationId": "seiser-alm",
     "placeSource": "curation",
-    "lightroomId": 4393361
+    "lightroomId": 4393361,
+    "presetId": "seiser-alm-1"
   },
   {
     "src": "/photos/lr-4393471.webp",
@@ -3223,7 +3096,8 @@
     "taken": "2024-06-18T07:07:46.95",
     "locationId": "seiser-alm",
     "placeSource": "curation",
-    "lightroomId": 4393471
+    "lightroomId": 4393471,
+    "presetId": "seiser-alm-1"
   },
   {
     "src": "/photos/lr-4393602.webp",
@@ -3235,7 +3109,8 @@
     "taken": "2024-06-18T07:31:54.81",
     "locationId": "seiser-alm",
     "placeSource": "curation",
-    "lightroomId": 4393602
+    "lightroomId": 4393602,
+    "presetId": "seiser-alm-1"
   },
   {
     "src": "/photos/lr-4393674.webp",
@@ -3262,18 +3137,6 @@
     "lightroomId": 4393684
   },
   {
-    "src": "/photos/lr-4393687.webp",
-    "title": "Seiser Alm",
-    "alt": "Rocky stream bed in the foreground leads to a bright green slope where horses graze, with craggy peaks under pale cloud",
-    "origin": "Lightroom 4393687",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2024-06-18T07:57:16.96",
-    "locationId": "seiser-alm",
-    "placeSource": "curation",
-    "lightroomId": 4393687
-  },
-  {
     "src": "/photos/lr-4393816.webp",
     "title": "Seiser Alm",
     "alt": "Sunlit green hill with scattered conifers in the foreground, dark forest below, and pale rocky mountains under towering clouds",
@@ -3283,7 +3146,8 @@
     "taken": "2024-06-18T09:16:23.13",
     "locationId": "seiser-alm",
     "placeSource": "curation",
-    "lightroomId": 4393816
+    "lightroomId": 4393816,
+    "presetId": "seiser-alm-1"
   },
   {
     "src": "/photos/lr-4393836.webp",
@@ -3296,7 +3160,8 @@
     "locationId": "seiser-alm",
     "placeSource": "curation",
     "lightroomId": 4393836,
-    "hero": true
+    "hero": true,
+    "presetId": "grainau-1"
   },
   {
     "src": "/photos/lr-4393873.webp",
@@ -3308,7 +3173,8 @@
     "taken": "2024-06-18T09:30:46.89",
     "locationId": "seiser-alm",
     "placeSource": "curation",
-    "lightroomId": 4393873
+    "lightroomId": 4393873,
+    "presetId": "seiser-alm-1"
   },
   {
     "src": "/photos/lr-4393933.webp",
@@ -3320,7 +3186,8 @@
     "taken": "2024-06-18T09:40:30.96",
     "locationId": "seiser-alm",
     "placeSource": "curation",
-    "lightroomId": 4393933
+    "lightroomId": 4393933,
+    "presetId": "seiser-alm-1"
   },
   {
     "src": "/photos/lr-4393941.webp",
@@ -3333,7 +3200,8 @@
     "locationId": "seiser-alm",
     "placeSource": "curation",
     "lightroomId": 4393941,
-    "hero": true
+    "hero": true,
+    "presetId": "seiser-alm-1"
   },
   {
     "src": "/photos/lr-4393977.webp",
@@ -3346,7 +3214,8 @@
     "locationId": "seiser-alm",
     "placeSource": "curation",
     "lightroomId": 4393977,
-    "hero": true
+    "hero": true,
+    "presetId": "seiser-alm-1"
   },
   {
     "src": "/photos/lr-4393991.webp",
@@ -3431,7 +3300,8 @@
     "taken": "2024-06-18T15:11:34.39",
     "locationId": "val-di-funes",
     "placeSource": "curation",
-    "lightroomId": 4394299
+    "lightroomId": 4394299,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-4433864.webp",
@@ -3456,7 +3326,8 @@
     "taken": "2024-06-19T04:48:42.57",
     "locationId": "seceda",
     "placeSource": "curation",
-    "lightroomId": 4433894
+    "lightroomId": 4433894,
+    "presetId": "mount-rainier-2"
   },
   {
     "src": "/photos/lr-4433990.webp",
@@ -3469,18 +3340,6 @@
     "locationId": "seceda",
     "placeSource": "curation",
     "lightroomId": 4433990
-  },
-  {
-    "src": "/photos/lr-4434202.webp",
-    "title": "Lago di Braies",
-    "alt": "A motorcyclist leans through a curve on a mountain road, with pink-gray cliffs and green conifer forest rising beyond",
-    "origin": "Lightroom 4434202",
-    "width": 1200,
-    "height": 1600,
-    "taken": "2024-06-19T09:12:37.20",
-    "locationId": "braies",
-    "placeSource": "curation",
-    "lightroomId": 4434202
   },
   {
     "src": "/photos/lr-4434342.webp",
@@ -3517,7 +3376,8 @@
     "locationId": "braies",
     "placeSource": "curation",
     "lightroomId": 4434635,
-    "hero": true
+    "hero": true,
+    "presetId": "lago-di-braies-2"
   },
   {
     "src": "/photos/lr-4434682.webp",
@@ -3580,7 +3440,8 @@
     "placeSource": "curation",
     "lightroomId": 4434733,
     "hero": true,
-    "lead": true
+    "lead": true,
+    "presetId": "seiser-alm-1"
   },
   {
     "src": "/photos/lr-4434748.webp",
@@ -3641,7 +3502,8 @@
     "taken": "2024-06-20T06:48:50.41",
     "locationId": "tre-cime-di-lavaredo",
     "placeSource": "curation",
-    "lightroomId": 4474676
+    "lightroomId": 4474676,
+    "presetId": "bavaria-1"
   },
   {
     "src": "/photos/lr-4474690.webp",
@@ -3665,7 +3527,8 @@
     "taken": "2024-06-20T08:03:48.38",
     "locationId": "tre-cime-di-lavaredo",
     "placeSource": "curation",
-    "lightroomId": 4474869
+    "lightroomId": 4474869,
+    "presetId": "allgau-1"
   },
   {
     "src": "/photos/lr-4474988.webp",
@@ -3677,7 +3540,8 @@
     "taken": "2024-06-20T08:55:46.02",
     "locationId": "tre-cime-di-lavaredo",
     "placeSource": "curation",
-    "lightroomId": 4474988
+    "lightroomId": 4474988,
+    "presetId": "bavaria-1"
   },
   {
     "src": "/photos/lr-4475151.webp",
@@ -3726,7 +3590,8 @@
     "taken": "2024-06-20T11:41:02.73",
     "locationId": "tre-cime-di-lavaredo",
     "placeSource": "curation",
-    "lightroomId": 4475415
+    "lightroomId": 4475415,
+    "presetId": "mount-rainier-2"
   },
   {
     "src": "/photos/lr-4475505.webp",
@@ -3750,7 +3615,8 @@
     "taken": "2024-06-20T12:00:21.37",
     "locationId": "tre-cime-di-lavaredo",
     "placeSource": "curation",
-    "lightroomId": 4475519
+    "lightroomId": 4475519,
+    "presetId": "seiser-alm-1"
   },
   {
     "src": "/photos/lr-4475540.webp",
@@ -3774,7 +3640,8 @@
     "taken": "2024-06-22T00:08:08.60",
     "locationId": "milan",
     "placeSource": "curation",
-    "lightroomId": 4519858
+    "lightroomId": 4519858,
+    "presetId": "bavaria-1"
   },
   {
     "src": "/photos/lr-4519901.webp",
@@ -3786,7 +3653,8 @@
     "taken": "2024-06-22T00:14:31.18",
     "locationId": "milan",
     "placeSource": "curation",
-    "lightroomId": 4519901
+    "lightroomId": 4519901,
+    "presetId": "seiser-alm-1"
   },
   {
     "src": "/photos/lr-4519925.webp",
@@ -3859,7 +3727,8 @@
     "taken": "2024-06-23T13:13:09.93",
     "locationId": "rome",
     "placeSource": "curation",
-    "lightroomId": 4537508
+    "lightroomId": 4537508,
+    "presetId": "seiser-alm-1"
   },
   {
     "src": "/photos/lr-4537513.webp",
@@ -3923,18 +3792,6 @@
     "lightroomId": 4537573
   },
   {
-    "src": "/photos/lr-4537613.webp",
-    "title": "Rome",
-    "alt": "Stone bridge in backlit golden haze, people strolling along its parapet, leafy branches overhead and a distant dome through trees",
-    "origin": "Lightroom 4537613",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2024-06-23T13:50:00.56",
-    "locationId": "rome",
-    "placeSource": "curation",
-    "lightroomId": 4537613
-  },
-  {
     "src": "/photos/lr-4537627.webp",
     "title": "Rome",
     "alt": "Ochre apartment building with an ivy-covered rooftop terrace lit by low sun against a dark, heavy cloudy sky",
@@ -3944,7 +3801,8 @@
     "taken": "2024-06-23T13:52:14.04",
     "locationId": "rome",
     "placeSource": "curation",
-    "lightroomId": 4537627
+    "lightroomId": 4537627,
+    "presetId": "bavaria-1"
   },
   {
     "src": "/photos/lr-4537701.webp",
@@ -3980,7 +3838,8 @@
     "taken": "2024-06-24T13:12:36.51",
     "locationId": "rome",
     "placeSource": "curation",
-    "lightroomId": 4537995
+    "lightroomId": 4537995,
+    "presetId": "rome-2"
   },
   {
     "src": "/photos/lr-4538013.webp",
@@ -4031,18 +3890,6 @@
     "lightroomId": 4538319
   },
   {
-    "src": "/photos/lr-4538406.webp",
-    "title": "Rome",
-    "alt": "Two umbrella pines frame a distant ancient amphitheater and a ruined wall, under a hazy, overcast sky",
-    "origin": "Lightroom 4538406",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2024-06-25T09:03:44.22",
-    "locationId": "rome",
-    "placeSource": "curation",
-    "lightroomId": 4538406
-  },
-  {
     "src": "/photos/lr-4538424.webp",
     "title": "Rome",
     "alt": "Woman in a dark dress stands on a garden path beneath wide umbrella pines, a brick building beyond the hedges",
@@ -4065,18 +3912,6 @@
     "locationId": "rome",
     "placeSource": "curation",
     "lightroomId": 4538434
-  },
-  {
-    "src": "/photos/lr-4538452.webp",
-    "title": "Rome",
-    "alt": "View over a field of ancient ruins with three standing columns, rooftops, a bell tower and a white monument under an overcast sky",
-    "origin": "Lightroom 4538452",
-    "width": 1200,
-    "height": 1600,
-    "taken": "2024-06-25T09:18:47.43",
-    "locationId": "rome",
-    "placeSource": "curation",
-    "lightroomId": 4538452
   },
   {
     "src": "/photos/lr-4538468.webp",
@@ -4172,7 +4007,8 @@
     "taken": "2024-06-27T13:29:30.78",
     "locationId": "vienna-vienna",
     "placeSource": "curation",
-    "lightroomId": 4574296
+    "lightroomId": 4574296,
+    "presetId": "bavaria-1"
   },
   {
     "src": "/photos/lr-4574356.webp",
@@ -4184,7 +4020,8 @@
     "taken": "2024-06-27T14:22:58.90",
     "locationId": "vienna-vienna",
     "placeSource": "curation",
-    "lightroomId": 4574356
+    "lightroomId": 4574356,
+    "presetId": "rome-2"
   },
   {
     "src": "/photos/lr-4574378.webp",
@@ -4269,7 +4106,8 @@
     "taken": "2024-07-01T15:36:42.10",
     "locationId": "lund",
     "placeSource": "curation",
-    "lightroomId": 4599378
+    "lightroomId": 4599378,
+    "presetId": "bavaria-1"
   },
   {
     "src": "/photos/lr-4599381.webp",
@@ -4281,7 +4119,8 @@
     "taken": "2024-07-01T15:39:33.25",
     "locationId": "lund",
     "placeSource": "curation",
-    "lightroomId": 4599381
+    "lightroomId": 4599381,
+    "presetId": "rome-2"
   },
   {
     "src": "/photos/lr-4599385.webp",
@@ -4305,7 +4144,8 @@
     "taken": "2024-07-01T15:45:05.95",
     "locationId": "lund",
     "placeSource": "curation",
-    "lightroomId": 4599399
+    "lightroomId": 4599399,
+    "presetId": "rome-2"
   },
   {
     "src": "/photos/lr-4599401.webp",
@@ -4329,7 +4169,8 @@
     "taken": "2024-06-18T09:32:37.04",
     "locationId": "seiser-alm",
     "placeSource": "curation",
-    "lightroomId": 4642982
+    "lightroomId": 4642982,
+    "presetId": "seiser-alm-1"
   },
   {
     "src": "/photos/lr-4663274.webp",
@@ -4353,7 +4194,8 @@
     "taken": "2024-06-27T12:58:06.21",
     "locationId": "vienna-vienna",
     "placeSource": "curation",
-    "lightroomId": 4663337
+    "lightroomId": 4663337,
+    "presetId": "vienna-1"
   },
   {
     "src": "/photos/lr-4687275.webp",
@@ -4365,7 +4207,8 @@
     "taken": "2024-10-01T13:38:08.78",
     "locationId": "duke-gardens",
     "placeSource": "curation",
-    "lightroomId": 4687275
+    "lightroomId": 4687275,
+    "presetId": "bavaria-1"
   },
   {
     "src": "/photos/lr-4731984.webp",
@@ -4438,7 +4281,8 @@
     "taken": "2024-06-23T14:11:16.16",
     "locationId": "rome",
     "placeSource": "curation",
-    "lightroomId": 4925802
+    "lightroomId": 4925802,
+    "presetId": "bavaria-1"
   },
   {
     "src": "/photos/lr-4928510.webp",
@@ -4462,7 +4306,8 @@
     "taken": "2025-05-22T06:40:10.80",
     "locationId": "ulm",
     "placeSource": "curation",
-    "lightroomId": 5148806
+    "lightroomId": 5148806,
+    "presetId": "vienna-2"
   },
   {
     "src": "/photos/lr-5170368.webp",
@@ -4547,7 +4392,8 @@
     "taken": "2025-05-23T04:39:29.55",
     "locationId": "esslingen",
     "placeSource": "curation",
-    "lightroomId": 5170630
+    "lightroomId": 5170630,
+    "presetId": "amsterdam-2"
   },
   {
     "src": "/photos/lr-5170652.webp",
@@ -4607,7 +4453,8 @@
     "taken": "2025-05-23T04:36:14.96",
     "locationId": "esslingen",
     "placeSource": "curation",
-    "lightroomId": 5170743
+    "lightroomId": 5170743,
+    "presetId": "amsterdam-2"
   },
   {
     "src": "/photos/lr-5277652.webp",
@@ -4619,7 +4466,8 @@
     "taken": "2025-05-26T14:40:30.47",
     "locationId": "hopfensee",
     "placeSource": "curation",
-    "lightroomId": 5277652
+    "lightroomId": 5277652,
+    "presetId": "hopfensee-2"
   },
   {
     "src": "/photos/lr-5445583.webp",
@@ -4643,7 +4491,8 @@
     "taken": "2025-05-31T09:46:34.16",
     "locationId": "vienna-vienna",
     "placeSource": "curation",
-    "lightroomId": 5475039
+    "lightroomId": 5475039,
+    "presetId": "vienna-1"
   },
   {
     "src": "/photos/lr-5738696.webp",
@@ -4667,7 +4516,8 @@
     "taken": "2024-06-18T15:18:07.22",
     "locationId": "val-di-funes",
     "placeSource": "curation",
-    "lightroomId": 5738973
+    "lightroomId": 5738973,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-5837158.webp",
@@ -4739,7 +4589,8 @@
     "taken": "2025-08-27T09:19:29.87",
     "locationId": "sunrise",
     "placeSource": "curation",
-    "lightroomId": 6246902
+    "lightroomId": 6246902,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-6247454.webp",
@@ -4752,18 +4603,6 @@
     "locationId": "sunrise",
     "placeSource": "curation",
     "lightroomId": 6247454
-  },
-  {
-    "src": "/photos/lr-6247461.webp",
-    "title": "Sunrise",
-    "alt": "Large shingled timber lodge in a golden meadow among evergreens, with hazy mountains behind and a warm amber sunset sky",
-    "origin": "Lightroom 6247461",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2025-08-27T11:03:26.90",
-    "locationId": "sunrise",
-    "placeSource": "curation",
-    "lightroomId": 6247461
   },
   {
     "src": "/photos/lr-6247560.webp",
@@ -4787,7 +4626,8 @@
     "taken": "2025-08-28T23:09:27.57",
     "locationId": "mount-rainier",
     "placeSource": "curation",
-    "lightroomId": 6278335
+    "lightroomId": 6278335,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-6278520.webp",
@@ -4811,7 +4651,8 @@
     "taken": "2025-08-28T10:38:58.20",
     "locationId": "mount-rainier",
     "placeSource": "curation",
-    "lightroomId": 6278755
+    "lightroomId": 6278755,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-6278774.webp",
@@ -4835,7 +4676,8 @@
     "taken": "2025-08-28T22:57:28.90",
     "locationId": "mount-rainier",
     "placeSource": "curation",
-    "lightroomId": 6278984
+    "lightroomId": 6278984,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-6279271.webp",
@@ -4847,7 +4689,8 @@
     "taken": "2025-08-28T13:39:40.66",
     "locationId": "mount-rainier",
     "placeSource": "curation",
-    "lightroomId": 6279271
+    "lightroomId": 6279271,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-6279676.webp",
@@ -4871,7 +4714,8 @@
     "taken": "2025-08-28T22:54:45.61",
     "locationId": "mount-rainier",
     "placeSource": "curation",
-    "lightroomId": 6279684
+    "lightroomId": 6279684,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-6330669.webp",
@@ -4883,7 +4727,8 @@
     "taken": "2025-08-29T14:20:58.05",
     "locationId": "hoh-rainforest",
     "placeSource": "curation",
-    "lightroomId": 6330669
+    "lightroomId": 6330669,
+    "presetId": "hoh-rainforest-1"
   },
   {
     "src": "/photos/lr-6330866.webp",
@@ -4895,7 +4740,8 @@
     "taken": "2025-08-29T09:28:57.02",
     "locationId": "seattle",
     "placeSource": "curation",
-    "lightroomId": 6330866
+    "lightroomId": 6330866,
+    "presetId": "rome-2"
   },
   {
     "src": "/photos/lr-6330882.webp",
@@ -4967,7 +4813,8 @@
     "taken": "2025-08-29T15:44:38.87",
     "locationId": "hoh-rainforest",
     "placeSource": "curation",
-    "lightroomId": 6331171
+    "lightroomId": 6331171,
+    "presetId": "mount-rainier-2"
   },
   {
     "src": "/photos/lr-6331230.webp",
@@ -5016,7 +4863,8 @@
     "taken": "2025-08-29T19:06:55.76",
     "locationId": "hoh-rainforest",
     "placeSource": "curation",
-    "lightroomId": 6331434
+    "lightroomId": 6331434,
+    "presetId": "mount-rainier-2"
   },
   {
     "src": "/photos/lr-6331450.webp",
@@ -5052,7 +4900,8 @@
     "taken": "2025-08-29T14:32:05.63",
     "locationId": "hoh-rainforest",
     "placeSource": "curation",
-    "lightroomId": 6331468
+    "lightroomId": 6331468,
+    "presetId": "hoh-rainforest-1"
   },
   {
     "src": "/photos/lr-6331469.webp",
@@ -5064,7 +4913,8 @@
     "taken": "2025-08-29T19:20:49.67",
     "locationId": "hoh-rainforest",
     "placeSource": "curation",
-    "lightroomId": 6331469
+    "lightroomId": 6331469,
+    "presetId": "boston-2"
   },
   {
     "src": "/photos/lr-6331474.webp",
@@ -5088,7 +4938,8 @@
     "taken": "2025-08-31T20:38:45.69",
     "locationId": "seattle",
     "placeSource": "curation",
-    "lightroomId": 6362684
+    "lightroomId": 6362684,
+    "presetId": "hopfensee-2"
   },
   {
     "src": "/photos/lr-6529998.webp",
@@ -5137,7 +4988,8 @@
     "taken": "2025-08-29T23:12:19.19",
     "locationId": "seattle",
     "placeSource": "curation",
-    "lightroomId": 6530001
+    "lightroomId": 6530001,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-6530002.webp",
@@ -5149,7 +5001,8 @@
     "taken": "2025-08-29T19:55:38.31",
     "locationId": "hoh-rainforest",
     "placeSource": "curation",
-    "lightroomId": 6530002
+    "lightroomId": 6530002,
+    "presetId": "allgau-1"
   },
   {
     "src": "/photos/lr-6530005.webp",
@@ -5222,7 +5075,8 @@
     "taken": "2025-08-29T14:52:02.55",
     "locationId": "hoh-rainforest",
     "placeSource": "curation",
-    "lightroomId": 6530010
+    "lightroomId": 6530010,
+    "presetId": "hoh-rainforest-1"
   },
   {
     "src": "/photos/lr-6530012.webp",
@@ -5247,7 +5101,8 @@
     "locationId": "hoh-rainforest",
     "placeSource": "curation",
     "lightroomId": 6530013,
-    "hero": true
+    "hero": true,
+    "presetId": "rome-2"
   },
   {
     "src": "/photos/lr-6530014.webp",
@@ -5284,7 +5139,8 @@
     "locationId": "ulm",
     "placeSource": "curation",
     "lightroomId": 7028887,
-    "hero": true
+    "hero": true,
+    "presetId": "vienna-2"
   },
   {
     "src": "/photos/lr-7028889.webp",
@@ -5308,7 +5164,8 @@
     "taken": "2025-05-21T08:26:11.21",
     "locationId": "munich",
     "placeSource": "curation",
-    "lightroomId": 7028890
+    "lightroomId": 7028890,
+    "presetId": "amsterdam-2"
   },
   {
     "src": "/photos/lr-7028891.webp",
@@ -5333,7 +5190,8 @@
     "locationId": "munich",
     "placeSource": "curation",
     "lightroomId": 7028892,
-    "hero": true
+    "hero": true,
+    "presetId": "amsterdam-2"
   },
   {
     "src": "/photos/lr-7028894.webp",
@@ -5357,7 +5215,8 @@
     "taken": "2025-05-21T08:43:04.04",
     "locationId": "munich",
     "placeSource": "curation",
-    "lightroomId": 7028895
+    "lightroomId": 7028895,
+    "presetId": "rome-2"
   },
   {
     "src": "/photos/lr-7028898.webp",
@@ -5442,7 +5301,8 @@
     "taken": "2025-05-24T05:21:03.12",
     "locationId": "stetten",
     "placeSource": "curation",
-    "lightroomId": 7028913
+    "lightroomId": 7028913,
+    "presetId": "amsterdam-2"
   },
   {
     "src": "/photos/lr-7028914.webp",
@@ -5454,29 +5314,30 @@
     "taken": "2025-05-24T06:44:27.36",
     "locationId": "stetten",
     "placeSource": "curation",
-    "lightroomId": 7028914
+    "lightroomId": 7028914,
+    "presetId": "amsterdam-2"
   },
   {
     "src": "/photos/lr-7028917.webp",
-    "title": "Schwangau",
+    "title": "Neuschwanstein",
     "alt": "Cozy kitchen corner with a carved wooden bench and chairs, checked tablecloth, floral curtains and a wicker pendant lamp",
     "origin": "Lightroom 7028917",
     "width": 1600,
     "height": 1067,
     "taken": "2025-05-25T11:08:09.76",
-    "locationId": "schwangau",
+    "locationId": "neuschwanstein",
     "placeSource": "nicholas",
     "lightroomId": 7028917
   },
   {
     "src": "/photos/lr-7028918.webp",
-    "title": "Schwangau",
+    "title": "Neuschwanstein",
     "alt": "White daisies with orange centers scattered through tall green grass, soft backlight giving the meadow a gentle glow",
     "origin": "Lightroom 7028918",
     "width": 1280,
     "height": 1600,
     "taken": "2025-05-25T13:11:06.58",
-    "locationId": "schwangau",
+    "locationId": "neuschwanstein",
     "placeSource": "nicholas",
     "lightroomId": 7028918
   },
@@ -5551,7 +5412,8 @@
     "taken": "2025-05-26T07:05:17.42",
     "locationId": "hohenschwangau",
     "placeSource": "curation",
-    "lightroomId": 7028929
+    "lightroomId": 7028929,
+    "presetId": "bavaria-1"
   },
   {
     "src": "/photos/lr-7028931.webp",
@@ -5563,7 +5425,8 @@
     "taken": "2025-05-26T08:29:06.35",
     "locationId": "hohenschwangau",
     "placeSource": "curation",
-    "lightroomId": 7028931
+    "lightroomId": 7028931,
+    "presetId": "neuschwanstein-1"
   },
   {
     "src": "/photos/lr-7028932.webp",
@@ -5636,7 +5499,8 @@
     "locationId": "neuschwanstein",
     "placeSource": "curation",
     "lightroomId": 7028938,
-    "hero": true
+    "hero": true,
+    "presetId": "neuschwanstein-1"
   },
   {
     "src": "/photos/lr-7028939.webp",
@@ -5648,7 +5512,8 @@
     "taken": "2025-05-26T13:37:15.30",
     "locationId": "hopfensee",
     "placeSource": "curation",
-    "lightroomId": 7028939
+    "lightroomId": 7028939,
+    "presetId": "hopfensee-2"
   },
   {
     "src": "/photos/lr-7028941.webp",
@@ -5672,7 +5537,8 @@
     "taken": "2025-05-26T11:39:22.19",
     "locationId": "schwangau",
     "placeSource": "curation",
-    "lightroomId": 7028942
+    "lightroomId": 7028942,
+    "presetId": "bavaria-1"
   },
   {
     "src": "/photos/lr-7028943.webp",
@@ -5684,7 +5550,8 @@
     "taken": "2025-05-26T13:37:41.60",
     "locationId": "schwangau",
     "placeSource": "curation",
-    "lightroomId": 7028943
+    "lightroomId": 7028943,
+    "presetId": "amsterdam-2"
   },
   {
     "src": "/photos/lr-7028945.webp",
@@ -5768,7 +5635,8 @@
     "taken": "2025-05-26T13:51:19.22",
     "locationId": "hopfensee",
     "placeSource": "curation",
-    "lightroomId": 7028957
+    "lightroomId": 7028957,
+    "presetId": "vienna-1"
   },
   {
     "src": "/photos/lr-7028958.webp",
@@ -5780,7 +5648,8 @@
     "taken": "2025-05-26T05:48:42.11",
     "locationId": "hohenschwangau",
     "placeSource": "curation",
-    "lightroomId": 7028958
+    "lightroomId": 7028958,
+    "presetId": "neuschwanstein-1"
   },
   {
     "src": "/photos/lr-7028959.webp",
@@ -5792,7 +5661,8 @@
     "taken": "2025-05-26T10:18:36.50",
     "locationId": "schwangau",
     "placeSource": "curation",
-    "lightroomId": 7028959
+    "lightroomId": 7028959,
+    "presetId": "bavaria-1"
   },
   {
     "src": "/photos/lr-7028960.webp",
@@ -5842,7 +5712,8 @@
     "locationId": "fussen",
     "placeSource": "nicholas",
     "lightroomId": 7028966,
-    "hero": true
+    "hero": true,
+    "presetId": "mount-rainier-2"
   },
   {
     "src": "/photos/lr-7028967.webp",
@@ -5854,7 +5725,8 @@
     "taken": "2025-05-27T10:11:04.91",
     "locationId": "allgau",
     "placeSource": "curation",
-    "lightroomId": 7028967
+    "lightroomId": 7028967,
+    "presetId": "allgau-1"
   },
   {
     "src": "/photos/lr-7028973.webp",
@@ -5866,7 +5738,8 @@
     "taken": "2025-05-27T08:18:37.34",
     "locationId": "allgau",
     "placeSource": "curation",
-    "lightroomId": 7028973
+    "lightroomId": 7028973,
+    "presetId": "allgau-1"
   },
   {
     "src": "/photos/lr-7028974.webp",
@@ -5890,7 +5763,8 @@
     "taken": "2025-05-27T08:18:11.82",
     "locationId": "allgau",
     "placeSource": "curation",
-    "lightroomId": 7028979
+    "lightroomId": 7028979,
+    "presetId": "allgau-1"
   },
   {
     "src": "/photos/lr-7028981.webp",
@@ -5902,7 +5776,8 @@
     "taken": "2025-05-27T08:40:24.97",
     "locationId": "allgau",
     "placeSource": "curation",
-    "lightroomId": 7028981
+    "lightroomId": 7028981,
+    "presetId": "allgau-1"
   },
   {
     "src": "/photos/lr-7028983.webp",
@@ -5927,7 +5802,8 @@
     "taken": "2025-05-27T08:50:23.36",
     "locationId": "allgau",
     "placeSource": "curation",
-    "lightroomId": 7028988
+    "lightroomId": 7028988,
+    "presetId": "allgau-1"
   },
   {
     "src": "/photos/lr-7028989.webp",
@@ -5939,7 +5815,8 @@
     "taken": "2025-05-27T08:13:56.40",
     "locationId": "allgau",
     "placeSource": "curation",
-    "lightroomId": 7028989
+    "lightroomId": 7028989,
+    "presetId": "allgau-1"
   },
   {
     "src": "/photos/lr-7028992.webp",
@@ -5951,7 +5828,8 @@
     "taken": "2025-05-27T09:07:07.48",
     "locationId": "allgau",
     "placeSource": "curation",
-    "lightroomId": 7028992
+    "lightroomId": 7028992,
+    "presetId": "allgau-1"
   },
   {
     "src": "/photos/lr-7028993.webp",
@@ -5963,7 +5841,8 @@
     "taken": "2025-05-27T12:55:01.97",
     "locationId": "fussen",
     "placeSource": "curation",
-    "lightroomId": 7028993
+    "lightroomId": 7028993,
+    "presetId": "allgau-1"
   },
   {
     "src": "/photos/lr-7028995.webp",
@@ -5975,19 +5854,21 @@
     "taken": "2025-05-27T13:09:43.98",
     "locationId": "fussen",
     "placeSource": "curation",
-    "lightroomId": 7028995
+    "lightroomId": 7028995,
+    "presetId": "bavaria-1"
   },
   {
     "src": "/photos/lr-7028996.webp",
-    "title": "Schwangau",
+    "title": "Neuschwanstein",
     "alt": "A single spruce tree stands on a smooth green hill beneath a cloudy blue-grey sky",
     "origin": "Lightroom 7028996",
     "width": 1600,
     "height": 1067,
     "taken": "2025-05-27T08:45:38.02",
-    "locationId": "schwangau",
+    "locationId": "neuschwanstein",
     "placeSource": "nicholas",
-    "lightroomId": 7028996
+    "lightroomId": 7028996,
+    "presetId": "grainau-1"
   },
   {
     "src": "/photos/lr-7028998.webp",
@@ -6023,7 +5904,8 @@
     "taken": "2025-05-28T13:50:53.83",
     "locationId": "hallstatt",
     "placeSource": "curation",
-    "lightroomId": 7029000
+    "lightroomId": 7029000,
+    "presetId": "hallstatt-3"
   },
   {
     "src": "/photos/lr-7029001.webp",
@@ -6059,7 +5941,8 @@
     "taken": "2025-05-28T14:00:26.35",
     "locationId": "hallstatt",
     "placeSource": "curation",
-    "lightroomId": 7029005
+    "lightroomId": 7029005,
+    "presetId": "hallstatt-3"
   },
   {
     "src": "/photos/lr-7029012.webp",
@@ -6071,19 +5954,21 @@
     "taken": "2025-05-28T14:09:57.27",
     "locationId": "hallstatt",
     "placeSource": "curation",
-    "lightroomId": 7029012
+    "lightroomId": 7029012,
+    "presetId": "vienna-1"
   },
   {
     "src": "/photos/lr-7029014.webp",
-    "title": "Schwangau",
+    "title": "Neuschwanstein",
     "alt": "Vintage wooden radio on a shelf with small ornaments and a blue pot, a framed farmhouse picture above and a floral curtain at left",
     "origin": "Lightroom 7029014",
     "width": 1280,
     "height": 1600,
     "taken": "2025-05-28T03:24:44.08",
-    "locationId": "schwangau",
+    "locationId": "neuschwanstein",
     "placeSource": "nicholas",
-    "lightroomId": 7029014
+    "lightroomId": 7029014,
+    "presetId": "bavaria-1"
   },
   {
     "src": "/photos/lr-7029016.webp",
@@ -6108,7 +5993,8 @@
     "taken": "2025-05-28T14:19:41.51",
     "locationId": "hallstatt",
     "placeSource": "curation",
-    "lightroomId": 7029017
+    "lightroomId": 7029017,
+    "presetId": "hallstatt-3"
   },
   {
     "src": "/photos/lr-7029018.webp",
@@ -6145,7 +6031,8 @@
     "taken": "2025-05-28T14:16:18.84",
     "locationId": "hallstatt",
     "placeSource": "curation",
-    "lightroomId": 7029021
+    "lightroomId": 7029021,
+    "presetId": "mount-rainier-2"
   },
   {
     "src": "/photos/lr-7029022.webp",
@@ -6157,7 +6044,8 @@
     "taken": "2025-05-28T14:14:24.45",
     "locationId": "hallstatt",
     "placeSource": "curation",
-    "lightroomId": 7029022
+    "lightroomId": 7029022,
+    "presetId": "hallstatt-3"
   },
   {
     "src": "/photos/lr-7029023.webp",
@@ -6181,7 +6069,8 @@
     "taken": "2025-05-29T10:58:02.67",
     "locationId": "hallstatt",
     "placeSource": "curation",
-    "lightroomId": 7029029
+    "lightroomId": 7029029,
+    "presetId": "mount-rainier-2"
   },
   {
     "src": "/photos/lr-7029031.webp",
@@ -6218,7 +6107,8 @@
     "taken": "2025-05-29T11:02:07.73",
     "locationId": "hallstatt",
     "placeSource": "curation",
-    "lightroomId": 7029039
+    "lightroomId": 7029039,
+    "presetId": "mount-rainier-2"
   },
   {
     "src": "/photos/lr-7029043.webp",
@@ -6231,7 +6121,8 @@
     "locationId": "hallstatt",
     "placeSource": "curation",
     "lightroomId": 7029043,
-    "hero": true
+    "hero": true,
+    "presetId": "hallstatt-1"
   },
   {
     "src": "/photos/lr-7029044.webp",
@@ -6255,7 +6146,8 @@
     "taken": "2025-05-29T13:28:37.52",
     "locationId": "hallstatt",
     "placeSource": "curation",
-    "lightroomId": 7029046
+    "lightroomId": 7029046,
+    "presetId": "hopfensee-2"
   },
   {
     "src": "/photos/lr-7029048.webp",
@@ -6267,7 +6159,8 @@
     "taken": "2025-05-29T11:21:58.77",
     "locationId": "hallstatt",
     "placeSource": "curation",
-    "lightroomId": 7029048
+    "lightroomId": 7029048,
+    "presetId": "bavaria-1"
   },
   {
     "src": "/photos/lr-7029057.webp",
@@ -6279,7 +6172,8 @@
     "taken": "2025-05-29T11:16:42.78",
     "locationId": "hallstatt",
     "placeSource": "curation",
-    "lightroomId": 7029057
+    "lightroomId": 7029057,
+    "presetId": "hallstatt-3"
   },
   {
     "src": "/photos/lr-7029061.webp",
@@ -6364,7 +6258,8 @@
     "locationId": "boston",
     "placeSource": "nicholas",
     "lightroomId": 7029078,
-    "hero": true
+    "hero": true,
+    "presetId": "boston-2"
   },
   {
     "src": "/photos/lr-7029080.webp",
@@ -6412,7 +6307,8 @@
     "taken": "2025-06-15T14:32:10.91",
     "locationId": "boston",
     "placeSource": "nicholas",
-    "lightroomId": 7029088
+    "lightroomId": 7029088,
+    "presetId": "boston-2"
   },
   {
     "src": "/photos/lr-7029089.webp",
@@ -6436,7 +6332,8 @@
     "taken": "2025-05-31T09:10:34.26",
     "locationId": "vienna-vienna",
     "placeSource": "curation",
-    "lightroomId": 7029109
+    "lightroomId": 7029109,
+    "presetId": "vienna-1"
   },
   {
     "src": "/photos/lr-7029110.webp",
@@ -6448,7 +6345,8 @@
     "taken": "2025-05-31T09:30:12.50",
     "locationId": "vienna-vienna",
     "placeSource": "curation",
-    "lightroomId": 7029110
+    "lightroomId": 7029110,
+    "presetId": "vienna-2"
   },
   {
     "src": "/photos/lr-7029111.webp",
@@ -6460,7 +6358,8 @@
     "taken": "2025-05-31T09:31:55.55",
     "locationId": "vienna-vienna",
     "placeSource": "curation",
-    "lightroomId": 7029111
+    "lightroomId": 7029111,
+    "presetId": "bavaria-1"
   },
   {
     "src": "/photos/lr-7029112.webp",
@@ -6484,7 +6383,8 @@
     "taken": "2025-05-31T04:47:34.99",
     "locationId": "vienna-vienna",
     "placeSource": "curation",
-    "lightroomId": 7029113
+    "lightroomId": 7029113,
+    "presetId": "allgau-1"
   },
   {
     "src": "/photos/lr-7029114.webp",
@@ -6496,7 +6396,8 @@
     "taken": "2025-05-31T09:21:10.84",
     "locationId": "vienna-vienna",
     "placeSource": "curation",
-    "lightroomId": 7029114
+    "lightroomId": 7029114,
+    "presetId": "vienna-2"
   },
   {
     "src": "/photos/lr-7029115.webp",
@@ -6508,7 +6409,8 @@
     "taken": "2025-05-31T09:21:00.42",
     "locationId": "vienna-vienna",
     "placeSource": "curation",
-    "lightroomId": 7029115
+    "lightroomId": 7029115,
+    "presetId": "vienna-2"
   },
   {
     "src": "/photos/lr-7447776.webp",
@@ -6619,7 +6521,8 @@
     "locationId": "finger-lakes",
     "placeSource": "curation",
     "lightroomId": 7552804,
-    "hero": true
+    "hero": true,
+    "presetId": "mount-rainier-2"
   },
   {
     "src": "/photos/lr-7553025.webp",
@@ -7731,7 +7634,8 @@
     "taken": "2025-08-31T19:58:36.87",
     "locationId": "seattle",
     "placeSource": "curation",
-    "lightroomId": 8059161
+    "lightroomId": 8059161,
+    "presetId": "hopfensee-2"
   },
   {
     "src": "/photos/lr-8059162.webp",
@@ -7759,18 +7663,6 @@
     "lightroomId": 8059163
   },
   {
-    "src": "/photos/lr-8059166.webp",
-    "title": "Seattle",
-    "alt": "A distant city skyline and tower sit low in a wide pastel dusk sky, framed by dark green treetops and rooftops",
-    "origin": "Lightroom 8059166",
-    "width": 1600,
-    "height": 1067,
-    "taken": "2025-08-31T22:42:33.49",
-    "locationId": "seattle",
-    "placeSource": "curation",
-    "lightroomId": 8059166
-  },
-  {
     "src": "/photos/lr-8059169.webp",
     "title": "Seattle",
     "alt": "A tiny airplane crosses a soft pink and lavender sky above a slender tower and skyscrapers at the bottom edge of the frame",
@@ -7780,7 +7672,8 @@
     "taken": "2025-08-31T22:48:51.36",
     "locationId": "seattle",
     "placeSource": "curation",
-    "lightroomId": 8059169
+    "lightroomId": 8059169,
+    "presetId": "mount-rainier-2"
   },
   {
     "src": "/photos/lr-8059173.webp",
@@ -7792,7 +7685,8 @@
     "taken": "2025-08-31T22:48:00.87",
     "locationId": "seattle",
     "placeSource": "curation",
-    "lightroomId": 8059173
+    "lightroomId": 8059173,
+    "presetId": "mount-rainier-2"
   },
   {
     "src": "/photos/lr-8059174.webp",
@@ -7840,7 +7734,8 @@
     "taken": "2025-09-01T15:07:38.63",
     "locationId": "haystack-rock",
     "placeSource": "curation",
-    "lightroomId": 8059229
+    "lightroomId": 8059229,
+    "presetId": "rome-2"
   },
   {
     "src": "/photos/lr-8059230.webp",
@@ -7864,7 +7759,8 @@
     "taken": "2025-09-01T15:28:09.40",
     "locationId": "haystack-rock",
     "placeSource": "curation",
-    "lightroomId": 8059231
+    "lightroomId": 8059231,
+    "presetId": "mount-rainier-2"
   },
   {
     "src": "/photos/lr-8059236.webp",
@@ -8049,7 +7945,8 @@
     "locationId": "black-mountain",
     "placeSource": "curation",
     "lightroomId": 8059397,
-    "hero": true
+    "hero": true,
+    "presetId": "mount-rainier-2"
   },
   {
     "src": "/photos/lr-8059465.webp",
@@ -8098,7 +7995,8 @@
     "taken": "2025-08-28T10:39:08.85",
     "locationId": "mount-rainier",
     "placeSource": "curation",
-    "lightroomId": 8059556
+    "lightroomId": 8059556,
+    "presetId": "mount-rainier-2"
   },
   {
     "src": "/photos/lr-8059559.webp",
@@ -8110,7 +8008,8 @@
     "taken": "2025-08-28T10:43:03.64",
     "locationId": "mount-rainier",
     "placeSource": "curation",
-    "lightroomId": 8059559
+    "lightroomId": 8059559,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059565.webp",
@@ -8122,7 +8021,8 @@
     "taken": "2025-08-28T14:25:33.00",
     "locationId": "mount-rainier",
     "placeSource": "curation",
-    "lightroomId": 8059565
+    "lightroomId": 8059565,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059567.webp",
@@ -8158,7 +8058,8 @@
     "taken": "2025-08-28T10:40:08.82",
     "locationId": "mount-rainier",
     "placeSource": "curation",
-    "lightroomId": 8059571
+    "lightroomId": 8059571,
+    "presetId": "mount-rainier-2"
   },
   {
     "src": "/photos/lr-8059576.webp",
@@ -8170,7 +8071,8 @@
     "taken": "2025-08-28T22:31:03.01",
     "locationId": "seattle",
     "placeSource": "curation",
-    "lightroomId": 8059576
+    "lightroomId": 8059576,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059577.webp",
@@ -8219,7 +8121,8 @@
     "taken": "2025-08-28T22:50:11.35",
     "locationId": "seattle",
     "placeSource": "curation",
-    "lightroomId": 8059582
+    "lightroomId": 8059582,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059583.webp",
@@ -8255,7 +8158,8 @@
     "taken": "2025-08-28T23:00:09.36",
     "locationId": "seattle",
     "placeSource": "curation",
-    "lightroomId": 8059588
+    "lightroomId": 8059588,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059594.webp",
@@ -8267,7 +8171,8 @@
     "taken": "2025-08-28T13:43:12.95",
     "locationId": "mount-rainier",
     "placeSource": "curation",
-    "lightroomId": 8059594
+    "lightroomId": 8059594,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059597.webp",
@@ -8280,7 +8185,8 @@
     "locationId": "mount-rainier",
     "placeSource": "curation",
     "lightroomId": 8059597,
-    "hero": true
+    "hero": true,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059600.webp",
@@ -8295,18 +8201,6 @@
     "lightroomId": 8059600
   },
   {
-    "src": "/photos/lr-8059603.webp",
-    "title": "Seattle",
-    "alt": "Two silhouetted swimmers stand in calm teal water at dusk, one hand raised to his head, with boats along a distant shore",
-    "origin": "Lightroom 8059603",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2025-08-28T22:31:16.42",
-    "locationId": "seattle",
-    "placeSource": "curation",
-    "lightroomId": 8059603
-  },
-  {
     "src": "/photos/lr-8059604.webp",
     "title": "Mount Rainier",
     "alt": "A grassy, sunlit ridge in orange and green, with dark evergreens and rugged hazy pink-toned peaks behind",
@@ -8316,7 +8210,8 @@
     "taken": "2025-08-28T11:21:57.66",
     "locationId": "mount-rainier",
     "placeSource": "curation",
-    "lightroomId": 8059604
+    "lightroomId": 8059604,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059607.webp",
@@ -8328,7 +8223,8 @@
     "taken": "2025-08-28T22:51:08.60",
     "locationId": "seattle",
     "placeSource": "curation",
-    "lightroomId": 8059607
+    "lightroomId": 8059607,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059618.webp",
@@ -8340,7 +8236,8 @@
     "taken": "2025-08-28T10:34:20.75",
     "locationId": "mount-rainier",
     "placeSource": "curation",
-    "lightroomId": 8059618
+    "lightroomId": 8059618,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059619.webp",
@@ -8352,7 +8249,8 @@
     "taken": "2025-08-28T22:57:41.20",
     "locationId": "seattle",
     "placeSource": "curation",
-    "lightroomId": 8059619
+    "lightroomId": 8059619,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059622.webp",
@@ -8364,7 +8262,8 @@
     "taken": "2025-08-28T23:09:43.45",
     "locationId": "seattle",
     "placeSource": "curation",
-    "lightroomId": 8059622
+    "lightroomId": 8059622,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059626.webp",
@@ -8376,7 +8275,8 @@
     "taken": "2025-08-28T10:46:06.55",
     "locationId": "mount-rainier",
     "placeSource": "curation",
-    "lightroomId": 8059626
+    "lightroomId": 8059626,
+    "presetId": "mount-rainier-2"
   },
   {
     "src": "/photos/lr-8059629.webp",
@@ -8388,7 +8288,8 @@
     "taken": "2025-08-28T11:08:44.74",
     "locationId": "mount-rainier",
     "placeSource": "curation",
-    "lightroomId": 8059629
+    "lightroomId": 8059629,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059634.webp",
@@ -8412,7 +8313,8 @@
     "taken": "2025-08-28T10:15:48.83",
     "locationId": "mount-rainier",
     "placeSource": "curation",
-    "lightroomId": 8059637
+    "lightroomId": 8059637,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059639.webp",
@@ -8424,7 +8326,8 @@
     "taken": "2025-08-28T11:19:23.43",
     "locationId": "mount-rainier",
     "placeSource": "curation",
-    "lightroomId": 8059639
+    "lightroomId": 8059639,
+    "presetId": "hopfensee-2"
   },
   {
     "src": "/photos/lr-8059645.webp",
@@ -8436,7 +8339,8 @@
     "taken": "2025-08-28T10:33:42.20",
     "locationId": "mount-rainier",
     "placeSource": "curation",
-    "lightroomId": 8059645
+    "lightroomId": 8059645,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059649.webp",
@@ -8449,7 +8353,8 @@
     "locationId": "seattle",
     "placeSource": "curation",
     "lightroomId": 8059649,
-    "hero": true
+    "hero": true,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059651.webp",
@@ -8461,7 +8366,8 @@
     "taken": "2025-08-28T22:47:35.51",
     "locationId": "seattle",
     "placeSource": "curation",
-    "lightroomId": 8059651
+    "lightroomId": 8059651,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059654.webp",
@@ -8509,19 +8415,8 @@
     "taken": "2025-08-27T10:58:25.96",
     "locationId": "mount-rainier",
     "placeSource": "curation",
-    "lightroomId": 8059665
-  },
-  {
-    "src": "/photos/lr-8059668.webp",
-    "title": "Sunrise",
-    "alt": "Warm light streams through smoky clouds over a forested hillside and golden meadow, with faint mountains in the distance",
-    "origin": "Lightroom 8059668",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2025-08-27T11:02:04.52",
-    "locationId": "sunrise",
-    "placeSource": "curation",
-    "lightroomId": 8059668
+    "lightroomId": 8059665,
+    "presetId": "mount-rainier-2"
   },
   {
     "src": "/photos/lr-8059671.webp",
@@ -8545,7 +8440,8 @@
     "taken": "2025-08-27T11:05:26.83",
     "locationId": "mount-rainier",
     "placeSource": "curation",
-    "lightroomId": 8059676
+    "lightroomId": 8059676,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059682.webp",
@@ -8557,7 +8453,8 @@
     "taken": "2025-08-27T10:45:19.07",
     "locationId": "sunrise",
     "placeSource": "curation",
-    "lightroomId": 8059682
+    "lightroomId": 8059682,
+    "presetId": "mount-rainier-2"
   },
   {
     "src": "/photos/lr-8059683.webp",
@@ -8569,7 +8466,8 @@
     "taken": "2025-08-27T11:05:10.85",
     "locationId": "mount-rainier",
     "placeSource": "curation",
-    "lightroomId": 8059683
+    "lightroomId": 8059683,
+    "presetId": "mount-rainier-2"
   },
   {
     "src": "/photos/lr-8059685.webp",
@@ -8581,7 +8479,8 @@
     "taken": "2025-08-27T09:27:22.38",
     "locationId": "sunrise",
     "placeSource": "curation",
-    "lightroomId": 8059685
+    "lightroomId": 8059685,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059689.webp",
@@ -8593,7 +8492,8 @@
     "taken": "2025-08-29T23:13:23.18",
     "locationId": "seattle",
     "placeSource": "curation",
-    "lightroomId": 8059689
+    "lightroomId": 8059689,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059690.webp",
@@ -8605,7 +8505,8 @@
     "taken": "2025-08-29T23:12:37.86",
     "locationId": "seattle",
     "placeSource": "curation",
-    "lightroomId": 8059690
+    "lightroomId": 8059690,
+    "presetId": "mount-rainier-1"
   },
   {
     "src": "/photos/lr-8059691.webp",

@@ -72,8 +72,9 @@ export function manifestEntry(row, locationId, title, previous) {
     title,
     alt: row.altText?.trim() || previous?.alt || "",
     origin: `Lightroom ${row.lightroomId}`,
-    width: row.width ?? previous?.width,
-    height: row.height ?? previous?.height,
+    // The stored file's size, never the export's; a new photo gets its size when encoded.
+    width: previous?.width,
+    height: previous?.height,
     // Full capture time: places order their photos by it; labels read only year and month.
     taken: row.capturedAt,
     locationId,
