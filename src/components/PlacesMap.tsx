@@ -9,6 +9,7 @@ import type {
   StyleSpecification,
 } from "maplibre-gl";
 import { travelPlaces, type TravelPlace } from "@/lib/places";
+import locationTree from "@/data/locations.json";
 import {
   getCoordinateBounds,
   getCountryChildBounds,
@@ -106,6 +107,15 @@ const fadeIn = (from: number, to: number, max = 1) =>
     to,
     max,
   ] as import("maplibre-gl").ExpressionSpecification;
+// A photo marker already names its place; the base map's label would peek out from under it.
+const markerNames = [
+  "!",
+  [
+    "in",
+    ["coalesce", ["get", "name:en"], ["get", "name"]],
+    ["literal", locationTree.map((node) => node.name)],
+  ],
+] as import("maplibre-gl").FilterSpecification;
 function style(mix: number): StyleSpecification {
   const color = colors();
   const font = getComputedStyle(document.documentElement)
@@ -242,24 +252,46 @@ function style(mix: number): StyleSpecification {
           "line-opacity": 0.65,
         },
       },
-      ...(["countries", "cities"] as const).map((source) => ({
+      // Natural Earth's large cities hand over to OpenStreetMap towns where land detail starts.
+      ...(["countries", "cities", "osm"] as const).map((source) => ({
         id: `${source}-labels`,
         type: "symbol" as const,
         source,
-        minzoom: source === "cities" ? 3.2 : 0,
-        ...(source === "countries"
-          ? {
-              filter: [
-                "<=",
-                ["min", 3, ["get", "minZoom"]],
-                ["zoom"],
-              ] as import("maplibre-gl").FilterSpecification,
-            }
-          : {}),
+        ...(source === "countries" && {
+          filter: [
+            "<=",
+            ["min", 3, ["get", "minZoom"]],
+            ["zoom"],
+          ] as import("maplibre-gl").FilterSpecification,
+        }),
+        ...(source === "cities" && {
+          minzoom: 3.2,
+          maxzoom: detailZoom,
+          filter: markerNames,
+        }),
+        ...(source === "osm" && {
+          "source-layer": "place",
+          minzoom: detailZoom,
+          filter: [
+            "all",
+            markerNames,
+            [
+              "any",
+              ["==", ["get", "class"], "city"],
+              ["all", ["==", ["get", "class"], "town"], [">=", ["zoom"], 7]],
+              [
+                "all",
+                ["==", ["get", "class"], "village"],
+                [">=", ["zoom"], 10],
+              ],
+            ],
+          ] as import("maplibre-gl").FilterSpecification,
+        }),
         layout: {
           "text-field": [
-            "get",
-            "name",
+            "coalesce",
+            ["get", "name:en"],
+            ["get", "name"],
           ] as import("maplibre-gl").ExpressionSpecification,
           "text-font": [font || "sans-serif", "sans-serif"],
           "text-size": source === "countries" ? 12 : 10,

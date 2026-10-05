@@ -688,8 +688,9 @@ export default function PlacesExplorer({
   const pageStack: DrawerView[] = nested ? nestedStack : baseStack;
   const page = pageView && renderPage(pageView);
   function renderPage(view: PageView) {
-    const previous = pageStack.at(-2) ?? (nested ? "photos" : null);
-    // A lone page in the drawer has the close button instead of a back button.
+    // On phones the photo drawer stays visible above the sheet, so the sheet closes instead of going back.
+    const previous = pageStack.at(-2) ?? (nested && desktop ? "photos" : null);
+    // A lone page has the close button instead of a back button.
     const onBack = previous ? back : undefined;
     const backLabel = previous ? pageBackLabels[previous] : undefined;
     if (view === "presets")
@@ -1337,8 +1338,15 @@ export default function PlacesExplorer({
           }}
           onInteractOutside={(event) => event.preventDefault()}
         >
-          {/* Drag-to-dismiss cue; Back is the keyboard path. */}
+          {/* Drag-to-dismiss cue; Close and Back are the keyboard path. */}
           {!desktop && <div className="photo-drawer-grip" aria-hidden="true" />}
+          {!desktop && (
+            <div className="drawer-commerce-header">
+              <Button variant="quiet" aria-label="Close" onClick={closeNested}>
+                <X size={18} />
+              </Button>
+            </div>
+          )}
           <DrawerTitle className="sr-only">
             {nested ? pageTitle(nested) : "Page"}
           </DrawerTitle>

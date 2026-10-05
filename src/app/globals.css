@@ -2989,6 +2989,10 @@ html[data-photo-theme="dark"] {
     height: calc(75dvh - 8px);
     border-top: 1px solid var(--line);
   }
+  .nested-drawer > .drawer-commerce-header {
+    padding: 4px 8px 0;
+    border-bottom: 0;
+  }
   /* The whole sheet drags, so its grip sits in the header's top padding. */
   .nested-drawer .photo-drawer-grip {
     position: absolute;
