@@ -3,7 +3,8 @@ import path from "node:path";
 // node scripts/import-presets.mjs [<preset library dir>]
 // Copies the public fields of the kept lineup into src/data/presets.json.
 // Reads <dir>/site-export/presets.json, <dir>/lineup.json and, once the pairs are signed off,
-// <dir>/site-export/examples.json. Never copies file names, places or Lightroom ids.
+// <dir>/site-export/examples.json. Never copies file names or Lightroom ids. A preset's place
+// is the map location its id names (grainau-1 -> grainau) unless lineup.json sets `location`.
 const dir = path.resolve(
   process.argv[2] ??
     path.join(process.env.HOME, "Desktop/Nicholas-Gould-Presets"),
@@ -21,6 +22,9 @@ const lineup = await readJson(path.join(dir, "lineup.json"), {});
 const examples = await readJson(
   path.join(dir, "site-export/examples.json"),
   {},
+);
+const locationIds = new Set(
+  (await readJson("src/data/locations.json")).map((node) => node.id),
 );
 const manifestSrcs = new Set(
   (await readJson("src/lib/photo-manifest.json")).map((entry) => entry.src),
@@ -41,15 +45,24 @@ kept.sort((a, b) => order(a) - order(b));
 const presets = kept.map((row, index) => {
   if (!mood(row)) throw new Error(`${row.id} has no mood`);
   const example = examples[row.id];
-  const showcase = example?.showcase ?? [];
-  for (const src of showcase)
+  const {
+    name,
+    also,
+    location = row.id.replace(/-\d+$/, ""),
+    showcase,
+  } = lineup[row.id] ?? {};
+  if (!locationIds.has(location))
+    throw new Error(`${row.id} place ${location} is not a map location`);
+  for (const src of showcase ?? [])
     if (!manifestSrcs.has(src))
       throw new Error(`${row.id} showcase ${src} is not a map photo`);
   return {
     id: row.id,
     number: row.number ?? index + 1,
-    name: row.name,
+    name: name ?? row.name,
     category: mood(row),
+    ...(also && { also }),
+    location,
     bestFor: row.usage.best_for,
     whatItDoes: row.usage.what_it_does,
     watchOut: row.usage.watch_out,
@@ -61,7 +74,7 @@ const presets = kept.map((row, index) => {
         height: example.height,
       },
     }),
-    showcase,
+    showcase: showcase ?? example?.showcase ?? [],
   };
 });
 

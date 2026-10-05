@@ -2729,6 +2729,25 @@ html[data-photo-theme="dark"] {
     min-width: 0;
     margin-right: 6px;
   }
+  /* A place stacked on a page leads with the way back to it. The header's
+     buttons then center on the whole block, so they align to the title row. */
+  .photo-drawer-header:has(.photo-drawer-back) {
+    align-items: flex-end;
+  }
+  .place-presets {
+    display: flex;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 16px 12px;
+  }
+  .photo-drawer-back {
+    gap: 6px;
+    min-height: 36px;
+    margin-bottom: 4px;
+    padding: 0;
+    color: var(--ink);
+  }
   .photo-drawer-header h2 {
     font: 500 22px/1.1 var(--serif);
     letter-spacing: -0.012em;

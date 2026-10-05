@@ -6,6 +6,10 @@ export type PresetCatalogItem = Readonly<{
   name: string;
   /** The preset's mood, e.g. "Alpine Blue". */
   category: string;
+  /** Other moods it is also listed under. */
+  also?: readonly string[];
+  /** The map location it was made for. */
+  location: string;
   bestFor: string;
   whatItDoes: string;
   watchOut?: string;
@@ -64,7 +68,9 @@ export function filterPresetCatalog({
   return presetCatalog.filter((preset) => {
     const text = `${preset.name} ${preset.category}`.toLocaleLowerCase();
     return (
-      (category === "All" || preset.category === category) &&
+      (category === "All" ||
+        preset.category === category ||
+        preset.also?.includes(category)) &&
       terms.every((term) => text.includes(term))
     );
   });

@@ -186,6 +186,19 @@
   min-height: 0;
   padding: 0 16px 24px;
 }
+.detailNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.steps {
+  display: flex;
+  margin-right: -8px;
+}
+/* The drawer's close button sits at the end of this row. */
+.standalone .steps {
+  margin-right: 32px;
+}
 .standalone {
   padding-top: 16px;
 }
@@ -208,6 +221,16 @@
   font:
     500 28px/1.15 var(--font-explorer-display),
     serif;
+}
+.madeIn {
+  margin: 2px 0 0;
+  color: var(--muted-foreground);
+  font-size: 13px;
+}
+.madeIn .placeLink {
+  min-height: 0;
+  padding: 0;
+  color: var(--ink);
 }
 .purchase {
   padding: 16px 0;

@@ -10,7 +10,11 @@ import {
   presetCategories,
 } from "../src/lib/preset-commerce";
 import { nodeForPhoto, placeNode } from "../src/lib/favorites";
-import { getPresetPlaces } from "../src/lib/map-hierarchy";
+import {
+  getLocationNode,
+  getPlacePresets,
+  getPresetPlaces,
+} from "../src/lib/map-hierarchy";
 import { photoPresets, travelPlaces } from "../src/lib/places";
 
 test("commerce catalog exposes the kept lineup through a public field allowlist", () => {
@@ -24,10 +28,12 @@ test("commerce catalog exposes the kept lineup through a public field allowlist"
     presetCatalog.map((_, index) => index + 1),
   );
   const fields = [
+    "also",
     "bestFor",
     "category",
     "example",
     "id",
+    "location",
     "name",
     "number",
     "showcase",
@@ -122,4 +128,21 @@ test("preset places hold exactly the photos edited with that preset", () => {
     }
   }
   assert.deepEqual(getPresetPlaces(travelPlaces, "signature-01"), []);
+});
+
+test("a preset is listed at the place it was made for, and under its other moods", () => {
+  for (const preset of presetCatalog) {
+    const node = getLocationNode(travelPlaces, preset.location);
+    assert.ok(node && placeNode(node.id), preset.id);
+    if (node.id.startsWith("location:"))
+      assert.ok(getPlacePresets(node).includes(preset), preset.id);
+  }
+  const lofoten = placeNode("location:lofoten")!;
+  assert.ok(getPlacePresets(lofoten).some((p) => p.id === "lofoten-1"));
+  assert.equal(getLocationNode(travelPlaces, "nordland")?.id, "country:norway");
+  assert.ok(
+    filterPresetCatalog({ query: "", category: "Lush Green" }).some(
+      (preset) => preset.id === "seiser-alm-1",
+    ),
+  );
 });

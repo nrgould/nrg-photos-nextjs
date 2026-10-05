@@ -32,7 +32,12 @@ import { galleryLayout, heroCount } from "@/lib/gallery-layout";
 import Image from "next/image";
 import { photoUrl, takenLabel } from "@/lib/photography";
 import { drawerOwnsGesture, shouldDismissDrawer } from "@/lib/drawer-gesture";
-import { getMapNode, getMapNodes, type MapNode } from "@/lib/map-hierarchy";
+import {
+  getMapNode,
+  getMapNodes,
+  getPlacePresets,
+  type MapNode,
+} from "@/lib/map-hierarchy";
 import { searchExplorer, shufflePlace, stepLocation } from "@/lib/map-filters";
 import { Button } from "./ui/button";
 import MapZoom from "./MapZoom";
@@ -83,9 +88,14 @@ import { AccountControl } from "./AccountControl";
 import { ButtonGroup } from "./ui/button-group";
 import {
   createPresetCatalogState,
+  filterPresetCatalog,
   getCatalogPreset,
   type PresetCatalogState,
 } from "@/lib/preset-commerce";
+import {
+  BULK_DISCOUNT_MINIMUM,
+  BULK_DISCOUNT_PERCENT,
+} from "@/lib/preset-cart";
 
 type DrawerView =
   | "photos"
@@ -261,8 +271,28 @@ export default function PlacesExplorer({
   const topView = nested ?? (open ? drawerMode : null);
   const selectedPreset = getCatalogPreset(catalogState.selectedPresetId);
   const { checkout, reward } = usePresetCommerceBoundary();
-  const { cartIds, ownedPresetIds, addPreset, addPresets, removePreset } =
-    usePresetCart();
+  const { cartIds, ownedPresetIds, addPresets, removePreset } = usePresetCart();
+  // Below the bulk discount, each add shows the progress toward it.
+  function addToCart(ids: readonly string[]) {
+    const before = cartIds.length;
+    const after = new Set([
+      ...cartIds,
+      ...ids.filter((id) => !ownedPresetIds.includes(id)),
+    ]).size;
+    addPresets(ids);
+    if (after === before || before >= BULK_DISCOUNT_MINIMUM) return;
+    const count = Math.min(after, BULK_DISCOUNT_MINIMUM);
+    setToast({
+      kind: "discount",
+      label:
+        count === BULK_DISCOUNT_MINIMUM
+          ? `${BULK_DISCOUNT_PERCENT}% off earned`
+          : `Add ${BULK_DISCOUNT_MINIMUM} presets to get ${BULK_DISCOUNT_PERCENT}% off`,
+      count,
+      goal: BULK_DISCOUNT_MINIMUM,
+      key: ++toastKey.current,
+    });
+  }
   const checkoutParams = new URLSearchParams({ view: "cart" });
   if (selectedNodeId) checkoutParams.set("location", selectedNodeId);
   if (catalogState.query) checkoutParams.set("query", catalogState.query);
@@ -458,6 +488,12 @@ export default function PlacesExplorer({
     )?.id ??
     null;
   const placeSaved = placeId !== null && favorites.placeIds.includes(placeId);
+  const placePresets = useMemo(() => {
+    const node = selectedNodeId?.startsWith("location:")
+      ? getMapNode(selectedNodeId, filteredPlaces)
+      : null;
+    return node ? getPlacePresets(node) : [];
+  }, [filteredPlaces, selectedNodeId]);
   const savedCount = favorites.placeIds.length + favorites.photoSrcs.length;
   const searchNodes = useMemo(
     () => [
@@ -638,13 +674,14 @@ export default function PlacesExplorer({
       sessionStorage.setItem("photo-map-intro", "seen");
     } catch {}
   }
-  function choose(id: string, showPhotos = false) {
+  /** `under` keeps pages beneath the place, so Back returns to them. */
+  function choose(id: string, showPhotos = false, under: PageView[] = []) {
     selectionFeedback();
     setStepped(false);
     gallery.current?.scrollTo(0, 0);
     photoScroll.current = 0;
     pendingPhotoScroll.current = null;
-    setBaseStack(["photos"]);
+    setBaseStack([...under, "photos"]);
     if (drawerMode !== "photos") setSnap(photoSnap.current);
     setSelected(id);
     setSelectedNodeId(null);
@@ -659,8 +696,9 @@ export default function PlacesExplorer({
           ? document.activeElement
           : null;
       photoOrigin.current = drawerOrigin.current;
-      photoSnap.current = 0.25;
-      setSnap(0.25);
+      // Over a page the drawer stays tall so its back link shows.
+      photoSnap.current = under.length ? 0.75 : 0.25;
+      setSnap(photoSnap.current);
       setOpen(true);
       gallery.current?.scrollTo(0, 0);
     }
@@ -669,11 +707,12 @@ export default function PlacesExplorer({
     } catch {}
   }
   // Showing a place's photos closes any nested page stacked over them.
-  function chooseNode(node: MapNode) {
-    closeNested();
+  function chooseNode(node: MapNode, under: PageView[] = []) {
+    if (under.length) setNestedStack([]);
+    else closeNested();
     if (node.kind === "location" && node.precision === "regional")
       explore({ type: "location-opened", locationId: node.id });
-    choose(node.collectionId, true);
+    choose(node.collectionId, true, under);
     setSelectedNodeId(node.id);
     setMode("map");
     setZoom((current) => Math.max(current, 3.5));
@@ -687,16 +726,29 @@ export default function PlacesExplorer({
       setSnap(0.75);
     }
   }
+  // Pages open a place stacked on them, so Back returns to the page.
   function showLocation(locationId: string) {
     const node = placeNode(locationId);
-    if (node) chooseNode(node);
+    if (node)
+      chooseNode(node, nested ? nestedStack : (baseStack as PageView[]));
   }
-  // Saved and preset pages open a photo in its place, focus returning to the tile.
+  // Steps through the catalog as filtered when the preset was opened from it.
+  function presetSiblings(id: string) {
+    const list = filterPresetCatalog({ ...catalogState, query: "" });
+    const index = list.findIndex((preset) => preset.id === id);
+    return {
+      previous: list[index - 1],
+      next: index < 0 ? undefined : list[index + 1],
+      onStep: (presetId: string) =>
+        setCatalogState((state) => ({ ...state, selectedPresetId: presetId })),
+    };
+  }
+  // Saved and preset pages open a photo in its place, stacked on the page so Back returns to it.
   function openPhotoFromPage(src: string, trigger: HTMLButtonElement) {
     const node = nodeForPhoto(src);
     if (!node) return;
     photoFocus.current = trigger;
-    chooseNode(node);
+    chooseNode(node, nested ? nestedStack : (baseStack as PageView[]));
     openPhotograph(src);
   }
   function openPhotograph(photoSrc: string | null) {
@@ -809,7 +861,12 @@ export default function PlacesExplorer({
     const previous = pageStack.at(-2) ?? (nested && desktop ? "photos" : null);
     // A lone page has the close button instead of a back button.
     const onBack = previous ? back : undefined;
-    const backLabel = previous ? pageBackLabels[previous] : undefined;
+    const backLabel =
+      previous === "photos" && place
+        ? place.name
+        : previous
+          ? pageBackLabels[previous]
+          : undefined;
     if (view === "presets")
       return (
         <PresetCatalog
@@ -817,8 +874,8 @@ export default function PlacesExplorer({
           onStateChange={setCatalogState}
           cartIds={cartIds}
           ownedPresetIds={ownedPresetIds}
-          onAddPreset={addPreset}
-          onAddCollection={addPresets}
+          onAddPreset={(id) => addToCart([id])}
+          onAddCollection={addToCart}
           onRemovePreset={removePreset}
           scrollMemory={catalogScrollMemory}
           onBack={onBack}
@@ -895,17 +952,23 @@ export default function PlacesExplorer({
           preset={selectedPreset}
           inCart={cartIds.includes(selectedPreset.id)}
           owned={ownedPresetIds.includes(selectedPreset.id)}
-          onAddPreset={addPreset}
+          onAddPreset={(id) => addToCart([id])}
           onRemovePreset={removePreset}
           onSelectLocation={showLocation}
           onOpenPhoto={openPhotoFromPage}
           backLabel={backLabel ?? pageBackLabels.presets}
           onBack={back}
+          siblings={
+            previous === "presets"
+              ? presetSiblings(selectedPreset.id)
+              : undefined
+          }
         />
       )
     );
   }
   // A place's actions: pinned to the drawer foot on desktop, after the last photo on phones.
+  const photosBack = drawerMode === "photos" ? baseStack.at(-2) : undefined;
   const placeActions = parentNode && (
     <Button
       variant="outline"
@@ -1289,49 +1352,89 @@ export default function PlacesExplorer({
               />
             )}
             {drawerMode === "photos" ? (
-              <div className="photo-drawer-header">
-                <div>
-                  <DrawerTitle>{place?.name ?? "Photographs"}</DrawerTitle>
-                  <DrawerDescription id="location-photo-description">
-                    {placeList &&
-                      `${placeList.length} ${placeList.length === 1 ? "place" : "places"} · `}
-                    {place?.photos.length ?? 0}{" "}
-                    {(place?.photos.length ?? 0) === 1
-                      ? "photograph"
-                      : "photographs"}
-                  </DrawerDescription>
-                </div>
-                <Button
-                  variant="quiet"
-                  className="drawer-presets-link"
-                  onClick={(event) => openPage("presets", event.currentTarget)}
-                >
-                  Presets
-                </Button>
-                {placeId && (
+              <>
+                <div className="photo-drawer-header">
+                  <div>
+                    {photosBack && (
+                      <Button
+                        variant="quiet"
+                        className="photo-drawer-back"
+                        onClick={back}
+                      >
+                        <ArrowLeft size={16} aria-hidden="true" />
+                        {photosBack === "preset"
+                          ? (selectedPreset?.name ?? pageBackLabels.preset)
+                          : pageBackLabels[photosBack]}
+                      </Button>
+                    )}
+                    <DrawerTitle>{place?.name ?? "Photographs"}</DrawerTitle>
+                    <DrawerDescription id="location-photo-description">
+                      {placeList &&
+                        `${placeList.length} ${placeList.length === 1 ? "place" : "places"} · `}
+                      {place?.photos.length ?? 0}{" "}
+                      {(place?.photos.length ?? 0) === 1
+                        ? "photograph"
+                        : "photographs"}
+                    </DrawerDescription>
+                  </div>
                   <Button
                     variant="quiet"
-                    className="drawer-save"
-                    aria-label={`Save ${place?.name ?? "place"}`}
-                    aria-pressed={placeSaved}
-                    onClick={() => toggleFavorite("placeIds", placeId)}
+                    className="drawer-presets-link"
+                    onClick={(event) =>
+                      openPage("presets", event.currentTarget)
+                    }
                   >
-                    <Heart
-                      size={18}
-                      fill={placeSaved ? "currentColor" : "none"}
-                      className={placeSaved ? "text-favorite" : undefined}
-                      aria-hidden="true"
-                    />
+                    Presets
                   </Button>
+                  {placeId && (
+                    <Button
+                      variant="quiet"
+                      className="drawer-save"
+                      aria-label={`Save ${place?.name ?? "place"}`}
+                      aria-pressed={placeSaved}
+                      onClick={() => toggleFavorite("placeIds", placeId)}
+                    >
+                      <Heart
+                        size={18}
+                        fill={placeSaved ? "currentColor" : "none"}
+                        className={placeSaved ? "text-favorite" : undefined}
+                        aria-hidden="true"
+                      />
+                    </Button>
+                  )}
+                  <Button
+                    variant="quiet"
+                    aria-label="Close photographs"
+                    onClick={closeDrawer}
+                  >
+                    <X size={18} />
+                  </Button>
+                </div>
+                {placePresets.length > 0 && (
+                  <ul
+                    className="place-presets"
+                    aria-label="Presets for this place"
+                  >
+                    {placePresets.map((preset) => (
+                      <li key={preset.id}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(event) => {
+                            setCatalogState((state) => ({
+                              ...state,
+                              selectedPresetId: preset.id,
+                            }));
+                            openPage("preset", event.currentTarget);
+                          }}
+                        >
+                          {preset.name}
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
                 )}
-                <Button
-                  variant="quiet"
-                  aria-label="Close photographs"
-                  onClick={closeDrawer}
-                >
-                  <X size={18} />
-                </Button>
-              </div>
+              </>
             ) : (
               <div className="drawer-commerce-header">
                 <DrawerTitle className="sr-only">
@@ -1343,18 +1446,21 @@ export default function PlacesExplorer({
                 >
                   {pageTitle(drawerMode)}.
                 </DrawerDescription>
-                {/* Menu pages carry their own back link, so the place link would be a second one.
-                    Desktop only: on phones, swiping the sheet down already leaves the page. */}
-                {desktop && place && !baseStack.includes("menu") && (
-                  <Button
-                    variant="quiet"
-                    className="drawer-back"
-                    onClick={showPhotos}
-                  >
-                    <ArrowLeft size={16} aria-hidden="true" />
-                    {place.name}
-                  </Button>
-                )}
+                {/* One back link per page: a page deeper in the stack has its own, and menu pages
+                    always do. Desktop only: on phones, swiping the sheet down already leaves the page. */}
+                {desktop &&
+                  place &&
+                  baseStack.length === 1 &&
+                  drawerMode !== "menu" && (
+                    <Button
+                      variant="quiet"
+                      className="drawer-back"
+                      onClick={showPhotos}
+                    >
+                      <ArrowLeft size={16} aria-hidden="true" />
+                      {place.name}
+                    </Button>
+                  )}
                 <Button
                   variant="quiet"
                   aria-label="Close drawer"
@@ -1704,7 +1810,8 @@ export default function PlacesExplorer({
         onDismiss={dismissToast}
         onOpen={() => {
           dismissToast();
-          openPage("challenges", challengesTrigger.current);
+          if (toast?.kind === "discount") openPage("cart", cartTrigger.current);
+          else openPage("challenges", challengesTrigger.current);
         }}
       />
       <span className="sr-only" aria-live="polite">

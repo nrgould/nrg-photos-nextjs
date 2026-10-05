@@ -7,18 +7,20 @@ import {
   ArrowLeft,
   ArrowUpRight,
   Check,
+  ChevronLeft,
   ChevronRight,
   Plus,
 } from "lucide-react";
 import { nodeForPhoto } from "@/lib/favorites";
-import { getPresetPlaces } from "@/lib/map-hierarchy";
+import { getLocationNode, getPresetPlaces } from "@/lib/map-hierarchy";
 import type { Photo } from "@/lib/photography";
-import { travelPlaces } from "@/lib/places";
+import { locationPath, photoPresets, travelPlaces } from "@/lib/places";
 import {
   filterPresetCatalog,
   getCatalogPreset,
   presetCatalog,
   presetCategories,
+  type PresetCatalogItem,
   type PresetCatalogState,
   type PresetCategory,
 } from "@/lib/preset-commerce";
@@ -363,6 +365,7 @@ export function PresetDetail({
   backLabel = "All presets",
   backRef,
   standalone = false,
+  siblings,
 }: {
   preset: NonNullable<ReturnType<typeof getCatalogPreset>>;
   inCart: boolean;
@@ -376,12 +379,25 @@ export function PresetDetail({
   backRef?: Ref<HTMLButtonElement>;
   /** Renders its own scroll container outside the catalog. */
   standalone?: boolean;
+  /** Neighbors in the catalog the page was opened from. */
+  siblings?: {
+    previous?: PresetCatalogItem;
+    next?: PresetCatalogItem;
+    onStep: (id: string) => void;
+  };
 }) {
   const { anonymous } = useCommerceAccount();
   const showcase = preset.showcase.flatMap((src) => {
     const photo = nodeForPhoto(src)?.photos.find((p) => p.src === src);
     return photo ? [photo] : [];
   });
+  // Showcase photos edited with the preset say so; the rest only show the place it was made for.
+  const edited = showcase.filter(
+    (photo) => photoPresets.get(photo.src) === preset.id,
+  );
+  const madeThere = showcase.filter((photo) => !edited.includes(photo));
+  const home = locationPath(preset.location).at(-1)!;
+  const homeNode = getLocationNode(travelPlaces, preset.location);
   // Every map photo edited with the preset, by place, after the showcase.
   const places = getPresetPlaces(travelPlaces, preset.id).flatMap((place) => {
     const photos = place.photos.filter(
@@ -412,15 +428,41 @@ export function PresetDetail({
   );
   const detail = (
     <div className={styles.detail}>
-      <Button
-        ref={backRef}
-        variant="quiet"
-        className={styles.back}
-        onClick={onBack}
-      >
-        <ArrowLeft size={16} aria-hidden="true" />
-        {backLabel}
-      </Button>
+      <div className={styles.detailNav}>
+        <Button
+          ref={backRef}
+          variant="quiet"
+          className={styles.back}
+          onClick={onBack}
+        >
+          <ArrowLeft size={16} aria-hidden="true" />
+          {backLabel}
+        </Button>
+        {siblings && (
+          <div className={styles.steps}>
+            {(["previous", "next"] as const).map((side) => {
+              const target = siblings[side];
+              const Icon = side === "previous" ? ChevronLeft : ChevronRight;
+              return (
+                <Button
+                  key={side}
+                  variant="quiet"
+                  size="icon"
+                  aria-label={
+                    target
+                      ? `${side === "previous" ? "Previous" : "Next"} preset, ${target.name}`
+                      : `No ${side} preset`
+                  }
+                  disabled={!target}
+                  onClick={() => target && siblings.onStep(target.id)}
+                >
+                  <Icon size={18} aria-hidden="true" />
+                </Button>
+              );
+            })}
+          </div>
+        )}
+      </div>
       <div className={styles.productHeading}>
         <span className={styles.productNumber} aria-hidden="true">
           {String(preset.number).padStart(2, "0")}
@@ -428,6 +470,21 @@ export function PresetDetail({
         <div>
           <p className={styles.eyebrow}>{preset.category}</p>
           <h3>{preset.name}</h3>
+          <p className={styles.madeIn}>
+            Made in{" "}
+            {homeNode && onSelectLocation ? (
+              <Button
+                variant="quiet"
+                className={styles.placeLink}
+                onClick={() => onSelectLocation(homeNode.id, preset.id)}
+              >
+                {home.name}
+                <ArrowUpRight size={14} aria-hidden="true" />
+              </Button>
+            ) : (
+              home.name
+            )}
+          </p>
         </div>
       </div>
       {example && <PhotoComparison pair={example} />}
@@ -481,14 +538,23 @@ export function PresetDetail({
           </>
         )}
       </dl>
-      {(showcase.length > 0 || places.length > 0) && (
+      {madeThere.length > 0 && (
+        <section
+          className={styles.edited}
+          aria-labelledby={`${preset.id}-made`}
+        >
+          <h4 id={`${preset.id}-made`}>Photos from {home.name}</h4>
+          {photoGrid(madeThere, `${panel.savedPhotos} ${styles.showcase}`)}
+        </section>
+      )}
+      {(edited.length > 0 || places.length > 0) && (
         <section
           className={styles.edited}
           aria-labelledby={`${preset.id}-edited`}
         >
           <h4 id={`${preset.id}-edited`}>Photos edited with {preset.name}</h4>
-          {showcase.length > 0 &&
-            photoGrid(showcase, `${panel.savedPhotos} ${styles.showcase}`)}
+          {edited.length > 0 &&
+            photoGrid(edited, `${panel.savedPhotos} ${styles.showcase}`)}
           {places.map((place) => (
             <section
               key={place.id}

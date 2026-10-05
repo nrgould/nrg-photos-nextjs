@@ -19,6 +19,7 @@ import {
   LockKeyhole,
   MapPin,
   Search,
+  ShoppingBag,
 } from "lucide-react";
 import {
   createExplorationProgress,
@@ -106,7 +107,11 @@ function DrawnCheck({ delay = 0 }: { delay?: number }) {
   );
 }
 
-export type ExplorationToastMoment = ExplorationMoment & { key: number };
+/** Cart progress toward the bulk discount shares the place-count toast. */
+export type ExplorationToastMoment = (
+  | ExplorationMoment
+  | { kind: "discount"; label: string; count: number; goal: number }
+) & { key: number };
 
 export function ExplorationToast({
   moment,
@@ -120,19 +125,23 @@ export function ExplorationToast({
   const reducedMotion = useReducedMotion();
   // A completed toast hands off to a pointer at Challenges, keyed to the moment it follows.
   const [followUp, setFollowUp] = useState<number | null>(null);
+  const counted =
+    moment?.kind === "location" || moment?.kind === "discount" ? moment : null;
   const complete =
     moment?.kind === "challenge" ||
     moment?.kind === "complete" ||
-    (moment?.kind === "location" && moment.count === moment.goal);
+    (counted !== null && counted.count === counted.goal);
+  // Only challenge progress hands off to Challenges.
+  const followsUp = complete && moment?.kind !== "discount";
   const next = moment !== null && followUp === moment.key;
   useEffect(() => {
     if (!moment) return;
     const timer = window.setTimeout(
-      complete && !next ? () => setFollowUp(moment.key) : onDismiss,
+      followsUp && !next ? () => setFollowUp(moment.key) : onDismiss,
       next ? 5000 : 3200,
     );
     return () => window.clearTimeout(timer);
-  }, [moment, complete, next, onDismiss]);
+  }, [moment, followsUp, next, onDismiss]);
   // On body, so it shows over the photo viewer: the fixed explorer is its own stacking context.
   const mounted = useSyncExternalStore(
     noSubscribe,
@@ -177,10 +186,14 @@ export function ExplorationToast({
                 )}
               </span>
             ) : complete ? (
-              <DrawnCheck delay={moment.kind === "location" ? 0.35 : 0.05} />
+              <DrawnCheck delay={counted ? 0.35 : 0.05} />
             ) : (
               <span className={styles.toastIcon} aria-hidden="true">
-                <Leaf size={16} strokeWidth={1.5} />
+                {moment.kind === "discount" ? (
+                  <ShoppingBag size={16} strokeWidth={1.5} />
+                ) : (
+                  <Leaf size={16} strokeWidth={1.5} />
+                )}
               </span>
             )}
             <span className={styles.toastText}>
@@ -189,8 +202,8 @@ export function ExplorationToast({
                   ? moment.kind === "complete"
                     ? "Free preset ready"
                     : "Challenge complete"
-                  : moment.kind === "location"
-                    ? moment.label
+                  : counted
+                    ? counted.label
                     : moment.kind === "challenge"
                       ? moment.title
                       : "All challenges complete"}
@@ -200,22 +213,22 @@ export function ExplorationToast({
                   ? moment.kind === "complete"
                     ? "Claim it in Challenges"
                     : "View it in Challenges"
-                  : moment.kind === "location"
-                    ? `${moment.count} of ${moment.goal} places`
+                  : counted
+                    ? `${counted.count} of ${counted.goal} ${counted.kind === "location" ? "places" : "presets"}`
                     : moment.kind === "challenge"
                       ? moment.done
                       : `${moment.count} of ${moment.count} challenges`}
               </span>
             </span>
-            {moment.kind === "location" && !next && (
+            {counted && !next && (
               <span className={styles.toastTrack} aria-hidden="true">
                 <motion.span
                   initial={{
                     scaleX: reducedMotion
-                      ? moment.count / moment.goal
-                      : (moment.count - 1) / moment.goal,
+                      ? counted.count / counted.goal
+                      : (counted.count - 1) / counted.goal,
                   }}
-                  animate={{ scaleX: moment.count / moment.goal }}
+                  animate={{ scaleX: counted.count / counted.goal }}
                   transition={{ ...toastSpring, duration: 0.6, delay: 0.15 }}
                 />
               </span>

@@ -1,5 +1,6 @@
 import countryLabels from "../data/country-labels.json";
 import type { Photo } from "./photography";
+import { presetCatalog } from "./preset-commerce";
 import {
   locationPath,
   locations,
@@ -212,6 +213,37 @@ export function getPresetPlaces(places: TravelPlace[], presetId: string) {
       ? [{ ...node, photos, photoCount: photos.length, cover: photos[0] }]
       : [];
   });
+}
+
+const within = (id: string, ancestorId: string) =>
+  locationPath(id).some((node) => node.id === ancestorId);
+const photoWithin = (photo: Photo, ancestorId: string) => {
+  const id = photoLocations.get(photo.src);
+  return id !== undefined && within(id, ancestorId);
+};
+
+/** Where a location opens: its one map place, or the country listing a region's places. */
+export function getLocationNode(places: TravelPlace[], locationId: string) {
+  const holds = (node: MapNode) =>
+    node.photos.some((photo) => photoWithin(photo, locationId));
+  const leaves = getMapNodes(places, "location").filter(holds);
+  if (leaves.length < 2) return leaves[0] ?? null;
+  return getMapNodes(places, "country").find(holds) ?? null;
+}
+
+/** Presets made at a map place or its region, or edited onto its photographs, in catalog order. */
+export function getPlacePresets(node: MapNode) {
+  if (node.precision !== "regional") return [];
+  const placeId = node.id.slice("location:".length);
+  const edited = new Set(
+    node.photos.map((photo) => photoPresets.get(photo.src)),
+  );
+  return presetCatalog.filter(
+    (preset) =>
+      edited.has(preset.id) ||
+      within(placeId, preset.location) ||
+      within(preset.location, placeId),
+  );
 }
 
 /** A filtered-out leaf stays absent even if its parent collection still has photos. */
