@@ -10,7 +10,11 @@
   line-height: 1.5;
 }
 .header {
-  padding: 16px 16px 12px;
+  padding: 12px 16px;
+}
+/* A lone page's heading row shares its line with the drawer's close button. */
+.header > .heading:first-child {
+  padding-right: 52px;
 }
 .heading {
   display: flex;

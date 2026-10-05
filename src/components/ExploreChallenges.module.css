@@ -363,9 +363,21 @@
   object-fit: cover;
 }
 /* Phone menu: grouped rows on a pale card; radii are concentric (10 + 4 = 14). */
-.menu {
-  display: grid;
-  gap: 24px;
+.menuHeader {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  /* Clears the drawer's 44px close button. */
+  padding-right: 60px;
+}
+.menuHeader .heading {
+  flex: 1;
+  margin: 0;
+}
+.menuTheme {
+  width: 44px;
+  min-height: 44px;
+  padding: 0;
 }
 .menuGroup {
   gap: 2px;
@@ -398,12 +410,4 @@
   color: var(--muted-foreground);
   font-size: 13px;
   font-variant-numeric: tabular-nums;
-}
-.menuThemes {
-  width: 100%;
-}
-.menuThemes > button {
-  flex: 1;
-  min-height: 44px;
-  gap: 6px;
 }

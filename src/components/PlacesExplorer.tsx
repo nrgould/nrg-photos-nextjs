@@ -42,7 +42,6 @@ import {
   TooltipTrigger,
 } from "./ui/tooltip";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
-import ContactForm from "./ContactForm";
 import {
   Command,
   CommandInput,
@@ -71,6 +70,7 @@ import type { ExplorationEvent } from "@/lib/exploration-progress";
 import PresetCartPanel from "./PresetCartPanel";
 import PresetLibraryPanel from "./PresetLibraryPanel";
 import MenuPanel from "./MenuPanel";
+import ContactPanel from "./ContactPanel";
 import SavedPanel from "./SavedPanel";
 import { useFavorites } from "./useFavorites";
 import { nodeForPhoto, placeNode } from "@/lib/favorites";
@@ -93,7 +93,8 @@ type DrawerView =
   | "library"
   | "challenges"
   | "preset"
-  | "menu";
+  | "menu"
+  | "contact";
 // Pages nest above an open photo drawer; otherwise a page is the drawer.
 type PageView = Exclude<DrawerView, "photos">;
 const pageBackLabels: Record<DrawerView, string> = {
@@ -105,6 +106,7 @@ const pageBackLabels: Record<DrawerView, string> = {
   challenges: "Challenges",
   preset: "Preset",
   menu: "Menu",
+  contact: "Contact",
 };
 function stepTo<T>(stack: T[], view: T) {
   const index = stack.indexOf(view);
@@ -278,7 +280,6 @@ export default function PlacesExplorer({
   // A phone's nested sheet is 75% tall; the drawer under it lifts to 75% so it shows receding above.
   const snap = nested && !desktop && chosenSnap === 0.25 ? 0.75 : chosenSnap;
   const [command, setCommand] = useState(false);
-  const [contact, setContact] = useState(false);
   const [viewer, setViewer] = useState<string | null>(null);
   const [removals, setRemovals] = useState<string[]>([]);
   useEffect(() => {
@@ -749,7 +750,9 @@ export default function PlacesExplorer({
               ? "Exploration challenges"
               : view === "menu"
                 ? "Menu"
-                : "All presets";
+                : view === "contact"
+                  ? "Contact"
+                  : "All presets";
   }
   // Pages nest only above photos, so at most one layer shows a page.
   const pageView = nested ?? (drawerMode === "photos" ? null : drawerMode);
@@ -823,7 +826,15 @@ export default function PlacesExplorer({
           theme={theme}
           onPresets={(trigger) => openPage("presets", trigger)}
           onTheme={changeTheme}
-          onContact={() => setContact(true)}
+          onContact={(trigger) => openPage("contact", trigger)}
+        />
+      );
+    if (view === "contact")
+      return (
+        <ContactPanel
+          emailEnabled={contactEmailEnabled}
+          backLabel={backLabel}
+          onBack={onBack}
         />
       );
     if (view === "challenges")
@@ -982,13 +993,13 @@ export default function PlacesExplorer({
           >
             {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
           </Control>
-          <Control label="Contact" onClick={() => setContact(true)}>
+          <Control label="Contact" onClick={() => openPage("contact")}>
             <Mail size={18} />
           </Control>
         </ButtonGroup>
         <div className="explorer-command-bar" aria-label="Location navigation">
-          {/* Desktop names the place Previous, Next and Shuffle landed on; at globe scale the marker alone is hard to find. */}
-          {desktop && place && (
+          {/* Names the place Previous, Next and Shuffle landed on; at globe scale the marker alone is hard to find. */}
+          {place && (
             <p className="command-place" aria-live="polite">
               {place.name}
             </p>
@@ -1487,15 +1498,6 @@ export default function PlacesExplorer({
           <div className="drawer-commerce-pane">{nested && page}</div>
         </DrawerContent>
       </Drawer>
-      <Dialog open={contact} onOpenChange={setContact}>
-        <DialogContent
-          variant="panel"
-          className="contact-dialog explorer-overlay"
-        >
-          <DialogTitle>Contact</DialogTitle>
-          <ContactForm emailEnabled={contactEmailEnabled} variant="boxed" />
-        </DialogContent>
-      </Dialog>
       <Dialog open={command} onOpenChange={setCommand}>
         <DialogContent
           variant="panel"

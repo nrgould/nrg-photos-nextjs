@@ -2941,16 +2941,6 @@ html[data-photo-theme="dark"] {
     border-radius: 14px;
     padding: 8px;
   }
-  .contact-dialog[data-slot="dialog-content"] {
-    top: max(16px, 8vh);
-    max-height: calc(100dvh - 32px);
-    overflow-y: auto;
-    border-radius: 14px;
-  }
-  .contact-dialog h2 {
-    margin: 0 0 16px;
-    font-size: 20px;
-  }
   .account-dialog-header {
     display: flex;
     align-items: center;
@@ -3200,6 +3190,11 @@ html[data-photo-theme="dark"] {
     text-shadow:
       0 0 12px var(--paper),
       0 0 4px var(--paper);
+  }
+  @media (max-width: 700px) {
+    .explorer .command-place {
+      font-size: 22px;
+    }
   }
   .travel-commands button {
     display: inline-flex;
@@ -3758,9 +3753,20 @@ html[data-photo-theme="dark"] {
     gap: 8px;
     padding: 0 16px 8px;
   }
-  /* The divider separates the back link from the page; a lone close button needs none. */
+  /* The divider separates the back link from the page. Without one, the
+     header collapses and its close button sits in the page's first header row. */
   .drawer-commerce-header:has(> .drawer-back) {
     border-bottom: 1px solid var(--line);
+  }
+  .location-drawer .drawer-commerce-header:not(:has(> .drawer-back)) {
+    position: relative;
+    z-index: 1;
+    height: 0;
+    padding: 0 8px;
+    align-items: flex-start;
+  }
+  .drawer-commerce-header:not(:has(> .drawer-back)) > button {
+    margin-top: 12px;
   }
   .drawer-commerce-header > button {
     width: 44px;
