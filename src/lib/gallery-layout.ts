@@ -9,7 +9,7 @@ const gap = 8;
 
 /**
  * Expanded drawer tiles, image boxes only (a caption sits below each when `caption` > 0).
- * Photos: the leading heroes large (the first full width, the next two side by side), then
+ * Photos: the leading heroes large (one full width, two side by side, or one then a pair), then
  * the rest in a three-column grid where a landscape takes two cells, `after` px below the heroes
  * left free. Places (`columns` 2): two-column cards.
  */
@@ -38,16 +38,21 @@ export function galleryLayout(
     y += tileHeight + caption + gap;
   };
   const first = Math.min(heroes, aspects.length);
-  if (first > 0)
-    row([0], 1, (tileWidth) =>
-      Math.min(tileWidth / aspects[0], tileWidth * 1.25),
-    );
-  if (first > 1)
-    row([1, 2].slice(0, first - 1), heroes - 1, (tileWidth) =>
-      heroes === 2
-        ? Math.min(tileWidth / aspects[1], tileWidth * 1.25)
-        : tileWidth * 1.25,
-    );
+  if (first === 2) {
+    // Two heroes share a row at one height, each as wide as its aspect, no taller than 4:5.
+    const total = aspects[0] + aspects[1];
+    const height = Math.min((width - gap) / total, ((width - gap) / 2) * 1.25);
+    const left = ((width - gap) * aspects[0]) / total;
+    tiles[0] = { x: 0, y, width: left, height };
+    tiles[1] = { x: left + gap, y, width: width - gap - left, height };
+    y += height + caption + gap;
+  } else {
+    if (first > 0)
+      row([0], 1, (tileWidth) =>
+        Math.min(tileWidth / aspects[0], tileWidth * 1.25),
+      );
+    if (first > 2) row([1, 2], 2, (tileWidth) => tileWidth * 1.25);
+  }
   y += after;
   // Photo grids give a landscape two cells of a row. A row it can't finish takes the next
   // photo that fits, so rows stay whole; a landscape left alone runs full width instead.

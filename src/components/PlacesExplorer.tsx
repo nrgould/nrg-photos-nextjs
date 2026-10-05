@@ -107,6 +107,22 @@ type DrawerView =
   | "preset"
   | "menu"
   | "contact";
+const placeHeroes = (photos: readonly { src: string }[]) =>
+  heroCount(
+    photos.length,
+    photos.filter((photo) => heroSrcs.has(photo.src)).length,
+  );
+// A place opens on its heroes, so a challenge photograph among them is found without the viewer.
+function explorePlace(
+  node: MapNode,
+  record: (event: ExplorationEvent) => unknown,
+) {
+  if (node.kind !== "location") return;
+  if (node.precision === "regional")
+    record({ type: "location-opened", locationId: node.id });
+  for (const photo of node.photos.slice(0, placeHeroes(node.photos)))
+    record({ type: "photo-opened", photoSrc: photo.src });
+}
 type PhotoMark = "remove" | "hero";
 // Pages nest above an open photo drawer; otherwise a page is the drawer.
 type PageView = Exclude<DrawerView, "photos">;
@@ -244,15 +260,8 @@ export default function PlacesExplorer({
     if (moment) setToast({ ...moment, key: ++toastKey.current });
   }
   useEffect(() => {
-    if (
-      !initialView &&
-      initialNode?.kind === "location" &&
-      initialNode.precision === "regional"
-    )
-      recordExploration({
-        type: "location-opened",
-        locationId: initialNode.id,
-      });
+    if (!initialView && initialNode)
+      explorePlace(initialNode, recordExploration);
   }, [initialNode, initialView, recordExploration]);
   const [catalogState, setCatalogState] = useState(() =>
     createPresetCatalogState({ ...initialCatalogState, query: "" }),
@@ -435,8 +444,7 @@ export default function PlacesExplorer({
   function showPhotos() {
     selectionFeedback();
     const node = getMapNode(selectedNodeId, filteredPlaces);
-    if (node?.kind === "location" && node.precision === "regional")
-      explore({ type: "location-opened", locationId: node.id });
+    if (node) explorePlace(node, explore);
     pendingPhotoScroll.current = photoScroll.current;
     drawerOrigin.current = photoOrigin.current ?? presetsTrigger.current;
     closeNested();
@@ -483,12 +491,7 @@ export default function PlacesExplorer({
         filteredPlaces,
       )
     : null;
-  const heroes = place
-    ? heroCount(
-        place.photos.length,
-        place.photos.filter((photo) => heroSrcs.has(photo.src)).length,
-      )
-    : 0;
+  const heroes = place ? placeHeroes(place.photos) : 0;
   const placeId =
     selectedNodeId ??
     getMapNodes(filteredPlaces, "country").find(
@@ -759,8 +762,7 @@ export default function PlacesExplorer({
   function chooseNode(node: MapNode, under: PageView[] = []) {
     if (under.length) setNestedStack([]);
     else closeNested();
-    if (node.kind === "location" && node.precision === "regional")
-      explore({ type: "location-opened", locationId: node.id });
+    explorePlace(node, explore);
     choose(node.collectionId, true, under);
     setSelectedNodeId(node.id);
     setMode("map");
@@ -860,6 +862,31 @@ export default function PlacesExplorer({
       window.removeEventListener("keydown", listener);
     };
   }, []);
+  // Left and Right step places like the command bar, unless a field, slider, the map canvas or the viewer already took the key.
+  useEffect(() => {
+    const onArrowKey = (event: KeyboardEvent) => {
+      if (
+        (event.key !== "ArrowLeft" && event.key !== "ArrowRight") ||
+        event.defaultPrevented ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey ||
+        event.shiftKey ||
+        command ||
+        viewer !== null ||
+        navigationDisabled ||
+        (event.target instanceof Element &&
+          event.target.closest(
+            "input, textarea, select, [contenteditable], [role=slider], [role=tablist], [role=radiogroup], [role=menu], [role=listbox], .maplibregl-canvas",
+          ))
+      )
+        return;
+      event.preventDefault();
+      navigate(event.key === "ArrowLeft" ? "back" : "next");
+    };
+    window.addEventListener("keydown", onArrowKey);
+    return () => window.removeEventListener("keydown", onArrowKey);
+  });
   // Phones carry search in the command bar; desktop keeps it top left.
   const search = (
     <Control
@@ -1594,8 +1621,7 @@ export default function PlacesExplorer({
                             skeleton
                             sizes={
                               // A grid landscape spans two cells, or the row when alone.
-                              index === 0 ||
-                              (heroes === 2 && index === 1) ||
+                              (index === 0 && heroes !== 2) ||
                               (index >= heroes && photo.width > photo.height)
                                 ? "(max-width: 700px) calc(100vw - 32px), 358px"
                                 : index < heroes

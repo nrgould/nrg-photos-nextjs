@@ -24,6 +24,18 @@ test("heroes lead large, the rest fill three columns without overlap", () => {
   assert.ok(!overlaps(tiles));
 });
 
+test("two heroes share one row at one height, widths by aspect", () => {
+  const tiles = galleryLayout([0.8, 1.5, 0.8, 0.8, 0.8], 358, { heroes: 2 });
+  assert.equal(tiles[0].y, tiles[1].y);
+  assert.equal(tiles[0].height, tiles[1].height);
+  assert.equal(tiles[0].width + 8 + tiles[1].width, 358);
+  assert.ok(tiles[1].width > tiles[0].width);
+  assert.ok(tiles[2].y > tiles[0].y + tiles[0].height);
+  assert.ok(!overlaps(tiles));
+  const portraits = galleryLayout([0.5, 0.5], 358, { heroes: 2 });
+  assert.equal(portraits[0].height, (350 / 2) * 1.25);
+});
+
 test("a wide hero keeps its aspect; places use captioned two-column cards", () => {
   assert.equal(galleryLayout([1.5], 300, { heroes: 1 })[0].height, 200);
   const cards = galleryLayout(Array(5).fill(1), 300, {
