@@ -105,6 +105,7 @@ test("SDK-signed payment/replay/refund fixtures apply idempotently to account-bo
   const paid = event();
   assert.deepEqual(await service.webhook(paid, sign(paid)), {
     duplicate: false,
+    purchased: order.presetIds.length,
   });
   assert.deepEqual(await service.webhook(paid, sign(paid)), {
     duplicate: true,

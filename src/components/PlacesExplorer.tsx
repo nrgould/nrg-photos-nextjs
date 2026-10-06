@@ -1,4 +1,6 @@
 "use client";
+
+import { track } from "@vercel/analytics";
 import {
   useCallback,
   useEffect,
@@ -257,6 +259,8 @@ export default function PlacesExplorer({
   const toastKey = useRef(0);
   const dismissToast = useCallback(() => setToast(null), []);
   function explore(event: ExplorationEvent) {
+    const { type, ...properties } = event;
+    track(type, properties);
     const moment = recordExploration(event);
     if (moment) setToast({ ...moment, key: ++toastKey.current });
   }
@@ -485,13 +489,18 @@ export default function PlacesExplorer({
           ),
     [filteredPlaces, selected, selectedNodeId],
   );
-  // A place leads back to its country's list of places.
-  const parentNode = selectedNodeId?.startsWith("location:")
-    ? getMapNode(
-        getMapNode(selectedNodeId, filteredPlaces)?.countryId ?? null,
-        filteredPlaces,
-      )
-    : null;
+  const countryPlaces = (countryId: string) =>
+    getMapNodes(filteredPlaces, "location").filter(
+      (node) => node.countryId === countryId,
+    );
+  // A place leads back to its country's list of places, when there is a list.
+  const countryId = selectedNodeId?.startsWith("location:")
+    ? getMapNode(selectedNodeId, filteredPlaces)?.countryId
+    : undefined;
+  const parentNode =
+    countryId && countryPlaces(countryId).length > 1
+      ? getMapNode(countryId, filteredPlaces)
+      : null;
   const heroes = place ? placeHeroes(place.photos) : 0;
   const placeId =
     selectedNodeId ??
@@ -761,6 +770,9 @@ export default function PlacesExplorer({
   }
   // Showing a place's photos closes any nested page stacked over them.
   function chooseNode(node: MapNode, under: PageView[] = []) {
+    // A country with a single place opens that place.
+    const only = node.kind === "country" ? countryPlaces(node.id) : [];
+    if (only.length === 1) node = only[0];
     if (under.length) setNestedStack([]);
     else closeNested();
     explorePlace(node, explore);

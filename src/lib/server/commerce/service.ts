@@ -278,6 +278,8 @@ export function createCommerceService({
   async function applyEvent(event: PaymentEvent) {
     return store.transaction(async (tx) => {
       if (await tx.eventSeen(event.id)) return { duplicate: true };
+      // Presets in an order this event moved to paid, for analytics.
+      let purchased = 0;
       if (event.type === "revoked") {
         // A refund arriving before payment leaves a tombstone for the later event.
         await tx.revokePayment(event.paymentIntentId);
@@ -317,6 +319,8 @@ export function createCommerceService({
           email: session.email ?? order.email,
         };
         await tx.putOrder(next);
+        if (status === "paid" && order.status !== "paid")
+          purchased = order.presetIds.length;
         if (status === "paid") {
           for (const presetId of order.presetIds)
             await tx.putEntitlement({
@@ -330,7 +334,7 @@ export function createCommerceService({
           await tx.revokeOrderEntitlements(order.id);
       }
       await tx.recordEvent(event.id);
-      return { duplicate: false };
+      return { duplicate: false, purchased };
     });
   }
 

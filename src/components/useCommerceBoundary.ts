@@ -1,4 +1,6 @@
 "use client";
+
+import { track } from "@vercel/analytics";
 import {
   useCallback,
   useEffect,
@@ -126,6 +128,7 @@ export function useCommerceBoundary() {
       )
         throw new Error("Checkout unavailable");
       pending.current = true;
+      track("checkout-started", { presets: request.paidPresetIds.length });
       const controller = new AbortController();
       checkoutRequest.current = controller;
       try {

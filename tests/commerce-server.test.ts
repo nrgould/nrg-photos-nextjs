@@ -489,7 +489,7 @@ test("unpaid completion never grants; signed paid event grants once across dupli
   });
   assert.deepEqual((await f.service.ownership("user-A")).presetIds, []);
   const event: PaymentEvent = { id: "evt_paid", type: "paid", session: paid };
-  assert.deepEqual(await f.event(event), { duplicate: false });
+  assert.deepEqual(await f.event(event), { duplicate: false, purchased: 2 });
   assert.deepEqual(await f.event(event), { duplicate: true });
   await f.event({ ...event, id: "evt_another_paid" });
   assert.deepEqual(

@@ -1,3 +1,4 @@
+import { track } from "@vercel/analytics/server";
 import { getCatalogPreset } from "../../preset-commerce";
 import { zip } from "../zip";
 import type { ConfigurationResult } from "./config";
@@ -149,7 +150,13 @@ export function createCommerceHandlers({
         const { service } = ready();
         const signature = request.headers.get("stripe-signature");
         if (!signature) throw new CommerceError("missing_webhook_signature");
-        return service.webhook(await rawBody(request, 1048576), signature);
+        const result = await service.webhook(
+          await rawBody(request, 1048576),
+          signature,
+        );
+        if (result.purchased)
+          await track("purchase", { presets: result.purchased });
+        return result;
       }),
     ownership: () =>
       respond(async () => {
