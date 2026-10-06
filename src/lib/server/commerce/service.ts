@@ -36,7 +36,8 @@ export function quotePresets(ids: unknown, allowed: readonly string[]): Quote {
 function assertSession(order: Order, session: CheckoutSession) {
   if (
     session.orderId !== order.id ||
-    !session.id.startsWith("cs_test_") ||
+    // The gateway already matched livemode to the configured mode.
+    !/^cs_(test|live)_/.test(session.id) ||
     (order.sessionId !== null && order.sessionId !== session.id) ||
     (order.paymentIntentId !== null &&
       session.paymentIntentId !== null &&

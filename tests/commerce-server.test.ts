@@ -249,6 +249,25 @@ test("verified expiration releases a pending reservation; an open overlapping se
   assert.notEqual(second.orderId, first.orderId);
 });
 
+test("live mode sessions open checkout and their paid event grants", async () => {
+  const f = fixture();
+  const createCheckout = f.payments.createCheckout;
+  f.payments.createCheckout = async (order) => {
+    const session = await createCheckout(order);
+    const live = { ...session, id: session.id.replace("cs_test_", "cs_live_") };
+    f.sessions.set(order.id, live);
+    return live;
+  };
+  const checkout = await f.service.checkout("user-A", [ids[0]], requestId);
+  assert.ok(checkout.url);
+  await f.event({
+    id: "evt_live_paid",
+    type: "completed",
+    session: f.paid(checkout.orderId),
+  });
+  assert.deepEqual((await f.service.ownership("user-A")).presetIds, [ids[0]]);
+});
+
 test("a checkout whose provider call failed releases its reservation an hour later", async () => {
   const f = fixture();
   const createCheckout = f.payments.createCheckout;
