@@ -530,13 +530,6 @@
     "coordinateSource": "geocoded"
   },
   {
-    "id": "allgau",
-    "parent": "bavaria",
-    "name": "Allgäu",
-    "coordinates": [10.21, 47.59],
-    "coordinateSource": "geocoded"
-  },
-  {
     "id": "sylvenstein",
     "parent": "bavaria",
     "name": "Sylvenstein",

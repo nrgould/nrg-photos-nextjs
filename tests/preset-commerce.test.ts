@@ -94,10 +94,10 @@ test("search combines case-insensitive words, places and category filtering", ()
   );
   // Places match up to the country, without their accents.
   assert.deepEqual(
-    filterPresetCatalog({ query: "allgau", category: "All" }).map(
+    filterPresetCatalog({ query: "wurttemberg", category: "All" }).map(
       (preset) => preset.id,
     ),
-    ["allgau-1"],
+    ["stetten-1"],
   );
   assert.deepEqual(
     filterPresetCatalog({ query: "norway", category: "All" }).map(
