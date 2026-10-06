@@ -7,7 +7,7 @@ import {
   checkoutAttemptStorageKey,
 } from "@/lib/commerce-checkout-client";
 import { getCatalogPreset } from "@/lib/preset-commerce";
-import { AccountControl } from "./AccountControl";
+import { SignInDialog } from "./AccountControl";
 import { usePresetCommerceBoundary } from "./CommerceCartProvider";
 import { useCommerceAccount } from "./CommerceProviders";
 import { PresetDownloadButton } from "./PresetDownloadButton";
@@ -59,6 +59,7 @@ export default function PresetLibraryPanel({
   const ids = userId ? [...new Set([...purchased, ...owned])] : [];
   const confirming = purchased.some((presetId) => !owned.includes(presetId));
   const [timedOut, setTimedOut] = useState(false);
+  const [signingIn, setSigningIn] = useState(false);
 
   // The webhook grants presets a moment after Stripe redirects back.
   useEffect(() => {
@@ -98,8 +99,19 @@ export default function PresetLibraryPanel({
         </div>
         {account.anonymous && ids.length > 0 && (
           <div className={styles.libraryGuest}>
-            <p>Saved in this browser only. Sign in to keep them.</p>
-            <AccountControl />
+            <p>Sign in to download them again later, on any device.</p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSigningIn(true)}
+            >
+              Sign in
+            </Button>
+            <SignInDialog
+              open={signingIn}
+              onOpenChange={setSigningIn}
+              title="Sign in"
+            />
           </div>
         )}
       </header>

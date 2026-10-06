@@ -418,11 +418,13 @@
   justify-content: space-between;
   gap: 12px;
   margin-top: 12px;
+  padding: 12px 12px 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
 }
 .libraryGuest p {
   margin: 0;
-  color: var(--muted-foreground);
-  font-size: 12px;
+  font-size: 14px;
 }
 .cartSummary {
   flex: 0 0 auto;

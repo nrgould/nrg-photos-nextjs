@@ -618,7 +618,7 @@ export function PresetDetail({
             />
             {anonymous && (
               <p className={styles.notice}>
-                Saved in this browser only. Sign in to keep it.
+                Sign in to download it again later, on any device.
               </p>
             )}
           </>
