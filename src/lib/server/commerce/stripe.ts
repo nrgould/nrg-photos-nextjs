@@ -31,8 +31,8 @@ export type StripeCheckoutParameters = {
   cancel_url: string;
   client_reference_id: string;
   metadata: { orderId: string };
-  payment_intent_data: { metadata: { orderId: string } };
-  automatic_tax: { enabled: false };
+  payment_intent_data: { description: string; metadata: { orderId: string } };
+  automatic_tax: { enabled: true };
   adaptive_pricing: { enabled: false };
   expires_at: number;
   discounts?: { coupon: string }[];
@@ -94,9 +94,13 @@ function session(value: unknown, live: boolean): CheckoutSession {
   )
     throw new CommerceError("invalid_payment_status");
   const details = record(data.total_details);
-  // Tax/shipping policy is intentionally not configured in this boundary.
-  if (cents(details.amount_tax) !== 0 || cents(details.amount_shipping) !== 0)
-    throw new CommerceError("unexpected_tax_or_shipping", 409);
+  // Stripe Tax adds tax; nothing ships.
+  if (cents(details.amount_shipping) !== 0)
+    throw new CommerceError("unexpected_shipping", 409);
+  const customer =
+    data.customer_details === null || data.customer_details === undefined
+      ? null
+      : record(data.customer_details);
   return {
     id: string(data.id),
     url: data.url === null ? null : string(data.url),
@@ -107,7 +111,12 @@ function session(value: unknown, live: boolean): CheckoutSession {
     currency: string(data.currency),
     subtotalCents: cents(data.amount_subtotal),
     discountCents: cents(details.amount_discount),
+    taxCents: cents(details.amount_tax),
     totalCents: cents(data.amount_total),
+    email:
+      typeof customer?.email === "string" && customer.email
+        ? customer.email.trim().toLowerCase()
+        : null,
   };
 }
 
@@ -174,8 +183,12 @@ export function createStripeGateway(
           ),
           client_reference_id: order.id,
           metadata: { orderId: order.id },
-          payment_intent_data: { metadata: { orderId: order.id } },
-          automatic_tax: { enabled: false },
+          // Stripe's receipt email prints the description.
+          payment_intent_data: {
+            description: `Lightroom presets. Sign in at ${new URL(configuration.origin).host} with this email to download them on any device.`,
+            metadata: { orderId: order.id },
+          },
+          automatic_tax: { enabled: true },
           adaptive_pricing: { enabled: false },
           expires_at: Math.floor(order.createdAt / 1000) + 3600,
           // Promotion codes default off; sending allow_promotion_codes beside discounts makes Stripe reject the session.

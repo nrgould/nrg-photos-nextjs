@@ -119,6 +119,12 @@ export class MemoryCommerceStore implements CommerceStore {
           throw new CommerceError("reward_already_claimed", 409);
         next.claims.set(id, structuredClone(claim));
       },
+      paidOrdersForEmail: async (email) =>
+        structuredClone(
+          [...next.orders.values()].filter(
+            (order) => order.email === email && order.status === "paid",
+          ),
+        ),
       legacyOrders: async (email) =>
         [...next.legacyOrders].filter(([, e]) => e === email).map(([id]) => id),
       replaceLegacyOrders: async (orders) => {

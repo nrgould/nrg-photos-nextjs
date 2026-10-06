@@ -53,8 +53,10 @@ function fixture(store = makeStore()) {
           paymentStatus: "unpaid",
           subtotalCents: order.subtotalCents,
           discountCents: order.discountCents,
+          taxCents: 0,
           totalCents: order.totalCents,
           currency: "usd",
+          email: null,
         });
       return structuredClone(sessions.get(order.id)!);
     },
@@ -266,6 +268,56 @@ test("live mode sessions open checkout and their paid event grants", async () =>
     session: f.paid(checkout.orderId),
   });
   assert.deepEqual((await f.service.ownership("user-A")).presetIds, [ids[0]]);
+});
+
+test("the Checkout email claims a paid order on any account that signs in with it", async () => {
+  const f = fixture();
+  const { orderId } = await f.service.checkout(
+    "guest-phone",
+    [ids[0]],
+    requestId,
+  );
+  await f.event({
+    id: "evt_paid",
+    type: "completed",
+    session: { ...f.paid(orderId), email: "buyer@example.com" },
+  });
+  assert.deepEqual((await f.service.ownership("laptop")).presetIds, []);
+  assert.deepEqual(
+    (await f.service.ownership("other", "someone@example.com")).presetIds,
+    [],
+  );
+  for (let visit = 0; visit < 2; visit++)
+    assert.deepEqual(
+      (await f.service.ownership("laptop", " Buyer@Example.com")).presetIds,
+      [ids[0]],
+    );
+  await f.event({
+    id: "evt_refund",
+    type: "revoked",
+    paymentIntentId: `pi_${orderId}`,
+  });
+  for (const user of ["guest-phone", "laptop"])
+    assert.deepEqual(
+      (await f.service.ownership(user, "buyer@example.com")).presetIds,
+      [],
+    );
+});
+
+test("tax added on top of the quote, or carried inside it, still grants", async () => {
+  for (const [tax, total] of [
+    [38, 237],
+    [33, 199],
+  ]) {
+    const f = fixture();
+    const { orderId } = await f.service.checkout("user-A", [ids[0]], requestId);
+    await f.event({
+      id: "evt_taxed",
+      type: "completed",
+      session: { ...f.paid(orderId), taxCents: tax, totalCents: total },
+    });
+    assert.deepEqual((await f.service.ownership("user-A")).presetIds, [ids[0]]);
+  }
 });
 
 test("a checkout whose provider call failed releases its reservation an hour later", async () => {
@@ -530,6 +582,7 @@ test("mismatched amounts/session and invalid signatures fail before ownership; f
   const session = f.paid(orderId);
   for (const mismatch of [
     { totalCents: 1 },
+    { taxCents: 38, totalCents: 236 },
     { currency: "eur" },
     { id: "cs_test_other" },
     { subtotalCents: 1 },

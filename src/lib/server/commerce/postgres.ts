@@ -24,6 +24,7 @@ type OrderRow = {
   session_id: string | null;
   payment_intent_id: string | null;
   status: Order["status"];
+  email: string | null;
 };
 const order = (row: OrderRow): Order => ({
   id: row.id,
@@ -38,6 +39,7 @@ const order = (row: OrderRow): Order => ({
   sessionId: row.session_id,
   paymentIntentId: row.payment_intent_id,
   status: row.status,
+  email: row.email,
 });
 
 function bind(sql: Tx): CommerceTransaction {
@@ -86,17 +88,18 @@ function bind(sql: Tx): CommerceTransaction {
       await sql`
         insert into commerce_orders (
           id, user_id, preset_ids, subtotal_cents, discount_cents, total_cents,
-          currency, created_at, return_path, session_id, payment_intent_id, status
+          currency, created_at, return_path, session_id, payment_intent_id, status, email
         ) values (
           ${next.id}, ${next.userId}, ${sql.array(next.presetIds, textArray)}::text[],
           ${next.subtotalCents}, ${next.discountCents}, ${next.totalCents},
           ${next.currency}, ${next.createdAt}, ${next.returnPath},
-          ${next.sessionId}, ${next.paymentIntentId}, ${next.status}
+          ${next.sessionId}, ${next.paymentIntentId}, ${next.status}, ${next.email}
         )
         on conflict (id) do update set
           session_id = excluded.session_id,
           payment_intent_id = excluded.payment_intent_id,
-          status = excluded.status`;
+          status = excluded.status,
+          email = excluded.email`;
     },
     async eventSeen(id) {
       const [row] = await sql`select 1 from commerce_events where id = ${id}`;
@@ -163,6 +166,11 @@ function bind(sql: Tx): CommerceTransaction {
         values (${claim.userId}, ${claim.campaignId}, ${claim.presetId})
         on conflict do nothing returning 1`;
       if (!row) throw new CommerceError("reward_already_claimed", 409);
+    },
+    async paidOrdersForEmail(email) {
+      const rows = await sql<OrderRow[]>`
+        select * from commerce_orders where email = ${email} and status = 'paid'`;
+      return rows.map(order);
     },
     async legacyOrders(email) {
       const rows = await sql<{ order_id: string }[]>`

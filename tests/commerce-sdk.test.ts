@@ -37,6 +37,7 @@ const order: Order = {
   sessionId: "cs_test_fixture",
   paymentIntentId: null,
   status: "pending",
+  email: null,
 };
 const session = {
   id: order.sessionId,

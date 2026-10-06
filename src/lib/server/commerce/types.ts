@@ -23,6 +23,8 @@ export type Order = Quote & {
   sessionId: string | null;
   paymentIntentId: string | null;
   status: "pending" | "paid" | "failed" | "expired" | "revoked";
+  /** Lowercased email entered at Stripe Checkout; signing in with it claims the order. */
+  email: string | null;
 };
 export type Entitlement = {
   userId: string;
@@ -59,6 +61,8 @@ export interface CommerceTransaction {
   revokeOrderEntitlements(orderId: string): Promise<void>;
   rewardClaim(userId: string, campaignId: string): Promise<RewardClaim | null>;
   putRewardClaim(claim: RewardClaim): Promise<void>;
+  /** Paid Stripe orders whose Checkout email is this lowercased email. */
+  paidOrdersForEmail(email: string): Promise<Order[]>;
   /** Lemon Squeezy order IDs bought with this lowercased email. */
   legacyOrders(email: string): Promise<string[]>;
   /** Make the stored legacy orders exactly these; returns the order IDs removed. */
@@ -79,8 +83,10 @@ export type CheckoutSession = {
   paymentStatus: "paid" | "unpaid" | "no_payment_required";
   subtotalCents: number;
   discountCents: number;
+  taxCents: number;
   totalCents: number;
   currency: string;
+  email: string | null;
 };
 export type PaymentEvent =
   | {

@@ -54,6 +54,7 @@ const order = (count = 1): Order => ({
   status: "pending",
   sessionId: null,
   paymentIntentId: null,
+  email: null,
 });
 function sdkFixture() {
   const current = order();
@@ -273,10 +274,37 @@ test("unconfigured HTTP and test-memory-store HTTP make no provider/auth calls a
   assert.equal(f.signatures.length, 0);
 });
 
+test("Stripe adapter reads the Checkout email lowercased and the tax, and rejects shipping", async () => {
+  const f = sdkFixture();
+  const gateway = createStripeGateway(f.client, config);
+  Object.assign(f.session, {
+    customer_details: { email: " Buyer@Example.com " },
+    amount_total: f.current.totalCents + 38,
+    total_details: { amount_discount: 0, amount_tax: 38, amount_shipping: 0 },
+  });
+  const taxed = await gateway.createCheckout({
+    ...f.current,
+    sessionId: "cs_test_fixture",
+  });
+  assert.equal(taxed.email, "buyer@example.com");
+  assert.equal(taxed.taxCents, 38);
+  f.session.total_details = {
+    amount_discount: 0,
+    amount_tax: 0,
+    amount_shipping: 500,
+  };
+  await assert.rejects(
+    gateway.createCheckout({ ...f.current, sessionId: "cs_test_fixture" }),
+    fails("unexpected_shipping"),
+  );
+});
+
 test("Stripe adapter validates server Price/coupon then emits only fixed test Checkout parameters", async () => {
   const f = sdkFixture();
   const gateway = createStripeGateway(f.client, config);
-  await gateway.createCheckout(f.current);
+  const opened = await gateway.createCheckout(f.current);
+  assert.equal(opened.email, null);
+  assert.equal(opened.taxCents, 0);
   assert.equal(f.creations[0].key, "preset-order:order-fixture");
   assert.deepEqual(f.creations[0].params.line_items, [
     { price: priceIds[ids[0]], quantity: 1 },
@@ -290,7 +318,11 @@ test("Stripe adapter validates server Price/coupon then emits only fixed test Ch
     "http://localhost:3000/?checkout=cancelled",
   );
   assert.equal("allow_promotion_codes" in f.creations[0].params, false);
-  assert.deepEqual(f.creations[0].params.automatic_tax, { enabled: false });
+  assert.deepEqual(f.creations[0].params.automatic_tax, { enabled: true });
+  assert.match(
+    f.creations[0].params.payment_intent_data.description,
+    /Sign in at localhost:3000 with this email/,
+  );
   assert.equal(f.creations[0].params.discounts, undefined);
   await gateway.createCheckout(order(10));
   assert.deepEqual(f.creations[1].params.discounts, [

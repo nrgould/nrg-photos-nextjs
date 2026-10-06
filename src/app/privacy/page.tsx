@@ -34,8 +34,10 @@ export default function PrivacyPage() {
               is used to send sign-in codes, keep your purchases and answer you.
             </li>
             <li>
-              Your purchases: which presets, the amounts, dates and Stripe’s
-              payment references. Card details go to Stripe and never reach us.
+              Your purchases: which presets, the amounts, tax, dates, Stripe’s
+              payment references and the email you enter at checkout, so signing
+              in with it brings your presets to any device. Card details go to
+              Stripe and never reach us.
             </li>
             <li>
               Your consent to new-preset emails, only if you tick the box, with

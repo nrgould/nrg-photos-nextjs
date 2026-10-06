@@ -45,19 +45,29 @@ function assertSession(order: Order, session: CheckoutSession) {
     session.currency !== "usd" ||
     session.subtotalCents !== order.subtotalCents ||
     session.discountCents !== order.discountCents ||
-    session.totalCents !== order.totalCents
+    // Tax-exclusive prices add the tax; tax-inclusive ones carry it inside the total.
+    (session.totalCents !== order.totalCents &&
+      session.totalCents !== order.totalCents + session.taxCents)
   )
     throw new CommerceError("payment_mismatch", 409);
 }
 
 const legacySource = (orderId: string) => `lemonsqueezy:${orderId}`;
-
-/** Grants the pack once per legacy order bought with this email; returns the rows added. */
-async function grantLegacyOrders(
+const legacySources = async (
   tx: CommerceTransaction,
-  userId: string,
   email: string,
   presetIds: readonly string[],
+) =>
+  (await tx.legacyOrders(email.trim().toLowerCase())).map((orderId) => ({
+    sourceId: legacySource(orderId),
+    presetIds,
+  }));
+
+/** Grants each source's presets once to this account; returns the rows added. */
+async function grantSources(
+  tx: CommerceTransaction,
+  userId: string,
+  sources: readonly { sourceId: string; presetIds: readonly string[] }[],
 ) {
   const active = new Set(
     (await tx.entitlements(userId))
@@ -65,9 +75,8 @@ async function grantLegacyOrders(
       .map((entry) => JSON.stringify([entry.presetId, entry.sourceId])),
   );
   let added = 0;
-  for (const orderId of await tx.legacyOrders(email.trim().toLowerCase()))
+  for (const { sourceId, presetIds } of sources)
     for (const presetId of presetIds) {
-      const sourceId = legacySource(orderId);
       if (active.has(JSON.stringify([presetId, sourceId]))) continue;
       await tx.putEntitlement({
         userId,
@@ -97,7 +106,13 @@ export async function syncLegacyOrders(
       await tx.revokeOrderEntitlements(legacySource(orderId));
     let granted = 0;
     for (const account of accounts)
-      if (await grantLegacyOrders(tx, account.userId, account.email, presetIds))
+      if (
+        await grantSources(
+          tx,
+          account.userId,
+          await legacySources(tx, account.email, presetIds),
+        )
+      )
         granted++;
     return { kept: orders.length, removed: removed.length, granted };
   });
@@ -209,6 +224,7 @@ export function createCommerceService({
         sessionId: null,
         paymentIntentId: null,
         status: "pending",
+        email: null,
       };
       await tx.putOrder(next);
       await tx.bindCheckoutRequest(id, next.id);
@@ -298,6 +314,7 @@ export function createCommerceService({
           sessionId: session.id,
           paymentIntentId,
           status,
+          email: session.email ?? order.email,
         };
         await tx.putOrder(next);
         if (status === "paid") {
@@ -326,8 +343,20 @@ export function createCommerceService({
     async ownership(userId: string, email: string | null = null) {
       if (!userId) throw new CommerceError("unauthenticated", 401);
       return store.transaction(async (tx) => {
-        if (email && legacyPack.length)
-          await grantLegacyOrders(tx, userId, email, legacyPack);
+        // A confirmed email claims the 2025 pack and every order paid with it at Checkout,
+        // whichever device bought it. Refunds revoke by order, so claimed copies go too.
+        if (email)
+          await grantSources(tx, userId, [
+            ...(legacyPack.length
+              ? await legacySources(tx, email, legacyPack)
+              : []),
+            ...(await tx.paidOrdersForEmail(email.trim().toLowerCase())).map(
+              (order) => ({
+                sourceId: order.id,
+                presetIds: order.presetIds,
+              }),
+            ),
+          ]);
         return {
           status: "verified" as const,
           presetIds: [

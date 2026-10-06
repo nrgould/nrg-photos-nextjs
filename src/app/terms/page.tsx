@@ -38,15 +38,14 @@ export default function TermsPage() {
           <h2>What you buy</h2>
           <p>
             Each preset is a Lightroom preset file (.xmp). Prices are in US
-            dollars: $1.99 per preset, with 20% off a cart of ten or more.
-            Stripe processes payment. Once payment clears, your presets are in
-            your library on this site, ready to download whenever you are signed
-            in.
+            dollars: $1.99 per preset, with 20% off a cart of ten or more. Sales
+            tax or VAT is added at checkout where it applies. Stripe processes
+            payment. Once payment clears, your presets are in your library on
+            this site, ready to download whenever you are signed in.
           </p>
           <p>
-            Checkout works without an email. Add one to your account to keep
-            your presets on other devices; without it, they stay in the browser
-            you bought them in.
+            Checkout asks for your email. Sign in on this site with that email
+            to download your presets on any device, at any time.
           </p>
         </section>
         <section>
