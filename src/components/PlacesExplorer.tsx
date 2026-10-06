@@ -237,7 +237,8 @@ export default function PlacesExplorer({
   const [mode, setMode] = useState<"globe" | "map">(
     initialNode ? "map" : "globe",
   );
-  const [zoom, setZoom] = useState(initialNode ? 3.5 : 3);
+  // Without a place, the map opens at Continent, below the breakout, so countries stay whole.
+  const [zoom, setZoom] = useState(initialNode ? 3.5 : 2);
   const liveZoom = useMotionValue(0);
   const [intro, setIntro] = useState(!initialNode && !initialView);
   const [revision, setRevision] = useState(0);
