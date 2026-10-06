@@ -63,10 +63,11 @@ export default function PrivacyPage() {
           <h2>Who processes it</h2>
           <p>
             Supabase stores accounts and purchases, sends sign-in codes and
-            delivers preset files. Stripe processes payments. Vercel hosts the
-            site, keeps server logs, which include IP addresses, and counts page
-            visits without cookies. Resend delivers contact form messages. Your
-            information is never sold or shared for advertising.
+            delivers preset files. Stripe processes payments as merchant of
+            record. Vercel hosts the site, keeps server logs, which include IP
+            addresses, and counts page visits without cookies. Resend delivers
+            contact form messages. Your information is never sold or shared for
+            advertising.
           </p>
         </section>
         <section>

@@ -322,7 +322,9 @@ test("Stripe adapter validates server Price/coupon then emits only fixed test Ch
     "http://localhost:3000/?checkout=cancelled",
   );
   assert.equal("allow_promotion_codes" in f.creations[0].params, false);
-  assert.deepEqual(f.creations[0].params.automatic_tax, { enabled: true });
+  assert.deepEqual(f.creations[0].params.managed_payments, { enabled: true });
+  assert.equal("automatic_tax" in f.creations[0].params, false);
+  assert.equal("adaptive_pricing" in f.creations[0].params, false);
   assert.match(
     f.creations[0].params.payment_intent_data.description,
     /Sign in at localhost:3000 with this email/,

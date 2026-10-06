@@ -32,8 +32,7 @@ export type StripeCheckoutParameters = {
   client_reference_id: string;
   metadata: { orderId: string };
   payment_intent_data: { description: string; metadata: { orderId: string } };
-  automatic_tax: { enabled: true };
-  adaptive_pricing: { enabled: false };
+  managed_payments: { enabled: true };
   expires_at: number;
   discounts?: { coupon: string }[];
 };
@@ -188,8 +187,8 @@ export function createStripeGateway(
             description: `Lightroom presets. Sign in at ${new URL(configuration.origin).host} with this email to download them on any device.`,
             metadata: { orderId: order.id },
           },
-          automatic_tax: { enabled: true },
-          adaptive_pricing: { enabled: false },
+          // Stripe sells as merchant of record and owns tax and currency, so it rejects automatic_tax and adaptive_pricing here.
+          managed_payments: { enabled: true },
           expires_at: Math.floor(order.createdAt / 1000) + 3600,
           // Promotion codes default off; sending allow_promotion_codes beside discounts makes Stripe reject the session.
           ...(order.discountCents
