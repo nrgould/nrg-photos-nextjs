@@ -47,7 +47,9 @@
     "number": 3,
     "name": "Seiser Alm I",
     "category": "Natural",
-    "also": ["Lush Green"],
+    "also": [
+      "Lush Green"
+    ],
     "location": "seiser-alm",
     "bestFor": "Alpine meadows with peaks behind them and green paths in soft light.",
     "whatItDoes": "The shared base with vibrance cut and saturation up, and yellows shifted toward green and brightened for vivid grass.",
@@ -166,11 +168,46 @@
       "width": 1545,
       "height": 2048
     },
-    "showcase": ["/photos/lr-7029043.webp"]
+    "showcase": [
+      "/photos/lr-7029043.webp"
+    ]
+  },
+  {
+    "id": "new-york-1",
+    "number": 9,
+    "name": "New York I",
+    "category": "Natural",
+    "location": "new-york-city",
+    "bestFor": "An all-round matte look for everyday travel: gardens, flowers, doorways and evening fields.",
+    "whatItDoes": "Light contrast and lifted blacks, teal shadows and warm highlights, with yellows and greens toned down and vibrance up.",
+    "example": {
+      "before": "new-york-1/7447789-794fa43f-before.webp",
+      "after": "new-york-1/7447789-2a90f554-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": []
+  },
+  {
+    "id": "new-york-2",
+    "number": 10,
+    "name": "New York II",
+    "category": "Natural",
+    "location": "new-york-city",
+    "bestFor": "City streets and architecture in daylight, with or without people in the frame.",
+    "whatItDoes": "Flattens the image into a matte look with lifted shadows and blacks and lowered whites, adds a blue split tone and quiets blues and aquas.",
+    "watchOut": "On light that is already flat, it can look gray. Add some Contrast back.",
+    "example": {
+      "before": "new-york-2/7448244-ac171671-before.webp",
+      "after": "new-york-2/7448244-da5deb23-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
+    "showcase": []
   },
   {
     "id": "mount-rainier-2",
-    "number": 9,
+    "number": 11,
     "name": "Mount Rainier II",
     "category": "Alpine Blue",
     "location": "mount-rainier",
@@ -191,7 +228,7 @@
   },
   {
     "id": "hopfensee-2",
-    "number": 10,
+    "number": 12,
     "name": "Hopfensee I",
     "category": "Alpine Blue",
     "location": "hopfensee",
@@ -212,7 +249,7 @@
   },
   {
     "id": "stetten-1",
-    "number": 11,
+    "number": 13,
     "name": "Stetten I",
     "category": "Alpine Blue",
     "location": "stetten",
@@ -234,7 +271,7 @@
   },
   {
     "id": "mount-fremont-1",
-    "number": 12,
+    "number": 14,
     "name": "Mount Fremont I",
     "category": "Alpine Blue",
     "location": "mount-rainier",
@@ -256,7 +293,7 @@
   },
   {
     "id": "kiruna-2",
-    "number": 13,
+    "number": 15,
     "name": "Kiruna II",
     "category": "Alpine Blue",
     "location": "kiruna",
@@ -278,7 +315,7 @@
   },
   {
     "id": "lago-di-braies-2",
-    "number": 14,
+    "number": 16,
     "name": "Lago di Braies I",
     "category": "Alpine Blue",
     "location": "braies",
@@ -291,11 +328,13 @@
       "width": 1537,
       "height": 2048
     },
-    "showcase": ["/photos/lr-4434635.webp"]
+    "showcase": [
+      "/photos/lr-4434635.webp"
+    ]
   },
   {
     "id": "lofoten-1",
-    "number": 15,
+    "number": 17,
     "name": "Lofoten I",
     "category": "Moody",
     "location": "nordland",
@@ -317,7 +356,7 @@
   },
   {
     "id": "lofoten-2",
-    "number": 16,
+    "number": 18,
     "name": "Lofoten II",
     "category": "Moody",
     "location": "lofoten",
@@ -338,7 +377,7 @@
   },
   {
     "id": "salzburg-2",
-    "number": 17,
+    "number": 19,
     "name": "Salzburg II",
     "category": "Moody",
     "location": "salzburg",
@@ -360,7 +399,7 @@
   },
   {
     "id": "vienna-2",
-    "number": 18,
+    "number": 20,
     "name": "Vienna II",
     "category": "Moody",
     "location": "vienna",
@@ -382,7 +421,7 @@
   },
   {
     "id": "rome-2",
-    "number": 19,
+    "number": 21,
     "name": "Rome I",
     "category": "Soft Film",
     "location": "rome",
@@ -404,7 +443,7 @@
   },
   {
     "id": "bavaria-1",
-    "number": 20,
+    "number": 22,
     "name": "Bavaria I",
     "category": "Soft Film",
     "location": "bavaria",
@@ -425,7 +464,7 @@
   },
   {
     "id": "amsterdam-2",
-    "number": 21,
+    "number": 23,
     "name": "Amsterdam I",
     "category": "Soft Film",
     "location": "amsterdam",
@@ -446,7 +485,7 @@
   },
   {
     "id": "hoh-rainforest-1",
-    "number": 22,
+    "number": 24,
     "name": "Hoh Rainforest I",
     "category": "Soft Film",
     "location": "hoh-rainforest",
@@ -467,7 +506,7 @@
   },
   {
     "id": "neuschwanstein-1",
-    "number": 23,
+    "number": 25,
     "name": "Neuschwanstein I",
     "category": "Soft Film",
     "location": "neuschwanstein",
@@ -487,7 +526,7 @@
   },
   {
     "id": "mount-rainier-1",
-    "number": 24,
+    "number": 26,
     "name": "Mount Rainier I",
     "category": "Soft Film",
     "location": "mount-rainier",
@@ -508,7 +547,7 @@
   },
   {
     "id": "hallstatt-3",
-    "number": 25,
+    "number": 27,
     "name": "Hallstatt II",
     "category": "Golden",
     "location": "hallstatt",
@@ -529,7 +568,7 @@
   },
   {
     "id": "kiruna-1",
-    "number": 26,
+    "number": 28,
     "name": "Kiruna I",
     "category": "Golden",
     "location": "kiruna",
@@ -551,7 +590,7 @@
   },
   {
     "id": "boston-2",
-    "number": 27,
+    "number": 29,
     "name": "Isabella Gardens",
     "category": "Mint",
     "location": "boston",
@@ -572,7 +611,7 @@
   },
   {
     "id": "cary-4",
-    "number": 28,
+    "number": 30,
     "name": "Cary I",
     "category": "Mint",
     "location": "cary",
