@@ -1,6 +1,10 @@
 import { presetCatalog } from "../src/lib/preset-commerce";
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
   readCommerceConfiguration,
   type CommerceConfiguration,
@@ -547,4 +551,61 @@ test("configured handler rejects forged account/price/reward fields, external or
   });
   assert.equal((await handlers.download(ids[0])).status, 403);
   assert.equal((await handlers.webhook(request({}))).status, 400);
+});
+
+test("download all zips every owned preset by catalog name, and nothing for a non-owner", async () => {
+  const memory = new MemoryCommerceStore();
+  const store: CommerceStore = {
+    durability: "durable",
+    transaction: memory.transaction.bind(memory),
+  };
+  await store.transaction(async (tx) => {
+    for (const presetId of ids.slice(0, 2))
+      await tx.putEntitlement({
+        userId: "user-A",
+        presetId,
+        sourceId: "order-fixture",
+        kind: "order",
+        revoked: false,
+      });
+  });
+  const service = createCommerceService({
+    policy: { presetIds: ids },
+    store,
+    payments: createStripeGateway(sdkFixture().client, config),
+    delivery: {
+      allowedOrigins: ["https://private-files.example"],
+      issueDownload: async ({ presetId }) =>
+        `https://private-files.example/${presetId}`,
+    },
+  });
+  const handlers = (userId: string) =>
+    createCommerceHandlers({
+      configuration: { status: "configured", configuration: config },
+      store,
+      service,
+      authenticate: async () => ({ userId, email: null }),
+    });
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (async (url: string) =>
+    new Response(`xmp:${new URL(url).pathname.slice(1)}`)) as typeof fetch;
+  try {
+    assert.equal((await handlers("user-B").downloadAll()).status, 403);
+    const response = await handlers("user-A").downloadAll();
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("content-type"), "application/zip");
+    const dir = mkdtempSync(join(tmpdir(), "presets-"));
+    const file = join(dir, "all.zip");
+    writeFileSync(file, Buffer.from(await response.arrayBuffer()));
+    execFileSync("unzip", ["-tq", file]);
+    for (const preset of presetCatalog.slice(0, 2))
+      assert.equal(
+        execFileSync("unzip", ["-p", file, `${preset.name}.xmp`], {
+          encoding: "utf8",
+        }),
+        `xmp:${preset.id}`,
+      );
+  } finally {
+    globalThis.fetch = realFetch;
+  }
 });

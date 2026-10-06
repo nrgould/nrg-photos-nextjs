@@ -412,6 +412,12 @@
   color: var(--muted-foreground);
   font-size: 11px;
 }
+.downloadAll {
+  margin-top: 12px;
+}
+.downloadAll > button {
+  width: 100%;
+}
 .libraryGuest {
   display: flex;
   align-items: center;

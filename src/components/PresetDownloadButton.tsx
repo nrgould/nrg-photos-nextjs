@@ -10,7 +10,7 @@ export function PresetDownloadButton({
   variant = "default",
   size,
   className,
-}: { presetId: string } & Pick<
+}: { presetId?: string } & Pick<
   ComponentProps<typeof Button>,
   "variant" | "size" | "className"
 >) {
@@ -37,8 +37,11 @@ export function PresetDownloadButton({
     setBusy(true);
     setMessage("");
     try {
+      // Without a preset, the route zips every owned preset.
       const response = await fetch(
-        `/api/commerce/download/${encodeURIComponent(presetId)}`,
+        presetId
+          ? `/api/commerce/download/${encodeURIComponent(presetId)}`
+          : "/api/commerce/download",
         {
           credentials: "same-origin",
           cache: "no-store",
@@ -55,6 +58,17 @@ export function PresetDownloadButton({
               ? "This preset is not in your account."
               : "Downloads are not available yet.",
         );
+        return;
+      }
+      if (!presetId) {
+        const file = URL.createObjectURL(await response.blob());
+        if (controller.signal.aborted || activeSession.current !== sessionKey)
+          return URL.revokeObjectURL(file);
+        const link = document.createElement("a");
+        link.href = file;
+        link.download = "NRG Studios presets.zip";
+        link.click();
+        window.setTimeout(() => URL.revokeObjectURL(file), 60000);
         return;
       }
       const payload: unknown = await response.json();
@@ -86,11 +100,15 @@ export function PresetDownloadButton({
         size={size}
         className={className}
         disabled={busy || !sessionKey}
-        aria-label={`Download ${getCatalogPreset(presetId)?.name ?? "preset"}`}
+        aria-label={
+          presetId
+            ? `Download ${getCatalogPreset(presetId)?.name ?? "preset"}`
+            : undefined
+        }
         onClick={download}
       >
         <Download aria-hidden="true" />
-        {busy ? "Preparing…" : "Download"}
+        {busy ? "Preparing…" : presetId ? "Download" : "Download all"}
       </Button>
       <span role="status">{message}</span>
     </>

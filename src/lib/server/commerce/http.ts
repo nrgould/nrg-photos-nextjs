@@ -1,3 +1,5 @@
+import { getCatalogPreset } from "../../preset-commerce";
+import { zip } from "../zip";
 import type { ConfigurationResult } from "./config";
 import type { CommerceService } from "./service";
 import { CommerceError, type CommerceStore } from "./types";
@@ -32,7 +34,10 @@ export function createCommerceHandlers({
   };
   const respond = async (run: () => Promise<unknown>) => {
     try {
-      return Response.json(await run(), { headers });
+      const result = await run();
+      return result instanceof Response
+        ? result
+        : Response.json(result, { headers });
     } catch (error) {
       // Provider and database failures surface as a bare 503, so name the cause in the server log.
       if (!(error instanceof CommerceError) || error.status >= 500) {
@@ -162,6 +167,35 @@ export function createCommerceHandlers({
       respond(async () => {
         const { service, authenticate } = ready();
         return service.download((await authenticate()).userId, presetId);
+      }),
+    // Every owned preset in one zip, each fetched through the same owner-checked signed URL.
+    downloadAll: () =>
+      respond(async () => {
+        const { service, authenticate } = ready();
+        const { userId, email } = await authenticate();
+        const presetIds = (
+          await service.ownership(userId, email)
+        ).presetIds.filter((id) => getCatalogPreset(id));
+        if (!presetIds.length) throw new CommerceError("not_owned", 403);
+        const files = await Promise.all(
+          presetIds.map(async (presetId) => {
+            const { url } = await service.download(userId, presetId);
+            const file = await fetch(url, { cache: "no-store" });
+            if (!file.ok) throw new CommerceError("delivery_unavailable", 503);
+            return {
+              name: `${getCatalogPreset(presetId)!.name}.xmp`,
+              data: new Uint8Array(await file.arrayBuffer()),
+            };
+          }),
+        );
+        return new Response(zip(files), {
+          headers: {
+            ...headers,
+            "Content-Type": "application/zip",
+            "Content-Disposition":
+              'attachment; filename="NRG Studios presets.zip"',
+          },
+        });
       }),
   };
 }

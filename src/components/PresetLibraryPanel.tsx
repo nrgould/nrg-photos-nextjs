@@ -97,6 +97,11 @@ export default function PresetLibraryPanel({
               : `${ids.length} owned`}
           </span>
         </div>
+        {!confirming && owned.length > 1 && (
+          <div className={styles.downloadAll}>
+            <PresetDownloadButton />
+          </div>
+        )}
         {account.anonymous && ids.length > 0 && (
           <div className={styles.libraryGuest}>
             <p>Sign in to download them again later, on any device.</p>
