@@ -2,14 +2,17 @@
 import { useId } from "react";
 import Link from "next/link";
 import {
+  ArrowUpRight,
   ChevronRight,
   FileText,
+  Instagram,
   Mail,
   Moon,
   SlidersHorizontal,
   Sun,
 } from "lucide-react";
 import { presetCatalog } from "@/lib/preset-commerce";
+import { site } from "@/lib/site";
 import { Button } from "@/components/ui/button";
 import {
   Item,
@@ -95,6 +98,23 @@ export default function MenuPanel({
             <ItemContent>
               <ItemTitle>Contact</ItemTitle>
             </ItemContent>
+          </Item>
+          <Item
+            render={
+              <a href={site.instagram} target="_blank" rel="noreferrer" />
+            }
+            className={styles.menuRow}
+          >
+            <ItemMedia variant="icon">
+              <Instagram size={18} strokeWidth={1.5} aria-hidden />
+            </ItemMedia>
+            <ItemContent>
+              <ItemTitle>Instagram</ItemTitle>
+            </ItemContent>
+            <ItemActions className={styles.menuTrailing}>
+              @nicholasgould1
+              <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden />
+            </ItemActions>
           </Item>
           <Item render={<Link href="/terms" />} className={styles.menuRow}>
             <ItemMedia variant="icon">

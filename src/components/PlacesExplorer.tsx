@@ -17,6 +17,7 @@ import {
   ArrowRight,
   Download,
   Heart,
+  Instagram,
   Star,
   Trash2,
   Mail,
@@ -29,6 +30,7 @@ import {
   X,
 } from "lucide-react";
 import { selectionFeedback } from "@/lib/haptics";
+import { site } from "@/lib/site";
 import { heroSrcs, travelPlaces } from "@/lib/places";
 import { galleryLayout, heroCount } from "@/lib/gallery-layout";
 import Image from "next/image";
@@ -171,13 +173,16 @@ function Control({
   label,
   children,
   onClick,
+  href,
   variant = "control",
   disabled = false,
 }: {
   variant?: "control" | "quiet";
   label: string;
   children: ReactNode;
-  onClick: () => void;
+  onClick?: () => void;
+  /** Opens an outside page in a new tab instead of acting. */
+  href?: string;
   disabled?: boolean;
 }) {
   return (
@@ -189,6 +194,10 @@ function Control({
             aria-label={label}
             onClick={onClick}
             disabled={disabled}
+            {...(href && {
+              nativeButton: false,
+              render: <a href={href} target="_blank" rel="noreferrer" />,
+            })}
           />
         }
       >
@@ -1192,6 +1201,9 @@ export default function PlacesExplorer({
           </Control>
           <Control label="Contact" onClick={() => openPage("contact")}>
             <Mail size={18} />
+          </Control>
+          <Control label="Instagram @nicholasgould1" href={site.instagram}>
+            <Instagram size={18} />
           </Control>
         </ButtonGroup>
         <div className="explorer-command-bar" aria-label="Location navigation">
