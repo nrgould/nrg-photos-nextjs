@@ -15,7 +15,7 @@ import {
   Check,
   Gift,
   Heart,
-  Leaf,
+  TentTree,
   LockKeyhole,
   MapPin,
   Search,
@@ -184,7 +184,7 @@ export function ExplorationToast({
                 {moment.kind === "complete" ? (
                   <Gift size={16} strokeWidth={1.5} />
                 ) : (
-                  <Leaf size={16} strokeWidth={1.5} />
+                  <TentTree size={16} strokeWidth={1.5} />
                 )}
               </span>
             ) : complete ? (
@@ -194,7 +194,7 @@ export function ExplorationToast({
                 {moment.kind === "discount" ? (
                   <ShoppingBag size={16} strokeWidth={1.5} />
                 ) : (
-                  <Leaf size={16} strokeWidth={1.5} />
+                  <TentTree size={16} strokeWidth={1.5} />
                 )}
               </span>
             )}
@@ -282,7 +282,7 @@ export function ExploreChallengesTrigger({
           {summary.allComplete ? (
             <Gift size={18} strokeWidth={1.5} />
           ) : (
-            <Leaf size={18} strokeWidth={1.5} />
+            <TentTree size={18} strokeWidth={1.5} />
           )}
         </motion.span>
       </AnimatePresence>
