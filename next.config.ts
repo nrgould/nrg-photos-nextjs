@@ -7,6 +7,10 @@ const config: NextConfig = {
     // AVIF encodes several times slower than WebP; a cold lightbox open waited on it.
     formats: ["image/webp"],
     qualities: [75, 85],
+    // Each width is a separate cache entry that fetches the whole original from Supabase,
+    // so cache them long and stop at the stored 1600px. Replaced photo: docs/photo-pipeline.md.
+    minimumCacheTTL: 2678400,
+    deviceSizes: [640, 750, 828, 1080, 1200, 1600],
     remotePatterns: [
       new URL(
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/photos/**`,

@@ -1465,7 +1465,7 @@ export default function PlacesMap(props: {
                         aria-hidden="true"
                       >
                         <Image
-                          src={photoUrl(photo.src)}
+                          src={photoUrl(photo.src, true)}
                           alt=""
                           width={44}
                           height={44}
@@ -1477,7 +1477,7 @@ export default function PlacesMap(props: {
                     ))}
                 <Image
                   className="map-marker-cover"
-                  src={photoUrl(node.cover.src)}
+                  src={photoUrl(node.cover.src, true)}
                   alt=""
                   width={44}
                   height={44}

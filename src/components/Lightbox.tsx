@@ -60,6 +60,7 @@ export default function Lightbox({
         as: "image",
         imageSrcSet: props.srcSet,
         imageSizes: props.sizes,
+        fetchPriority: "low",
       });
     }
   return (
@@ -188,7 +189,7 @@ export default function Lightbox({
                   }}
                 >
                   <Image
-                    src={photoUrl(photo.src)}
+                    src={photoUrl(photo.src, true)}
                     alt=""
                     width={photo.width}
                     height={photo.height}

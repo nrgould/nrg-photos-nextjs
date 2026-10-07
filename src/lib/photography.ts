@@ -10,8 +10,11 @@ export type Photo = {
   taken?: string;
 };
 // A photo's `src` is its id and its public Storage path: "/photos/x.webp" is in the "photos" bucket.
-export function photoUrl(src: string) {
-  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public${src}`;
+// `thumb` is its 256px copy at "thumbs/x.webp", for images drawn under ~100px:
+// the optimizer would otherwise fetch the whole 1600px original for each one.
+export function photoUrl(src: string, thumb = false) {
+  const path = thumb ? src.replace(/^\/photos\//, "/photos/thumbs/") : src;
+  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public${path}`;
 }
 
 export function takenLabel(taken?: string) {

@@ -11,7 +11,7 @@ import {
 // Portfolio originals: node --env-file=.env.local scripts/import-photographs.mjs
 // Lightroom map export: node --env-file=.env.local scripts/import-photographs.mjs <map-photos.json> [--dry-run]
 //   Rows missing from the bucket are encoded from their `input` file.
-// Shrink the bucket to maxEdge: BACKUP_DIR=<folder> node --env-file=.env.local scripts/import-photographs.mjs --resize
+// Thumbnails for photos stored before they existed: node --env-file=.env.local scripts/import-photographs.mjs --thumbs
 const bucket = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SECRET_KEY,
@@ -27,27 +27,37 @@ const writeJson = (file, value) =>
 const maxEdge = 1600;
 
 // sharp drops input metadata, GPS included; only a Lightroom copyright is written back.
-// keepExif carries over an already-stored photo's EXIF, which holds only that copyright.
-async function encode(input, copyright, keepExif = false) {
+async function encode(input, copyright) {
   let image = sharp(input).rotate().resize({
     width: maxEdge,
     height: maxEdge,
     fit: "inside",
     withoutEnlargement: true,
   });
-  if (keepExif) image = image.keepExif();
   if (copyright) image = image.withExif({ IFD0: { Copyright: copyright } });
   const output = await image.webp({ quality: 88 }).toBuffer();
   const { width, height } = await sharp(output).metadata();
   return { output, width, height };
 }
 
-async function upload(src, file) {
-  const { error } = await bucket.upload(path.basename(src), file, {
+async function put(key, file) {
+  const { error } = await bucket.upload(key, file, {
     contentType: "image/webp",
     upsert: true,
   });
-  if (error) throw new Error(`Upload failed: ${src}: ${error.message}`);
+  if (error) throw new Error(`Upload failed: ${key}: ${error.message}`);
+}
+
+// The 256px copy photoUrl(src, true) serves to map markers and filmstrips.
+const thumbnail = (photo) =>
+  sharp(photo)
+    .resize({ width: 256, height: 256, fit: "inside" })
+    .webp({ quality: 80 })
+    .toBuffer();
+
+async function upload(src, file) {
+  await put(path.basename(src), file);
+  await put(`thumbs/${path.basename(src)}`, await thumbnail(file));
 }
 
 async function rebuildOriginals() {
@@ -82,31 +92,25 @@ async function rebuildOriginals() {
   console.log(`Rebuilt ${manifest.length} original photographs.`);
 }
 
-// Re-encodes every stored photo larger than maxEdge from its bucket copy, saving that copy first.
-async function resizeAll() {
-  const backup = process.env.BACKUP_DIR;
-  if (!backup)
-    throw new Error("Set BACKUP_DIR to a folder for the current copies");
-  await fs.mkdir(backup, { recursive: true });
-  let resized = 0;
+// Downloads each stored photo once to make its missing thumbnail.
+async function backfillThumbs() {
+  const { data: stored, error } = await bucket.list("thumbs", { limit: 10000 });
+  if (error) throw new Error(`Bucket list failed: ${error.message}`);
+  const done = new Set(stored.map((file) => file.name));
+  let made = 0;
   for (const entry of manifest) {
-    if (Math.max(entry.width, entry.height) <= maxEdge) continue;
     const name = path.basename(entry.src);
+    if (done.has(name)) continue;
     const { data, error } = await bucket.download(name);
     if (error)
       throw new Error(`Download failed: ${entry.src}: ${error.message}`);
-    const input = Buffer.from(await data.arrayBuffer());
-    await fs.writeFile(path.join(backup, name), input);
-    const { output, width, height } = await encode(input, undefined, true);
-    await upload(entry.src, output);
-    Object.assign(entry, { width, height });
-    resized++;
-    // Written as it goes, so an interrupted run resumes where it stopped.
-    await writeJson(manifestPath, manifest);
+    await put(
+      `thumbs/${name}`,
+      await thumbnail(Buffer.from(await data.arrayBuffer())),
+    );
+    made++;
   }
-  console.log(
-    `Resized ${resized} of ${manifest.length} photographs to ${maxEdge}px.`,
-  );
+  console.log(`Made ${made} thumbnails; ${manifest.length} photographs.`);
 }
 
 // OSM Nominatim policy: one request per second, identified client, results cached (in locations.json).
@@ -267,7 +271,7 @@ async function importLightroom(exportPath, dryRun) {
 const [exportPath] = process.argv
   .slice(2)
   .filter((arg) => !arg.startsWith("--"));
-if (process.argv.includes("--resize")) await resizeAll();
+if (process.argv.includes("--thumbs")) await backfillThumbs();
 else if (exportPath)
   await importLightroom(exportPath, process.argv.includes("--dry-run"));
 else await rebuildOriginals();

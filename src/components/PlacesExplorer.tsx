@@ -1854,7 +1854,7 @@ export default function PlacesExplorer({
                   >
                     <Image
                       className="size-11 shrink-0 rounded-md object-cover"
-                      src={photoUrl(photo.src)}
+                      src={photoUrl(photo.src, true)}
                       alt=""
                       width={44}
                       height={44}
