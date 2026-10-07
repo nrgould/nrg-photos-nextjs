@@ -10,6 +10,7 @@ export function createCommerceHandlers({
   store,
   service,
   authenticate,
+  verifyGuest,
 }: {
   configuration: ConfigurationResult;
   store?: CommerceStore;
@@ -17,6 +18,8 @@ export function createCommerceHandlers({
   authenticate?: (
     requireEmail?: boolean,
   ) => Promise<{ userId: string; email: string | null }>;
+  /** The guest user id of a validly signed anonymous access token, else null. */
+  verifyGuest?: (token: string) => Promise<string | null>;
 }) {
   const headers = { "Cache-Control": "private, no-store" };
   const ready = () => {
@@ -169,6 +172,20 @@ export function createCommerceHandlers({
         const { service, authenticate, origin } = ready();
         sameOrigin(request, origin);
         return service.claimReward((await authenticate(true)).userId);
+      }),
+    // The email account signed in a moment ago proves itself by cookie, the guest it was by token.
+    adoptGuest: (request: Request) =>
+      respond(async () => {
+        const { service, authenticate, origin } = ready();
+        sameOrigin(request, origin);
+        const { userId } = await authenticate(true);
+        const { guestToken } = await body(request, ["guestToken"]);
+        const guestId =
+          typeof guestToken === "string" && verifyGuest
+            ? await verifyGuest(guestToken)
+            : null;
+        if (!guestId) throw new CommerceError("invalid_guest", 403);
+        return service.adoptGuest(guestId, userId);
       }),
     download: (presetId: string) =>
       respond(async () => {

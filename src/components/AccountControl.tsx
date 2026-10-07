@@ -2,6 +2,7 @@
 import { useRef, useState, type FormEvent } from "react";
 import { UserRound, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { usePresetCommerceBoundary } from "./CommerceCartProvider";
 import { useCommerceAccount } from "./CommerceProviders";
 import { Button } from "./ui/button";
 import {
@@ -64,7 +65,10 @@ export function AccountControl({ className }: { className?: string }) {
   );
 }
 
-/** The email-code sign-in. A guest keeps its id and purchases by linking the email. */
+/**
+ * The email-code sign-in. A guest keeps its id and purchases by linking the email;
+ * a guest whose email already has an account signs into it and hands its purchases over.
+ */
 export function SignInDialog({
   open,
   onOpenChange,
@@ -77,6 +81,7 @@ export function SignInDialog({
   onSignedIn?: () => void;
 }) {
   const { supabase, userId, anonymous, captcha } = useCommerceAccount();
+  const { refreshOwnership } = usePresetCommerceBoundary();
   const [sentTo, setSentTo] = useState<string | null>(null);
   // A guest links the email to keep its purchases; "email_change" is that code's type.
   const [codeType, setCodeType] = useState<"email" | "email_change">("email");
@@ -101,15 +106,30 @@ export function SignInDialog({
     setError(null);
     const redirect = window.location.origin + window.location.pathname;
     let error: { message: string; code?: string } | null = null;
+    // Taken before the code swaps this guest's session for the account's.
+    const guestToken =
+      sentTo && anonymous && codeType === "email"
+        ? (await supabase.auth.getSession()).data.session?.access_token
+        : undefined;
     try {
-      if (sentTo)
+      if (sentTo) {
         ({ error } = await supabase.auth.verifyOtp({
           email: sentTo,
           token: value,
           type: codeType,
           options: { captchaToken: await captcha() },
         }));
-      else {
+        if (!error && guestToken) {
+          const response = await fetch("/api/commerce/adopt-guest", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ guestToken }),
+          });
+          if (!response.ok)
+            console.error("Moving guest purchases failed", response.status);
+          refreshOwnership();
+        }
+      } else {
         let type: typeof codeType = "email";
         if (anonymous) {
           ({ error } = await supabase.auth.updateUser(
@@ -118,8 +138,6 @@ export function SignInDialog({
           ));
           if (!error) type = "email_change";
         }
-        // ponytail: an email that already has an account signs into it, leaving guest
-        // purchases on the guest id; merging them needs a server endpoint that checks both sessions.
         if (!anonymous || error?.code === "email_exists")
           ({ error } = await supabase.auth.signInWithOtp({
             email: value,

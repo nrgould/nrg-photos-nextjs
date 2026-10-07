@@ -304,6 +304,34 @@ test("the Checkout email claims a paid order on any account that signs in with i
     );
 });
 
+test("a guest signing into an existing account hands over what it bought; a refund takes both copies", async () => {
+  const f = fixture();
+  const { orderId } = await f.service.checkout("guest", [ids[0]], requestId);
+  await f.event({
+    id: "evt_paid",
+    type: "completed",
+    session: f.paid(orderId),
+  });
+  assert.deepEqual(await f.service.adoptGuest("member", "member"), {
+    adopted: 0,
+  });
+  for (const adopted of [1, 0])
+    assert.deepEqual(await f.service.adoptGuest("guest", "member"), {
+      adopted,
+    });
+  assert.deepEqual((await f.service.ownership("member")).presetIds, [ids[0]]);
+  await f.event({
+    id: "evt_refund",
+    type: "revoked",
+    paymentIntentId: `pi_${orderId}`,
+  });
+  for (const user of ["guest", "member"])
+    assert.deepEqual((await f.service.ownership(user)).presetIds, []);
+  assert.deepEqual(await f.service.adoptGuest("guest", "later"), {
+    adopted: 0,
+  });
+});
+
 test("tax added on top of the quote, or carried inside it, still grants", async () => {
   for (const [tax, total] of [
     [38, 237],

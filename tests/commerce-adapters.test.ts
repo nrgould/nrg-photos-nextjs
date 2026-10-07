@@ -555,6 +555,53 @@ test("configured handler rejects forged account/price/reward fields, external or
   assert.equal((await handlers.webhook(request({}))).status, 400);
 });
 
+test("guest hand-over needs this origin, an email account and a verified anonymous token", async () => {
+  const f = sdkFixture();
+  const memory = new MemoryCommerceStore();
+  const store: CommerceStore = {
+    durability: "durable",
+    transaction: memory.transaction.bind(memory),
+  };
+  const service = createCommerceService({
+    policy: { presetIds: ids },
+    store,
+    payments: createStripeGateway(f.client, config),
+  });
+  const handlers = (email?: string) =>
+    createCommerceHandlers({
+      configuration: { status: "configured", configuration: config },
+      store,
+      service,
+      authenticate: createSessionAuthenticator(async () => ({
+        userId: "member",
+        email,
+      })),
+      verifyGuest: async (token) => (token === "signed-guest" ? "guest" : null),
+    });
+  const request = (guestToken: unknown, origin = config.origin) =>
+    new Request(`${config.origin}/api/commerce/adopt-guest`, {
+      method: "POST",
+      headers: { "content-type": "application/json", origin },
+      body: JSON.stringify({ guestToken }),
+    });
+  const member = handlers("member@example.test");
+  for (const [response, error] of [
+    [
+      await member.adoptGuest(request("signed-guest", "https://evil.test")),
+      "invalid_origin",
+    ],
+    [await handlers().adoptGuest(request("signed-guest")), "email_required"],
+    [await member.adoptGuest(request("forged")), "invalid_guest"],
+    [await member.adoptGuest(request(7)), "invalid_guest"],
+  ] as const) {
+    assert.equal(response.status, 403);
+    assert.deepEqual(await response.json(), { error });
+  }
+  const adopted = await member.adoptGuest(request("signed-guest"));
+  assert.equal(adopted.status, 200);
+  assert.deepEqual(await adopted.json(), { adopted: 0 });
+});
+
 test("download all zips every owned preset by catalog name, and nothing for a non-owner", async () => {
   const memory = new MemoryCommerceStore();
   const store: CommerceStore = {

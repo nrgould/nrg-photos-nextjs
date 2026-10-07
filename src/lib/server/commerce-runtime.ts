@@ -37,12 +37,17 @@ export async function composeCommerceRuntime(
   )
     return createCommerceHandlers({ configuration });
 
-  const [{ default: Stripe }, { createServerClient }, { cookies }] =
-    await Promise.all([
-      import("stripe"),
-      import("@supabase/ssr"),
-      import("next/headers"),
-    ]);
+  const [
+    { default: Stripe },
+    { createServerClient },
+    { createClient },
+    { cookies },
+  ] = await Promise.all([
+    import("stripe"),
+    import("@supabase/ssr"),
+    import("@supabase/supabase-js"),
+    import("next/headers"),
+  ]);
   const payments = createStripeGateway(
     new Stripe(configuration.configuration.stripeSecretKey, {
       maxNetworkRetries: 2,
@@ -64,6 +69,14 @@ export async function composeCommerceRuntime(
     configuration,
     store: adapters.store,
     service,
+    verifyGuest: async (token) => {
+      const { data } = await createClient(
+        configuration.configuration.supabaseUrl,
+        configuration.configuration.supabasePublishableKey,
+        { auth: { persistSession: false, autoRefreshToken: false } },
+      ).auth.getClaims(token);
+      return data?.claims.is_anonymous ? data.claims.sub : null;
+    },
     authenticate: createSessionAuthenticator(async () => {
       const cookieStore = await cookies();
       const supabase = createServerClient(

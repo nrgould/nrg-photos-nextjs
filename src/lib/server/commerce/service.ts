@@ -379,6 +379,34 @@ export function createCommerceService({
       });
     },
     /**
+     * A guest that signs into an existing account brings its purchases: each order the guest
+     * owns is granted to the account too. Refunds revoke by order, so both copies go.
+     * ponytail: a guest checkout still pending at sign-in completes to the guest id only.
+     */
+    async adoptGuest(guestId: string, userId: string) {
+      if (!userId) throw new CommerceError("unauthenticated", 401);
+      if (guestId === userId) return { adopted: 0 };
+      return store.transaction(async (tx) => {
+        const bought = new Map<string, string[]>();
+        for (const e of await tx.entitlements(guestId))
+          if (e.kind === "order" && !e.revoked)
+            bought.set(e.sourceId, [
+              ...(bought.get(e.sourceId) ?? []),
+              e.presetId,
+            ]);
+        return {
+          adopted: await grantSources(
+            tx,
+            userId,
+            [...bought].map(([sourceId, presetIds]) => ({
+              sourceId,
+              presetIds,
+            })),
+          ),
+        };
+      });
+    },
+    /**
      * One free preset per account and campaign, drawn at random from the eligible ones it doesn't own.
      * Challenges live in the browser, so the gate is the caller's: a confirmed email account.
      */
