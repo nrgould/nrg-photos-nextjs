@@ -647,5 +647,12 @@
     "id": "chimney-bluffs-state-park",
     "parent": "wolcott",
     "name": "Chimney Bluffs State Park"
+  },
+  {
+    "id": "north-cascades",
+    "parent": "washington",
+    "name": "North Cascades",
+    "coordinates": [-121.41, 48.81],
+    "coordinateSource": "geocoded"
   }
 ]
