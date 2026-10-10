@@ -3298,6 +3298,14 @@ html[data-photo-theme="dark"] {
       transform: translate(-7px, -8px) rotate(-9deg);
     }
   }
+  /* Thumbnails are squircles; browsers without corner-shape keep the round radius. */
+  .map-photo-marker,
+  .map-photo-marker img,
+  .map-marker-stack-layer,
+  .lightbox-strip button,
+  .lightbox-strip img {
+    corner-shape: squircle;
+  }
   @media (prefers-reduced-motion: reduce) {
     .map-marker-stack-layer {
       transition: none;

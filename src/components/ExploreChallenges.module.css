@@ -353,6 +353,7 @@
   width: 48px;
   height: 48px;
   border-radius: 6px;
+  corner-shape: squircle;
   outline: 1px solid var(--image-outline);
   outline-offset: -1px;
 }

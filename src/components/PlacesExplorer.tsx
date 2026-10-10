@@ -1853,7 +1853,7 @@ export default function PlacesExplorer({
                     }}
                   >
                     <Image
-                      className="size-11 shrink-0 rounded-md object-cover"
+                      className="size-11 shrink-0 rounded-md object-cover [corner-shape:squircle]"
                       src={photoUrl(photo.src, true)}
                       alt=""
                       width={44}
