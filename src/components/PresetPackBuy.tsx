@@ -34,7 +34,8 @@ export default function PresetPackBuy() {
     try {
       await checkout.startCheckout({
         paidPresetIds: ids,
-        returnPath: "/?view=library",
+        // The server adds view=library on a paid return.
+        returnPath: "/",
       });
     } catch {
       setError("Checkout could not open. Try again.");

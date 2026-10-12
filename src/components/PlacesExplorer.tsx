@@ -1249,7 +1249,7 @@ export default function PlacesExplorer({
                         </Item>
                         <Item size="xs" render={<Link href="/presets" />}>
                           <ItemContent>
-                            <ItemTitle>Preset pack</ItemTitle>
+                            <ItemTitle>Signature Collection</ItemTitle>
                           </ItemContent>
                         </Item>
                         {ownedPresetIds.length > 0 && (

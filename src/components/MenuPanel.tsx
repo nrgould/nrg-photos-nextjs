@@ -106,7 +106,7 @@ export default function MenuPanel({
               <Package size={18} strokeWidth={1.5} aria-hidden />
             </ItemMedia>
             <ItemContent>
-              <ItemTitle>Preset pack</ItemTitle>
+              <ItemTitle>Signature Collection</ItemTitle>
             </ItemContent>
           </Item>
           {ownedCount > 0 && (

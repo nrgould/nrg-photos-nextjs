@@ -27,6 +27,12 @@ export default function PresetPackPage() {
       />
       <header className="pack-hero">
         <h1>Signature Collection</h1>
+        <p>
+          I made each of these presets while editing my own photographs from a
+          trip, in places like Eibsee, Hallstatt, Lofoten, Mount Rainier and New
+          York City. Under every preset is the place it came from, and the link
+          opens my photographs from there on the map.
+        </p>
         <PresetPackBuy />
       </header>
       <ul className="pack-examples">
