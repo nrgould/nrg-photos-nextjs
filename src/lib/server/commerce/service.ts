@@ -376,7 +376,8 @@ export function createCommerceService({
           presetIds: [
             ...new Set(
               (await tx.entitlements(userId))
-                .filter((e) => !e.revoked)
+                // The client drops the whole snapshot on an id outside the catalog.
+                .filter((e) => !e.revoked && allowed.includes(e.presetId))
                 .map((e) => e.presetId),
             ),
           ],

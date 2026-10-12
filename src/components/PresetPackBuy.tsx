@@ -68,7 +68,8 @@ export default function PresetPackBuy() {
             : `Buy all ${ids.length}`}
       </Button>
       <p className="pack-note" role="status">
-        {error}
+        {error ??
+          (checkout.status === "unavailable" ? checkout.message : null)}
       </p>
     </div>
   );

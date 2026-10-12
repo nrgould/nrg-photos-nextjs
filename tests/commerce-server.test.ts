@@ -938,3 +938,18 @@ test("the legacy order import refuses a file without its columns or orders", () 
   assert.throws(() => parseLegacyOrders("id,email\nx,y@z.test\n"));
   assert.throws(() => parseLegacyOrders("identifier,user_email\n"));
 });
+
+test("ownership leaves out entitlements outside the catalog", async () => {
+  const f = fixture();
+  await f.store.transaction(async (tx) => {
+    for (const presetId of [ids[0], "retired-preset"])
+      await tx.putEntitlement({
+        userId: "user-A",
+        presetId,
+        sourceId: "fixture",
+        kind: "order",
+        revoked: false,
+      });
+  });
+  assert.deepEqual((await f.service.ownership("user-A")).presetIds, [ids[0]]);
+});

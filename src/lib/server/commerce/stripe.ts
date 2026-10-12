@@ -136,9 +136,16 @@ export function createStripeGateway(
         if (!price) throw new CommerceError("price_not_configured", 503);
         return price;
       });
-      const prices = await Promise.all(
-        priceIds.map((id) => client.prices.retrieve(id)),
-      );
+      // Stripe answers a burst of parallel reads with 429, so a full cart reads in batches.
+      const prices: StripePrice[] = [];
+      for (let start = 0; start < priceIds.length; start += 4)
+        prices.push(
+          ...(await Promise.all(
+            priceIds
+              .slice(start, start + 4)
+              .map((id) => client.prices.retrieve(id)),
+          )),
+        );
       if (
         prices.some(
           (price, index) =>

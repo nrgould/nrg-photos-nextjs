@@ -214,9 +214,7 @@ export function createCommerceHandlers({
       respond(async () => {
         const { service, authenticate } = ready();
         const { userId, email } = await authenticate();
-        const presetIds = (
-          await service.ownership(userId, email)
-        ).presetIds.filter((id) => getCatalogPreset(id));
+        const { presetIds } = await service.ownership(userId, email);
         if (!presetIds.length) throw new CommerceError("not_owned", 403);
         const files = await Promise.all(
           presetIds.map(async (presetId) => {
