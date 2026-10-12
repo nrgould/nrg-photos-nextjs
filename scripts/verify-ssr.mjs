@@ -54,6 +54,12 @@ for (const path of ["/explore", "/presets/eibsee-1", "/work", "/about"]) {
   assert.equal(new URL(response.headers.get("location"), base).pathname, "/");
 }
 console.log("PASS retired pages redirect to the map");
+const pack = await fetch(base + "/presets");
+const packHtml = await pack.text();
+assert.equal(pack.status, 200, "/presets");
+assert.ok(packHtml.includes("Signature Collection"), "/presets: heading");
+assert.ok(packHtml.includes("comparison-stage"), "/presets: before/afters");
+console.log("PASS /presets: HTTP 200, server HTML, before/afters");
 const missing = await fetch(base + "/not-a-real-page");
 const missingHtml = await missing.text();
 assert.ok(missingHtml.includes("Page not found"));

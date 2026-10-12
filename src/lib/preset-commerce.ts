@@ -1,5 +1,6 @@
 import presets from "../data/presets.json";
 import { fold, locationPath } from "./places";
+import type { Photo } from "./photography";
 
 export type PresetCatalogItem = Readonly<{
   id: string;
@@ -62,6 +63,21 @@ export function getCatalogPreset(id: unknown) {
   return typeof id === "string"
     ? presetCatalog.find((preset) => preset.id === id)
     : undefined;
+}
+
+/** A preset's before/after pair as photos, for PhotoComparison. */
+export function presetExample(preset: PresetCatalogItem) {
+  if (!preset.example) return undefined;
+  const { width, height } = preset.example;
+  const side = (side: "before" | "after"): Photo => ({
+    src: `/preset-examples/${preset.example![side]}`,
+    title: `${preset.name} ${side}`,
+    alt: `Example photograph, ${side === "before" ? "unedited" : `edited with ${preset.name}`}`,
+    width,
+    height,
+    collection: preset.id,
+  });
+  return { before: side("before"), after: side("after") };
 }
 
 export type PresetCatalogState = {

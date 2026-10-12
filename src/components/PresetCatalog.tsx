@@ -29,6 +29,7 @@ import { locationPath, photoPresets, travelPlaces } from "@/lib/places";
 import {
   filterPresetCatalog,
   getCatalogPreset,
+  presetExample,
   presetCategories,
   type PresetCatalogItem,
   type PresetCatalogState,
@@ -330,21 +331,6 @@ export default function PresetCatalog({
   );
 }
 
-function examplePhoto(
-  preset: NonNullable<ReturnType<typeof getCatalogPreset>>,
-  side: "before" | "after",
-): Photo {
-  const { width, height, [side]: key } = preset.example!;
-  return {
-    src: `/preset-examples/${key}`,
-    title: `${preset.name} ${side}`,
-    alt: `Example photograph, ${side === "before" ? "unedited" : `edited with ${preset.name}`}`,
-    width,
-    height,
-    collection: preset.id,
-  };
-}
-
 // One icon per mood, so a row reads before its name does; the mood is also written under it.
 const moodIcons: Record<string, LucideIcon> = {
   Natural: Sun,
@@ -546,10 +532,7 @@ export function PresetDetail({
     );
     return photos.length ? [{ ...place, photos }] : [];
   });
-  const example = preset.example && {
-    before: examplePhoto(preset, "before"),
-    after: examplePhoto(preset, "after"),
-  };
+  const example = presetExample(preset);
   const photoGrid = (photos: Photo[], className = panel.savedPhotos) => (
     <ul className={className}>
       {photos.map((photo) => (

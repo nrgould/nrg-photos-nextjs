@@ -1,38 +1,74 @@
-import PresetStore from "@/components/PresetStore";
+import Link from "next/link";
+import PhotoComparison from "@/components/PhotoComparison";
+import PresetPackBuy from "@/components/PresetPackBuy";
+import { Breadcrumbs } from "@/components/seo/SeoContent";
+import { locationPath } from "@/lib/places";
+import { presetCatalog, presetExample } from "@/lib/preset-commerce";
 import { contentMetadata } from "@/lib/seo-content";
-import {
-  createPresetCatalogState,
-  presetCatalog,
-  type PresetCategory,
-} from "@/lib/preset-commerce";
+
+const presets = presetCatalog.toSorted((a, b) => a.number - b.number);
+const moods = Map.groupBy(presets, (preset) => preset.category);
 
 export const metadata = contentMetadata(
-  "Preset catalog",
-  `Browse Nicholas Gould’s ${presetCatalog.length} location presets for Lightroom, grouped by mood. $1.99 USD each.`,
+  "Signature Collection",
+  `All ${presets.length} of Nicholas Gould’s Lightroom presets in one purchase, with before and after examples.`,
   "/presets",
 );
 
-export default async function PresetsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const params = await searchParams;
-  const initialState = createPresetCatalogState({
-    query: typeof params.query === "string" ? params.query.slice(0, 200) : "",
-    category:
-      typeof params.category === "string"
-        ? (params.category as PresetCategory)
-        : "All",
-    selectedPresetId: typeof params.preset === "string" ? params.preset : null,
-  });
+export default function PresetPackPage() {
   return (
-    <main id="main">
-      <h1 className="sr-only">Preset catalog</h1>
-      <PresetStore
-        initialState={initialState}
-        initialView={params.view === "cart" ? "cart" : "catalog"}
+    <main id="main" className="page-width pack-page">
+      <Breadcrumbs
+        items={[
+          { name: "Home", path: "/" },
+          { name: "Signature Collection", path: "/presets" },
+        ]}
       />
+      <header className="pack-hero">
+        <h1>Signature Collection</h1>
+        <p>
+          {presets.length} Lightroom presets · {moods.size} moods
+        </p>
+        <PresetPackBuy />
+      </header>
+      <ul className="pack-examples">
+        {presets.map((preset) => {
+          const pair = presetExample(preset);
+          return (
+            pair && (
+              <li key={preset.id}>
+                <PhotoComparison pair={pair} />
+                <h3>{preset.name}</h3>
+                <p>
+                  {preset.category} ·{" "}
+                  {locationPath(preset.location).at(-1)!.name}
+                </p>
+              </li>
+            )
+          );
+        })}
+      </ul>
+      <section className="pack-included" aria-labelledby="pack-included">
+        <h2 id="pack-included">Included</h2>
+        <dl>
+          {[...moods].map(([mood, list]) => (
+            <div key={mood}>
+              <dt>
+                {mood} <span>{list.length}</span>
+              </dt>
+              <dd>{list.map((preset) => preset.name).join(", ")}</dd>
+            </div>
+          ))}
+        </dl>
+        <ul>
+          <li>Lightroom preset files (.xmp)</li>
+          <li>Downloads from Your presets, any time</li>
+          <li>
+            Refunds within 14 days (<Link href="/terms#refunds">terms</Link>)
+          </li>
+        </ul>
+        <PresetPackBuy />
+      </section>
     </main>
   );
 }

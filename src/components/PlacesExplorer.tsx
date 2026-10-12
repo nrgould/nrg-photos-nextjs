@@ -1210,70 +1210,59 @@ export default function PlacesExplorer({
             <NavigationMenuList>
               {desktop && <NavigationMenuItem>{search}</NavigationMenuItem>}
               <NavigationMenuItem value="presets">
-                {ownedPresetIds.length > 0 ? (
-                  <>
-                    <NavigationMenuTrigger ref={presetsTrigger}>
-                      <Package size={18} aria-hidden="true" />
-                      <span className="map-nav-label">Presets</span>
-                    </NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      <ItemGroup className="map-nav-rows">
-                        <Item
-                          size="xs"
-                          render={
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setNavValue(null);
-                                openPage("presets", presetsTrigger.current);
-                              }}
-                            />
-                          }
-                        >
-                          <ItemContent>
-                            <ItemTitle>All presets</ItemTitle>
-                          </ItemContent>
-                        </Item>
-                        <Item
-                          size="xs"
-                          render={
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setNavValue(null);
-                                openPage("library", presetsTrigger.current);
-                              }}
-                            />
-                          }
-                        >
-                          <ItemMedia variant="icon">
-                            <Download size={16} aria-hidden="true" />
-                          </ItemMedia>
-                          <ItemContent>
-                            <ItemTitle>Your presets</ItemTitle>
-                          </ItemContent>
-                          <span className="map-nav-count">
-                            {ownedPresetIds.length}
-                          </span>
-                        </Item>
-                      </ItemGroup>
-                    </NavigationMenuContent>
-                  </>
-                ) : (
-                  <button
-                    ref={presetsTrigger}
-                    type="button"
-                    className={navigationMenuTriggerStyle()}
-                    aria-label="Presets"
-                    aria-expanded={desktop ? undefined : topView === "presets"}
-                    onClick={(event) =>
-                      openPage("presets", event.currentTarget)
-                    }
-                  >
-                    <Package size={18} aria-hidden="true" />
-                    <span className="map-nav-label">Presets</span>
-                  </button>
-                )}
+                <NavigationMenuTrigger ref={presetsTrigger}>
+                  <Package size={18} aria-hidden="true" />
+                  <span className="map-nav-label">Presets</span>
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ItemGroup className="map-nav-rows">
+                    <Item
+                      size="xs"
+                      render={
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setNavValue(null);
+                            openPage("presets", presetsTrigger.current);
+                          }}
+                        />
+                      }
+                    >
+                      <ItemContent>
+                        <ItemTitle>All presets</ItemTitle>
+                      </ItemContent>
+                    </Item>
+                    <Item size="xs" render={<Link href="/presets" />}>
+                      <ItemContent>
+                        <ItemTitle>Preset pack</ItemTitle>
+                      </ItemContent>
+                    </Item>
+                    {ownedPresetIds.length > 0 && (
+                      <Item
+                        size="xs"
+                        render={
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setNavValue(null);
+                              openPage("library", presetsTrigger.current);
+                            }}
+                          />
+                        }
+                      >
+                        <ItemMedia variant="icon">
+                          <Download size={16} aria-hidden="true" />
+                        </ItemMedia>
+                        <ItemContent>
+                          <ItemTitle>Your presets</ItemTitle>
+                        </ItemContent>
+                        <span className="map-nav-count">
+                          {ownedPresetIds.length}
+                        </span>
+                      </Item>
+                    )}
+                  </ItemGroup>
+                </NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <button

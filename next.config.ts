@@ -27,7 +27,7 @@ const config: NextConfig = {
       "/work/:path*",
       "/about",
       "/contact",
-      "/presets/:path*",
+      "/presets/:path+",
       "/photographs/:path*",
       "/locations/:path*",
     ].map((source) => ({ source, destination: "/", permanent: false }));
