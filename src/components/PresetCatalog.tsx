@@ -34,6 +34,8 @@ import {
   type PresetCatalogState,
   type PresetCategory,
 } from "@/lib/preset-commerce";
+import { pricePresetCart } from "@/lib/preset-cart";
+import { formatPresetPrice } from "@/lib/preset-cart-storage";
 import { Button } from "./ui/button";
 import { PresetDownloadButton } from "./PresetDownloadButton";
 import { useCommerceAccount } from "./CommerceProviders";
@@ -98,9 +100,15 @@ export default function PresetCatalog({
   const owned = new Set(
     ownedPresetIds.filter((presetId) => getCatalogPreset(presetId)),
   );
-  const remainingCollectionIds = results
-    .filter((preset) => !cart.has(preset.id) && !owned.has(preset.id))
+  const unownedIds = results
+    .filter((preset) => !owned.has(preset.id))
     .map((preset) => preset.id);
+  const remainingCollectionIds = unownedIds.filter((id) => !cart.has(id));
+  const bundle = pricePresetCart({
+    paidPresetIds: unownedIds,
+    rewardPresetId: null,
+  });
+  const filtered = state.query !== "" || state.category !== "All";
   const selectedInCart = selected ? cart.has(selected.id) : false;
   const selectedOwned = selected ? owned.has(selected.id) : false;
   const localScroll = useRef(0);
@@ -219,22 +227,40 @@ export default function PresetCatalog({
               ))}
             </NativeSelect>
           </Label>
-          {onAddCollection && (
-            <Button
-              variant="control"
-              className={styles.collectionAction}
-              disabled={remainingCollectionIds.length === 0}
-              onClick={() => onAddCollection(remainingCollectionIds)}
-              aria-label={
-                remainingCollectionIds.length === 0
-                  ? "All presets selected"
-                  : `Add all ${remainingCollectionIds.length} presets to cart`
-              }
-            >
-              {remainingCollectionIds.length === 0 ? "All selected" : "Add all"}
-            </Button>
-          )}
         </div>
+        {onAddCollection && bundle.paidCount > 0 && (
+          <Item variant="muted" className={styles.bundle}>
+            <ItemContent>
+              <ItemTitle>
+                {filtered
+                  ? `${bundle.paidCount} matching presets`
+                  : `All ${bundle.paidCount} presets`}
+              </ItemTitle>
+              <ItemDescription className={styles.bundlePrice}>
+                {bundle.discountCents > 0 && (
+                  <>
+                    <s>
+                      <span className="sr-only">Was </span>
+                      {formatPresetPrice(bundle.paidSubtotalCents)}
+                    </s>{" "}
+                  </>
+                )}
+                <strong>{formatPresetPrice(bundle.totalCents)}</strong>
+                {bundle.discountPercent > 0 &&
+                  ` · ${bundle.discountPercent}% off`}
+              </ItemDescription>
+            </ItemContent>
+            <ItemActions>
+              <Button
+                className={styles.bundleAction}
+                disabled={remainingCollectionIds.length === 0}
+                onClick={() => onAddCollection(remainingCollectionIds)}
+              >
+                {remainingCollectionIds.length === 0 ? "In cart" : "Add all"}
+              </Button>
+            </ItemActions>
+          </Item>
+        )}
         <p className="sr-only" role="status">
           {results.length} {results.length === 1 ? "preset" : "presets"}
           {state.query || state.category !== "All"

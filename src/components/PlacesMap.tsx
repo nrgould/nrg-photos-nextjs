@@ -63,8 +63,9 @@ const introSpinDegrees = 110;
 const introSettleMs = 2200;
 const introSettleDegrees =
   (2 * introSpinDegrees * introSettleMs) / (3 * introSpinMs);
-// Desktop thumbnails render larger; marker layout runs in 48px marker units.
+// Marker layout runs in 48px marker units: 64px on desktop, 40px on phones.
 const desktopMarkerScale = 4 / 3;
+const phoneMarkerScale = 5 / 6;
 // A wide screen shows more map at the same engine zoom, so each desktop zoom
 // stop sits closer in.
 const zoomOffset = () =>
@@ -538,6 +539,11 @@ export default function PlacesMap(props: {
         };
         instance.touchZoomRotate.disableRotation();
         instance.keyboard.disable();
+        // A clicked globe leaves Left and Right to step places; arrows pan once the canvas is tabbed to.
+        let tabbedTo = false;
+        const onMapFocus = () => {
+          tabbedTo = keyboardIntent.current;
+        };
         const onMapKey = (event: KeyboardEvent) => {
           const directions: Record<string, [number, number]> = {
             ArrowLeft: [-100, 0],
@@ -546,6 +552,7 @@ export default function PlacesMap(props: {
             ArrowDown: [0, 100],
           };
           if (directions[event.key]) {
+            if (!tabbedTo) return;
             event.preventDefault();
             nativeZoomIntent.current.active = false;
             // Omitting zoom lets the native globe helper preserve radius during latitude changes.
@@ -576,9 +583,12 @@ export default function PlacesMap(props: {
               );
           }
         };
+        instance.getCanvas().addEventListener("focus", onMapFocus);
         instance.getCanvas().addEventListener("keydown", onMapKey);
-        removeKeyboard = () =>
+        removeKeyboard = () => {
+          instance.getCanvas().removeEventListener("focus", onMapFocus);
           instance.getCanvas().removeEventListener("keydown", onMapKey);
+        };
         map.current = instance;
         animateProjection.current = (nextMode, instant) => {
           projectionAnimation?.stop();
@@ -650,7 +660,7 @@ export default function PlacesMap(props: {
             window.matchMedia("(prefers-reduced-motion: reduce)").matches;
           const scale = window.matchMedia("(min-width: 701px)").matches
             ? desktopMarkerScale
-            : 1;
+            : phoneMarkerScale;
           instance
             .getContainer()
             .style.setProperty("--marker-scale", String(scale));

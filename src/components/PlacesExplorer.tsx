@@ -884,7 +884,7 @@ export default function PlacesExplorer({
       window.removeEventListener("keydown", listener);
     };
   }, []);
-  // Left and Right step places like the command bar, unless a field, slider, the map canvas or the viewer already took the key.
+  // Left and Right step places like the command bar, unless a field, slider, the tabbed-to map or the viewer already took the key.
   useEffect(() => {
     const onArrowKey = (event: KeyboardEvent) => {
       if (
@@ -899,7 +899,7 @@ export default function PlacesExplorer({
         navigationDisabled ||
         (event.target instanceof Element &&
           event.target.closest(
-            "input, textarea, select, [contenteditable], [role=slider], [role=tablist], [role=radiogroup], [role=menu], [role=listbox], .maplibregl-canvas",
+            "input, textarea, select, [contenteditable], [role=slider], [role=tablist], [role=radiogroup], [role=menu], [role=listbox]",
           ))
       )
         return;
@@ -1017,7 +1017,8 @@ export default function PlacesExplorer({
       return (
         <MenuPanel
           theme={theme}
-          onPresets={(trigger) => openPage("presets", trigger)}
+          ownedCount={ownedPresetIds.length}
+          onLibrary={(trigger) => openPage("library", trigger)}
           onTheme={changeTheme}
           onContact={(trigger) => openPage("contact", trigger)}
         />
@@ -1111,7 +1112,8 @@ export default function PlacesExplorer({
               <span aria-hidden="true">{cartIds.length}</span>
             )}
           </Button>
-          {ownedPresetIds.length > 0 && (
+          {/* Phones reach owned presets from the Menu, leaving room for Presets top left. */}
+          {desktop && ownedPresetIds.length > 0 && (
             <Button
               variant="control"
               aria-label={`Your presets, ${ownedPresetIds.length} owned`}
@@ -1128,21 +1130,30 @@ export default function PlacesExplorer({
         <div className="map-workspace">
           <div className="map-toolbar">
             {desktop && search}
-            <Button
-              ref={presetsTrigger}
-              variant="control"
-              className="explorer-presets-trigger"
-              aria-expanded={desktop ? undefined : topView === "menu"}
-              onClick={(event) =>
-                openPage(desktop ? "presets" : "menu", event.currentTarget)
-              }
-            >
-              <span className="max-[700px]:hidden">All presets</span>
-              <span className="min-[701px]:hidden">
-                <MenuIcon size={18} aria-hidden="true" />
-                <span className="sr-only">Menu</span>
-              </span>
-            </Button>
+            {/* Phones attach Menu to Presets; desktop has contact and theme bottom left. */}
+            <ButtonGroup aria-label="Menu and presets">
+              {!desktop && (
+                <Button
+                  variant="control"
+                  className="explorer-menu-trigger min-[701px]:hidden"
+                  aria-label="Menu"
+                  aria-expanded={topView === "menu"}
+                  onClick={(event) => openPage("menu", event.currentTarget)}
+                >
+                  <MenuIcon size={18} aria-hidden="true" />
+                </Button>
+              )}
+              <Button
+                ref={presetsTrigger}
+                variant="control"
+                className="explorer-presets-trigger"
+                aria-expanded={desktop ? undefined : topView === "presets"}
+                onClick={(event) => openPage("presets", event.currentTarget)}
+              >
+                <span className="max-[700px]:hidden">All presets</span>
+                <span className="min-[701px]:hidden">Presets</span>
+              </Button>
+            </ButtonGroup>
           </div>
           <PlacesMap
             places={filteredPlaces}

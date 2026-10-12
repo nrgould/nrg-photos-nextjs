@@ -4,14 +4,13 @@ import Link from "next/link";
 import {
   ArrowUpRight,
   ChevronRight,
+  Download,
   FileText,
   Instagram,
   Mail,
   Moon,
-  SlidersHorizontal,
   Sun,
 } from "lucide-react";
-import { presetCatalog } from "@/lib/preset-commerce";
 import { site } from "@/lib/site";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,15 +23,17 @@ import {
 } from "@/components/ui/item";
 import styles from "./ExploreChallenges.module.css";
 
-// Phones keep presets, theme and contact here instead of on the map.
+// Phones keep owned presets, theme and contact here instead of on the map.
 export default function MenuPanel({
   theme,
-  onPresets,
+  ownedCount,
+  onLibrary,
   onTheme,
   onContact,
 }: {
   theme: "light" | "dark";
-  onPresets: (trigger: HTMLElement) => void;
+  ownedCount: number;
+  onLibrary: (trigger: HTMLElement) => void;
   onTheme: () => void;
   onContact: (trigger: HTMLElement) => void;
 }) {
@@ -63,26 +64,28 @@ export default function MenuPanel({
       </header>
       <div className={styles.content}>
         <ItemGroup className={styles.menuGroup}>
-          <Item
-            render={
-              <button
-                type="button"
-                onClick={(event) => onPresets(event.currentTarget)}
-              />
-            }
-            className={styles.menuRow}
-          >
-            <ItemMedia variant="icon">
-              <SlidersHorizontal size={18} strokeWidth={1.5} aria-hidden />
-            </ItemMedia>
-            <ItemContent>
-              <ItemTitle>All presets</ItemTitle>
-            </ItemContent>
-            <ItemActions className={styles.menuTrailing}>
-              {presetCatalog.length}
-              <ChevronRight size={16} strokeWidth={1.5} aria-hidden />
-            </ItemActions>
-          </Item>
+          {ownedCount > 0 && (
+            <Item
+              render={
+                <button
+                  type="button"
+                  onClick={(event) => onLibrary(event.currentTarget)}
+                />
+              }
+              className={styles.menuRow}
+            >
+              <ItemMedia variant="icon">
+                <Download size={18} strokeWidth={1.5} aria-hidden />
+              </ItemMedia>
+              <ItemContent>
+                <ItemTitle>Your presets</ItemTitle>
+              </ItemContent>
+              <ItemActions className={styles.menuTrailing}>
+                {ownedCount}
+                <ChevronRight size={16} strokeWidth={1.5} aria-hidden />
+              </ItemActions>
+            </Item>
+          )}
           <Item
             render={
               <button
