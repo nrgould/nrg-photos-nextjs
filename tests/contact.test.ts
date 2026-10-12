@@ -31,7 +31,7 @@ test("an inquiry is delivered only to Nicholas, with visitor as reply-to", async
   );
   assert.equal(result.status, 200);
   assert.deepEqual(sent, {
-    to: "nicholas@nicholasgouldphoto.com",
+    to: "nicholas@nrgstudios.co",
     replyTo: data.email,
     subject: "Photography inquiry: Portraits",
     text: "From: A visitor\nEmail: visitor@example.com\nInterested in: Portraits\n\n<b>Literal text should stay literal.</b>",
@@ -98,7 +98,7 @@ test("mailto drafts preserve special characters without adding mail headers", ()
     message: "Print: Hallstatt? Size & price, please.",
   });
   const url = new URL(href);
-  assert.equal(url.pathname, "nicholas@nicholasgouldphoto.com");
+  assert.equal(url.pathname, "nicholas@nrgstudios.co");
   assert.equal(url.searchParams.get("subject"), "Portraits inquiry from A & B");
   assert.match(url.searchParams.get("body")!, /Size & price/);
   assert.equal(url.searchParams.size, 2);

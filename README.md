@@ -53,7 +53,7 @@ Copy `.env.example` to `.env.local` and provide:
 - `RESEND_API_KEY`: the Resend API key.
 - `CONTACT_FROM_EMAIL`: a sender on a domain verified in that Resend account.
 
-With both configured, the form sends a plain-text inquiry **to nicholas@nicholasgouldphoto.com**, using the visitor's address as Reply-To. Without both values, the form prepares an email draft for the visitor to send using their own email app. No automatic email is sent in draft mode.
+With both configured, the form sends a plain-text inquiry **to nicholas@nrgstudios.co**, using the visitor's address as Reply-To. Without both values, the form prepares an email draft for the visitor to send using their own email app. No automatic email is sent in draft mode.
 
 The handler validates input, caps request size, checks Origin, and ignores honeypot submissions. For a public launch with direct email delivery, configure host-level rate limiting or bot protection appropriate to traffic; there is no shared rate-limiter service in this repository. Contact tests inject a mock sender and send no real email.
 
