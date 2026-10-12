@@ -67,8 +67,8 @@ const introSpinDegrees = 110;
 const introSettleMs = 2200;
 const introSettleDegrees =
   (2 * introSpinDegrees * introSettleMs) / (3 * introSpinMs);
-// Marker layout runs in 48px marker units: 64px on desktop, 40px on phones.
-const desktopMarkerScale = 4 / 3;
+// Marker layout runs in 48px marker units: 48px on desktop, 40px on phones.
+const desktopMarkerScale = 1;
 const phoneMarkerScale = 5 / 6;
 // A wide screen shows more map at the same engine zoom, so each desktop zoom
 // stop sits closer in.
