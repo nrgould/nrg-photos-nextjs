@@ -43,12 +43,12 @@ const explorerSans = Hanken_Grotesk({
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: "Nicholas Gould | Photography",
+    default: "Portfolio Map | Nicholas Gould",
     template: "%s | Nicholas Gould",
   },
   description: site.description,
   openGraph: {
-    title: "Nicholas Gould | Photography",
+    title: "Portfolio Map | Nicholas Gould",
     description: site.description,
     type: "website",
     siteName: "Nicholas Gould Photography",

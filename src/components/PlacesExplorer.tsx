@@ -38,7 +38,11 @@ import {
   getPlacePresets,
   type MapNode,
 } from "@/lib/map-hierarchy";
-import { searchExplorer, shuffleLocation, stepLocation } from "@/lib/map-filters";
+import {
+  searchExplorer,
+  shuffleLocation,
+  stepLocation,
+} from "@/lib/map-filters";
 import { Button } from "./ui/button";
 import MapZoom from "./MapZoom";
 import { Separator } from "./ui/separator";
@@ -174,12 +178,15 @@ function Control({
   onClick,
   variant = "control",
   disabled = false,
+  shortcut,
 }: {
   variant?: "control" | "quiet";
   label: string;
   children: ReactNode;
   onClick?: () => void;
   disabled?: boolean;
+  /** aria-keyshortcuts value, and the key as the tooltip shows it. */
+  shortcut?: { keys: string; label: string };
 }) {
   return (
     <Tooltip>
@@ -188,6 +195,7 @@ function Control({
           <Button
             variant={variant}
             aria-label={label}
+            aria-keyshortcuts={shortcut?.keys}
             onClick={onClick}
             disabled={disabled}
           />
@@ -195,10 +203,25 @@ function Control({
       >
         {children}
       </TooltipTrigger>
-      <TooltipContent className="explorer-overlay">{label}</TooltipContent>
+      <TooltipContent className="explorer-overlay">
+        {label}
+        {shortcut && (
+          <kbd
+            data-slot="kbd"
+            className="min-w-5 rounded-sm bg-background/15 px-1 text-center font-sans"
+          >
+            {shortcut.label}
+          </kbd>
+        )}
+      </TooltipContent>
     </Tooltip>
   );
 }
+const travelKeys: Record<string, "back" | "next" | "shuffle"> = {
+  ArrowLeft: "back",
+  ArrowRight: "next",
+  s: "shuffle",
+};
 // Each first-visit hint shows once per browser; storage that throws counts as seen.
 function hintSeen(name: "place" | "step") {
   try {
@@ -892,8 +915,7 @@ export default function PlacesExplorer({
         ) {
           setIntro(false);
           setMode("map");
-          if (landing.current && !hintSeen("place"))
-            setHint("place");
+          if (landing.current && !hintSeen("place")) setHint("place");
         }
       } catch {}
     });
@@ -911,11 +933,12 @@ export default function PlacesExplorer({
       window.removeEventListener("keydown", listener);
     };
   }, []);
-  // Left and Right step places like the command bar, unless a field, slider, the tabbed-to map or the viewer already took the key.
+  // Left, Right and S step and shuffle places like the command bar, unless a field, slider, the tabbed-to map or the viewer already took the key.
   useEffect(() => {
-    const onArrowKey = (event: KeyboardEvent) => {
+    const onTravelKey = (event: KeyboardEvent) => {
+      const direction = travelKeys[event.key];
       if (
-        (event.key !== "ArrowLeft" && event.key !== "ArrowRight") ||
+        !direction ||
         event.defaultPrevented ||
         event.metaKey ||
         event.ctrlKey ||
@@ -931,16 +954,17 @@ export default function PlacesExplorer({
       )
         return;
       event.preventDefault();
-      navigate(event.key === "ArrowLeft" ? "back" : "next");
+      navigate(direction);
     };
-    window.addEventListener("keydown", onArrowKey);
-    return () => window.removeEventListener("keydown", onArrowKey);
+    window.addEventListener("keydown", onTravelKey);
+    return () => window.removeEventListener("keydown", onTravelKey);
   });
   // Phones carry search in the command bar; desktop keeps it top left.
   const search = (
     <Control
       variant={desktop ? undefined : "quiet"}
       label="Search"
+      shortcut={{ keys: "Meta+K Control+K", label: "⌘K" }}
       onClick={() => setCommand(true)}
     >
       <Search size={18} />
@@ -1261,6 +1285,7 @@ export default function PlacesExplorer({
             <Control
               variant="quiet"
               label="Previous"
+              shortcut={{ keys: "ArrowLeft", label: "←" }}
               disabled={navigationDisabled}
               onClick={() => navigate("back")}
             >
@@ -1269,6 +1294,7 @@ export default function PlacesExplorer({
             <Control
               variant="quiet"
               label="Next"
+              shortcut={{ keys: "ArrowRight", label: "→" }}
               disabled={navigationDisabled}
               onClick={() => navigate("next")}
             >
@@ -1278,6 +1304,7 @@ export default function PlacesExplorer({
             <Control
               variant="quiet"
               label="Shuffle"
+              shortcut={{ keys: "S", label: "S" }}
               disabled={navigationDisabled}
               onClick={() => navigate("shuffle")}
             >
