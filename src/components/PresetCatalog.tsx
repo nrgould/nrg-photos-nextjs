@@ -173,7 +173,7 @@ export default function PresetCatalog({
               type="search"
               variant="boxed"
               aria-label="Search presets"
-              placeholder="Search presets or places"
+              placeholder="Presets or places"
               autoComplete="off"
               enterKeyHint="search"
               value={state.query}
