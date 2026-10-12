@@ -8,13 +8,13 @@ const data = {
   message: "I would like to plan a portrait session.",
   website: "",
 };
-const req = (body: unknown = data, origin = "https://nicholasgouldphoto.com") =>
-  new Request("https://nicholasgouldphoto.com/api/contact", {
+const req = (body: unknown = data, origin = "https://nrgstudios.co") =>
+  new Request("https://nrgstudios.co/api/contact", {
     method: "POST",
     headers: { origin, "content-type": "application/json" },
     body: JSON.stringify(body),
   });
-test("an inquiry is delivered only to Nicholas, with visitor as reply-to", async () => {
+test("an inquiry is delivered only to the site contact address, with visitor as reply-to", async () => {
   let sent;
   const result = await handleContact(
     req({
@@ -31,7 +31,7 @@ test("an inquiry is delivered only to Nicholas, with visitor as reply-to", async
   );
   assert.equal(result.status, 200);
   assert.deepEqual(sent, {
-    to: "nicholas@nicholasgouldphoto.com",
+    to: "contact@nrgstudios.co",
     replyTo: data.email,
     subject: "Photography inquiry: Portraits",
     text: "From: A visitor\nEmail: visitor@example.com\nInterested in: Portraits\n\n<b>Literal text should stay literal.</b>",
@@ -98,7 +98,7 @@ test("mailto drafts preserve special characters without adding mail headers", ()
     message: "Print: Hallstatt? Size & price, please.",
   });
   const url = new URL(href);
-  assert.equal(url.pathname, "nicholas@nicholasgouldphoto.com");
+  assert.equal(url.pathname, "contact@nrgstudios.co");
   assert.equal(url.searchParams.get("subject"), "Portraits inquiry from A & B");
   assert.match(url.searchParams.get("body")!, /Size & price/);
   assert.equal(url.searchParams.size, 2);

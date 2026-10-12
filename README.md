@@ -53,7 +53,7 @@ Copy `.env.example` to `.env.local` and provide:
 - `RESEND_API_KEY`: the Resend API key.
 - `CONTACT_FROM_EMAIL`: a sender on a domain verified in that Resend account.
 
-With both configured, the form sends a plain-text inquiry **to nicholas@nicholasgouldphoto.com**, using the visitor's address as Reply-To. Without both values, the form prepares an email draft for the visitor to send using their own email app. No automatic email is sent in draft mode.
+With both configured, the form sends a plain-text inquiry **to contact@nrgstudios.co**, using the visitor's address as Reply-To. Without both values, the form prepares an email draft for the visitor to send using their own email app. No automatic email is sent in draft mode.
 
 The handler validates input, caps request size, checks Origin, and ignores honeypot submissions. For a public launch with direct email delivery, configure host-level rate limiting or bot protection appropriate to traffic; there is no shared rate-limiter service in this repository. Contact tests inject a mock sender and send no real email.
 
@@ -75,4 +75,4 @@ Browser checks performed: desktop 1440px, mobile 390px; hero controls, navigatio
 
 Use a Node.js host supporting Next.js SSR, or import this repository into Vercel with the Next.js preset. Build command: `npm run build`. For a self-hosted Node.js server, run `npm start` behind your TLS proxy.
 
-The canonical URLs are set to https://nicholasgouldphoto.com. Review copy and photo selection, configure email if desired, then deploy and point the domain at the new host. This work has not changed production hosting, DNS or the live website.
+The site is served at https://nrgstudios.co. Production indexing and the canonical origin follow docs/seo-launch.md.

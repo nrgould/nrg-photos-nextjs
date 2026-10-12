@@ -76,19 +76,46 @@ for (const path of ["/robots.txt", "/sitemap.xml"]) {
     const urls = [...text.matchAll(/<loc>(.*?)<\/loc>/g)].map(
       (match) => match[1],
     );
-    assert.equal(urls.length, indexable ? 1 : 0, "launch-gated sitemap");
-    assert.ok(
-      urls.every(
-        (url) =>
-          url.startsWith(canonicalOrigin + "/") || url === canonicalOrigin,
-      ),
+    assert.deepEqual(
+      urls,
+      indexable
+        ? ["", "/presets", "/privacy", "/terms"].map((p) => canonicalOrigin + p)
+        : [],
+      "launch-gated sitemap",
     );
-  } else
+    // Every listed page answers directly, names itself canonical and is indexable.
+    for (const url of urls) {
+      const page = await fetch(base + new URL(url).pathname, {
+        redirect: "manual",
+      });
+      assert.equal(page.status, 200, url);
+      const head = await page.text();
+      assert.ok(
+        head.includes(`<link rel="canonical" href="${url}"`),
+        `${url}: canonical`,
+      );
+      assert.ok(
+        !/name="robots" content="[^"]*noindex/.test(head),
+        `${url}: robots meta`,
+      );
+      assert.ok(
+        !/noindex/.test(page.headers.get("x-robots-tag") ?? ""),
+        `${url}: header`,
+      );
+      if (url === canonicalOrigin)
+        assert.ok(
+          head.includes(`<meta property="og:url" content="${url}"`),
+          "og:url",
+        );
+    }
+  } else {
     assert.equal(
       text.includes("Sitemap:"),
       indexable,
       "launch-gated robots sitemap",
     );
+    assert.ok(text.includes("Disallow: /api/"), "robots keeps /api/ out");
+  }
   console.log(`PASS ${path}`);
 }
 assert.equal((await fetch(base + "/prints")).status, 404);
