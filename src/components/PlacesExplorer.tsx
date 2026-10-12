@@ -31,7 +31,8 @@ import {
 } from "lucide-react";
 import { track } from "@/lib/analytics";
 import { selectionFeedback } from "@/lib/haptics";
-import { heroSrcs, travelPlaces } from "@/lib/places";
+import { fold, heroSrcs, travelPlaces } from "@/lib/places";
+import { useRouter } from "next/navigation";
 import { galleryLayout, heroCount } from "@/lib/gallery-layout";
 import Image from "next/image";
 import dynamic from "next/dynamic";
@@ -621,6 +622,32 @@ export default function PlacesExplorer({
     () => searchExplorer(filteredPlaces, query),
     [filteredPlaces, query],
   );
+  const router = useRouter();
+  const words = fold(query).split(/\s+/).filter(Boolean);
+  const presetHits = words.length
+    ? filterPresetCatalog({ query, category: "All" })
+    : [];
+  // A path is a site page; anything else opens in the drawer.
+  const pages: { label: string; also?: string; to: PageView | `/${string}` }[] =
+    [
+      { label: "All presets", to: "presets" },
+      { label: "Signature Collection", also: "presets", to: "/presets" },
+      ...(ownedPresetIds.length
+        ? [{ label: "Your presets", to: "library" as const }]
+        : []),
+      { label: "Saved", to: "saved" },
+      { label: "Cart", to: "cart" },
+      { label: "Challenges", to: "challenges" },
+      { label: "Contact", to: "contact" },
+      { label: "Terms", to: "/terms" },
+      { label: "Privacy", to: "/privacy" },
+    ];
+  const pageHits = words.length
+    ? pages.filter((page) => {
+        const text = fold(`${page.label} ${page.also ?? ""}`);
+        return words.every((word) => text.includes(word));
+      })
+    : [];
   function closeSearch() {
     setCommand(false);
     setQuery("");
@@ -2011,7 +2038,7 @@ export default function PlacesExplorer({
         open={command}
         onOpenChange={(next) => (next ? setCommand(true) : closeSearch())}
         title="Search"
-        description="Search places and photographs."
+        description="Search places, photographs, presets and pages."
         className="explorer-overlay"
         finalFocus={() =>
           open ? (drawerHandle.current ?? drawerElement) : true
@@ -2019,12 +2046,30 @@ export default function PlacesExplorer({
       >
         <Command shouldFilter={false}>
           <CommandInput
-            placeholder="Search places and photographs…"
+            placeholder="Search places, photographs, presets…"
             value={query}
             onValueChange={setQuery}
           />
           <CommandList>
             <CommandEmpty>No results.</CommandEmpty>
+            {pageHits.length > 0 && (
+              <CommandGroup heading="Pages">
+                {pageHits.map((page) => (
+                  <CommandItem
+                    key={page.label}
+                    value={`page:${page.label}`}
+                    className="min-h-11"
+                    onSelect={() => {
+                      if (page.to.startsWith("/")) router.push(page.to);
+                      else openPage(page.to as PageView);
+                      closeSearch();
+                    }}
+                  >
+                    {page.label}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
             {results.places.length > 0 && (
               <CommandGroup heading="Places">
                 {results.places.map(({ node, collection }) => (
@@ -2040,6 +2085,26 @@ export default function PlacesExplorer({
                     {node.label}
                     <span className="ml-auto text-xs text-muted-foreground">
                       {node.kind === "country" ? "All photographs" : collection}
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+            {presetHits.length > 0 && (
+              <CommandGroup heading="Presets">
+                {presetHits.map((preset) => (
+                  <CommandItem
+                    key={preset.id}
+                    value={`preset:${preset.id}`}
+                    className="min-h-11"
+                    onSelect={() => {
+                      openPreset(preset.id);
+                      closeSearch();
+                    }}
+                  >
+                    {preset.name}
+                    <span className="ml-auto text-xs text-muted-foreground">
+                      {preset.category}
                     </span>
                   </CommandItem>
                 ))}
