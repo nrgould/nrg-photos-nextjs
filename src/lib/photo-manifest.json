@@ -8352,16 +8352,17 @@
     "lightroomId": 8059691
   },
   {
-    "src": "/photos/lr-8225036.webp",
+    "src": "/photos/lr-8225227.webp",
     "title": "North Cascades",
-    "alt": "Low sun lights a slope of red huckleberry below a dark forested mountainside of firs",
-    "origin": "Lightroom 8225036",
+    "alt": "Golden larches fill a meadow below a forested rounded peak under a pale blue sky",
+    "origin": "Lightroom 8225227",
     "width": 1200,
     "height": 1600,
-    "taken": "2026-10-08T10:01:36.40",
+    "taken": "2026-10-08T11:12:20.56",
     "locationId": "north-cascades",
     "placeSource": "nicholas",
-    "lightroomId": 8225036
+    "lightroomId": 8225227,
+    "hero": true
   },
   {
     "src": "/photos/lr-8225050.webp",
@@ -8373,19 +8374,33 @@
     "taken": "2026-10-08T10:03:28.87",
     "locationId": "north-cascades",
     "placeSource": "nicholas",
-    "lightroomId": 8225050
+    "lightroomId": 8225050,
+    "hero": true
   },
   {
-    "src": "/photos/lr-8225183.webp",
+    "src": "/photos/lr-8225359.webp",
     "title": "North Cascades",
-    "alt": "A red-haired hiker stands on a dirt trail lined with red shrubs, golden larches on the rock face behind",
-    "origin": "Lightroom 8225183",
+    "alt": "Golden larches catch the light in the foreground, a jagged blue ridge on the horizon",
+    "origin": "Lightroom 8225359",
     "width": 1200,
     "height": 1600,
-    "taken": "2026-10-08T11:05:24.03",
+    "taken": "2026-10-08T11:42:21.51",
     "locationId": "north-cascades",
     "placeSource": "nicholas",
-    "lightroomId": 8225183
+    "lightroomId": 8225359,
+    "hero": true
+  },
+  {
+    "src": "/photos/lr-8225036.webp",
+    "title": "North Cascades",
+    "alt": "Low sun lights a slope of red huckleberry below a dark forested mountainside of firs",
+    "origin": "Lightroom 8225036",
+    "width": 1200,
+    "height": 1600,
+    "taken": "2026-10-08T10:01:36.40",
+    "locationId": "north-cascades",
+    "placeSource": "nicholas",
+    "lightroomId": 8225036
   },
   {
     "src": "/photos/lr-8225191.webp",
@@ -8434,18 +8449,6 @@
     "locationId": "north-cascades",
     "placeSource": "nicholas",
     "lightroomId": 8225223
-  },
-  {
-    "src": "/photos/lr-8225227.webp",
-    "title": "North Cascades",
-    "alt": "Golden larches fill a meadow below a forested rounded peak under a pale blue sky",
-    "origin": "Lightroom 8225227",
-    "width": 1200,
-    "height": 1600,
-    "taken": "2026-10-08T11:12:20.56",
-    "locationId": "north-cascades",
-    "placeSource": "nicholas",
-    "lightroomId": 8225227
   },
   {
     "src": "/photos/lr-8225230.webp",
@@ -8508,18 +8511,6 @@
     "lightroomId": 8225313
   },
   {
-    "src": "/photos/lr-8225323.webp",
-    "title": "North Cascades",
-    "alt": "A smiling couple in blue sweaters stands in front of a wall of golden larches",
-    "origin": "Lightroom 8225323",
-    "width": 1200,
-    "height": 1600,
-    "taken": "2026-10-08T11:36:13.88",
-    "locationId": "north-cascades",
-    "placeSource": "nicholas",
-    "lightroomId": 8225323
-  },
-  {
     "src": "/photos/lr-8225328.webp",
     "title": "North Cascades",
     "alt": "A jagged grey mountain rises over a forested valley, golden larches on the slope below",
@@ -8566,30 +8557,6 @@
     "locationId": "north-cascades",
     "placeSource": "nicholas",
     "lightroomId": 8225336
-  },
-  {
-    "src": "/photos/lr-8225349.webp",
-    "title": "North Cascades",
-    "alt": "A woman in a navy hoodie holds a water bottle on a rocky trail beside a glowing golden larch",
-    "origin": "Lightroom 8225349",
-    "width": 1200,
-    "height": 1600,
-    "taken": "2026-10-08T11:41:59.09",
-    "locationId": "north-cascades",
-    "placeSource": "nicholas",
-    "lightroomId": 8225349
-  },
-  {
-    "src": "/photos/lr-8225359.webp",
-    "title": "North Cascades",
-    "alt": "Golden larches catch the light in the foreground, a jagged blue ridge on the horizon",
-    "origin": "Lightroom 8225359",
-    "width": 1200,
-    "height": 1600,
-    "taken": "2026-10-08T11:42:21.51",
-    "locationId": "north-cascades",
-    "placeSource": "nicholas",
-    "lightroomId": 8225359
   },
   {
     "src": "/photos/lr-8225363.webp",
