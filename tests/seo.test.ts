@@ -145,20 +145,41 @@ test("every published source has one stable direct route and unique metadata", (
     assert.equal(getSeoLocation(locationSlug(node)), node);
   assert.equal(getSeoLocation("italy"), undefined);
   assert.equal(getSeoPhoto("not-a-photo"), undefined);
+});
+
+test("the sitemap lists only pages that render, never a redirect to the map", async () => {
+  process.env.NEXT_PUBLIC_SUPABASE_URL ??= "https://example.supabase.co";
+  const { default: nextConfig } = await import("../next.config");
+  const redirects = await nextConfig.redirects!();
+  const redirected = (path: string) =>
+    redirects.some(({ source }) => {
+      const [, prefix, wildcard] = source.match(/^(.*?)(\/:path[*+])?$/)!;
+      if (!wildcard) return path === prefix;
+      return (
+        path.startsWith(prefix + "/") ||
+        (wildcard.endsWith("*") && path === prefix)
+      );
+    });
+  for (const path of [
+    "/locations",
+    "/photographs",
+    "/locations/hallstatt",
+    "/presets/salzburg-1",
+  ])
+    assert.ok(redirected(path), path);
   const sitemap = seoSitemapEntries(launched);
-  // Two indexes + every location + 35 photos + 30 presets.
-  assert.equal(sitemap.length, 2 + seoLocations.length + 35 + 32);
-  assert.equal(new Set(sitemap.map((item) => item.url)).size, sitemap.length);
   assert.deepEqual(
-    sitemap.flatMap((item) => item.images ?? []).sort(),
-    seoPhotos.map((photo) => `https://nrgstudios.co${photo.src}`).sort(),
+    sitemap.map((item) => item.url),
+    [
+      "https://nrgstudios.co/presets",
+      "https://nrgstudios.co/privacy",
+      "https://nrgstudios.co/terms",
+    ],
   );
-  assert.ok(
-    sitemap.every(
-      (item) =>
-        item.url.startsWith("https://nrgstudios.co/") && !item.lastModified,
-    ),
-  );
+  for (const item of sitemap) {
+    assert.ok(!redirected(new URL(item.url).pathname), item.url);
+    assert.ok(!item.lastModified && !item.images, item.url);
+  }
 });
 
 test("image schema exposes only public preview identity and honest location membership", () => {

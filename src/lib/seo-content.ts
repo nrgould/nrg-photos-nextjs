@@ -165,23 +165,14 @@ export function productData(
 export const serializeJsonLd = (data: unknown) =>
   JSON.stringify(data).replace(/</g, "\\u003c");
 
+// Pages that render on their own. Places, photographs and single presets redirect to the map
+// (next.config.ts), so they are not listed.
+export const sitemapPaths = ["/presets", "/privacy", "/terms"];
+
 /** Empty until launch indexing is on; no invented lastModified timestamps. */
 export function seoSitemapEntries(
   config = getSeoConfig(),
 ): MetadataRoute.Sitemap {
   if (!config.indexable || !config.origin) return [];
-  const paths = [
-    "/locations",
-    "/photographs",
-    ...seoLocations.map(locationPath),
-    ...seoPhotos.map(photoPath),
-    ...seoPresets.map(presetPath),
-  ];
-  const imagesByPath = new Map(
-    seoPhotos.map((photo) => [photoPath(photo), seoUrl(photo.src, config)!]),
-  );
-  return paths.map((path) => ({
-    url: seoUrl(path, config)!,
-    ...(imagesByPath.has(path) ? { images: [imagesByPath.get(path)!] } : {}),
-  }));
+  return sitemapPaths.map((path) => ({ url: seoUrl(path, config)! }));
 }
