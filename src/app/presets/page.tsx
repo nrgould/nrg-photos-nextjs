@@ -2,7 +2,8 @@ import Link from "next/link";
 import PhotoComparison from "@/components/PhotoComparison";
 import PresetPackBuy from "@/components/PresetPackBuy";
 import { Breadcrumbs } from "@/components/seo/SeoContent";
-import { locationPath } from "@/lib/places";
+import { getLocationNode } from "@/lib/map-hierarchy";
+import { locationPath, travelPlaces } from "@/lib/places";
 import { presetCatalog, presetExample } from "@/lib/preset-commerce";
 import { contentMetadata } from "@/lib/seo-content";
 
@@ -26,22 +27,27 @@ export default function PresetPackPage() {
       />
       <header className="pack-hero">
         <h1>Signature Collection</h1>
-        <p>
-          {presets.length} Lightroom presets · {moods.size} moods
-        </p>
         <PresetPackBuy />
       </header>
       <ul className="pack-examples">
         {presets.map((preset) => {
           const pair = presetExample(preset);
+          const home = locationPath(preset.location).at(-1)!;
+          const node = getLocationNode(travelPlaces, preset.location);
           return (
             pair && (
               <li key={preset.id}>
                 <PhotoComparison pair={pair} />
                 <h3>{preset.name}</h3>
                 <p>
-                  {preset.category} ·{" "}
-                  {locationPath(preset.location).at(-1)!.name}
+                  Made in{" "}
+                  {node ? (
+                    <Link href={`/?location=${encodeURIComponent(node.id)}`}>
+                      {home.name}
+                    </Link>
+                  ) : (
+                    home.name
+                  )}
                 </p>
               </li>
             )

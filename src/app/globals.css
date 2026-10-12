@@ -712,10 +712,6 @@
   .pack-hero {
     padding-block: 75px 64px;
   }
-  .pack-hero > p {
-    margin-top: 20px;
-    color: var(--muted-foreground);
-  }
   .pack-buy {
     display: flex;
     flex-wrap: wrap;
@@ -753,6 +749,11 @@
   .pack-examples p {
     font-size: 13px;
     color: var(--muted-foreground);
+  }
+  .pack-examples p a {
+    color: var(--foreground);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
   }
   .pack-included {
     max-width: 640px;
