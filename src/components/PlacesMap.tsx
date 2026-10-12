@@ -335,6 +335,8 @@ export default function PlacesMap(props: {
   onChoose: (id: string) => void;
   onChooseNode?: (node: MapNode) => void;
   onIntroEnd: () => void;
+  /** First-visit label shown on the marker nearest the map's center. */
+  hint?: string;
   onZoomChange: (zoom: number, mode: "globe" | "map") => void;
   /** Continuous zoom-rail position while a wheel or pinch zoom is in progress. */
   onZoomFrame?: (position: number) => void;
@@ -371,6 +373,7 @@ export default function PlacesMap(props: {
   const [hosts, setHosts] = useState<
     Map<string, { element: HTMLElement; node: MapNode }>
   >(new Map());
+  const [hintNodeId, setHintNodeId] = useState<string | null>(null);
   const [bucketHosts, setBucketHosts] = useState<
     { place: BucketPlace; element: HTMLElement }[]
   >([]);
@@ -1055,6 +1058,25 @@ export default function PlacesMap(props: {
     instance.triggerRepaint();
   }, [nodes, ready]);
 
+  // The hint sits on the marker nearest the center, re-picked when markers split or merge.
+  useEffect(() => {
+    const instance = map.current;
+    if (!props.hint || !instance) return setHintNodeId(null);
+    const { width, height } = instance.getContainer().getBoundingClientRect();
+    let nearest: string | null = null;
+    let nearestDistance = Infinity;
+    for (const [id, { node, exiting }] of markers.current) {
+      if (exiting) continue;
+      const point = instance.project(node.coordinates);
+      const distance = Math.hypot(point.x - width / 2, point.y - height / 2);
+      if (distance < nearestDistance) {
+        nearest = id;
+        nearestDistance = distance;
+      }
+    }
+    setHintNodeId(nearest);
+  }, [props.hint, hosts]);
+
   // Bucket-list pins sit 14px below their point, clear of a country's own label.
   useEffect(() => {
     const instance = map.current;
@@ -1502,6 +1524,11 @@ export default function PlacesMap(props: {
                 )}
                 <span className="map-marker-label">{node.label}</span>
               </Button>
+              {props.hint && node.id === hintNodeId && (
+                <span className="map-marker-hint" aria-hidden="true">
+                  {props.hint}
+                </span>
+              )}
             </div>
           </div>,
           host,

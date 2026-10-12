@@ -51,8 +51,8 @@ export default function MapZoom({
   const [keyboardInteraction, setKeyboardInteraction] = useState(false);
   const reduced = useReducedMotion();
   const current = draft ?? value;
-  // At rest the thumb sits at the real zoom, which a gesture can leave between stops.
-  const target = draft ?? position;
+  // A pinch or wheel zoom leaves the camera between stops; the thumb settles on the nearest one.
+  const target = draft ?? value;
   const visualPosition = useMotionValue(position);
   const boundedPosition = useTransform(visualPosition, (position) =>
     Math.max(0, Math.min(5, position)),
@@ -74,7 +74,8 @@ export default function MapZoom({
       onComplete: () => visualPosition.jump(target),
     });
     return () => animation.stop();
-  }, [target, reduced, keyboardInteraction, visualPosition]);
+    // position: a gesture that ends on the stop it started from still springs back from its live offset.
+  }, [target, position, reduced, keyboardInteraction, visualPosition]);
   useMotionValueEvent(live ?? visualPosition, "change", (next) => {
     if (live && !dragging.current) visualPosition.jump(next);
   });
@@ -154,7 +155,7 @@ export default function MapZoom({
           onKeyDownCapture={() => visualPosition.jump(current)}
           onPointerCancel={() => {
             dragging.current = false;
-            visualPosition.jump(position);
+            visualPosition.jump(value);
             setDraft(null);
           }}
           onValueChange={(next, details) => {
@@ -189,7 +190,7 @@ export default function MapZoom({
               details.event.detail === 0),
         );
         if (!open) {
-          visualPosition.jump(position);
+          visualPosition.jump(value);
           setDraft(null);
         }
       }}

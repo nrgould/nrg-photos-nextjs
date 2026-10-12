@@ -207,6 +207,20 @@ function Control({
     </Tooltip>
   );
 }
+// Each first-visit hint shows once per browser; storage that throws counts as seen.
+function hintSeen(name: "place" | "step") {
+  try {
+    return localStorage.getItem(`photo-map-hint-${name}`) !== null;
+  } catch {
+    return true;
+  }
+}
+function markHint(name: "place" | "step") {
+  try {
+    localStorage.setItem(`photo-map-hint-${name}`, "seen");
+  } catch {}
+}
+
 export default function PlacesExplorer({
   initialLocationId,
   initialCatalogState,
@@ -251,7 +265,11 @@ export default function PlacesExplorer({
   // Without a place, the map opens at Continent, below the breakout, so countries stay whole.
   const [zoom, setZoom] = useState(initialNode ? 3.5 : 2);
   const liveZoom = useMotionValue(0);
+  // A bare home-page visit plays the intro; a link to a place or page skips it.
+  const landing = useRef(!initialNode && !initialView);
   const [intro, setIntro] = useState(!initialNode && !initialView);
+  // First-visit hints: "place" over a marker after the intro, "step" over Previous/Next after the first place opens.
+  const [hint, setHint] = useState<"place" | "step" | null>(null);
   const [revision, setRevision] = useState(0);
   const [zoomRevision, setZoomRevision] = useState(0);
   const [theme, setTheme] = useState<"light" | "dark">("light");
@@ -422,6 +440,10 @@ export default function PlacesExplorer({
     }
     closeNested();
     setOpen(false);
+    if (hint === "step") {
+      markHint("step");
+      setHint(null);
+    }
   }
   function clearPresetSelection() {
     if (catalogState.selectedPresetId)
@@ -575,6 +597,8 @@ export default function PlacesExplorer({
       chooseNode(node);
     }
     setStepped(true);
+    markHint("step");
+    setHint(null);
   }
   useEffect(() => {
     const viewport = drawerViewport.current;
@@ -741,8 +765,9 @@ export default function PlacesExplorer({
   function finishIntro() {
     setIntro(false);
     setMode("map");
+    if (!hintSeen("place")) setHint("place");
     try {
-      sessionStorage.setItem("photo-map-intro", "seen");
+      localStorage.setItem("photo-map-intro", "seen");
     } catch {}
   }
   /** `under` keeps pages beneath the place, so Back returns to them. */
@@ -758,6 +783,8 @@ export default function PlacesExplorer({
     setSelectedNodeId(null);
     setViewer(null);
     setIntro(false);
+    markHint("place");
+    setHint(showPhotos && !hintSeen("step") ? "step" : null);
     setRevision((r) => r + 1);
     setPhotoFocusOpen(open || showPhotos);
     if (showPhotos) {
@@ -774,7 +801,7 @@ export default function PlacesExplorer({
       gallery.current?.scrollTo(0, 0);
     }
     try {
-      sessionStorage.setItem("photo-map-intro", "seen");
+      localStorage.setItem("photo-map-intro", "seen");
     } catch {}
   }
   // Showing a place's photos closes any nested page stacked over them.
@@ -862,11 +889,13 @@ export default function PlacesExplorer({
         setTheme(next);
         document.documentElement.dataset.photoTheme = next;
         if (
-          sessionStorage.getItem("photo-map-intro") ||
+          localStorage.getItem("photo-map-intro") ||
           window.matchMedia("(prefers-reduced-motion: reduce)").matches
         ) {
           setIntro(false);
           setMode("map");
+          if (landing.current && !hintSeen("place"))
+            setHint("place");
         }
       } catch {}
     });
@@ -1176,16 +1205,14 @@ export default function PlacesExplorer({
             onChoose={(id) => choose(id, true)}
             onChooseNode={chooseNode}
             onIntroEnd={finishIntro}
+            hint={
+              hint === "place"
+                ? desktop
+                  ? "Click a place"
+                  : "Tap a place"
+                : undefined
+            }
           />
-          {intro && (
-            <Button
-              variant="control"
-              className="skip-intro"
-              onClick={finishIntro}
-            >
-              Start exploring
-            </Button>
-          )}
         </div>
       </div>
       <div
@@ -1223,6 +1250,18 @@ export default function PlacesExplorer({
           {desktop && stepped && place && (
             <p className="command-place" aria-live="polite">
               {place.name}
+            </p>
+          )}
+          {/* Shares the place name's slot: it only shows before the first step. */}
+          {hint === "step" && open && (
+            <p className="command-hint" role="status">
+              Step to the next place
+              {desktop && (
+                <>
+                  <kbd>←</kbd>
+                  <kbd>→</kbd>
+                </>
+              )}
             </p>
           )}
           <div className="travel-commands">
