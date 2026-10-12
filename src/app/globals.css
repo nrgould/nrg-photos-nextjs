@@ -3795,8 +3795,14 @@ html[data-photo-palette="sepia"]
   .explorer .map-toolbar {
     left: 4px;
   }
-  .explorer .map-toolbar :is([data-slot="navigation-menu-list"] > li > button) {
-    padding: 0;
+}
+/* Narrow phones: Presets drops its chevron to clear the top-right group. */
+@media (max-width: 380px) {
+  .explorer .map-toolbar [data-slot="navigation-menu-trigger"] {
+    padding: 0 6px;
+  }
+  .explorer .map-toolbar [data-slot="navigation-menu-trigger"] > svg:last-child {
+    display: none;
   }
 }
 

@@ -1099,9 +1099,6 @@ export default function PlacesExplorer({
       return (
         <MenuPanel
           theme={theme}
-          ownedCount={ownedPresetIds.length}
-          onPresets={(trigger) => openPage("presets", trigger)}
-          onLibrary={(trigger) => openPage("library", trigger)}
           onContact={(trigger) => openPage("contact", trigger)}
           onTheme={changeTheme}
         />

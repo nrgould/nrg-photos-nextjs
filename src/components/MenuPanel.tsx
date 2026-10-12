@@ -6,14 +6,12 @@ import {
   Check,
   ChevronRight,
   Contrast,
-  Download,
   FileText,
   Film,
   Instagram,
   Mail,
   Moon,
   MoonStar,
-  Package,
   Sun,
   Sunset,
   Trees,
@@ -51,19 +49,13 @@ export function ThemeSwatch({ id }: { id: ThemeId }) {
   );
 }
 
-// The phone nav: presets, contact, links and themes in the bottom drawer.
+// The phone nav beside Presets: contact, links and themes in the bottom drawer.
 export default function MenuPanel({
   theme,
-  ownedCount,
-  onPresets,
-  onLibrary,
   onContact,
   onTheme,
 }: {
   theme: ThemeId;
-  ownedCount: number;
-  onPresets: (trigger: HTMLElement) => void;
-  onLibrary: (trigger: HTMLElement) => void;
   onContact: (trigger: HTMLElement) => void;
   onTheme: (theme: Theme) => void;
 }) {
@@ -81,57 +73,6 @@ export default function MenuPanel({
         </h2>
       </header>
       <div className={`${styles.content} ${styles.menuContent}`}>
-        <ItemGroup className={styles.menuGroup}>
-          <Item
-            render={
-              <button
-                type="button"
-                onClick={(event) => onPresets(event.currentTarget)}
-              />
-            }
-            className={styles.menuRow}
-          >
-            <ItemMedia variant="icon">
-              <Package size={18} strokeWidth={1.5} aria-hidden />
-            </ItemMedia>
-            <ItemContent>
-              <ItemTitle>All presets</ItemTitle>
-            </ItemContent>
-            <ItemActions className={styles.menuTrailing}>
-              <ChevronRight size={16} strokeWidth={1.5} aria-hidden />
-            </ItemActions>
-          </Item>
-          <Item render={<Link href="/presets" />} className={styles.menuRow}>
-            <ItemMedia variant="icon">
-              <Package size={18} strokeWidth={1.5} aria-hidden />
-            </ItemMedia>
-            <ItemContent>
-              <ItemTitle>Signature Collection</ItemTitle>
-            </ItemContent>
-          </Item>
-          {ownedCount > 0 && (
-            <Item
-              render={
-                <button
-                  type="button"
-                  onClick={(event) => onLibrary(event.currentTarget)}
-                />
-              }
-              className={styles.menuRow}
-            >
-              <ItemMedia variant="icon">
-                <Download size={18} strokeWidth={1.5} aria-hidden />
-              </ItemMedia>
-              <ItemContent>
-                <ItemTitle>Your presets</ItemTitle>
-              </ItemContent>
-              <ItemActions className={styles.menuTrailing}>
-                {ownedCount}
-                <ChevronRight size={16} strokeWidth={1.5} aria-hidden />
-              </ItemActions>
-            </Item>
-          )}
-        </ItemGroup>
         <ItemGroup className={styles.menuGroup}>
           <Item
             render={

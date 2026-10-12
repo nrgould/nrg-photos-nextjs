@@ -71,7 +71,7 @@ export default function SiteNav({
   contactOpen,
 }: {
   search?: ReactNode;
-  /** Phones on the map: one Menu button in place of the rest. */
+  /** Phones on the map: a Menu button in place of search, Theme and Contact. */
   onMenu?: (trigger: HTMLElement) => void;
   menuOpen?: boolean;
   presetsTrigger?: Ref<HTMLButtonElement>;
@@ -106,61 +106,63 @@ export default function SiteNav({
             </button>
           </NavigationMenuItem>
         ) : (
+          search && <NavigationMenuItem>{search}</NavigationMenuItem>
+        )}
+        <NavigationMenuItem value="presets">
+          <NavigationMenuTrigger ref={presetsTrigger}>
+            <Package size={18} aria-hidden="true" />
+            <span className="map-nav-label">Presets</span>
+          </NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <ItemGroup className="map-nav-rows">
+              <Item
+                size="xs"
+                render={
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setValue(null);
+                      onPresets();
+                    }}
+                  />
+                }
+              >
+                <ItemContent>
+                  <ItemTitle>All presets</ItemTitle>
+                </ItemContent>
+              </Item>
+              <Item size="xs" render={<Link href="/presets" />}>
+                <ItemContent>
+                  <ItemTitle>Signature Collection</ItemTitle>
+                </ItemContent>
+              </Item>
+              {ownedCount > 0 && (
+                <Item
+                  size="xs"
+                  render={
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setValue(null);
+                        onLibrary();
+                      }}
+                    />
+                  }
+                >
+                  <ItemMedia variant="icon">
+                    <Download size={16} aria-hidden="true" />
+                  </ItemMedia>
+                  <ItemContent>
+                    <ItemTitle>Your presets</ItemTitle>
+                  </ItemContent>
+                  <span className="map-nav-count">{ownedCount}</span>
+                </Item>
+              )}
+            </ItemGroup>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+        {!onMenu && (
           <>
-            {search && <NavigationMenuItem>{search}</NavigationMenuItem>}
-            <NavigationMenuItem value="presets">
-              <NavigationMenuTrigger ref={presetsTrigger}>
-                <Package size={18} aria-hidden="true" />
-                <span className="map-nav-label">Presets</span>
-              </NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ItemGroup className="map-nav-rows">
-                  <Item
-                    size="xs"
-                    render={
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setValue(null);
-                          onPresets();
-                        }}
-                      />
-                    }
-                  >
-                    <ItemContent>
-                      <ItemTitle>All presets</ItemTitle>
-                    </ItemContent>
-                  </Item>
-                  <Item size="xs" render={<Link href="/presets" />}>
-                    <ItemContent>
-                      <ItemTitle>Signature Collection</ItemTitle>
-                    </ItemContent>
-                  </Item>
-                  {ownedCount > 0 && (
-                    <Item
-                      size="xs"
-                      render={
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setValue(null);
-                            onLibrary();
-                          }}
-                        />
-                      }
-                    >
-                      <ItemMedia variant="icon">
-                        <Download size={16} aria-hidden="true" />
-                      </ItemMedia>
-                      <ItemContent>
-                        <ItemTitle>Your presets</ItemTitle>
-                      </ItemContent>
-                      <span className="map-nav-count">{ownedCount}</span>
-                    </Item>
-                  )}
-                </ItemGroup>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
             <NavigationMenuItem value="theme">
               <NavigationMenuTrigger aria-label="Theme">
                 <Palette size={18} aria-hidden="true" />
