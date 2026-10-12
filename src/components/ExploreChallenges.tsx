@@ -474,7 +474,7 @@ export default function ExploreChallenges({
                 <ItemMedia className={styles.tile} aria-hidden="true">
                   {photo ? (
                     <>
-                      <PhotoImage photo={photo} sizes="48px" />
+                      <PhotoImage photo={photo} sizes="48px" thumb />
                       <Badge />
                     </>
                   ) : (
@@ -545,7 +545,7 @@ function GoalRow({
         <div className={styles.slots} aria-hidden="true">
           {Array.from({ length: goal }, (_, i) => (
             <span key={i}>
-              {covers[i] && <PhotoImage photo={covers[i]} sizes="28px" />}
+              {covers[i] && <PhotoImage photo={covers[i]} sizes="28px" thumb />}
             </span>
           ))}
         </div>
