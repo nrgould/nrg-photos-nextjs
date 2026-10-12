@@ -335,6 +335,8 @@ export default function PlacesMap(props: {
   onChoose: (id: string) => void;
   onChooseNode?: (node: MapNode) => void;
   onIntroEnd: () => void;
+  /** Previous/Next ("step") or Shuffle reached the selection. */
+  travel?: "step" | "shuffle" | null;
   /** First-visit label shown on the marker nearest the map's center. */
   hint?: string;
   onZoomChange: (zoom: number, mode: "globe" | "map") => void;
@@ -1198,7 +1200,10 @@ export default function PlacesMap(props: {
       return;
     const projectionChanged =
       projection.current.mode !== mode || projection.current.mix !== targetMix;
-    const instant = reduced || keyboardIntent.current;
+    // Travel animates even from the arrow keys; a later recenter of the same selection is not travel.
+    const travel =
+      previous.revision !== revision ? latest.current.travel : null;
+    const instant = reduced || (keyboardIntent.current && !travel);
     nativeZoomIntent.current.active = false;
     instance.stop();
     animateProjection.current?.(mode, instant);
@@ -1272,7 +1277,7 @@ export default function PlacesMap(props: {
           (photo.y + photo.height / 2 - box.y - anchor.y) / drawn.length;
       }
     }
-    const settle = () =>
+    const settle = (duration = 650) =>
       instance.easeTo({
         ...(framed ? { center: framed.center } : aim ? { center: aim } : {}),
         zoom: framed?.zoom ?? targetZoom,
@@ -1289,9 +1294,29 @@ export default function PlacesMap(props: {
             ? projectionDuration * 1000
             : intro
               ? introSettleMs
-              : 650,
+              : duration,
         easing: (t) => 1 - (1 - t) ** 3,
       });
+    // Shuffle pulls out to the globe over the destination, then zooms back in on it.
+    if (travel === "shuffle" && !instant && mode === "map" && !intro) {
+      animateProjection.current?.("globe", false);
+      const zoomIn = () => {
+        animateProjection.current?.(mode, false);
+        settle(1000);
+      };
+      instance.once("moveend", zoomIn);
+      instance.easeTo({
+        ...(aim ? { center: aim } : {}),
+        zoom: cameraZoom(
+          toEngineZoom(0),
+          center ? center[1] : instance.getCenter().lat,
+          0,
+        ),
+        duration: 900,
+        easing: (t) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2),
+      });
+      return () => instance.off("moveend", zoomIn);
+    }
     if (!intro) {
       settle();
       return;

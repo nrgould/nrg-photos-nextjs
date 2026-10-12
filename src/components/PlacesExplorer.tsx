@@ -271,6 +271,8 @@ export default function PlacesExplorer({
   // First-visit hints: "place" over a marker after the intro, "step" over Previous/Next after the first place opens.
   const [hint, setHint] = useState<"place" | "step" | null>(null);
   const [revision, setRevision] = useState(0);
+  // How the latest selection was reached; the map animates Previous, Next and Shuffle as travel.
+  const [travel, setTravel] = useState<"step" | "shuffle" | null>(null);
   const [zoomRevision, setZoomRevision] = useState(0);
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [open, setOpen] = useState(Boolean(initialNode || initialView));
@@ -597,6 +599,7 @@ export default function PlacesExplorer({
       chooseNode(node);
     }
     setStepped(true);
+    setTravel(direction === "shuffle" ? "shuffle" : "step");
     markHint("step");
     setHint(null);
   }
@@ -785,6 +788,7 @@ export default function PlacesExplorer({
     setIntro(false);
     markHint("place");
     setHint(showPhotos && !hintSeen("step") ? "step" : null);
+    setTravel(null);
     setRevision((r) => r + 1);
     setPhotoFocusOpen(open || showPhotos);
     if (showPhotos) {
@@ -1205,6 +1209,7 @@ export default function PlacesExplorer({
             onChoose={(id) => choose(id, true)}
             onChooseNode={chooseNode}
             onIntroEnd={finishIntro}
+            travel={travel}
             hint={
               hint === "place"
                 ? desktop
