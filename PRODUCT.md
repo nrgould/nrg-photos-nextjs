@@ -15,7 +15,7 @@ Replace nicholasgouldphoto.com with a modern portfolio using Nicholas's own phot
 Visitors exploring the photography and prospective lifestyle and brand clients. Prioritize the portfolio while keeping inquiries easy to find.
 
 ## Confirmed facts
-Nicholas Gould is a lifestyle photographer based in North Carolina. The existing website includes lifestyle, landscape and portrait photography, work with C2Life, Smartwool, Raven's Brew Coffee and Eight Angles. Contact: nicholas@nrgstudios.co (formerly nicholas@nicholasgouldphoto.com). Instagram: nicholasgould1.
+Nicholas Gould is a lifestyle photographer based in North Carolina. The existing website includes lifestyle, landscape and portrait photography, work with C2Life, Smartwool, Raven's Brew Coffee and Eight Angles. Contact: nicholas@nicholasgouldphoto.com. Instagram: nicholasgould1.
 
 ## Brand commitments
 Use Nicholas's original images. Public Instagram reviewed September 4, 2026: deep botanical greens, mountain landscapes, lakes, muted alpine light, sunflowers, careful framing and small serif collection titles. The original Next.js repo includes a green series and Hallstatt/Bavaria travel photos. Preserve the useful collection and postcard concepts.
