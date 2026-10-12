@@ -3714,6 +3714,13 @@ html[data-photo-palette="sepia"]
 .map-toolbar [data-slot="navigation-menu-list"] {
   gap: 2px;
 }
+/* On site pages the nav heads the page; the first label lines up with the text. */
+.site-nav {
+  padding-top: max(16px, env(safe-area-inset-top));
+}
+.site-nav .map-toolbar {
+  margin-left: -12px;
+}
 .map-toolbar :is([data-slot="navigation-menu-list"] > li > button) {
   min-width: 44px;
   height: 44px;
@@ -3788,7 +3795,7 @@ html[data-photo-palette="sepia"]
   .explorer .map-toolbar {
     left: 4px;
   }
-  .map-toolbar :is([data-slot="navigation-menu-list"] > li > button) {
+  .explorer .map-toolbar :is([data-slot="navigation-menu-list"] > li > button) {
     padding: 0;
   }
 }

@@ -26,7 +26,7 @@ export function applyTheme(theme: Theme) {
   root.photoPalette = theme.id;
 }
 
-/** The pre-paint script: applies a stored theme before React hydrates. */
+/** The pre-paint script: applies resolveTheme's choice before React hydrates. */
 export const themeBootScript = `try{const s=${JSON.stringify(
   Object.fromEntries(themes.map((theme) => [theme.id, theme.scheme])),
-)},t=localStorage.getItem('${themeKey}'),d=document.documentElement.dataset;if(s[t]){d.photoTheme=s[t];d.photoPalette=t}}catch{}`;
+)};let t=localStorage.getItem('${themeKey}');if(!s[t])t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const d=document.documentElement.dataset;d.photoTheme=s[t];d.photoPalette=t}catch{}`;

@@ -29,6 +29,7 @@ export default async function Home({
   const initialView =
     params.view === "cart" ||
     params.view === "catalog" ||
+    params.view === "contact" ||
     params.view === "library"
       ? params.view
       : undefined;

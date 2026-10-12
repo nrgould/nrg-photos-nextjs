@@ -3,11 +3,12 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { resolveTheme, themeBootScript, themes } from "../src/lib/themes";
 
-const boot = (stored: string | null) => {
+const boot = (stored: string | null, dark = false) => {
   const dataset: Record<string, string> = {};
-  new Function("localStorage", "document", themeBootScript)(
+  new Function("localStorage", "document", "matchMedia", themeBootScript)(
     { getItem: () => stored },
     { documentElement: { dataset } },
+    () => ({ matches: dark }),
   );
   return dataset;
 };
@@ -24,7 +25,12 @@ test("the boot script applies every theme's scheme and palette before paint", ()
       photoTheme: theme.scheme,
       photoPalette: theme.id,
     });
-  assert.deepEqual(boot("gruvbox"), {});
+  // Pages outside the map follow the system scheme too.
+  assert.deepEqual(boot("gruvbox", true), {
+    photoTheme: "dark",
+    photoPalette: "dark",
+  });
+  assert.deepEqual(boot(null), { photoTheme: "light", photoPalette: "light" });
 });
 
 test("every theme has a swatch, and every palette beyond light and dark a token block", () => {
