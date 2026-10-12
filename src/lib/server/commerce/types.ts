@@ -98,6 +98,8 @@ export type PaymentEvent =
   | { id: string; type: "ignored" };
 export interface PaymentGateway {
   createCheckout(order: Order): Promise<CheckoutSession>;
+  /** Expires an open session; returns the session as the provider now holds it. */
+  expireCheckout(sessionId: string): Promise<CheckoutSession>;
   verifyWebhook(rawBody: string, signature: string): PaymentEvent;
 }
 export type CommercePolicy = {

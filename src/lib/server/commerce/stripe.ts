@@ -52,6 +52,7 @@ export interface StripeClient {
         options: { idempotencyKey: string },
       ): Promise<unknown>;
       retrieve(id: string): Promise<unknown>;
+      expire(id: string): Promise<unknown>;
     };
   };
   webhooks: {
@@ -213,6 +214,18 @@ export function createStripeGateway(
         { idempotencyKey: `preset-order:${order.id}` },
       );
       return session(result, live);
+    },
+    async expireCheckout(sessionId) {
+      try {
+        return session(await client.checkout.sessions.expire(sessionId), live);
+      } catch (error) {
+        if (error instanceof CommerceError) throw error;
+        // Stripe refuses to expire a session that is no longer open.
+        return session(
+          await client.checkout.sessions.retrieve(sessionId),
+          live,
+        );
+      }
     },
     verifyWebhook(rawBody, signature): PaymentEvent {
       let verified: unknown;

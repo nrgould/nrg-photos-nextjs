@@ -121,6 +121,9 @@ function sdkFixture() {
         async retrieve() {
           return session;
         },
+        async expire() {
+          return { ...session, status: "expired" };
+        },
       },
     },
     webhooks: {

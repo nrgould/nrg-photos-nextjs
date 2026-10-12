@@ -60,6 +60,14 @@ function fixture(store = makeStore()) {
         });
       return structuredClone(sessions.get(order.id)!);
     },
+    async expireCheckout(sessionId) {
+      const [orderId, session] = [...sessions].find(
+        ([, s]) => s.id === sessionId,
+      )!;
+      if (session.status === "open")
+        sessions.set(orderId, { ...session, status: "expired" });
+      return structuredClone(sessions.get(orderId)!);
+    },
     verifyWebhook(raw, signature) {
       assert.equal(raw, "unaltered-body");
       if (signature !== "verified-fixture")
@@ -231,13 +239,9 @@ test("concurrent different request IDs reserve one basket and reuse one provider
   assert.equal(calls, before);
 });
 
-test("verified expiration releases a pending reservation; an open overlapping session does not", async () => {
+test("verified expiration releases a pending reservation", async () => {
   const f = fixture();
   const first = await f.service.checkout("user-A", [ids[0]], requestId);
-  await assert.rejects(
-    f.service.checkout("user-A", ids.slice(0, 2), "replacement-request-001"),
-    fails("checkout_in_progress"),
-  );
   await f.event({
     id: "evt_expired",
     type: "expired",
@@ -245,10 +249,35 @@ test("verified expiration releases a pending reservation; an open overlapping se
   });
   const second = await f.service.checkout(
     "user-A",
-    ids.slice(0, 2),
+    [ids[0]],
     "replacement-request-001",
   );
   assert.notEqual(second.orderId, first.orderId);
+});
+
+test("a different basket expires the open overlapping session and replaces it", async () => {
+  const f = fixture();
+  const first = await f.service.checkout("user-A", ids.slice(0, 3), requestId);
+  const second = await f.service.checkout(
+    "user-A",
+    ids.slice(1, 3),
+    "replacement-request-001",
+  );
+  assert.notEqual(second.orderId, first.orderId);
+  assert.equal(f.sessions.get(first.orderId)!.status, "expired");
+  assert.equal(f.sessions.get(second.orderId)!.status, "open");
+  // The replaced order's late webhook changes nothing.
+  await f.event({
+    id: "evt_late_expired",
+    type: "expired",
+    session: f.sessions.get(first.orderId)!,
+  });
+  const again = await f.service.checkout(
+    "user-A",
+    ids.slice(1, 3),
+    "replacement-request-001",
+  );
+  assert.equal(again.orderId, second.orderId);
 });
 
 test("live mode sessions open checkout and their paid event grants", async () => {

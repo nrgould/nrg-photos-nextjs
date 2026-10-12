@@ -175,61 +175,86 @@ export function createCommerceService({
     const id = createHash("sha256")
       .update(JSON.stringify([userId, requestId]))
       .digest("hex");
-    const order = await store.transaction(async (tx) => {
-      await assertUnowned(tx, userId, quote.presetIds);
-      // A failed Stripe call leaves a pending order with no session. Any session it could
-      // have opened expires an hour after creation, so after that the reservation is released.
-      for (const stale of await tx.pendingOrdersForPresets(
-        userId,
-        quote.presetIds,
-      ))
-        if (!stale.sessionId && Date.now() - stale.createdAt > 3600000)
-          await tx.putOrder({ ...stale, status: "expired" });
-      const boundId = await tx.checkoutRequest(id);
-      const existing = boundId ? await tx.getOrder(boundId) : null;
-      if (boundId && !existing) throw new CommerceError("order_missing", 409);
-      if (existing) {
-        if (
-          JSON.stringify(existing.presetIds) !==
-            JSON.stringify(quote.presetIds) ||
-          existing.returnPath !== approvedReturnPath
-        )
-          throw new CommerceError("request_id_reused", 409);
-        if (existing.status !== "pending")
-          throw new CommerceError("order_not_pending", 409);
-        if (!existing.sessionId && Date.now() - existing.createdAt > 1800000)
-          throw new CommerceError("checkout_attempt_expired", 409);
-        return existing;
-      }
-      const pending = await tx.pendingOrdersForPresets(userId, quote.presetIds);
-      if (pending.length) {
-        const prior = pending[0];
-        if (
-          pending.length !== 1 ||
-          prior.returnPath !== approvedReturnPath ||
-          JSON.stringify(prior.presetIds) !== JSON.stringify(quote.presetIds)
-        )
+    const reserve = () =>
+      store.transaction(async (tx) => {
+        await assertUnowned(tx, userId, quote.presetIds);
+        // A failed Stripe call leaves a pending order with no session. Any session it could
+        // have opened expires an hour after creation, so after that the reservation is released.
+        for (const stale of await tx.pendingOrdersForPresets(
+          userId,
+          quote.presetIds,
+        ))
+          if (!stale.sessionId && Date.now() - stale.createdAt > 3600000)
+            await tx.putOrder({ ...stale, status: "expired" });
+        const boundId = await tx.checkoutRequest(id);
+        const existing = boundId ? await tx.getOrder(boundId) : null;
+        if (boundId && !existing) throw new CommerceError("order_missing", 409);
+        if (existing) {
+          if (
+            JSON.stringify(existing.presetIds) !==
+              JSON.stringify(quote.presetIds) ||
+            existing.returnPath !== approvedReturnPath
+          )
+            throw new CommerceError("request_id_reused", 409);
+          if (existing.status !== "pending")
+            throw new CommerceError("order_not_pending", 409);
+          if (!existing.sessionId && Date.now() - existing.createdAt > 1800000)
+            throw new CommerceError("checkout_attempt_expired", 409);
+          return existing;
+        }
+        const pending = await tx.pendingOrdersForPresets(
+          userId,
+          quote.presetIds,
+        );
+        if (pending.length) {
+          const prior = pending[0];
+          if (
+            pending.length !== 1 ||
+            prior.returnPath !== approvedReturnPath ||
+            JSON.stringify(prior.presetIds) !== JSON.stringify(quote.presetIds)
+          ) {
+            // A different basket replaces open sessions; one still being created keeps its reservation.
+            if (pending.some((order) => !order.sessionId))
+              throw new CommerceError("checkout_in_progress", 409);
+            return { replace: pending };
+          }
+          if (!prior.sessionId && Date.now() - prior.createdAt > 1800000)
+            throw new CommerceError("checkout_attempt_expired", 409);
+          await tx.bindCheckoutRequest(id, prior.id);
+          return prior;
+        }
+        const next: Order = {
+          ...quote,
+          id,
+          userId,
+          createdAt: Date.now(),
+          returnPath: approvedReturnPath,
+          sessionId: null,
+          paymentIntentId: null,
+          status: "pending",
+          email: null,
+        };
+        await tx.putOrder(next);
+        await tx.bindCheckoutRequest(id, next.id);
+        return next;
+      });
+    let order = await reserve();
+    if ("replace" in order) {
+      for (const prior of order.replace) {
+        const replaced = await payments.expireCheckout(prior.sessionId!);
+        // Paid or paying elsewhere: its webhook settles the reservation.
+        if (replaced.status !== "expired")
           throw new CommerceError("checkout_in_progress", 409);
-        if (!prior.sessionId && Date.now() - prior.createdAt > 1800000)
-          throw new CommerceError("checkout_attempt_expired", 409);
-        await tx.bindCheckoutRequest(id, prior.id);
-        return prior;
+        await applyEvent({
+          id: `replaced:${replaced.id}`,
+          type: "expired",
+          session: replaced,
+        });
       }
-      const next: Order = {
-        ...quote,
-        id,
-        userId,
-        createdAt: Date.now(),
-        returnPath: approvedReturnPath,
-        sessionId: null,
-        paymentIntentId: null,
-        status: "pending",
-        email: null,
-      };
-      await tx.putOrder(next);
-      await tx.bindCheckoutRequest(id, next.id);
-      return next;
-    });
+      order = await reserve();
+      if ("replace" in order)
+        throw new CommerceError("checkout_in_progress", 409);
+    }
     // The gateway uses the persistent order ID as Stripe's idempotency key.
     const session = await payments.createCheckout(order);
     assertSession(order, session);
