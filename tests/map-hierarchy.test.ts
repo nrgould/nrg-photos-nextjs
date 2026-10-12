@@ -298,7 +298,7 @@ test("unknown future photos retain country reference without inflating verified 
 test("regional memberships distinguish the Dolomites and Lofoten", () => {
   for (const [id, src] of [
     ["braies", "/photos/3_landscape_lago_di_braies.webp"],
-    ["val-di-funes", "/photos/landscape_dolomites_santa_magdalena.webp"],
+    ["val-di-funes", "/photos/lr-4394194.webp"],
     ["lofoten", "/photos/lr-2366227.webp"],
   ])
     assert.ok(

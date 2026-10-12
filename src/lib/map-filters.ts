@@ -32,7 +32,6 @@ const photoSubjects: Readonly<Record<string, Exclude<PhotoSubject, "all">>> = {
   "/photos/lr-7029023.webp": "places",
   "/photos/3_landscape_lago_di_braies.webp": "places",
   "/photos/lr-4433864.webp": "places",
-  "/photos/landscape_dolomites_santa_magdalena.webp": "places",
   "/photos/lr-4475385.webp": "places",
   "/photos/lr-4337389.webp": "places",
   "/photos/lr-3472824.webp": "places",

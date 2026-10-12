@@ -184,7 +184,7 @@ test("subject membership is explicitly grounded in every original map photo", ()
   const photos = travelPlaces.flatMap((place) => place.photos);
   assert.equal(
     photos.filter((photo) => getPhotoSubject(photo.src) === "places").length,
-    7,
+    6,
   );
   const people = photos.filter(
     (photo) => getPhotoSubject(photo.src) === "people",
@@ -209,7 +209,7 @@ test("subject membership is explicitly grounded in every original map photo", ()
 });
 
 test("subject and format intersect without changing original identity or order", () => {
-  assert.deepEqual(results({ ...defaults, subject: "places" }), [7, 4]);
+  assert.deepEqual(results({ ...defaults, subject: "places" }), [6, 4]);
   assert.deepEqual(results({ ...defaults, subject: "people" }), [0, 0]);
   for (const value of ["places", "people"] as const)
     for (const orientation of ["horizontal", "vertical"] as const)
@@ -235,7 +235,7 @@ test("subject and format intersect without changing original identity or order",
 test("facet counts predict the next choice while respecting the other filter", () => {
   const count = (keep: Keep) => expected(keep)[0];
   assert.deepEqual(mapFilterFacetCounts(travelPlaces, defaults), {
-    subject: { all: total, places: 7, people: 0 },
+    subject: { all: total, places: 6, people: 0 },
     orientation: {
       any: total,
       horizontal: count(horizontal),

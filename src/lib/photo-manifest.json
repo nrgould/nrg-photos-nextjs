@@ -84,8 +84,7 @@
     "origin": "Stills: 01 READY/2024-06 Dolomites/R6II6751.jpg",
     "width": 1280,
     "height": 1600,
-    "taken": "2024-06",
-    "locationId": "val-di-funes"
+    "taken": "2024-06"
   },
   {
     "src": "/photos/landscape_dolomites_cadini_di_misurina.webp",
@@ -2246,32 +2245,6 @@
     "lightroomId": 4151124
   },
   {
-    "src": "/photos/lr-4151127.webp",
-    "title": "Stetten",
-    "alt": "Small hut in a wide green vineyard beside a curving road, with a town and hazy hills beyond under a pale pink sky",
-    "origin": "Lightroom 4151127",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-06-06T14:36:56.24",
-    "locationId": "stetten",
-    "placeSource": "curation",
-    "lightroomId": 4151127,
-    "presetId": "rome-2"
-  },
-  {
-    "src": "/photos/lr-4151128.webp",
-    "title": "Stetten",
-    "alt": "Dark SUV parked on a cobbled lane between two houses, with sunlit green hills and clouds glimpsed in the gap behind",
-    "origin": "Lightroom 4151128",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2023-06-06T12:06:04.92",
-    "locationId": "stetten",
-    "placeSource": "curation",
-    "lightroomId": 4151128,
-    "presetId": "stetten-1"
-  },
-  {
     "src": "/photos/lr-4151134.webp",
     "title": "Stetten",
     "alt": "Golden sun sinking over a hazy valley and a distant town, with tall dry grass glowing in the foreground and dark hills to the left",
@@ -3261,31 +3234,6 @@
     "lightroomId": 4393991
   },
   {
-    "src": "/photos/lr-4394150.webp",
-    "title": "Val di Funes",
-    "alt": "Pink-lit rock spires rise above dark forested ridges and a small village with a church, under clouds and a blue sky",
-    "origin": "Lightroom 4394150",
-    "width": 1600,
-    "height": 1067,
-    "taken": "2024-06-18T14:34:59.63",
-    "locationId": "val-di-funes",
-    "placeSource": "curation",
-    "lightroomId": 4394150,
-    "hero": true
-  },
-  {
-    "src": "/photos/lr-4394191.webp",
-    "title": "Val di Funes",
-    "alt": "Warm pink light on a jagged rock wall above dark forest, with a church and farmhouses on green meadows below",
-    "origin": "Lightroom 4394191",
-    "width": 1200,
-    "height": 1600,
-    "taken": "2024-06-18T14:49:05.81",
-    "locationId": "val-di-funes",
-    "placeSource": "curation",
-    "lightroomId": 4394191
-  },
-  {
     "src": "/photos/lr-4394194.webp",
     "title": "Val di Funes",
     "alt": "Jagged peaks flushed pink under drifting cloud, with a village and church spire on green terraced meadows in the foreground",
@@ -3561,18 +3509,6 @@
     "presetId": "bavaria-1"
   },
   {
-    "src": "/photos/lr-4474690.webp",
-    "title": "Tre Cime di Lavaredo",
-    "alt": "Pale rock towers rise above a green meadow, with blurred orange-tipped shoots in the foreground and a gray overcast sky",
-    "origin": "Lightroom 4474690",
-    "width": 1200,
-    "height": 1600,
-    "taken": "2024-06-20T07:00:11.85",
-    "locationId": "tre-cime-di-lavaredo",
-    "placeSource": "curation",
-    "lightroomId": 4474690
-  },
-  {
     "src": "/photos/lr-4474869.webp",
     "title": "Tre Cime di Lavaredo",
     "alt": "Turquoise mountain lake at the foot of snow-patched rock towers, with a green slope and path on the right under a gray sky",
@@ -3584,19 +3520,6 @@
     "placeSource": "curation",
     "lightroomId": 4474869,
     "presetId": "allgau-1"
-  },
-  {
-    "src": "/photos/lr-4474988.webp",
-    "title": "Tre Cime di Lavaredo",
-    "alt": "A person with arms outstretched stands on a small grassy summit before jagged brown rock peaks under dark, stormy clouds",
-    "origin": "Lightroom 4474988",
-    "width": 1600,
-    "height": 1067,
-    "taken": "2024-06-20T08:55:46.02",
-    "locationId": "tre-cime-di-lavaredo",
-    "placeSource": "curation",
-    "lightroomId": 4474988,
-    "presetId": "bavaria-1"
   },
   {
     "src": "/photos/lr-4475151.webp",
@@ -4550,18 +4473,6 @@
     "presetId": "vienna-1"
   },
   {
-    "src": "/photos/lr-5738696.webp",
-    "title": "Val di Funes",
-    "alt": "Small village with a church spire in a green valley below jagged rocky peaks, a pale moon in the grey dusk sky between dark conifers",
-    "origin": "Lightroom 5738696",
-    "width": 1067,
-    "height": 1600,
-    "taken": "2024-06-18T15:10:33.14",
-    "locationId": "val-di-funes",
-    "placeSource": "curation",
-    "lightroomId": 5738696
-  },
-  {
     "src": "/photos/lr-5738973.webp",
     "title": "Val di Funes",
     "alt": "Four sheep grazing on a steep green meadow below a weathered wooden barn and a church steeple, with a half moon above pale rock spires",
@@ -4762,7 +4673,7 @@
   },
   {
     "src": "/photos/lr-6330669.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Person in a light sweater and cap seen from behind, looking up at tall moss-draped trees with soft light filtering down through the canopy",
     "origin": "Lightroom 6330669",
     "width": 1200,
@@ -4774,33 +4685,8 @@
     "presetId": "hoh-rainforest-1"
   },
   {
-    "src": "/photos/lr-6330866.webp",
-    "title": "Seattle",
-    "alt": "Abstract close view of rippled water with soft pink and salmon reflections across grey-blue surface",
-    "origin": "Lightroom 6330866",
-    "width": 1067,
-    "height": 1600,
-    "taken": "2025-08-29T09:28:57.02",
-    "locationId": "seattle",
-    "placeSource": "curation",
-    "lightroomId": 6330866,
-    "presetId": "rome-2"
-  },
-  {
-    "src": "/photos/lr-6330882.webp",
-    "title": "Seattle",
-    "alt": "Orange sun low over a dark city skyline with a slender tower, a ferry on the water and a glowing reflection under dramatic clouds",
-    "origin": "Lightroom 6330882",
-    "width": 1200,
-    "height": 1600,
-    "taken": "2025-08-29T09:39:42.73",
-    "locationId": "seattle",
-    "placeSource": "curation",
-    "lightroomId": 6330882
-  },
-  {
     "src": "/photos/lr-6330955.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Fern fronds in sharp focus in a green forest understory, with pale bokeh lights and soft haze behind",
     "origin": "Lightroom 6330955",
     "width": 1200,
@@ -4812,7 +4698,7 @@
   },
   {
     "src": "/photos/lr-6331056.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Two hikers walk a wooden-edged path through tall mossy trees, with ferns lining both sides and soft light in the canopy",
     "origin": "Lightroom 6331056",
     "width": 1280,
@@ -4824,7 +4710,7 @@
   },
   {
     "src": "/photos/lr-6331065.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Close view of a massive tree trunk with deep vertical ridges, green moss along the top and warm light on the reddish bark",
     "origin": "Lightroom 6331065",
     "width": 1200,
@@ -4836,7 +4722,7 @@
   },
   {
     "src": "/photos/lr-6331068.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Hiker with an orange backpack seen from behind crossing a rustic wooden footbridge through a dense, mossy green forest",
     "origin": "Lightroom 6331068",
     "width": 1200,
@@ -4848,7 +4734,7 @@
   },
   {
     "src": "/photos/lr-6331171.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Dark green sword ferns with a few orange fallen leaves, the rest of the frame in deep shadow",
     "origin": "Lightroom 6331171",
     "width": 1200,
@@ -4861,7 +4747,7 @@
   },
   {
     "src": "/photos/lr-6331230.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Narrow dirt path with wooden steps winding through ferns and shrubs into a dim forest, with a mossy tree at the far end",
     "origin": "Lightroom 6331230",
     "width": 1200,
@@ -4873,7 +4759,7 @@
   },
   {
     "src": "/photos/lr-6331317.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Dark tree trunks in a steep forest, with a pool of warm light on a mossy log and ferns on the slope",
     "origin": "Lightroom 6331317",
     "width": 1200,
@@ -4885,7 +4771,7 @@
   },
   {
     "src": "/photos/lr-6331362.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Dense evergreen forest with moss hanging from branches, ferns on the ground and a dark trunk at right edge",
     "origin": "Lightroom 6331362",
     "width": 1200,
@@ -4898,7 +4784,7 @@
   },
   {
     "src": "/photos/lr-6331434.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Two hikers in red jackets and backpacks cross a wooden bridge with orange railings, towards tall mossy trees in a bright green forest",
     "origin": "Lightroom 6331434",
     "width": 1200,
@@ -4911,7 +4797,7 @@
   },
   {
     "src": "/photos/lr-6331450.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Bracket fungus dotted with water droplets on a mossy trunk, surrounded by green moss and small fern fronds",
     "origin": "Lightroom 6331450",
     "width": 1200,
@@ -4923,7 +4809,7 @@
   },
   {
     "src": "/photos/lr-6331452.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Moss-covered branches and trunks in a misty forest, with blurred foreground foliage and small green plants below",
     "origin": "Lightroom 6331452",
     "width": 1200,
@@ -4935,7 +4821,7 @@
   },
   {
     "src": "/photos/lr-6331468.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Man with glasses and an orange and grey jacket looks up past tall moss-hung trees, in soft hazy light",
     "origin": "Lightroom 6331468",
     "width": 1200,
@@ -4948,7 +4834,7 @@
   },
   {
     "src": "/photos/lr-6331469.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Sunlit reddish tree trunk rising among bright green conifers and ferns, with golden moss draped in the foreground",
     "origin": "Lightroom 6331469",
     "width": 1200,
@@ -4961,7 +4847,7 @@
   },
   {
     "src": "/photos/lr-6331474.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Moss-draped dead snag among dark conifers, framed by blurred green foliage in the foreground",
     "origin": "Lightroom 6331474",
     "width": 1200,
@@ -4986,7 +4872,7 @@
   },
   {
     "src": "/photos/lr-6529998.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Mossy fallen log with a beam of warm light across its bark, set in a dark forest with ferns and a curved branch above",
     "origin": "Lightroom 6529998",
     "width": 1280,
@@ -5011,7 +4897,7 @@
   },
   {
     "src": "/photos/lr-6530000.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Forest creek with mossy rocks and fallen branches, backlit by sun glowing through tall conifers and ferns",
     "origin": "Lightroom 6530000",
     "width": 1280,
@@ -5036,7 +4922,7 @@
   },
   {
     "src": "/photos/lr-6530002.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Dark conifer forest with a few tall trunks catching warm golden light, ferns at the bottom edge and deep shadow all around",
     "origin": "Lightroom 6530002",
     "width": 1280,
@@ -5049,7 +4935,7 @@
   },
   {
     "src": "/photos/lr-6530005.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Splintered tree stump glowing orange in a sunbeam among tall moss-covered conifers, with ferns on the forest floor",
     "origin": "Lightroom 6530005",
     "width": 1280,
@@ -5061,7 +4947,7 @@
   },
   {
     "src": "/photos/lr-6530006.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Sun glowing through moss-draped conifer branches in a dark forest, with soft haze and warm light in the center",
     "origin": "Lightroom 6530006",
     "width": 1280,
@@ -5074,7 +4960,7 @@
   },
   {
     "src": "/photos/lr-6530007.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Moss-covered tree trunks in warm side light, with blurred fern fronds across the foreground and green undergrowth behind",
     "origin": "Lightroom 6530007",
     "width": 1280,
@@ -5086,7 +4972,7 @@
   },
   {
     "src": "/photos/lr-6530008.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Small stack of smooth stones balanced on a larger rock in shallow, still grey water under a pale misty sky",
     "origin": "Lightroom 6530008",
     "width": 1280,
@@ -5098,7 +4984,7 @@
   },
   {
     "src": "/photos/lr-6530009.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Looking straight up a tall mossy tree trunk to its crown, with bright cloudy sky and green leaves at the bottom right",
     "origin": "Lightroom 6530009",
     "width": 1067,
@@ -5110,7 +4996,7 @@
   },
   {
     "src": "/photos/lr-6530010.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Moss-draped branches arch over a green forest floor of ferns, with soft haze and warm light filtering down",
     "origin": "Lightroom 6530010",
     "width": 1280,
@@ -5123,7 +5009,7 @@
   },
   {
     "src": "/photos/lr-6530012.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Tall mossy tree trunks in a dim green forest, with a bright sky glowing through the canopy and blurred foliage at the edges",
     "origin": "Lightroom 6530012",
     "width": 1280,
@@ -5135,7 +5021,7 @@
   },
   {
     "src": "/photos/lr-6530013.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Single sword fern frond in sharp focus, leaflets lined up on both sides of the stem, against a dark blurred green forest",
     "origin": "Lightroom 6530013",
     "width": 1280,
@@ -5149,7 +5035,7 @@
   },
   {
     "src": "/photos/lr-6530014.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Conifer branches covered in bright green hanging moss between dark trunks, with the forest softly lit behind",
     "origin": "Lightroom 6530014",
     "width": 1280,
@@ -5161,7 +5047,7 @@
   },
   {
     "src": "/photos/lr-6530015.webp",
-    "title": "Hoh Rainforest",
+    "title": "Olympic National Park",
     "alt": "Moss-covered trees with twisting branches over a bed of ferns, pale haze and soft light filtering through the canopy",
     "origin": "Lightroom 6530015",
     "width": 1280,
@@ -5395,18 +5281,6 @@
     "locationId": "hopfensee",
     "placeSource": "curation",
     "lightroomId": 7028923
-  },
-  {
-    "src": "/photos/lr-7028924.webp",
-    "title": "Hopfensee",
-    "alt": "A wooden jetty with teal posts leads into a calm lake, a blue rowboat at left and cloud-covered mountains beyond",
-    "origin": "Lightroom 7028924",
-    "width": 1280,
-    "height": 1600,
-    "taken": "2025-05-26T14:15:53.80",
-    "locationId": "hopfensee",
-    "placeSource": "curation",
-    "lightroomId": 7028924
   },
   {
     "src": "/photos/lr-7028925.webp",
@@ -5718,6 +5592,19 @@
     "locationId": "hopfensee",
     "placeSource": "curation",
     "lightroomId": 7028960,
+    "hero": true
+  },
+  {
+    "src": "/photos/lr-7028924.webp",
+    "title": "Hopfensee",
+    "alt": "A wooden jetty with teal posts leads into a calm lake, a blue rowboat at left and cloud-covered mountains beyond",
+    "origin": "Lightroom 7028924",
+    "width": 1280,
+    "height": 1600,
+    "taken": "2025-05-26T14:15:53.80",
+    "locationId": "hopfensee",
+    "placeSource": "curation",
+    "lightroomId": 7028924,
     "hero": true
   },
   {
@@ -7034,7 +6921,7 @@
     "width": 1200,
     "height": 1600,
     "taken": "2026-05-10T18:56:09.02",
-    "locationId": "watkins-glen",
+    "locationId": "finger-lakes",
     "placeSource": "curation",
     "lightroomId": 7768802
   },
@@ -7071,7 +6958,7 @@
     "width": 1600,
     "height": 1067,
     "taken": "2026-05-10T18:59:45.04",
-    "locationId": "watkins-glen",
+    "locationId": "finger-lakes",
     "placeSource": "curation",
     "lightroomId": 7768805
   },
@@ -7083,7 +6970,7 @@
     "width": 1600,
     "height": 1067,
     "taken": "2026-05-10T18:39:49.57",
-    "locationId": "watkins-glen",
+    "locationId": "finger-lakes",
     "placeSource": "curation",
     "lightroomId": 7768810
   },
