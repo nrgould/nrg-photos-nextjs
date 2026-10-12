@@ -418,7 +418,7 @@ test("a lead photo is a hero, one per place", () => {
   assert.equal(new Set(places).size, places.length);
 });
 
-test("each place leads with its heroes, then runs in capture order", () => {
+test("each place leads with its heroes, then runs newest shoot day first", () => {
   for (const country of travelPlaces) {
     const byPlace = Map.groupBy(
       country.photos,
@@ -427,8 +427,14 @@ test("each place leads with its heroes, then runs in capture order", () => {
     for (const photos of byPlace.values()) {
       const rest = photos.filter((photo) => !heroSrcs.has(photo.src));
       assert.deepEqual(photos.slice(photos.length - rest.length), rest);
-      const times = rest.map((photo) => photo.taken ?? "~");
-      assert.deepEqual(times, times.toSorted());
+      const times = rest.map((photo) => photo.taken ?? "");
+      const day = (time: string) => time.slice(0, 10);
+      assert.deepEqual(
+        times,
+        times.toSorted(
+          (a, b) => day(b).localeCompare(day(a)) || a.localeCompare(b),
+        ),
+      );
     }
   }
 });

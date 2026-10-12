@@ -96,9 +96,11 @@ function mapPhoto(src: string, collection: string): Photo {
 }
 
 const rank = (node: LocationNode) => locations.indexOf(node);
-// ISO capture times sort as strings; undated photos go last.
-const takenOrder = (a: string, b: string) =>
-  (entries.get(a)?.taken ?? "~").localeCompare(entries.get(b)?.taken ?? "~");
+// Newest shoot day first, each day in capture order; undated photos go last.
+const takenOrder = (a: string, b: string) => {
+  const [x, y] = [entries.get(a)?.taken ?? "", entries.get(b)?.taken ?? ""];
+  return y.slice(0, 10).localeCompare(x.slice(0, 10)) || x.localeCompare(y);
+};
 // One collection per country, photos in tree order.
 export const travelPlaces: TravelPlace[] = locations
   .filter((country) => !country.parent)
