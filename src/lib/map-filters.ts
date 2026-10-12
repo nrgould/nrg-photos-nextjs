@@ -102,18 +102,20 @@ export function retainSelection(
   return places.some((place) => place.id === selected) ? selected : null;
 }
 
-export function shufflePlace(
+/** Any other location, so a country comes up as often as it has places. */
+export function shuffleLocation(
   places: TravelPlace[],
-  selected: string | null,
+  current: string | null,
   random = Math.random(),
-) {
-  if (!places.length) return null;
-  const current = places.findIndex((place) => place.id === selected);
-  const index =
-    current < 0
-      ? Math.floor(Math.min(Math.max(random, 0), 0.999999) * places.length)
-      : shuffleIndex(current, places.length, random);
-  return places[index].id;
+): MapNode | null {
+  const nodes = getMapNodes(places, "location");
+  if (!nodes.length) return null;
+  const index = nodes.findIndex((node) => node.id === current);
+  return nodes[
+    index < 0
+      ? Math.floor(Math.min(Math.max(random, 0), 0.999999) * nodes.length)
+      : shuffleIndex(index, nodes.length, random)
+  ];
 }
 
 /** Great-circle angle between two [longitude, latitude] points, in radians. */

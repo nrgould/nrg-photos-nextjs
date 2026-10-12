@@ -42,7 +42,7 @@ import {
   getPlacePresets,
   type MapNode,
 } from "@/lib/map-hierarchy";
-import { searchExplorer, shufflePlace, stepLocation } from "@/lib/map-filters";
+import { searchExplorer, shuffleLocation, stepLocation } from "@/lib/map-filters";
 import { Button } from "./ui/button";
 import MapZoom from "./MapZoom";
 import { Separator } from "./ui/separator";
@@ -586,9 +586,9 @@ export default function PlacesExplorer({
   // Every step opens the new place's photos at the strip, like a marker tap.
   function navigate(direction: "back" | "next" | "shuffle") {
     if (direction === "shuffle") {
-      const id = shufflePlace(filteredPlaces, selected);
-      if (id === null) return;
-      choose(id, true);
+      const node = shuffleLocation(filteredPlaces, selectedNodeId ?? selected);
+      if (!node) return;
+      chooseNode(node);
     } else {
       const node = stepLocation(
         filteredPlaces,

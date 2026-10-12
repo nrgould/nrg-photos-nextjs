@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { travelPlaces } from "../src/lib/places";
 import type { Photo } from "../src/lib/photography";
+import { getMapNodes } from "../src/lib/map-hierarchy";
 import {
   activeFilterCount,
   defaultMapFilters,
@@ -11,7 +12,7 @@ import {
   locationTour,
   retainSelection,
   searchExplorer,
-  shufflePlace,
+  shuffleLocation,
   stepLocation,
   type MapFilters,
 } from "../src/lib/map-filters";
@@ -141,18 +142,18 @@ test("filtering retains a valid selection and clears an excluded location withou
   assert.equal(retainSelection([], "austria"), null);
 });
 
-test("shuffle picks another eligible place and handles no selection and empty results", () => {
-  const places = filterPlaces(travelPlaces, {
-    ...defaults,
-    orientation: "horizontal",
-  });
-  const ids = places.map((place) => place.id);
+test("shuffle picks another location, weighting countries by their places", () => {
+  const nodes = getMapNodes(travelPlaces, "location");
+  const ids = nodes.map((node) => node.id);
   const [first, second] = ids;
-  assert.ok(ids.length > 2 && !ids.includes(verticalOnly.id));
-  assert.equal(shufflePlace(places, null, 0.99), ids.at(-1));
-  assert.equal(shufflePlace(places, first, 0), second);
-  assert.equal(shufflePlace([places[0]], first), first);
-  assert.equal(shufflePlace([], null), null);
+  assert.ok(ids.length > travelPlaces.length);
+  assert.equal(shuffleLocation(travelPlaces, null, 0.99)!.id, ids.at(-1));
+  assert.equal(shuffleLocation(travelPlaces, first, 0)!.id, second);
+  for (let i = 0; i < 50; i++)
+    assert.notEqual(shuffleLocation(travelPlaces, first)!.id, first);
+  // A selected country is not a location, so any location can follow it.
+  assert.ok(ids.includes(shuffleLocation(travelPlaces, "austria", 0.5)!.id));
+  assert.equal(shuffleLocation([], null), null);
 });
 
 test("Previous and Next walk every location once, each step to a near neighbor", () => {
