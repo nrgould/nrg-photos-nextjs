@@ -1121,7 +1121,7 @@ export default function PlacesMap(props: {
     instance.setPaintProperty("osm-roads", "line-color", color.edge);
     instance.setPaintProperty("osm-states", "line-color", color.edge);
     instance.setPaintProperty("boundaries", "line-color", color.edge);
-    for (const layer of ["countries-labels", "cities-labels"]) {
+    for (const layer of ["countries-labels", "cities-labels", "osm-labels"]) {
       instance.setPaintProperty(layer, "text-color", color.label);
       instance.setPaintProperty(layer, "text-halo-color", color.land);
     }

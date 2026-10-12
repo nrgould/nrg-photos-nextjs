@@ -38,7 +38,12 @@ export type StripeCheckoutParameters = {
 };
 /** Structural subset accepted by the official Stripe Node SDK; inject a client initialized with the configured key. */
 export interface StripeClient {
-  prices: { retrieve(id: string): Promise<StripePrice> };
+  prices: {
+    list(params: {
+      limit: number;
+      starting_after?: string;
+    }): Promise<{ data: StripePrice[]; has_more: boolean }>;
+  };
   coupons: { retrieve(id: string): Promise<StripeCoupon> };
   checkout: {
     sessions: {
@@ -136,20 +141,23 @@ export function createStripeGateway(
         if (!price) throw new CommerceError("price_not_configured", 503);
         return price;
       });
-      // Stripe answers a burst of parallel reads with 429, so a full cart reads in batches.
-      const prices: StripePrice[] = [];
-      for (let start = 0; start < priceIds.length; start += 4)
-        prices.push(
-          ...(await Promise.all(
-            priceIds
-              .slice(start, start + 4)
-              .map((id) => client.prices.retrieve(id)),
-          )),
-        );
+      // One list call, not a retrieve per preset: 32 parallel reads hit Stripe's 429.
+      const found = new Map<string, StripePrice>();
+      let after: string | undefined;
+      do {
+        const page = await client.prices.list({
+          limit: 100,
+          ...(after ? { starting_after: after } : {}),
+        });
+        for (const price of page.data)
+          if (priceIds.includes(price.id)) found.set(price.id, price);
+        after = page.has_more ? page.data.at(-1)?.id : undefined;
+      } while (after && found.size < new Set(priceIds).size);
+      const prices = priceIds.map((id) => found.get(id));
       if (
         prices.some(
-          (price, index) =>
-            price.id !== priceIds[index] ||
+          (price) =>
+            !price ||
             !price.active ||
             price.livemode !== live ||
             price.currency !== "usd" ||

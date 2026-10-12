@@ -86,14 +86,17 @@ function sdkFixture() {
   const signatures: unknown[] = [];
   const client: StripeClient = {
     prices: {
-      async retrieve(id) {
+      async list() {
         return {
-          id,
-          active: true,
-          livemode: false,
-          currency: "usd",
-          unit_amount: 199,
-          type: "one_time",
+          data: Object.values(priceIds).map((id) => ({
+            id,
+            active: true,
+            livemode: false,
+            currency: "usd",
+            unit_amount: 199,
+            type: "one_time",
+          })),
+          has_more: false,
         };
       },
     },
@@ -335,14 +338,22 @@ test("Stripe adapter validates server Price/coupon then emits only fixed test Ch
     { coupon: "coupon_fixture" },
   ]);
   assert.equal("allow_promotion_codes" in f.creations[1].params, false);
-  f.client.prices.retrieve = async (id) => ({
-    id,
-    active: true,
-    livemode: false,
-    currency: "usd",
-    unit_amount: 1,
-    type: "one_time",
+  f.client.prices.list = async () => ({
+    data: Object.values(priceIds).map((id) => ({
+      id,
+      active: true,
+      livemode: false,
+      currency: "usd",
+      unit_amount: 1,
+      type: "one_time",
+    })),
+    has_more: false,
   });
+  await assert.rejects(
+    gateway.createCheckout(f.current),
+    fails("price_configuration_mismatch"),
+  );
+  f.client.prices.list = async () => ({ data: [], has_more: false });
   await assert.rejects(
     gateway.createCheckout(f.current),
     fails("price_configuration_mismatch"),

@@ -192,6 +192,10 @@ export function useCommerceBoundary() {
           throw new Error("Account session changed");
         if (!url) throw new Error("Invalid checkout response");
         window.location.assign(url);
+        // Callers stay pending while Stripe loads; Back from Stripe restores this page and releases them.
+        await new Promise((resolve) =>
+          window.addEventListener("pageshow", resolve, { once: true }),
+        );
       } finally {
         pending.current = false;
         if (checkoutRequest.current === controller)
