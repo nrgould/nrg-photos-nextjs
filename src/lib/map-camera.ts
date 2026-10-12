@@ -206,13 +206,16 @@ export function markerLabels(
   for (const anchor of sorted) {
     const photo = photos.get(anchor.id)!;
     const width = widths.get(anchor.id) ?? 0;
-    const preferred = offsets.get(anchor.id)!.y < 0 ? "above" : "below";
-    const sides = [
+    const preferred: "above" | "below" =
+      offsets.get(anchor.id)!.y < 0 ? "above" : "below";
+    const sides: ("above" | "below")[] = [
       preferred,
       preferred === "above" ? "below" : "above",
-    ] as const;
+    ];
     let shown = false;
-    for (const side of sides) {
+    // A priority label always shows: on a clear side when one exists, else on its preferred side.
+    const tries = anchor.priority ? [...sides, preferred] : sides;
+    for (const [index, side] of tries.entries()) {
       const top = side === "above" ? photo.top - 25 : photo.bottom + 4;
       const box = {
         left: (photo.left + photo.right - width) / 2,
@@ -221,9 +224,11 @@ export function markerLabels(
         bottom: top + 19,
       };
       if (
-        !anchor.priority &&
+        index < sides.length &&
         (visible.some((other) => overlaps(box, other)) ||
-          [...photos.values()].some((other) => overlaps(box, other)))
+          [...photos].some(
+            ([id, other]) => id !== anchor.id && overlaps(box, other),
+          ))
       )
         continue;
       visible.push(box);

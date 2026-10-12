@@ -1,4 +1,4 @@
-import { engineZoom } from "../src/lib/map-camera";
+import { engineZoom, markerLabels } from "../src/lib/map-camera";
 import { getMapNodes } from "../src/lib/map-hierarchy";
 import { travelPlaces } from "../src/lib/places";
 import { test } from "node:test";
@@ -249,4 +249,65 @@ test("only rendered targets intersecting the viewport are keyboard accessible", 
     markerTargetVisible({ left: -27, top: 200, right: 21, bottom: 248 }, view),
     true,
   );
+});
+
+test("neighboring thumbnails keep their places' map order through a zoom sweep", () => {
+  const mercatorY = (latitude: number) =>
+    Math.log(Math.tan(Math.PI / 4 + (latitude * Math.PI) / 360));
+  const nodes = getMapNodes(travelPlaces, "location");
+  for (const country of new Set(nodes.map((node) => node.collectionId))) {
+    const places = nodes.filter((node) => node.collectionId === country);
+    let previous: MarkerLayout | undefined;
+    for (let ui = 2.6; ui <= 9; ui += 0.1) {
+      const zoom = engineZoom(ui);
+      const worldSize = (512 * 2 ** zoom) / (4 / 3);
+      const [longitude, latitude] = places[0].coordinates;
+      const anchors = clusterMapNodes(places, zoom, 4 / 3).map((node) => ({
+        id: node.id,
+        x: 2000 + ((node.coordinates[0] - longitude) / 360) * worldSize,
+        y:
+          2000 -
+          ((mercatorY(node.coordinates[1]) - mercatorY(latitude)) /
+            (2 * Math.PI)) *
+            worldSize,
+      }));
+      previous = layoutMapMarkers({
+        anchors,
+        viewport: { width: 4000, height: 4000 },
+        previous,
+      });
+      for (const a of anchors)
+        for (const b of anchors) {
+          if (Math.abs(a.x - b.x) >= 112 || Math.abs(a.y - b.y) >= 112)
+            continue;
+          const offsetA = previous.offsets.get(a.id)!;
+          const offsetB = previous.offsets.get(b.id)!;
+          for (const axis of ["x", "y"] as const)
+            if (b[axis] - a[axis] > 8)
+              assert.ok(
+                b[axis] + offsetB[axis] >= a[axis] + offsetA[axis],
+                `${a.id} and ${b.id} swap on ${axis} at zoom ${ui.toFixed(1)}`,
+              );
+        }
+    }
+  }
+});
+
+test("a priority label takes the clear side before covering a neighbor", () => {
+  const anchors = [
+    { id: "selected", x: 200, y: 200, priority: true },
+    { id: "below", x: 200, y: 252 },
+  ];
+  const offsets = new Map(anchors.map(({ id }) => [id, { x: 0, y: 0 }]));
+  const widths = new Map(anchors.map(({ id }) => [id, 40]));
+  assert.equal(
+    markerLabels(anchors, offsets, widths).get("selected")!.side,
+    "above",
+  );
+  const boxed = [...anchors, { id: "above", x: 200, y: 148 }];
+  offsets.set("above", { x: 0, y: 0 });
+  assert.deepEqual(markerLabels(boxed, offsets, widths).get("selected"), {
+    side: "below",
+    hidden: false,
+  });
 });

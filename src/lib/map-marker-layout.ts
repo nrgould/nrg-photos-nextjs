@@ -77,6 +77,20 @@ const position = (anchor: MarkerAnchor, offset: MarkerCallout): Positioned => ({
 });
 const overlaps = (a: Positioned, b: Positioned, size: number) =>
   Math.abs(a.x - b.x) < size && Math.abs(a.y - b.y) < size;
+// Neighboring thumbnails keep their places' map order: one clearly north of another never lands below it.
+const inverted = (
+  a: MarkerAnchor,
+  pa: Positioned,
+  b: MarkerAnchor,
+  pb: Positioned,
+) =>
+  Math.abs(a.x - b.x) < 112 &&
+  Math.abs(a.y - b.y) < 112 &&
+  (["x", "y"] as const).some(
+    (axis) =>
+      Math.abs(b[axis] - a[axis]) > 8 &&
+      (b[axis] - a[axis]) * (pb[axis] - pa[axis]) < 0,
+  );
 const overflow = (point: Positioned, viewport: Viewport) =>
   Math.max(0, 24 - point.x) +
   Math.max(0, point.x + 24 - viewport.width) +
@@ -99,16 +113,16 @@ function activeAnchors(anchors: readonly MarkerAnchor[], viewport: Viewport) {
 function collisionIds(
   anchors: readonly MarkerAnchor[],
   offsets: ReadonlyMap<string, MarkerCallout>,
+  orderMatters = false,
 ) {
   const result = new Set<string>();
   for (let a = 0; a < anchors.length; a++)
     for (let b = a + 1; b < anchors.length; b++) {
+      const pa = position(anchors[a], offsets.get(anchors[a].id)!);
+      const pb = position(anchors[b], offsets.get(anchors[b].id)!);
       if (
-        overlaps(
-          position(anchors[a], offsets.get(anchors[a].id)!),
-          position(anchors[b], offsets.get(anchors[b].id)!),
-          48,
-        )
+        overlaps(pa, pb, 48) ||
+        (orderMatters && inverted(anchors[a], pa, anchors[b], pb))
       ) {
         result.add(anchors[a].id);
         result.add(anchors[b].id);
@@ -152,7 +166,10 @@ function solveGroup(
   if (!movable.length) return;
   const fixed = anchors
     .filter((anchor) => fixedIds.has(anchor.id))
-    .map((anchor) => position(anchor, offsets.get(anchor.id)!));
+    .map((anchor) => ({
+      anchor,
+      point: position(anchor, offsets.get(anchor.id)!),
+    }));
   const cost = (anchor: MarkerAnchor, offset: MarkerCallout) => {
     const prior = previous.get(anchor.id);
     const movement = prior
@@ -193,9 +210,17 @@ function solveGroup(
         return;
       }
       for (const option of options[index]) {
-        const point = position(movable[index], option.offset);
-        if (placed.some((other) => overlaps(point, other, clearance))) continue;
-        placed.push(point);
+        const anchor = movable[index];
+        const point = position(anchor, option.offset);
+        if (
+          placed.some(
+            (other) =>
+              overlaps(point, other.point, clearance) ||
+              inverted(anchor, point, other.anchor, other.point),
+          )
+        )
+          continue;
+        placed.push({ anchor, point });
         selected.push(option.offset);
         search(index + 1, total + option.cost);
         selected.pop();
@@ -261,7 +286,7 @@ export function layoutMapMarkers({
   const newMembership = anchors.some((anchor) => !prior.has(anchor.id));
   if (moving && !newMembership)
     return { offsets, unresolvedIds: previous?.unresolvedIds ?? [] };
-  const existingCollisions = collisionIds(active, offsets);
+  const existingCollisions = collisionIds(active, offsets, true);
   // Preserve52px-clearance layouts down to48px: minor anchor changes cannot reshuffle callouts.
   if (
     !newMembership &&
@@ -276,7 +301,7 @@ export function layoutMapMarkers({
     const unchangedGroup = group.every((anchor) => prior.has(anchor.id));
     if (
       unchangedGroup &&
-      !collisionIds(group, offsets).length &&
+      !collisionIds(group, offsets, true).length &&
       group.every(
         (anchor) =>
           overflow(position(anchor, offsets.get(anchor.id)!), viewport) <= 2,
@@ -285,7 +310,7 @@ export function layoutMapMarkers({
       continue;
     solveGroup(group, viewport, offsets, prior, fixedIds);
   }
-  return { offsets, unresolvedIds: collisionIds(active, offsets) };
+  return { offsets, unresolvedIds: collisionIds(active, offsets, true) };
 }
 
 /** Web Mercator world pixels at an engine zoom, in marker layout space. */

@@ -3336,6 +3336,9 @@ html[data-photo-theme="dark"] {
     width: 0;
     height: 0;
   }
+  .map-thumbnail-host[data-priority] {
+    z-index: 1;
+  }
   .map-marker-callout {
     width: 0;
     height: 0;

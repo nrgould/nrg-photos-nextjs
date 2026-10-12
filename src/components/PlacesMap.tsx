@@ -728,6 +728,9 @@ export default function PlacesMap(props: {
             }),
           );
           const labels = markerLabels(visibleAnchors, offsets, widths);
+          const priorityIds = new Set(
+            anchors.filter((anchor) => anchor.priority).map(({ id }) => id),
+          );
           for (const [id, offset] of offsets) {
             const entry = markers.current.get(id)!;
             const element = entry.marker.getElement();
@@ -741,6 +744,8 @@ export default function PlacesMap(props: {
               element.style.setProperty("--callout-y", `${y}px`);
               element.dataset.callout = key;
             }
+            // Each marker is its own stacking context; the selected one draws over its neighbors.
+            element.toggleAttribute("data-priority", priorityIds.has(id));
             const label = labels.get(id);
             if (label && (!moving || !priorIds.has(id))) {
               if (element.dataset.labelSide !== label.side)
