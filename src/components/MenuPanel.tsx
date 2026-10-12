@@ -1,6 +1,5 @@
 "use client";
 import { useId } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowUpRight,
@@ -8,13 +7,11 @@ import {
   Download,
   FileText,
   Instagram,
+  Mail,
   Moon,
   Sun,
 } from "lucide-react";
 import { site } from "@/lib/site";
-import { photoUrl, portrait } from "@/lib/photography";
-import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
 import {
   Item,
   ItemActions,
@@ -25,8 +22,8 @@ import {
 } from "@/components/ui/item";
 import styles from "./ExploreChallenges.module.css";
 
-// Who Nicholas is and how to hire him, then owned presets, links and appearance.
-// Phones open it in the bottom drawer, desktop in the left sheet.
+// Owned presets, contact, links and the theme toggle. Phones open it in the
+// bottom drawer, desktop in the left sheet.
 export default function MenuPanel({
   theme,
   ownedCount,
@@ -54,28 +51,6 @@ export default function MenuPanel({
         </h2>
       </header>
       <div className={styles.content}>
-        <div className={styles.brand}>
-          <div className={styles.brandIdentity}>
-            <Image
-              className={styles.brandPortrait}
-              src={photoUrl(portrait.src)}
-              alt={portrait.alt}
-              width={56}
-              height={56}
-              sizes="56px"
-            />
-            <div>
-              <p className={styles.brandName}>{site.name}</p>
-              <p className={styles.brandMeta}>Photographer, North Carolina</p>
-            </div>
-          </div>
-          <Button
-            className={styles.brandAction}
-            onClick={(event) => onContact(event.currentTarget)}
-          >
-            Work with me
-          </Button>
-        </div>
         <ItemGroup className={styles.menuGroup}>
           {ownedCount > 0 && (
             <Item
@@ -101,6 +76,22 @@ export default function MenuPanel({
           )}
           <Item
             render={
+              <button
+                type="button"
+                onClick={(event) => onContact(event.currentTarget)}
+              />
+            }
+            className={styles.menuRow}
+          >
+            <ItemMedia variant="icon">
+              <Mail size={18} strokeWidth={1.5} aria-hidden />
+            </ItemMedia>
+            <ItemContent>
+              <ItemTitle>Contact</ItemTitle>
+            </ItemContent>
+          </Item>
+          <Item
+            render={
               <a href={site.instagram} target="_blank" rel="noreferrer" />
             }
             className={styles.menuRow}
@@ -124,32 +115,22 @@ export default function MenuPanel({
               <ItemTitle>Terms and privacy</ItemTitle>
             </ItemContent>
           </Item>
-          <Item className={styles.menuRow}>
+          <Item
+            render={<button type="button" onClick={onTheme} />}
+            className={styles.menuRow}
+          >
             <ItemMedia variant="icon">
               {theme === "light" ? (
-                <Sun size={18} strokeWidth={1.5} aria-hidden />
-              ) : (
                 <Moon size={18} strokeWidth={1.5} aria-hidden />
+              ) : (
+                <Sun size={18} strokeWidth={1.5} aria-hidden />
               )}
             </ItemMedia>
             <ItemContent>
-              <ItemTitle id={`${id}-theme`}>Appearance</ItemTitle>
+              <ItemTitle>
+                {theme === "light" ? "Dark mode" : "Light mode"}
+              </ItemTitle>
             </ItemContent>
-            <ItemActions>
-              <ButtonGroup aria-labelledby={`${id}-theme`}>
-                {(["light", "dark"] as const).map((option) => (
-                  <Button
-                    key={option}
-                    variant="control"
-                    className={styles.menuThemeOption}
-                    aria-pressed={theme === option}
-                    onClick={() => theme !== option && onTheme()}
-                  >
-                    {option === "light" ? "Light" : "Dark"}
-                  </Button>
-                ))}
-              </ButtonGroup>
-            </ItemActions>
           </Item>
         </ItemGroup>
       </div>

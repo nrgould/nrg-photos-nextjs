@@ -422,51 +422,6 @@
   flex: 1;
   margin: 0;
 }
-.brand {
-  display: grid;
-  gap: 16px;
-  margin-bottom: 16px;
-  padding: 16px;
-  border-radius: 14px;
-  background: var(--pale);
-}
-.brandIdentity {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.brandPortrait {
-  flex-shrink: 0;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  object-fit: cover;
-  outline: 1px solid var(--image-outline);
-  outline-offset: -1px;
-}
-.brandName {
-  margin: 0;
-  font:
-    500 20px/1.2 var(--font-explorer-display),
-    serif;
-  letter-spacing: -0.02em;
-}
-.brandMeta {
-  margin: 2px 0 0;
-  color: var(--muted-foreground);
-  font-size: 13px;
-}
-.brandAction {
-  justify-content: center;
-  width: 100%;
-  min-height: 44px;
-  border-radius: 10px;
-}
-/* Compact pair inside a 52px row; the group sets the end-cap radius. */
-.menuThemeOption {
-  min-height: 36px;
-  padding: 0 12px;
-}
 .menuGroup {
   gap: 2px;
   padding: 4px;
@@ -485,11 +440,11 @@
   text-align: left;
   transition: background-color 150ms var(--ease-out);
 }
-:is(a, button).menuRow:active {
+.menuRow:active {
   background: var(--line);
 }
 @media (hover: hover) and (pointer: fine) {
-  :is(a, button).menuRow:hover {
+  .menuRow:hover {
     background: var(--paper);
   }
 }
