@@ -40,8 +40,9 @@ export function ConsentBanner({ inline = false }: { inline?: boolean }) {
       <ItemContent>
         <ItemTitle>Cookies</ItemTitle>
         <ItemDescription className="line-clamp-none">
-          Accept lets PostHog set a cookie and record your visit. Decline counts
-          it without cookies. <Link href="/privacy">Privacy</Link>
+          We use analytics cookies to understand how the site is used. If you
+          decline, visits are still counted, without cookies.{" "}
+          <Link href="/privacy">Privacy</Link>
         </ItemDescription>
       </ItemContent>
       <ItemActions className="w-full justify-end">
