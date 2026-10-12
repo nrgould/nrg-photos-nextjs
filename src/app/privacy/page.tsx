@@ -6,7 +6,7 @@ import { site } from "@/lib/site";
 export const generateMetadata = () =>
   contentMetadata(
     "Privacy",
-    "What this site collects when you buy presets, sign in or get in touch, and who processes it.",
+    "What this site collects when you browse, buy presets, sign in or get in touch, and who processes it.",
     "/privacy",
   );
 
@@ -23,7 +23,7 @@ export default function PrivacyPage() {
       />
       <div className="page-heading">
         <h1>Privacy</h1>
-        <p>Last updated October 5, 2026</p>
+        <p>Last updated October 12, 2026</p>
       </div>
       <div className="legal">
         <section>
@@ -47,6 +47,12 @@ export default function PrivacyPage() {
               Which free preset your account received from the challenges.
             </li>
             <li>Your name, email and message when you use the contact form.</li>
+            <li>
+              How you use the site: the pages, places and photographs you open,
+              clicks, errors, load times and recordings of your visit, with what
+              you type hidden. Once you sign in or check out, they are linked to
+              your account.
+            </li>
           </ul>
         </section>
         <section>
@@ -55,8 +61,9 @@ export default function PrivacyPage() {
             Your cart, saved places and photos, challenge progress and theme are
             kept in your browser’s storage and are not sent to us. Sign-in uses
             cookies to keep you signed in, including the guest account that
-            checkout creates when you have not added an email. There are no
-            advertising or analytics cookies.
+            checkout creates when you have not added an email. PostHog sets an
+            analytics cookie that recognizes your browser between visits. There
+            are no advertising cookies.
           </p>
         </section>
         <section>
@@ -65,9 +72,9 @@ export default function PrivacyPage() {
             Supabase stores accounts and purchases, sends sign-in codes and
             delivers preset files. Stripe processes payments as merchant of
             record. Vercel hosts the site, keeps server logs, which include IP
-            addresses, and counts page visits without cookies. Resend delivers
-            contact form messages. Your information is never sold or shared for
-            advertising.
+            addresses, and counts page visits without cookies. PostHog records
+            how the site is used, as listed above. Resend delivers contact form
+            messages. Your information is never sold or shared for advertising.
           </p>
         </section>
         <section>

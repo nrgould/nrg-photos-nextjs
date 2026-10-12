@@ -7,6 +7,7 @@ import {
   interests,
   type ContactInput,
 } from "@/lib/contact";
+import { track } from "@/lib/analytics";
 import { site } from "@/lib/site";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input, type FieldVariant } from "@/components/ui/input";
@@ -44,7 +45,9 @@ export default function ContactForm({
     setLastInput(result.data);
     const href = draftHref(result.data);
     setDraft(href);
+    const { interest } = result.data;
     if (!emailEnabled) {
+      track("contact-sent", { interest, delivery: "draft" });
       setStatus("draft");
       return;
     }
@@ -58,6 +61,7 @@ export default function ContactForm({
       const body = await response.json();
       if (!response.ok || !body.success)
         throw new Error(body.error || "Please try again.");
+      track("contact-sent", { interest, delivery: "email" });
       setStatus("sent");
     } catch (error) {
       setStatus("error");

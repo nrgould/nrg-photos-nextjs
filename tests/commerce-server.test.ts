@@ -504,7 +504,7 @@ test("ownership appearing while Checkout creation is awaited suppresses the retu
 
 test("unpaid completion never grants; signed paid event grants once across duplicate events and sessions", async () => {
   const f = fixture();
-  const { orderId } = await f.service.checkout(
+  const { orderId, quote } = await f.service.checkout(
     "user-A",
     ids.slice(0, 2),
     requestId,
@@ -517,7 +517,15 @@ test("unpaid completion never grants; signed paid event grants once across dupli
   });
   assert.deepEqual((await f.service.ownership("user-A")).presetIds, []);
   const event: PaymentEvent = { id: "evt_paid", type: "paid", session: paid };
-  assert.deepEqual(await f.event(event), { duplicate: false, purchased: 2 });
+  assert.deepEqual(await f.event(event), {
+    duplicate: false,
+    purchased: {
+      orderId,
+      userId: "user-A",
+      presetIds: ids.slice(0, 2),
+      totalCents: quote.totalCents,
+    },
+  });
   assert.deepEqual(await f.event(event), { duplicate: true });
   await f.event({ ...event, id: "evt_another_paid" });
   assert.deepEqual(

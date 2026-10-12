@@ -10,6 +10,7 @@ import {
 } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { identify, reset } from "@/lib/analytics";
 
 type AccountConfiguration = {
   supabaseUrl: string;
@@ -124,7 +125,14 @@ function ConfiguredSession({
     "enabled" | "supabase" | "captcha"
   > | null>(null);
   useEffect(() => {
-    const { data } = supabase.auth.onAuthStateChange((_event, next) =>
+    const { data } = supabase.auth.onAuthStateChange((event, next) => {
+      // Guests are identified too, so the purchase the webhook records joins their browsing.
+      if (next)
+        identify(next.user.id, {
+          anonymous: next.user.is_anonymous ?? false,
+          ...(next.user.is_anonymous ? {} : { email: next.user.email }),
+        });
+      else if (event === "SIGNED_OUT") reset();
       setSession(
         next
           ? {
@@ -134,8 +142,8 @@ function ConfiguredSession({
               anonymous: next.user.is_anonymous ?? false,
             }
           : signedOut,
-      ),
-    );
+      );
+    });
     return () => data.subscription.unsubscribe();
   }, [supabase]);
   return (

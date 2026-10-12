@@ -1,7 +1,7 @@
 "use client";
 
-import { track } from "@vercel/analytics";
 import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { track } from "@/lib/analytics";
 import {
   addCartPreset,
   createPresetCart,
@@ -64,12 +64,12 @@ export function PresetCartProvider({
       ownedPresetIds: owned,
       quote: pricePresetCart(cart),
       addPreset: (id: string) => {
-        track("preset-added", { presets: 1 });
+        track("preset-added", { presets: 1, presetIds: [id] });
         if (!owned.includes(id))
           updateStoredCart((current) => addCartPreset(current, id));
       },
       addPresets: (ids: readonly string[]) => {
-        track("preset-added", { presets: ids.length });
+        track("preset-added", { presets: ids.length, presetIds: ids });
         updateStoredCart((current) =>
           ids.reduce(
             (next, id) => (owned.includes(id) ? next : addCartPreset(next, id)),

@@ -1,6 +1,5 @@
 "use client";
 
-import { track } from "@vercel/analytics";
 import {
   useCallback,
   useEffect,
@@ -29,6 +28,7 @@ import {
   Shuffle,
   X,
 } from "lucide-react";
+import { track } from "@/lib/analytics";
 import { selectionFeedback } from "@/lib/haptics";
 import { heroSrcs, travelPlaces } from "@/lib/places";
 import { galleryLayout, heroCount } from "@/lib/gallery-layout";
@@ -325,7 +325,9 @@ export default function PlacesExplorer({
     const { type, ...properties } = event;
     track(type, properties);
     const moment = recordExploration(event);
-    if (moment) setToast({ ...moment, key: ++toastKey.current });
+    if (!moment) return;
+    track("exploration-milestone", moment);
+    setToast({ ...moment, key: ++toastKey.current });
   }
   useEffect(() => {
     if (!initialView && initialNode)
@@ -491,7 +493,16 @@ export default function PlacesExplorer({
     setNestedSnap(0.75);
     clearPresetSelection();
   }
-  function openPage(view: PageView, trigger?: HTMLElement | null) {
+  function openPreset(id: string, trigger?: HTMLElement | null) {
+    setCatalogState((state) => ({ ...state, selectedPresetId: id }));
+    openPage("preset", trigger, id);
+  }
+  function openPage(
+    view: PageView,
+    trigger?: HTMLElement | null,
+    presetId?: string,
+  ) {
+    track("page-opened", { view, presetId });
     if (topView !== view) selectionFeedback();
     setViewer(null);
     if (open && drawerMode === "photos") {
@@ -591,10 +602,7 @@ export default function PlacesExplorer({
     ownedIds: new Set(ownedPresetIds),
     onAddPreset: (id: string) => addToCart([id]),
     onRemovePreset: removePreset,
-    onOpenPreset: (id: string, trigger: HTMLElement) => {
-      setCatalogState((state) => ({ ...state, selectedPresetId: id }));
-      openPage("preset", trigger);
-    },
+    onOpenPreset: openPreset,
   };
   const savedCount = favorites.placeIds.length + favorites.photoSrcs.length;
   const searchNodes = useMemo(
@@ -623,7 +631,7 @@ export default function PlacesExplorer({
     if (direction === "shuffle") {
       const node = shuffleLocation(filteredPlaces, selectedNodeId ?? selected);
       if (!node) return;
-      chooseNode(node);
+      chooseNode(node, [], "shuffle");
     } else {
       const node = stepLocation(
         filteredPlaces,
@@ -631,7 +639,7 @@ export default function PlacesExplorer({
         direction,
       );
       if (!node) return;
-      chooseNode(node);
+      chooseNode(node, [], "step");
     }
     setStepped(true);
     setTravel(direction === "shuffle" ? "shuffle" : "step");
@@ -844,10 +852,15 @@ export default function PlacesExplorer({
     } catch {}
   }
   // Showing a place's photos closes any nested page stacked over them.
-  function chooseNode(node: MapNode, under: PageView[] = []) {
+  function chooseNode(
+    node: MapNode,
+    under: PageView[] = [],
+    via: "map" | "drawer" | "search" | "step" | "shuffle" | "page" = "map",
+  ) {
     // A country with a single place opens that place.
     const only = node.kind === "country" ? countryPlaces(node.id) : [];
     if (only.length === 1) node = only[0];
+    track("place-selected", { nodeId: node.id, kind: node.kind, via });
     if (under.length) setNestedStack([]);
     else closeNested();
     explorePlace(node, explore);
@@ -859,7 +872,7 @@ export default function PlacesExplorer({
   // A pick made inside an expanded drawer keeps it at 75% instead of dropping to the strip.
   function chooseFromDrawer(node: MapNode) {
     const keepOpen = !desktop && expanded;
-    chooseNode(node);
+    chooseNode(node, [], "drawer");
     if (keepOpen) {
       photoSnap.current = 0.75;
       setSnap(0.75);
@@ -869,7 +882,11 @@ export default function PlacesExplorer({
   function showLocation(locationId: string) {
     const node = placeNode(locationId);
     if (node)
-      chooseNode(node, nested ? nestedStack : (baseStack as PageView[]));
+      chooseNode(
+        node,
+        nested ? nestedStack : (baseStack as PageView[]),
+        "page",
+      );
   }
   // Steps through the catalog as filtered when the preset was opened from it.
   function presetSiblings(id: string) {
@@ -887,7 +904,7 @@ export default function PlacesExplorer({
     const node = nodeForPhoto(src);
     if (!node) return;
     photoFocus.current = trigger;
-    chooseNode(node, nested ? nestedStack : (baseStack as PageView[]));
+    chooseNode(node, nested ? nestedStack : (baseStack as PageView[]), "page");
     openPhotograph(src);
   }
   function openPhotograph(photoSrc: string | null) {
@@ -898,6 +915,7 @@ export default function PlacesExplorer({
     }
   }
   function changeTheme(next: Theme) {
+    track("theme-changed", { theme: next.id });
     const root = document.documentElement;
     root.classList.add("theme-switching");
     applyTheme(next);
@@ -1041,10 +1059,7 @@ export default function PlacesExplorer({
           scrollMemory={catalogScrollMemory}
           onBack={onBack}
           backLabel={backLabel}
-          onOpenPreset={(id, trigger) => {
-            setCatalogState((state) => ({ ...state, selectedPresetId: id }));
-            openPage("preset", trigger);
-          }}
+          onOpenPreset={openPreset}
         />
       );
     if (view === "saved")
@@ -1054,7 +1069,7 @@ export default function PlacesExplorer({
           backLabel={backLabel}
           onBack={onBack}
           onToggle={toggleFavorite}
-          onOpenPlace={chooseNode}
+          onOpenPlace={(node) => chooseNode(node, [], "page")}
           onOpenPhoto={openPhotoFromPage}
         />
       );
@@ -1091,10 +1106,7 @@ export default function PlacesExplorer({
           backLabel={backLabel}
           onBack={onBack}
           claimBoundary={reward}
-          onOpenPreset={(id) => {
-            setCatalogState((state) => ({ ...state, selectedPresetId: id }));
-            openPage("preset");
-          }}
+          onOpenPreset={openPreset}
         />
       );
     return (
@@ -1992,7 +2004,7 @@ export default function PlacesExplorer({
                     value={node.id}
                     className="min-h-11"
                     onSelect={() => {
-                      chooseNode(node);
+                      chooseNode(node, [], "search");
                       closeSearch();
                     }}
                   >
@@ -2011,7 +2023,7 @@ export default function PlacesExplorer({
                     key={photo.src}
                     value={photo.src}
                     onSelect={() => {
-                      chooseNode(node);
+                      chooseNode(node, [], "search");
                       openPhotograph(photo.src);
                       closeSearch();
                     }}

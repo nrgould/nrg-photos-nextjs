@@ -29,6 +29,7 @@ import {
   type ExplorationMoment,
   type ExplorationProgress,
 } from "@/lib/exploration-progress";
+import { track } from "@/lib/analytics";
 import { getMapNodes } from "@/lib/map-hierarchy";
 import { getCatalogPreset, presetCatalog } from "@/lib/preset-commerce";
 import type { Photo } from "@/lib/photography";
@@ -341,6 +342,7 @@ export default function ExploreChallenges({
     try {
       const { presetId } = await claimBoundary.claim();
       if (!getCatalogPreset(presetId)) throw new Error("Unknown preset");
+      track("reward-claimed", { presetId });
       if (reducedMotion) setReelId(presetId);
       else await spin(presetId, setReelId);
       setClaimedId(presetId);
