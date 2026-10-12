@@ -414,17 +414,13 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  /* Clears the drawer's 44px close button. */
+  /* Clears the drawer's 44px close button and centers on it: 12px padding + 44px row. */
+  min-height: 68px;
   padding-right: 60px;
 }
 .menuHeader .heading {
   flex: 1;
   margin: 0;
-}
-.menuTheme {
-  width: 44px;
-  min-height: 44px;
-  padding: 0;
 }
 .brand {
   display: grid;
@@ -460,37 +456,16 @@
   color: var(--muted-foreground);
   font-size: 13px;
 }
-.brandFacts {
-  display: grid;
-  gap: 10px;
-  margin: 0;
-}
-.brandFacts dt {
-  font-size: 13px;
-  font-weight: 600;
-}
-.brandFacts dd {
-  margin: 0;
-  color: var(--muted-foreground);
-  font-size: 13px;
-}
 .brandAction {
   justify-content: center;
   width: 100%;
   min-height: 44px;
   border-radius: 10px;
 }
-.brandEmail {
-  justify-self: center;
-  margin-top: -8px;
-  padding: 8px;
-  color: var(--muted-foreground);
-  font-size: 13px;
-  text-decoration: none;
-}
-.brandEmail:hover {
-  color: var(--ink);
-  text-decoration: underline;
+/* Compact pair inside a 52px row; the group sets the end-cap radius. */
+.menuThemeOption {
+  min-height: 36px;
+  padding: 0 12px;
 }
 .menuGroup {
   gap: 2px;
@@ -510,11 +485,11 @@
   text-align: left;
   transition: background-color 150ms var(--ease-out);
 }
-.menuRow:active {
+:is(a, button).menuRow:active {
   background: var(--line);
 }
 @media (hover: hover) and (pointer: fine) {
-  .menuRow:hover {
+  :is(a, button).menuRow:hover {
     background: var(--paper);
   }
 }

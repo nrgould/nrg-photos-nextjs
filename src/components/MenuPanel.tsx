@@ -14,6 +14,7 @@ import {
 import { site } from "@/lib/site";
 import { photoUrl, portrait } from "@/lib/photography";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import {
   Item,
   ItemActions,
@@ -24,14 +25,7 @@ import {
 } from "@/components/ui/item";
 import styles from "./ExploreChallenges.module.css";
 
-const services = [
-  ["Brand & lifestyle", "Product and lifestyle photography on location"],
-  ["Portraits", "Individuals and couples"],
-  ["Travel & landscape", "Europe and North Carolina"],
-];
-const clients = ["Smartwool", "Raven's Brew Coffee", "Eight Angles", "C2Life"];
-
-// Who Nicholas is and how to hire him, then owned presets, theme and links.
+// Who Nicholas is and how to hire him, then owned presets, links and appearance.
 // Phones open it in the bottom drawer, desktop in the left sheet.
 export default function MenuPanel({
   theme,
@@ -58,18 +52,6 @@ export default function MenuPanel({
         <h2 id={`${id}-heading`} className={styles.heading}>
           Menu
         </h2>
-        <Button
-          variant="quiet"
-          className={styles.menuTheme}
-          aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
-          onClick={onTheme}
-        >
-          {theme === "light" ? (
-            <Moon size={18} strokeWidth={1.5} aria-hidden />
-          ) : (
-            <Sun size={18} strokeWidth={1.5} aria-hidden />
-          )}
-        </Button>
       </header>
       <div className={styles.content}>
         <div className={styles.brand}>
@@ -87,27 +69,12 @@ export default function MenuPanel({
               <p className={styles.brandMeta}>Photographer, North Carolina</p>
             </div>
           </div>
-          <dl className={styles.brandFacts}>
-            {services.map(([name, detail]) => (
-              <div key={name}>
-                <dt>{name}</dt>
-                <dd>{detail}</dd>
-              </div>
-            ))}
-            <div>
-              <dt>Clients</dt>
-              <dd>{clients.join(", ")}</dd>
-            </div>
-          </dl>
           <Button
             className={styles.brandAction}
             onClick={(event) => onContact(event.currentTarget)}
           >
             Work with me
           </Button>
-          <a className={styles.brandEmail} href={`mailto:${site.email}`}>
-            {site.email}
-          </a>
         </div>
         <ItemGroup className={styles.menuGroup}>
           {ownedCount > 0 && (
@@ -156,6 +123,33 @@ export default function MenuPanel({
             <ItemContent>
               <ItemTitle>Terms and privacy</ItemTitle>
             </ItemContent>
+          </Item>
+          <Item className={styles.menuRow}>
+            <ItemMedia variant="icon">
+              {theme === "light" ? (
+                <Sun size={18} strokeWidth={1.5} aria-hidden />
+              ) : (
+                <Moon size={18} strokeWidth={1.5} aria-hidden />
+              )}
+            </ItemMedia>
+            <ItemContent>
+              <ItemTitle id={`${id}-theme`}>Appearance</ItemTitle>
+            </ItemContent>
+            <ItemActions>
+              <ButtonGroup aria-labelledby={`${id}-theme`}>
+                {(["light", "dark"] as const).map((option) => (
+                  <Button
+                    key={option}
+                    variant="control"
+                    className={styles.menuThemeOption}
+                    aria-pressed={theme === option}
+                    onClick={() => theme !== option && onTheme()}
+                  >
+                    {option === "light" ? "Light" : "Dark"}
+                  </Button>
+                ))}
+              </ButtonGroup>
+            </ItemActions>
           </Item>
         </ItemGroup>
       </div>
