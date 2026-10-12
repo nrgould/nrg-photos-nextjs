@@ -1284,20 +1284,6 @@ export default function PlacesExplorer({
                       </ItemGroup>
                     </NavigationMenuContent>
                   </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <button
-                      type="button"
-                      className={navigationMenuTriggerStyle()}
-                      aria-label="Contact"
-                      aria-expanded={topView === "contact"}
-                      onClick={(event) =>
-                        openPage("contact", event.currentTarget)
-                      }
-                    >
-                      <Mail size={18} aria-hidden="true" />
-                      <span className="map-nav-label">Contact</span>
-                    </button>
-                  </NavigationMenuItem>
                   <NavigationMenuItem value="theme">
                     <NavigationMenuTrigger aria-label="Theme">
                       <Palette size={18} aria-hidden="true" />
@@ -1332,6 +1318,20 @@ export default function PlacesExplorer({
                         })}
                       </ItemGroup>
                     </NavigationMenuContent>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <button
+                      type="button"
+                      className={navigationMenuTriggerStyle()}
+                      aria-label="Contact"
+                      aria-expanded={topView === "contact"}
+                      onClick={(event) =>
+                        openPage("contact", event.currentTarget)
+                      }
+                    >
+                      <Mail size={18} aria-hidden="true" />
+                      <span className="map-nav-label">Contact</span>
+                    </button>
                   </NavigationMenuItem>
                 </>
               )}
