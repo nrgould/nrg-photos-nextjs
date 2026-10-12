@@ -409,3 +409,58 @@
   height: 100%;
   object-fit: cover;
 }
+/* Phone menu: grouped rows on a pale card; radii are concentric (10 + 4 = 14). */
+.menuHeader {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  /* Clears the drawer's 44px close button and centers on it: 12px padding + 44px row. */
+  min-height: 68px;
+  padding-right: 60px;
+}
+.menuHeader .heading {
+  flex: 1;
+  margin: 0;
+}
+.menuContent {
+  display: grid;
+  gap: 12px;
+}
+.menuLabel {
+  margin: 8px 0 -4px 12px;
+  color: var(--muted-foreground);
+  font: inherit;
+  font-size: 13px;
+}
+.menuGroup {
+  gap: 2px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--pale);
+}
+.menuRow {
+  flex-wrap: nowrap;
+  min-height: 52px;
+  gap: 12px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 10px;
+  color: var(--ink);
+  font-size: 15px;
+  text-align: left;
+  transition: background-color 150ms var(--ease-out);
+}
+.menuRow:active {
+  background: var(--line);
+}
+@media (hover: hover) and (pointer: fine) {
+  .menuRow:hover {
+    background: var(--paper);
+  }
+}
+.menuTrailing {
+  gap: 4px;
+  color: var(--muted-foreground);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}

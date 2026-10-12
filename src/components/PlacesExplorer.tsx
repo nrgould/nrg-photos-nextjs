@@ -19,22 +19,15 @@ import {
   Star,
   Trash2,
   Check,
-  Contrast,
-  Film,
   Instagram,
   Mail,
-  Moon,
-  MoonStar,
+  Menu as MenuIcon,
   Package,
   Palette,
   Search,
   ShoppingBag,
   Shuffle,
-  Sun,
-  Sunset,
-  Trees,
   X,
-  type LucideIcon,
 } from "lucide-react";
 import { track } from "@/lib/analytics";
 import { selectionFeedback } from "@/lib/haptics";
@@ -112,15 +105,6 @@ import {
 } from "@/lib/themes";
 import { site } from "@/lib/site";
 
-const themeIcons: Record<ThemeId, LucideIcon> = {
-  light: Sun,
-  dark: Moon,
-  forest: Trees,
-  mono: Contrast,
-  "blue-hour": MoonStar,
-  "golden-hour": Sunset,
-  sepia: Film,
-};
 import Link from "next/link";
 import SavedPanel from "./SavedPanel";
 import { useFavorites } from "./useFavorites";
@@ -142,6 +126,7 @@ import {
 
 // Opened from the nav only; keeps zod and the form out of the first load.
 const ContactPanel = dynamic(() => import("./ContactPanel"));
+import MenuPanel, { ThemeSwatch } from "./MenuPanel";
 
 type DrawerView =
   | "photos"
@@ -151,7 +136,8 @@ type DrawerView =
   | "library"
   | "challenges"
   | "preset"
-  | "contact";
+  | "contact"
+  | "menu";
 const placeHeroes = (photos: readonly { src: string }[]) =>
   heroCount(
     photos.length,
@@ -180,6 +166,7 @@ const pageBackLabels: Record<DrawerView, string> = {
   challenges: "Challenges",
   preset: "Preset",
   contact: "Contact",
+  menu: "Menu",
 };
 // Escape in a filled search box clears it (PresetCatalog) before closing a drawer.
 const clearsSearch = ({ target }: KeyboardEvent) =>
@@ -1047,7 +1034,9 @@ export default function PlacesExplorer({
               ? "Exploration challenges"
               : view === "contact"
                 ? "Contact"
-                : "All presets";
+                : view === "menu"
+                  ? "Menu"
+                  : "All presets";
   }
   // Pages nest only above photos, so at most one layer shows a page.
   const pageView = nested ?? (drawerMode === "photos" ? null : drawerMode);
@@ -1107,6 +1096,17 @@ export default function PlacesExplorer({
           backLabel={backLabel}
           onBack={onBack}
           onBrowse={() => openPage("presets")}
+        />
+      );
+    if (view === "menu")
+      return (
+        <MenuPanel
+          theme={theme}
+          ownedCount={ownedPresetIds.length}
+          onPresets={(trigger) => openPage("presets", trigger)}
+          onLibrary={(trigger) => openPage("library", trigger)}
+          onContact={(trigger) => openPage("contact", trigger)}
+          onTheme={changeTheme}
         />
       );
     if (view === "contact")
@@ -1208,135 +1208,149 @@ export default function PlacesExplorer({
             onValueChange={setNavValue}
           >
             <NavigationMenuList>
-              {desktop && <NavigationMenuItem>{search}</NavigationMenuItem>}
-              <NavigationMenuItem value="presets">
-                <NavigationMenuTrigger ref={presetsTrigger}>
-                  <Package size={18} aria-hidden="true" />
-                  <span className="map-nav-label">Presets</span>
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ItemGroup className="map-nav-rows">
-                    <Item
-                      size="xs"
-                      render={
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setNavValue(null);
-                            openPage("presets", presetsTrigger.current);
-                          }}
-                        />
-                      }
-                    >
-                      <ItemContent>
-                        <ItemTitle>All presets</ItemTitle>
-                      </ItemContent>
-                    </Item>
-                    <Item size="xs" render={<Link href="/presets" />}>
-                      <ItemContent>
-                        <ItemTitle>Preset pack</ItemTitle>
-                      </ItemContent>
-                    </Item>
-                    {ownedPresetIds.length > 0 && (
-                      <Item
-                        size="xs"
-                        render={
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setNavValue(null);
-                              openPage("library", presetsTrigger.current);
-                            }}
-                          />
-                        }
-                      >
-                        <ItemMedia variant="icon">
-                          <Download size={16} aria-hidden="true" />
-                        </ItemMedia>
-                        <ItemContent>
-                          <ItemTitle>Your presets</ItemTitle>
-                        </ItemContent>
-                        <span className="map-nav-count">
-                          {ownedPresetIds.length}
-                        </span>
-                      </Item>
-                    )}
-                  </ItemGroup>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <button
-                  type="button"
-                  className={navigationMenuTriggerStyle()}
-                  aria-label="Contact"
-                  aria-expanded={topView === "contact"}
-                  onClick={(event) => openPage("contact", event.currentTarget)}
-                >
-                  <Mail size={18} aria-hidden="true" />
-                  <span className="map-nav-label">Contact</span>
-                </button>
-              </NavigationMenuItem>
-              <NavigationMenuItem value="theme">
-                <NavigationMenuTrigger aria-label="Theme">
-                  <Palette size={18} aria-hidden="true" />
-                  <span className="map-nav-label">Theme</span>
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ItemGroup className="map-nav-rows">
-                    {themes.map((option) => {
-                      const ThemeIcon = themeIcons[option.id];
-                      return (
+              {!desktop && (
+                <NavigationMenuItem>
+                  <button
+                    type="button"
+                    className={navigationMenuTriggerStyle()}
+                    aria-label="Menu"
+                    aria-expanded={topView === "menu"}
+                    onClick={(event) => openPage("menu", event.currentTarget)}
+                  >
+                    <MenuIcon size={18} aria-hidden="true" />
+                  </button>
+                </NavigationMenuItem>
+              )}
+              {desktop && (
+                <>
+                  <NavigationMenuItem>{search}</NavigationMenuItem>
+                  <NavigationMenuItem value="presets">
+                    <NavigationMenuTrigger ref={presetsTrigger}>
+                      <Package size={18} aria-hidden="true" />
+                      <span className="map-nav-label">Presets</span>
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <ItemGroup className="map-nav-rows">
                         <Item
-                          key={option.id}
                           size="xs"
                           render={
                             <button
                               type="button"
-                              aria-pressed={theme === option.id}
-                              onClick={() => changeTheme(option)}
+                              onClick={() => {
+                                setNavValue(null);
+                                openPage("presets", presetsTrigger.current);
+                              }}
                             />
                           }
                         >
-                          <ItemMedia>
-                            <span
-                              className="theme-swatch"
-                              data-theme-preview={option.id}
-                              aria-hidden="true"
-                            >
-                              <ThemeIcon size={16} />
-                            </span>
-                          </ItemMedia>
                           <ItemContent>
-                            <ItemTitle>{option.label}</ItemTitle>
+                            <ItemTitle>All presets</ItemTitle>
                           </ItemContent>
-                          {theme === option.id && (
-                            <Check size={16} aria-hidden="true" />
-                          )}
                         </Item>
-                      );
-                    })}
-                  </ItemGroup>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
+                        <Item size="xs" render={<Link href="/presets" />}>
+                          <ItemContent>
+                            <ItemTitle>Preset pack</ItemTitle>
+                          </ItemContent>
+                        </Item>
+                        {ownedPresetIds.length > 0 && (
+                          <Item
+                            size="xs"
+                            render={
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setNavValue(null);
+                                  openPage("library", presetsTrigger.current);
+                                }}
+                              />
+                            }
+                          >
+                            <ItemMedia variant="icon">
+                              <Download size={16} aria-hidden="true" />
+                            </ItemMedia>
+                            <ItemContent>
+                              <ItemTitle>Your presets</ItemTitle>
+                            </ItemContent>
+                            <span className="map-nav-count">
+                              {ownedPresetIds.length}
+                            </span>
+                          </Item>
+                        )}
+                      </ItemGroup>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <button
+                      type="button"
+                      className={navigationMenuTriggerStyle()}
+                      aria-label="Contact"
+                      aria-expanded={topView === "contact"}
+                      onClick={(event) =>
+                        openPage("contact", event.currentTarget)
+                      }
+                    >
+                      <Mail size={18} aria-hidden="true" />
+                      <span className="map-nav-label">Contact</span>
+                    </button>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem value="theme">
+                    <NavigationMenuTrigger aria-label="Theme">
+                      <Palette size={18} aria-hidden="true" />
+                      <span className="map-nav-label">Theme</span>
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <ItemGroup className="map-nav-rows">
+                        {themes.map((option) => {
+                          return (
+                            <Item
+                              key={option.id}
+                              size="xs"
+                              render={
+                                <button
+                                  type="button"
+                                  aria-pressed={theme === option.id}
+                                  onClick={() => changeTheme(option)}
+                                />
+                              }
+                            >
+                              <ItemMedia>
+                                <ThemeSwatch id={option.id} />
+                              </ItemMedia>
+                              <ItemContent>
+                                <ItemTitle>{option.label}</ItemTitle>
+                              </ItemContent>
+                              {theme === option.id && (
+                                <Check size={16} aria-hidden="true" />
+                              )}
+                            </Item>
+                          );
+                        })}
+                      </ItemGroup>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                </>
+              )}
             </NavigationMenuList>
           </NavigationMenu>
-          <nav className="map-links" aria-label="Elsewhere">
-            <a
-              className={buttonVariants({ variant: "quiet" })}
-              href={site.instagram}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Instagram size={14} aria-hidden="true" />
-              Instagram
-            </a>
-            <Link
-              className={buttonVariants({ variant: "quiet" })}
-              href="/terms"
-            >
-              Terms
-            </Link>
-          </nav>
+          {desktop && (
+            <nav className="map-links" aria-label="Elsewhere">
+              <a
+                className={buttonVariants({ variant: "quiet" })}
+                href={site.instagram}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Instagram size={14} aria-hidden="true" />
+                Instagram
+              </a>
+              <Link
+                className={buttonVariants({ variant: "quiet" })}
+                href="/terms"
+              >
+                Terms
+              </Link>
+            </nav>
+          )}
           <PlacesMap
             places={filteredPlaces}
             canvasOpen={photoFocusOpen}

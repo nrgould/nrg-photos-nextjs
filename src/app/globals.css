@@ -3326,7 +3326,7 @@ html[data-photo-palette="sepia"]
     min-height: 48px;
     padding: 0;
     border: 0;
-    border-radius: 16px;
+    border-radius: 12px;
     background: none;
     box-shadow: 0 2px 8px var(--surface-shadow);
     touch-action: none;
@@ -3347,7 +3347,7 @@ html[data-photo-palette="sepia"]
     width: 48px;
     height: 48px;
     object-fit: cover;
-    border-radius: 16px;
+    border-radius: 12px;
     outline: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
     outline-offset: -1px;
     pointer-events: none;
@@ -3406,7 +3406,7 @@ html[data-photo-palette="sepia"]
     left: -24px;
     width: 48px;
     height: 48px;
-    border-radius: 16px;
+    border-radius: 12px;
     box-shadow: 0 0 0 2px var(--ink);
     opacity: 0;
     pointer-events: none;
@@ -3437,7 +3437,7 @@ html[data-photo-palette="sepia"]
     position: absolute;
     inset: 0;
     display: grid;
-    border-radius: 16px;
+    border-radius: 12px;
     box-shadow: 0 1px 3px var(--surface-shadow);
     pointer-events: none;
     transform: translate(3px, -3px) rotate(4deg);
@@ -3741,15 +3741,6 @@ html[data-photo-palette="sepia"]
   }
   .map-toolbar :is([data-slot="navigation-menu-list"] > li > button) {
     padding: 0;
-  }
-  .map-toolbar .map-nav-label,
-  .map-toolbar [data-slot="navigation-menu-trigger"] > svg:last-child {
-    display: none;
-  }
-  .map-links {
-    top: calc(max(12px, env(safe-area-inset-top)) + 44px);
-    bottom: auto;
-    left: 4px;
   }
 }
 

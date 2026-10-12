@@ -1455,7 +1455,7 @@ export default function PlacesMap(props: {
                   width: 48,
                   height: 48,
                   minHeight: 48,
-                  borderRadius: 16,
+                  borderRadius: 12,
                 }}
                 data-location={node.collectionId}
                 data-map-node={node.id}
