@@ -17,20 +17,15 @@ import {
   ArrowRight,
   Download,
   Heart,
-  Instagram,
   Star,
   Trash2,
-  Mail,
   Menu as MenuIcon,
-  Moon,
   Search,
   ShoppingBag,
   Shuffle,
-  Sun,
   X,
 } from "lucide-react";
 import { selectionFeedback } from "@/lib/haptics";
-import { site } from "@/lib/site";
 import { heroSrcs, travelPlaces } from "@/lib/places";
 import { galleryLayout, heroCount } from "@/lib/gallery-layout";
 import Image from "next/image";
@@ -82,6 +77,7 @@ import type { ExplorationEvent } from "@/lib/exploration-progress";
 import PresetCartPanel from "./PresetCartPanel";
 import PresetLibraryPanel from "./PresetLibraryPanel";
 import MenuPanel from "./MenuPanel";
+import { Sheet, SheetClose, SheetContent, SheetTitle } from "./ui/sheet";
 import ContactPanel from "./ContactPanel";
 import SavedPanel from "./SavedPanel";
 import { useFavorites } from "./useFavorites";
@@ -173,7 +169,6 @@ function Control({
   label,
   children,
   onClick,
-  href,
   variant = "control",
   disabled = false,
 }: {
@@ -181,8 +176,6 @@ function Control({
   label: string;
   children: ReactNode;
   onClick?: () => void;
-  /** Opens an outside page in a new tab instead of acting. */
-  href?: string;
   disabled?: boolean;
 }) {
   return (
@@ -194,10 +187,6 @@ function Control({
             aria-label={label}
             onClick={onClick}
             disabled={disabled}
-            {...(href && {
-              nativeButton: false,
-              render: <a href={href} target="_blank" rel="noreferrer" />,
-            })}
           />
         }
       >
@@ -371,6 +360,8 @@ export default function PlacesExplorer({
   // The command bar names the place it stepped to until the visitor moves the map.
   const [stepped, setStepped] = useState(false);
   const [viewer, setViewer] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuTrigger = useRef<HTMLButtonElement>(null);
   const [marks, setMarks] = useState<Record<PhotoMark, string[]>>({
     remove: [],
     hero: [],
@@ -1162,8 +1153,20 @@ export default function PlacesExplorer({
       <div className="explorer-workspace">
         <div className="map-workspace">
           <div className="map-toolbar">
+            {/* Desktop opens Menu in the left sheet; phones in the drawer, attached to Presets. */}
+            {desktop && (
+              <Button
+                ref={menuTrigger}
+                variant="control"
+                className="explorer-menu-trigger"
+                aria-label="Menu"
+                aria-expanded={menuOpen}
+                onClick={() => setMenuOpen(true)}
+              >
+                <MenuIcon size={18} aria-hidden="true" />
+              </Button>
+            )}
             {desktop && search}
-            {/* Phones attach Menu to Presets; desktop has contact and theme bottom left. */}
             <ButtonGroup aria-label="Menu and presets">
               {!desktop && (
                 <Button
@@ -1231,24 +1234,6 @@ export default function PlacesExplorer({
           } as CSSProperties
         }
       >
-        {/* Phones reach theme and contact through the Menu page. */}
-        <ButtonGroup
-          orientation="vertical"
-          className="explorer-utilities max-[700px]:hidden"
-        >
-          <Control
-            label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
-            onClick={changeTheme}
-          >
-            {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
-          </Control>
-          <Control label="Contact" onClick={() => openPage("contact")}>
-            <Mail size={18} />
-          </Control>
-          <Control label="Instagram @nicholasgould1" href={site.instagram}>
-            <Instagram size={18} />
-          </Control>
-        </ButtonGroup>
         <div className="explorer-command-bar" aria-label="Location navigation">
           {/* Names the place Previous, Next and Shuffle landed on; at globe scale the marker alone is hard to find.
               Desktop only: on phones a step opens the 25% drawer, which carries the name. */}
@@ -2001,6 +1986,38 @@ export default function PlacesExplorer({
           );
         }}
       />
+      {desktop && (
+        <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+          <SheetContent className="explorer-overlay">
+            <SheetTitle className="sr-only">Menu</SheetTitle>
+            <SheetClose
+              render={
+                <Button
+                  variant="quiet"
+                  aria-label="Close menu"
+                  className="absolute right-2 top-3 z-10 size-11 justify-center p-0"
+                />
+              }
+            >
+              <X size={18} />
+            </SheetClose>
+            {/* Pages open in the right drawer, so the sheet steps aside first. */}
+            <MenuPanel
+              theme={theme}
+              ownedCount={ownedPresetIds.length}
+              onLibrary={() => {
+                setMenuOpen(false);
+                openPage("library", menuTrigger.current);
+              }}
+              onTheme={changeTheme}
+              onContact={() => {
+                setMenuOpen(false);
+                openPage("contact", menuTrigger.current);
+              }}
+            />
+          </SheetContent>
+        </Sheet>
+      )}
       <ExplorationToast
         moment={toast}
         onDismiss={dismissToast}

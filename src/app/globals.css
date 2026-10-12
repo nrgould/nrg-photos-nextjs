@@ -268,77 +268,11 @@
   .skip-link:focus {
     transform: none;
   }
-  .hero-link svg,
-  .header-contact svg {
+  .hero-link svg {
     transition: transform 0.3s var(--ease-out);
   }
-  .hero-link:hover svg,
-  .header-contact:hover svg {
+  .hero-link:hover svg {
     transform: translateX(4px);
-  }
-  .site-header {
-    height: 112px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-inline: var(--gutter);
-    position: relative;
-    z-index: 20;
-    background: var(--paper);
-  }
-  .wordmark {
-    font-family: var(--serif);
-    font-size: 33px;
-    line-height: 1;
-    letter-spacing: -0.025em;
-    display: block;
-    flex-shrink: 0;
-  }
-  .wordmark span {
-    font-family: var(--sans);
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    display: block;
-    margin-top: 11px;
-  }
-  .desktop-nav {
-    display: flex;
-    gap: 38px;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  .desktop-nav a {
-    font-size: 13px;
-    position: relative;
-    padding-block: 14px;
-  }
-  .desktop-nav a:after {
-    position: absolute;
-    content: "";
-    height: 1px;
-    left: 0;
-    bottom: 8px;
-    width: 100%;
-    background: currentColor;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.2s;
-  }
-  .desktop-nav a:hover:after,
-  .desktop-nav a[aria-current]:after {
-    transform: scaleX(1);
-  }
-  .header-contact {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    font-size: 13px;
-  }
-  .menu-toggle,
-  .mobile-nav {
-    display: none;
   }
   .hero {
     position: relative;
@@ -1144,21 +1078,6 @@
     }
   }
   @media (max-width: 1050px) {
-    .site-header {
-      height: 95px;
-    }
-    .desktop-nav {
-      position: static;
-      transform: none;
-      gap: 28px;
-    }
-    .header-contact {
-      font-size: 11px;
-      gap: 10px;
-    }
-    .wordmark {
-      font-size: 29px;
-    }
     .hero {
       min-height: 620px;
       height: calc(100svh - 125px);
@@ -1213,48 +1132,6 @@
     }
   }
   @media (max-width: 700px) {
-    .site-header {
-      height: 90px;
-      padding-inline: 22px;
-    }
-    .wordmark {
-      font-size: 29px;
-    }
-    .wordmark span {
-      font-size: 8px;
-      margin-top: 9px;
-      letter-spacing: 0.18em;
-    }
-    .desktop-nav,
-    .header-contact {
-      display: none;
-    }
-    .menu-toggle {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      font-size: 12px;
-      padding: 12px 0 12px 15px;
-    }
-    .menu-toggle span {
-      font-size: 25px;
-      font-weight: 400;
-      line-height: 1;
-    }
-    .mobile-nav {
-      display: flex;
-      flex-direction: column;
-      padding: 10px 24px 30px;
-    }
-    .mobile-nav a {
-      font-family: var(--serif);
-      font-size: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-block: 16px;
-      border-bottom: 1px solid var(--line);
-    }
     .hero {
       margin-inline: 8px;
       height: calc(100svh - 105px);
@@ -1807,7 +1684,6 @@
   .photo-grid figure[id] {
     scroll-margin-top: 28px;
   }
-  .header-contact:hover,
   .instagram-note a:hover,
   .footer-bottom a:hover {
     text-decoration: underline;
@@ -2278,7 +2154,6 @@ html[data-photo-theme="dark"] {
   body:has(.explorer) {
     overflow: hidden;
   }
-  body:has(.explorer) > .site-header,
   body:has(.explorer) > .site-footer {
     display: none;
   }
@@ -3770,8 +3645,7 @@ html[data-photo-theme="dark"] {
     padding: 0;
   }
   .explorer .explorer-top [data-slot="button-group"],
-  .explorer .map-toolbar [data-slot="button-group"],
-  .explorer .explorer-utilities {
+  .explorer .map-toolbar [data-slot="button-group"] {
     border-radius: 11px;
     box-shadow: 0 3px 14px var(--surface-shadow);
   }
@@ -3786,18 +3660,6 @@ html[data-photo-theme="dark"] {
   .explorer-count-trigger > span {
     font-size: 12px;
     font-variant-numeric: tabular-nums;
-  }
-  /* Theme and contact: bottom-left, riding the phone drawer with the command bar. */
-  .explorer .explorer-bottom-controls > .explorer-utilities {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    pointer-events: auto;
-  }
-  .explorer .explorer-utilities button {
-    width: 44px;
-    height: 44px;
-    padding: 0;
   }
   /* Phones: two clusters of 44px targets share 390px. */
   @media (max-width: 700px) {

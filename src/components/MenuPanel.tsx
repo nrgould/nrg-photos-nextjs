@@ -1,5 +1,6 @@
 "use client";
 import { useId } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowUpRight,
@@ -7,11 +8,11 @@ import {
   Download,
   FileText,
   Instagram,
-  Mail,
   Moon,
   Sun,
 } from "lucide-react";
 import { site } from "@/lib/site";
+import { photoUrl, portrait } from "@/lib/photography";
 import { Button } from "@/components/ui/button";
 import {
   Item,
@@ -23,7 +24,15 @@ import {
 } from "@/components/ui/item";
 import styles from "./ExploreChallenges.module.css";
 
-// Phones keep owned presets, theme and contact here instead of on the map.
+const services = [
+  ["Brand & lifestyle", "Product and lifestyle photography on location"],
+  ["Portraits", "Individuals and couples"],
+  ["Travel & landscape", "Europe and North Carolina"],
+];
+const clients = ["Smartwool", "Raven's Brew Coffee", "Eight Angles", "C2Life"];
+
+// Who Nicholas is and how to hire him, then owned presets, theme and links.
+// Phones open it in the bottom drawer, desktop in the left sheet.
 export default function MenuPanel({
   theme,
   ownedCount,
@@ -63,6 +72,43 @@ export default function MenuPanel({
         </Button>
       </header>
       <div className={styles.content}>
+        <div className={styles.brand}>
+          <div className={styles.brandIdentity}>
+            <Image
+              className={styles.brandPortrait}
+              src={photoUrl(portrait.src)}
+              alt={portrait.alt}
+              width={56}
+              height={56}
+              sizes="56px"
+            />
+            <div>
+              <p className={styles.brandName}>{site.name}</p>
+              <p className={styles.brandMeta}>Photographer, North Carolina</p>
+            </div>
+          </div>
+          <dl className={styles.brandFacts}>
+            {services.map(([name, detail]) => (
+              <div key={name}>
+                <dt>{name}</dt>
+                <dd>{detail}</dd>
+              </div>
+            ))}
+            <div>
+              <dt>Clients</dt>
+              <dd>{clients.join(", ")}</dd>
+            </div>
+          </dl>
+          <Button
+            className={styles.brandAction}
+            onClick={(event) => onContact(event.currentTarget)}
+          >
+            Work with me
+          </Button>
+          <a className={styles.brandEmail} href={`mailto:${site.email}`}>
+            {site.email}
+          </a>
+        </div>
         <ItemGroup className={styles.menuGroup}>
           {ownedCount > 0 && (
             <Item
@@ -86,22 +132,6 @@ export default function MenuPanel({
               </ItemActions>
             </Item>
           )}
-          <Item
-            render={
-              <button
-                type="button"
-                onClick={(event) => onContact(event.currentTarget)}
-              />
-            }
-            className={styles.menuRow}
-          >
-            <ItemMedia variant="icon">
-              <Mail size={18} strokeWidth={1.5} aria-hidden />
-            </ItemMedia>
-            <ItemContent>
-              <ItemTitle>Contact</ItemTitle>
-            </ItemContent>
-          </Item>
           <Item
             render={
               <a href={site.instagram} target="_blank" rel="noreferrer" />
