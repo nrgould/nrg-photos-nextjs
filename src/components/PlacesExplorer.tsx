@@ -1163,6 +1163,11 @@ export default function PlacesExplorer({
   return (
     <TooltipProvider delay={500}>
       <h1 className="sr-only">Photographs on the map</h1>
+      {intro && (
+        <div className="intro-title" aria-hidden="true">
+          <p>The world in my photographs</p>
+        </div>
+      )}
       <div className="explorer-top" data-drawer-open={open}>
         <ButtonGroup aria-label="Your exploration">
           <ExploreChallengesTrigger

@@ -3233,6 +3233,48 @@ html[data-photo-palette="sepia"]
       opacity 200ms var(--ease-out),
       transform 200ms var(--ease-out);
   }
+  /* First-visit title over a dark wash; it fades once the map is ready and the globe spins in. */
+  .intro-title {
+    position: fixed;
+    inset: 0;
+    z-index: 6;
+    display: grid;
+    place-items: center;
+    padding-inline: var(--gutter);
+    background: color-mix(in oklab, var(--neutral-950) 72%, transparent);
+    pointer-events: none;
+    transition: opacity 1200ms var(--ease-out) 900ms;
+  }
+  .explorer:has([data-map-ready="true"], .map-fallback-places) .intro-title {
+    opacity: 0;
+  }
+  .intro-title p {
+    font-family: var(--serif);
+    font-size: clamp(44px, 8vw, 112px);
+    line-height: 1;
+    text-align: center;
+    text-wrap: balance;
+    color: var(--neutral-50);
+    transition:
+      opacity 700ms var(--ease-out),
+      transform 700ms var(--ease-out),
+      filter 700ms var(--ease-out);
+  }
+  @starting-style {
+    .intro-title p {
+      opacity: 0;
+      transform: translateY(12px);
+      filter: blur(4px);
+    }
+  }
+  :root[data-intro-seen] .intro-title {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .intro-title {
+      display: none;
+    }
+  }
   @starting-style {
     .explorer .command-hint {
       opacity: 0;
