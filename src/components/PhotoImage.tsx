@@ -9,6 +9,7 @@ export default function PhotoImage({
   sizes = "(max-width: 700px) 100vw, 50vw",
   onLoad,
   skeleton = false,
+  thumb = false,
 }: {
   photo: Photo;
   className?: string;
@@ -17,10 +18,12 @@ export default function PhotoImage({
   onLoad?: () => void;
   /** Pulses in the photo's place, then the photo fades in. The parent positions and clips it. */
   skeleton?: boolean;
+  /** Drawn under ~100px: read the 256px copy, see photoUrl. */
+  thumb?: boolean;
 }) {
   const image = (
     <Image
-      src={photoUrl(photo.src)}
+      src={photoUrl(photo.src, thumb)}
       alt={photo.alt}
       width={photo.width}
       height={photo.height}

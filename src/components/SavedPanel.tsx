@@ -79,7 +79,7 @@ export default function SavedPanel({
                   className={styles.savedPlace}
                 >
                   <ItemMedia variant="image" className={styles.savedMedia}>
-                    <PhotoImage photo={node.cover} sizes="48px" />
+                    <PhotoImage photo={node.cover} sizes="48px" thumb />
                   </ItemMedia>
                   <ItemContent className={styles.rowContent}>
                     <ItemTitle>
