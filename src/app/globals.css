@@ -3252,6 +3252,8 @@ html[data-photo-palette="sepia"]
     font-family: var(--serif);
     font-size: clamp(44px, 8vw, 112px);
     line-height: 1;
+    /* Holds the descenders inside the box; Safari clips a blurred element to it. */
+    padding-block: 0.15em;
     text-align: center;
     text-wrap: balance;
     color: var(--neutral-50);
