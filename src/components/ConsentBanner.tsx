@@ -35,7 +35,7 @@ export function ConsentBanner({ inline = false }: { inline?: boolean }) {
         "explorer-overlay bg-background",
         // Waits out the first-visit intro title, then fades in.
         !inline &&
-          "fixed bottom-5 left-2 z-40 max-w-sm transition-[opacity,translate] duration-300 ease-out starting:translate-y-2 starting:opacity-0 max-sm:inset-x-2 max-sm:bottom-3 max-sm:max-w-none [body:has(.intro-title)_&]:hidden",
+          "fixed bottom-5 left-2 z-40 max-w-sm transition-[opacity,translate] duration-300 ease-out starting:translate-y-2 starting:opacity-0 max-sm:inset-x-2 max-sm:bottom-3 max-sm:w-auto max-sm:max-w-none [body:has(.intro-title)_&]:hidden",
       )}
     >
       <ItemContent>
