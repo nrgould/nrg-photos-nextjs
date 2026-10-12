@@ -29,6 +29,7 @@ import { selectionFeedback } from "@/lib/haptics";
 import { heroSrcs, travelPlaces } from "@/lib/places";
 import { galleryLayout, heroCount } from "@/lib/gallery-layout";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { photoUrl, takenLabel } from "@/lib/photography";
 import { drawerOwnsGesture, shouldDismissDrawer } from "@/lib/drawer-gesture";
 import {
@@ -78,7 +79,6 @@ import PresetCartPanel from "./PresetCartPanel";
 import PresetLibraryPanel from "./PresetLibraryPanel";
 import MenuPanel from "./MenuPanel";
 import { Sheet, SheetClose, SheetContent, SheetTitle } from "./ui/sheet";
-import ContactPanel from "./ContactPanel";
 import SavedPanel from "./SavedPanel";
 import { useFavorites } from "./useFavorites";
 import { nodeForPhoto, placeNode, type FavoriteKind } from "@/lib/favorites";
@@ -96,6 +96,9 @@ import {
   BULK_DISCOUNT_MINIMUM,
   BULK_DISCOUNT_PERCENT,
 } from "@/lib/preset-cart";
+
+// Opened from the menu only; keeps zod and the form out of the first load.
+const ContactPanel = dynamic(() => import("./ContactPanel"));
 
 type DrawerView =
   | "photos"
