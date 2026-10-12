@@ -206,8 +206,24 @@
     "showcase": []
   },
   {
-    "id": "mount-rainier-2",
+    "id": "maple-pass-1",
     "number": 11,
+    "name": "Maple Pass I",
+    "category": "Natural",
+    "location": "north-cascades",
+    "bestFor": "Alpine trails and fall color in open mountain light.",
+    "whatItDoes": "Pulls highlights hard (-83) and lifts shadows (+23) and blacks (+30), so bright sky and shaded slopes both keep detail. Eases texture and clarity, nudges greens toward yellow, and grades cool shadows and highlights around a warm midtone, with grain. Two sky gradients: one darkens a quarter stop, the other softens haze.",
+    "watchOut": "Greens turn yellower and more saturated, so summer foliage can read autumnal.",
+    "showcase": [
+      "/photos/lr-8225227.webp",
+      "/photos/lr-8225359.webp",
+      "/photos/lr-8225191.webp",
+      "/photos/lr-8225251.webp"
+    ]
+  },
+  {
+    "id": "mount-rainier-2",
+    "number": 12,
     "name": "Mount Rainier II",
     "category": "Alpine Blue",
     "location": "mount-rainier",
@@ -228,7 +244,7 @@
   },
   {
     "id": "hopfensee-2",
-    "number": 12,
+    "number": 13,
     "name": "Hopfensee I",
     "category": "Alpine Blue",
     "location": "hopfensee",
@@ -249,7 +265,7 @@
   },
   {
     "id": "stetten-1",
-    "number": 13,
+    "number": 14,
     "name": "Stetten I",
     "category": "Alpine Blue",
     "location": "stetten",
@@ -271,7 +287,7 @@
   },
   {
     "id": "mount-fremont-1",
-    "number": 14,
+    "number": 15,
     "name": "Mount Fremont I",
     "category": "Alpine Blue",
     "location": "mount-rainier",
@@ -293,7 +309,7 @@
   },
   {
     "id": "kiruna-2",
-    "number": 15,
+    "number": 16,
     "name": "Kiruna II",
     "category": "Alpine Blue",
     "location": "kiruna",
@@ -315,7 +331,7 @@
   },
   {
     "id": "lago-di-braies-2",
-    "number": 16,
+    "number": 17,
     "name": "Lago di Braies I",
     "category": "Alpine Blue",
     "location": "braies",
@@ -334,7 +350,7 @@
   },
   {
     "id": "lofoten-1",
-    "number": 17,
+    "number": 18,
     "name": "Lofoten I",
     "category": "Moody",
     "location": "nordland",
@@ -356,7 +372,7 @@
   },
   {
     "id": "lofoten-2",
-    "number": 18,
+    "number": 19,
     "name": "Lofoten II",
     "category": "Moody",
     "location": "lofoten",
@@ -377,7 +393,7 @@
   },
   {
     "id": "salzburg-2",
-    "number": 19,
+    "number": 20,
     "name": "Salzburg II",
     "category": "Moody",
     "location": "salzburg",
@@ -399,7 +415,7 @@
   },
   {
     "id": "vienna-2",
-    "number": 20,
+    "number": 21,
     "name": "Vienna II",
     "category": "Moody",
     "location": "vienna",
@@ -421,7 +437,7 @@
   },
   {
     "id": "rome-2",
-    "number": 21,
+    "number": 22,
     "name": "Rome I",
     "category": "Soft Film",
     "location": "rome",
@@ -443,7 +459,7 @@
   },
   {
     "id": "bavaria-1",
-    "number": 22,
+    "number": 23,
     "name": "Bavaria I",
     "category": "Soft Film",
     "location": "bavaria",
@@ -464,7 +480,7 @@
   },
   {
     "id": "amsterdam-2",
-    "number": 23,
+    "number": 24,
     "name": "Amsterdam I",
     "category": "Soft Film",
     "location": "amsterdam",
@@ -485,7 +501,7 @@
   },
   {
     "id": "hoh-rainforest-1",
-    "number": 24,
+    "number": 25,
     "name": "Hoh Rainforest I",
     "category": "Soft Film",
     "location": "hoh-rainforest",
@@ -506,7 +522,7 @@
   },
   {
     "id": "neuschwanstein-1",
-    "number": 25,
+    "number": 26,
     "name": "Neuschwanstein I",
     "category": "Soft Film",
     "location": "neuschwanstein",
@@ -526,7 +542,7 @@
   },
   {
     "id": "mount-rainier-1",
-    "number": 26,
+    "number": 27,
     "name": "Mount Rainier I",
     "category": "Soft Film",
     "location": "mount-rainier",
@@ -547,7 +563,7 @@
   },
   {
     "id": "hallstatt-3",
-    "number": 27,
+    "number": 28,
     "name": "Hallstatt II",
     "category": "Golden",
     "location": "hallstatt",
@@ -568,7 +584,7 @@
   },
   {
     "id": "kiruna-1",
-    "number": 28,
+    "number": 29,
     "name": "Kiruna I",
     "category": "Golden",
     "location": "kiruna",
@@ -589,8 +605,24 @@
     ]
   },
   {
+    "id": "cannon-beach-1",
+    "number": 30,
+    "name": "Cannon Beach I",
+    "category": "Golden",
+    "location": "cannon-beach",
+    "bestFor": "Coastline at golden hour: sea stacks, wet sand and surf under a low sun.",
+    "whatItDoes": "Pulls highlights (-61) and whites (-56) down and lifts shadows (+53) and blacks (+35) for a soft base, eases texture and clarity, and grades blue shadows against golden highlights with grain. Two sky gradients, one warming and softening haze, and a subject mask with a touch of clarity.",
+    "watchOut": "Blues and aquas lose saturation, so a clear blue sky reads softer. The gradients sit where the original horizon was; move them to match yours.",
+    "showcase": [
+      "/photos/lr-8267999.webp",
+      "/photos/lr-8268013.webp",
+      "/photos/lr-8268016.webp",
+      "/photos/lr-8268080.webp"
+    ]
+  },
+  {
     "id": "boston-2",
-    "number": 29,
+    "number": 31,
     "name": "Isabella Gardens",
     "category": "Mint",
     "location": "boston",
@@ -611,7 +643,7 @@
   },
   {
     "id": "cary-4",
-    "number": 30,
+    "number": 32,
     "name": "Cary I",
     "category": "Mint",
     "location": "cary",
