@@ -3786,7 +3786,6 @@ html[data-photo-palette="sepia"]
 }
 @media (max-width: 700px) {
   .explorer .map-toolbar {
-    top: max(12px, env(safe-area-inset-top));
     left: 4px;
   }
   .map-toolbar :is([data-slot="navigation-menu-list"] > li > button) {
