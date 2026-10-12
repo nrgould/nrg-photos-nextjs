@@ -58,6 +58,8 @@ export function galleryLayout(
   // photo that fits, so rows stay whole; a landscape left alone runs full width instead.
   const queue = aspects.map((_, index) => index).slice(first);
   const span = (index: number) => (wideSpan(aspects, index, columns) ? 2 : 1);
+  // Rows pairing a landscape with a portrait alternate its side, so the grid staggers.
+  let wideLeft: boolean | undefined;
   while (queue.length) {
     const cells: number[] = [];
     let used = 0;
@@ -79,6 +81,10 @@ export function galleryLayout(
     if (used < columns && cells.length === 1 && span(cells[0]) === 2) {
       row(cells, 1, (tileWidth) => tileWidth / aspects[cells[0]]);
       continue;
+    }
+    if (cells.length === 2 && used === columns) {
+      if ((span(cells[0]) === 2) === wideLeft) cells.reverse();
+      wideLeft = span(cells[0]) === 2;
     }
     const cellWidth = (width - gap * (columns - 1)) / columns;
     let x = 0;

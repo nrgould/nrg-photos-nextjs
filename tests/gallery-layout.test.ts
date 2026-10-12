@@ -97,3 +97,16 @@ test("a landscape takes two cells of a grid row, and rows stay whole", () => {
   const cards = galleryLayout([1.5, 1.5, 0.8], 300, { columns: 2 });
   assert.equal(cards[0].width, cards[1].width);
 });
+
+test("rows pairing a landscape and a portrait alternate the landscape's side", () => {
+  // Hero, then landscape, portrait, repeated: the landscape starts left, then right, then left.
+  const tiles = galleryLayout([0.8, ...Array(3).fill([1.5, 0.8]).flat()], 358, {
+    heroes: 1,
+  });
+  assert.deepEqual(
+    [tiles[1].x, tiles[3].x, tiles[5].x].map((x) => x === 0),
+    [true, false, true],
+  );
+  assert.equal(tiles[4].x, 0);
+  assert.ok(!overlaps(tiles));
+});
