@@ -19,7 +19,11 @@ import {
   Heart,
   Star,
   Trash2,
-  Menu as MenuIcon,
+  Check,
+  Instagram,
+  Mail,
+  Package,
+  Palette,
   Search,
   ShoppingBag,
   Shuffle,
@@ -43,7 +47,7 @@ import {
   shuffleLocation,
   stepLocation,
 } from "@/lib/map-filters";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import MapZoom from "./MapZoom";
 import { Separator } from "./ui/separator";
 import {
@@ -81,8 +85,25 @@ import { useExplorationProgress } from "./useExplorationProgress";
 import type { ExplorationEvent } from "@/lib/exploration-progress";
 import PresetCartPanel from "./PresetCartPanel";
 import PresetLibraryPanel from "./PresetLibraryPanel";
-import MenuPanel from "./MenuPanel";
-import { Sheet, SheetClose, SheetContent, SheetTitle } from "./ui/sheet";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "./ui/navigation-menu";
+import { Item, ItemContent, ItemGroup, ItemMedia, ItemTitle } from "./ui/item";
+import {
+  applyTheme,
+  resolveTheme,
+  themeKey,
+  themes,
+  type Theme,
+  type ThemeId,
+} from "@/lib/themes";
+import { site } from "@/lib/site";
+import Link from "next/link";
 import SavedPanel from "./SavedPanel";
 import { useFavorites } from "./useFavorites";
 import { nodeForPhoto, placeNode, type FavoriteKind } from "@/lib/favorites";
@@ -101,7 +122,7 @@ import {
   BULK_DISCOUNT_PERCENT,
 } from "@/lib/preset-cart";
 
-// Opened from the menu only; keeps zod and the form out of the first load.
+// Opened from the nav only; keeps zod and the form out of the first load.
 const ContactPanel = dynamic(() => import("./ContactPanel"));
 
 type DrawerView =
@@ -112,7 +133,6 @@ type DrawerView =
   | "library"
   | "challenges"
   | "preset"
-  | "menu"
   | "contact";
 const placeHeroes = (photos: readonly { src: string }[]) =>
   heroCount(
@@ -141,7 +161,6 @@ const pageBackLabels: Record<DrawerView, string> = {
   library: "Your presets",
   challenges: "Challenges",
   preset: "Preset",
-  menu: "Menu",
   contact: "Contact",
 };
 // Escape in a filled search box clears it (PresetCatalog) before closing a drawer.
@@ -289,7 +308,7 @@ export default function PlacesExplorer({
   // How the latest selection was reached; the map animates Previous, Next and Shuffle as travel.
   const [travel, setTravel] = useState<"step" | "shuffle" | null>(null);
   const [zoomRevision, setZoomRevision] = useState(0);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<ThemeId>("light");
   const [open, setOpen] = useState(Boolean(initialNode || initialView));
   const [photoFocusOpen, setPhotoFocusOpen] = useState(Boolean(initialNode));
   const { progress: explorationProgress, record: recordExploration } =
@@ -386,8 +405,7 @@ export default function PlacesExplorer({
   // The command bar names the place it stepped to until the visitor moves the map.
   const [stepped, setStepped] = useState(false);
   const [viewer, setViewer] = useState<string | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuTrigger = useRef<HTMLButtonElement>(null);
+  const [navValue, setNavValue] = useState<string | null>(null);
   const [marks, setMarks] = useState<Record<PhotoMark, string[]>>({
     remove: [],
     hero: [],
@@ -879,16 +897,15 @@ export default function PlacesExplorer({
       explore({ type: "photo-opened", photoSrc });
     }
   }
-  function changeTheme() {
-    const next = theme === "light" ? "dark" : "light";
+  function changeTheme(next: Theme) {
     const root = document.documentElement;
     root.classList.add("theme-switching");
-    root.dataset.photoTheme = next;
+    applyTheme(next);
+    setTheme(next.id);
     void root.offsetHeight;
     requestAnimationFrame(() => root.classList.remove("theme-switching"));
-    setTheme(next);
     try {
-      localStorage.setItem("photography-theme", next);
+      localStorage.setItem(themeKey, next.id);
     } catch {}
   }
   useEffect(() => {
@@ -900,15 +917,12 @@ export default function PlacesExplorer({
     window.addEventListener("resize", resize);
     const frame = requestAnimationFrame(() => {
       try {
-        const stored = localStorage.getItem("photography-theme");
-        const next =
-          stored === "dark" || stored === "light"
-            ? stored
-            : window.matchMedia("(prefers-color-scheme: dark)").matches
-              ? "dark"
-              : "light";
-        setTheme(next);
-        document.documentElement.dataset.photoTheme = next;
+        const stored = resolveTheme(
+          localStorage.getItem(themeKey),
+          window.matchMedia("(prefers-color-scheme: dark)").matches,
+        );
+        applyTheme(stored);
+        setTheme(stored.id);
         if (
           localStorage.getItem("photo-map-intro") ||
           window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -962,7 +976,7 @@ export default function PlacesExplorer({
   // Phones carry search in the command bar; desktop keeps it top left.
   const search = (
     <Control
-      variant={desktop ? undefined : "quiet"}
+      variant="quiet"
       label="Search"
       shortcut={{ keys: "Meta+K Control+K", label: "⌘K" }}
       onClick={() => setCommand(true)}
@@ -995,11 +1009,9 @@ export default function PlacesExplorer({
             ? "Your presets"
             : view === "challenges"
               ? "Exploration challenges"
-              : view === "menu"
-                ? "Menu"
-                : view === "contact"
-                  ? "Contact"
-                  : "All presets";
+              : view === "contact"
+                ? "Contact"
+                : "All presets";
   }
   // Pages nest only above photos, so at most one layer shows a page.
   const pageView = nested ?? (drawerMode === "photos" ? null : drawerMode);
@@ -1062,16 +1074,6 @@ export default function PlacesExplorer({
           backLabel={backLabel}
           onBack={onBack}
           onBrowse={() => openPage("presets")}
-        />
-      );
-    if (view === "menu")
-      return (
-        <MenuPanel
-          theme={theme}
-          ownedCount={ownedPresetIds.length}
-          onLibrary={(trigger) => openPage("library", trigger)}
-          onTheme={changeTheme}
-          onContact={(trigger) => openPage("contact", trigger)}
         />
       );
     if (view === "contact")
@@ -1163,61 +1165,156 @@ export default function PlacesExplorer({
               <span aria-hidden="true">{cartIds.length}</span>
             )}
           </Button>
-          {/* Phones reach owned presets from the Menu, leaving room for Presets top left. */}
-          {desktop && ownedPresetIds.length > 0 && (
-            <Button
-              variant="control"
-              aria-label={`Your presets, ${ownedPresetIds.length} owned`}
-              aria-expanded={topView === "library"}
-              onClick={(event) => openPage("library", event.currentTarget)}
-            >
-              <Download size={18} aria-hidden="true" />
-            </Button>
-          )}
           <AccountControl className="explorer-account-trigger" />
         </ButtonGroup>
       </div>
       <div className="explorer-workspace">
         <div className="map-workspace">
-          <div className="map-toolbar">
-            {/* Desktop opens Menu in the left sheet; phones in the drawer, attached to Presets. */}
-            {desktop && (
-              <Button
-                ref={menuTrigger}
-                variant="control"
-                className="explorer-menu-trigger"
-                aria-label="Menu"
-                aria-expanded={menuOpen}
-                onClick={() => setMenuOpen(true)}
-              >
-                <MenuIcon size={18} aria-hidden="true" />
-              </Button>
-            )}
-            {desktop && search}
-            <ButtonGroup aria-label="Menu and presets">
-              {!desktop && (
-                <Button
-                  variant="control"
-                  className="explorer-menu-trigger min-[701px]:hidden"
-                  aria-label="Menu"
-                  aria-expanded={topView === "menu"}
-                  onClick={(event) => openPage("menu", event.currentTarget)}
+          <NavigationMenu
+            className="map-toolbar"
+            positionerClassName="explorer-overlay"
+            aria-label="Site"
+            value={navValue}
+            onValueChange={setNavValue}
+          >
+            <NavigationMenuList>
+              {desktop && <NavigationMenuItem>{search}</NavigationMenuItem>}
+              <NavigationMenuItem value="presets">
+                {ownedPresetIds.length > 0 ? (
+                  <>
+                    <NavigationMenuTrigger ref={presetsTrigger}>
+                      <Package size={18} aria-hidden="true" />
+                      <span className="map-nav-label">Presets</span>
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <ItemGroup className="map-nav-rows">
+                        <Item
+                          size="xs"
+                          render={
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setNavValue(null);
+                                openPage("presets", presetsTrigger.current);
+                              }}
+                            />
+                          }
+                        >
+                          <ItemContent>
+                            <ItemTitle>All presets</ItemTitle>
+                          </ItemContent>
+                        </Item>
+                        <Item
+                          size="xs"
+                          render={
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setNavValue(null);
+                                openPage("library", presetsTrigger.current);
+                              }}
+                            />
+                          }
+                        >
+                          <ItemMedia variant="icon">
+                            <Download size={16} aria-hidden="true" />
+                          </ItemMedia>
+                          <ItemContent>
+                            <ItemTitle>Your presets</ItemTitle>
+                          </ItemContent>
+                          <span className="map-nav-count">
+                            {ownedPresetIds.length}
+                          </span>
+                        </Item>
+                      </ItemGroup>
+                    </NavigationMenuContent>
+                  </>
+                ) : (
+                  <button
+                    ref={presetsTrigger}
+                    type="button"
+                    className={navigationMenuTriggerStyle()}
+                    aria-label="Presets"
+                    aria-expanded={desktop ? undefined : topView === "presets"}
+                    onClick={(event) =>
+                      openPage("presets", event.currentTarget)
+                    }
+                  >
+                    <Package size={18} aria-hidden="true" />
+                    <span className="map-nav-label">Presets</span>
+                  </button>
+                )}
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <button
+                  type="button"
+                  className={navigationMenuTriggerStyle()}
+                  aria-label="Contact"
+                  aria-expanded={topView === "contact"}
+                  onClick={(event) => openPage("contact", event.currentTarget)}
                 >
-                  <MenuIcon size={18} aria-hidden="true" />
-                </Button>
-              )}
-              <Button
-                ref={presetsTrigger}
-                variant="control"
-                className="explorer-presets-trigger"
-                aria-expanded={desktop ? undefined : topView === "presets"}
-                onClick={(event) => openPage("presets", event.currentTarget)}
-              >
-                <span className="max-[700px]:hidden">All presets</span>
-                <span className="min-[701px]:hidden">Presets</span>
-              </Button>
-            </ButtonGroup>
-          </div>
+                  <Mail size={18} aria-hidden="true" />
+                  <span className="map-nav-label">Contact</span>
+                </button>
+              </NavigationMenuItem>
+              <NavigationMenuItem value="theme">
+                <NavigationMenuTrigger aria-label="Theme">
+                  <Palette size={18} aria-hidden="true" />
+                  <span className="map-nav-label">Theme</span>
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ItemGroup className="map-nav-rows">
+                    {themes.map((option) => (
+                      <Item
+                        key={option.id}
+                        size="xs"
+                        render={
+                          <button
+                            type="button"
+                            aria-pressed={theme === option.id}
+                            onClick={() => changeTheme(option)}
+                          />
+                        }
+                      >
+                        <ItemMedia>
+                          <span
+                            className="theme-swatch"
+                            data-theme-preview={option.id}
+                            aria-hidden="true"
+                          >
+                            Aa
+                          </span>
+                        </ItemMedia>
+                        <ItemContent>
+                          <ItemTitle>{option.label}</ItemTitle>
+                        </ItemContent>
+                        {theme === option.id && (
+                          <Check size={16} aria-hidden="true" />
+                        )}
+                      </Item>
+                    ))}
+                  </ItemGroup>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+          <nav className="map-links" aria-label="Elsewhere">
+            <a
+              className={buttonVariants({ variant: "quiet" })}
+              href={site.instagram}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Instagram size={14} aria-hidden="true" />
+              Instagram
+            </a>
+            <Link
+              className={buttonVariants({ variant: "quiet" })}
+              href="/terms"
+            >
+              Terms
+            </Link>
+          </nav>
           <PlacesMap
             places={filteredPlaces}
             canvasOpen={photoFocusOpen}
@@ -1596,19 +1693,16 @@ export default function PlacesExplorer({
                 </DrawerDescription>
                 {/* One back link per page: a page deeper in the stack has its own, and menu pages
                     always do. Desktop only: on phones, swiping the sheet down already leaves the page. */}
-                {desktop &&
-                  place &&
-                  baseStack.length === 1 &&
-                  drawerMode !== "menu" && (
-                    <Button
-                      variant="quiet"
-                      className="drawer-back"
-                      onClick={showPhotos}
-                    >
-                      <ArrowLeft size={16} aria-hidden="true" />
-                      {place.name}
-                    </Button>
-                  )}
+                {desktop && place && baseStack.length === 1 && (
+                  <Button
+                    variant="quiet"
+                    className="drawer-back"
+                    onClick={showPhotos}
+                  >
+                    <ArrowLeft size={16} aria-hidden="true" />
+                    {place.name}
+                  </Button>
+                )}
                 <Button
                   variant="quiet"
                   aria-label="Close drawer"
@@ -2016,38 +2110,6 @@ export default function PlacesExplorer({
           );
         }}
       />
-      {desktop && (
-        <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-          <SheetContent className="explorer-overlay">
-            <SheetTitle className="sr-only">Menu</SheetTitle>
-            <SheetClose
-              render={
-                <Button
-                  variant="quiet"
-                  aria-label="Close menu"
-                  className="absolute right-2 top-3 z-10 size-11 justify-center p-0"
-                />
-              }
-            >
-              <X size={18} />
-            </SheetClose>
-            {/* Pages open in the right drawer, so the sheet steps aside first. */}
-            <MenuPanel
-              theme={theme}
-              ownedCount={ownedPresetIds.length}
-              onLibrary={() => {
-                setMenuOpen(false);
-                openPage("library", menuTrigger.current);
-              }}
-              onTheme={changeTheme}
-              onContact={() => {
-                setMenuOpen(false);
-                openPage("contact", menuTrigger.current);
-              }}
-            />
-          </SheetContent>
-        </Sheet>
-      )}
       <ExplorationToast
         moment={toast}
         onDismiss={dismissToast}

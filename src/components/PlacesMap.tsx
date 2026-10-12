@@ -54,6 +54,7 @@ import {
 import { bucketList, type BucketPlace } from "@/lib/bucket-list";
 import { zoomPosition } from "@/lib/map-zoom-stops";
 import { photoUrl } from "@/lib/photography";
+import type { ThemeId } from "@/lib/themes";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 // The map is the page: fetch its engine while React hydrates, not after.
@@ -82,13 +83,12 @@ const toUiZoom = (zoom: number) => uiZoom(zoom - zoomOffset());
 function colors() {
   const css = getComputedStyle(document.documentElement);
   const token = (name: string) => css.getPropertyValue(name).trim();
-  const dark = document.documentElement.dataset.photoTheme === "dark";
   return {
-    water: token(dark ? "--explorer-water-dark" : "--explorer-water-light"),
-    land: token(dark ? "--explorer-land-dark" : "--explorer-land-light"),
-    wood: token(dark ? "--explorer-wood-dark" : "--explorer-wood-light"),
-    edge: token(dark ? "--neutral-600" : "--neutral-500"),
-    label: token(dark ? "--neutral-300" : "--neutral-600"),
+    water: token("--map-water"),
+    land: token("--map-land"),
+    wood: token("--map-wood"),
+    edge: token("--map-edge"),
+    label: token("--map-label"),
   };
 }
 // Country stacks split into places, and merge back, across this many px and ms.
@@ -334,7 +334,7 @@ export default function PlacesMap(props: {
   intro: boolean;
   revision: number;
   zoomRevision: number;
-  theme: "light" | "dark";
+  theme: ThemeId;
   onChoose: (id: string) => void;
   onChooseNode?: (node: MapNode) => void;
   onIntroEnd: () => void;

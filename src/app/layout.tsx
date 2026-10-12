@@ -10,6 +10,7 @@ import { CommerceCartProvider } from "@/components/CommerceCartProvider";
 import { CommerceProviders } from "@/components/CommerceProviders";
 import { getAccountPublicConfiguration } from "@/lib/server/commerce-runtime";
 import { photoUrl } from "@/lib/photography";
+import { themeBootScript } from "@/lib/themes";
 import { site } from "@/lib/site";
 import { seoLaunchMetadata } from "@/lib/seo-config";
 import { Analytics } from "@vercel/analytics/next";
@@ -79,7 +80,7 @@ export default async function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{const t=localStorage.getItem('photography-theme');if(t==='dark'||t==='light')document.documentElement.dataset.photoTheme=t}catch{}for(const e of['contextmenu','dragstart'])document.addEventListener(e,v=>{if(v.target instanceof HTMLImageElement)v.preventDefault()})`,
+            __html: `${themeBootScript}for(const e of['contextmenu','dragstart'])document.addEventListener(e,v=>{if(v.target instanceof HTMLImageElement)v.preventDefault()})`,
           }}
         />
       </head>
