@@ -1375,6 +1375,7 @@ export default function PlacesMap(props: {
     <div
       className="explorer-map maplibre-explorer"
       data-map-ready={ready}
+      data-clear-drawer={mode === "globe" && canvasOpen}
       onPointerDownCapture={(event) => {
         nativeZoomIntent.current.active = false;
         if (event.isPrimary) gestureMoved.current = false;
@@ -1454,8 +1455,6 @@ export default function PlacesMap(props: {
                   width: 48,
                   height: 48,
                   minHeight: 48,
-                  padding: 2,
-                  borderRadius: 12,
                 }}
                 data-location={node.collectionId}
                 data-map-node={node.id}

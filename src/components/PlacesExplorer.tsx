@@ -19,14 +19,22 @@ import {
   Star,
   Trash2,
   Check,
+  Contrast,
+  Film,
   Instagram,
   Mail,
+  Moon,
+  MoonStar,
   Package,
   Palette,
   Search,
   ShoppingBag,
   Shuffle,
+  Sun,
+  Sunset,
+  Trees,
   X,
+  type LucideIcon,
 } from "lucide-react";
 import { track } from "@/lib/analytics";
 import { selectionFeedback } from "@/lib/haptics";
@@ -103,6 +111,16 @@ import {
   type ThemeId,
 } from "@/lib/themes";
 import { site } from "@/lib/site";
+
+const themeIcons: Record<ThemeId, LucideIcon> = {
+  light: Sun,
+  dark: Moon,
+  forest: Trees,
+  mono: Contrast,
+  "blue-hour": MoonStar,
+  "golden-hour": Sunset,
+  sepia: Film,
+};
 import Link from "next/link";
 import SavedPanel from "./SavedPanel";
 import { useFavorites } from "./useFavorites";
@@ -1276,35 +1294,38 @@ export default function PlacesExplorer({
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ItemGroup className="map-nav-rows">
-                    {themes.map((option) => (
-                      <Item
-                        key={option.id}
-                        size="xs"
-                        render={
-                          <button
-                            type="button"
-                            aria-pressed={theme === option.id}
-                            onClick={() => changeTheme(option)}
-                          />
-                        }
-                      >
-                        <ItemMedia>
-                          <span
-                            className="theme-swatch"
-                            data-theme-preview={option.id}
-                            aria-hidden="true"
-                          >
-                            Aa
-                          </span>
-                        </ItemMedia>
-                        <ItemContent>
-                          <ItemTitle>{option.label}</ItemTitle>
-                        </ItemContent>
-                        {theme === option.id && (
-                          <Check size={16} aria-hidden="true" />
-                        )}
-                      </Item>
-                    ))}
+                    {themes.map((option) => {
+                      const ThemeIcon = themeIcons[option.id];
+                      return (
+                        <Item
+                          key={option.id}
+                          size="xs"
+                          render={
+                            <button
+                              type="button"
+                              aria-pressed={theme === option.id}
+                              onClick={() => changeTheme(option)}
+                            />
+                          }
+                        >
+                          <ItemMedia>
+                            <span
+                              className="theme-swatch"
+                              data-theme-preview={option.id}
+                              aria-hidden="true"
+                            >
+                              <ThemeIcon size={16} />
+                            </span>
+                          </ItemMedia>
+                          <ItemContent>
+                            <ItemTitle>{option.label}</ItemTitle>
+                          </ItemContent>
+                          {theme === option.id && (
+                            <Check size={16} aria-hidden="true" />
+                          )}
+                        </Item>
+                      );
+                    })}
                   </ItemGroup>
                 </NavigationMenuContent>
               </NavigationMenuItem>

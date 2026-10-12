@@ -13,8 +13,8 @@ const boot = (stored: string | null) => {
 };
 
 test("a stored theme resolves, anything else follows the system scheme", () => {
-  assert.equal(resolveTheme("nord", false).id, "nord");
-  assert.equal(resolveTheme("sepia", true).id, "dark");
+  assert.equal(resolveTheme("blue-hour", false).id, "blue-hour");
+  assert.equal(resolveTheme("gruvbox", true).id, "dark");
   assert.equal(resolveTheme(null, false).id, "light");
 });
 
@@ -24,7 +24,7 @@ test("the boot script applies every theme's scheme and palette before paint", ()
       photoTheme: theme.scheme,
       photoPalette: theme.id,
     });
-  assert.deepEqual(boot("sepia"), {});
+  assert.deepEqual(boot("gruvbox"), {});
 });
 
 test("every theme has a swatch, and every palette beyond light and dark a token block", () => {

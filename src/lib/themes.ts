@@ -5,9 +5,9 @@ export const themes = [
   { id: "dark", label: "Dark", scheme: "dark" },
   { id: "forest", label: "Forest", scheme: "dark" },
   { id: "mono", label: "Mono", scheme: "light" },
-  { id: "nord", label: "Nord", scheme: "dark" },
-  { id: "solarized", label: "Solarized", scheme: "light" },
-  { id: "gruvbox", label: "Gruvbox", scheme: "dark" },
+  { id: "blue-hour", label: "Blue hour", scheme: "dark" },
+  { id: "golden-hour", label: "Golden hour", scheme: "light" },
+  { id: "sepia", label: "Sepia", scheme: "dark" },
 ] as const;
 export type Theme = (typeof themes)[number];
 export type ThemeId = Theme["id"];

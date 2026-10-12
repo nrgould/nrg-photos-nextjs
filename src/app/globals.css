@@ -34,40 +34,40 @@
   --forest-water: #101a15;
   --forest-land: #22342a;
   --forest-wood: #2a4033;
-  --nord-0: #2e3440;
-  --nord-1: #3b4252;
-  --nord-2: #434c5e;
-  --nord-3: #4c566a;
-  --nord-4: #d8dee9;
-  --nord-6: #eceff4;
-  --nord-8: #88c0d0;
-  --nord-14: #a3be8c;
-  --nord-water: #262b35;
-  --nord-wood: #3d4a4f;
-  --solarized-base3: #fdf6e3;
-  --solarized-base2: #eee8d5;
-  --solarized-line: #ddd6c1;
-  --solarized-base1: #93a1a1;
-  --solarized-base00: #657b83;
-  --solarized-base02: #073642;
-  --solarized-blue: #268bd2;
-  --solarized-green: #859900;
-  --solarized-green-surface: #eef0d0;
-  --solarized-water: #dde8e4;
-  --solarized-wood: #ebe7cc;
-  --gruvbox-bg0h: #1d2021;
-  --gruvbox-bg: #282828;
-  --gruvbox-bg1: #3c3836;
-  --gruvbox-bg2: #504945;
-  --gruvbox-bg3: #665c54;
-  --gruvbox-fg: #ebdbb2;
-  --gruvbox-fg3: #bdae93;
-  --gruvbox-fg4: #a89984;
-  --gruvbox-yellow: #fabd2f;
-  --gruvbox-green: #b8bb26;
-  --gruvbox-green-surface: #32361a;
-  --gruvbox-land: #32302f;
-  --gruvbox-wood: #353520;
+  --blue-hour-0: #2e3440;
+  --blue-hour-1: #3b4252;
+  --blue-hour-2: #434c5e;
+  --blue-hour-3: #4c566a;
+  --blue-hour-4: #d8dee9;
+  --blue-hour-6: #eceff4;
+  --blue-hour-8: #88c0d0;
+  --blue-hour-14: #a3be8c;
+  --blue-hour-water: #262b35;
+  --blue-hour-wood: #3d4a4f;
+  --golden-hour-base3: #fdf6e3;
+  --golden-hour-base2: #eee8d5;
+  --golden-hour-line: #ddd6c1;
+  --golden-hour-base1: #93a1a1;
+  --golden-hour-base00: #657b83;
+  --golden-hour-base02: #073642;
+  --golden-hour-blue: #268bd2;
+  --golden-hour-green: #859900;
+  --golden-hour-green-surface: #eef0d0;
+  --golden-hour-water: #dde8e4;
+  --golden-hour-wood: #ebe7cc;
+  --sepia-bg0h: #1d2021;
+  --sepia-bg: #282828;
+  --sepia-bg1: #3c3836;
+  --sepia-bg2: #504945;
+  --sepia-bg3: #665c54;
+  --sepia-fg: #ebdbb2;
+  --sepia-fg3: #bdae93;
+  --sepia-fg4: #a89984;
+  --sepia-yellow: #fabd2f;
+  --sepia-green: #b8bb26;
+  --sepia-green-surface: #32361a;
+  --sepia-land: #32302f;
+  --sepia-wood: #353520;
   /* MapLibre reads these from <html>; each scheme and palette block overrides them. */
   --map-water: #e7edef;
   --map-land: #eeede8;
@@ -1985,12 +1985,6 @@
     cursor: not-allowed;
   }
 
-  .has-glass .map-controls > button,
-  .has-glass .zoom-control {
-    background-color: color-mix(in srgb, var(--paper), transparent 15%);
-    backdrop-filter: blur(12px);
-  }
-
   .places-explore-link {
     font-size: 14px;
     border-bottom: 1px solid currentColor;
@@ -2086,79 +2080,79 @@ html[data-photo-palette="mono"]
 [data-theme-preview="mono"] {
   --paper: var(--neutral-0);
   --pale: var(--neutral-100);
-  --white: var(--neutral-50);
+  --white: var(--neutral-0);
   --ink: var(--neutral-950);
-  --line: var(--neutral-300);
-  --muted-foreground: var(--neutral-600);
-  --input: var(--neutral-500);
+  --line: var(--neutral-950);
+  --muted-foreground: var(--neutral-700);
+  --input: var(--neutral-950);
   --ring: var(--neutral-950);
   --reward: var(--neutral-950);
   --reward-surface: var(--neutral-100);
-  --map-water: var(--neutral-100);
+  --map-water: var(--neutral-200);
   --map-land: var(--neutral-0);
-  --map-wood: var(--neutral-50);
-  --map-edge: var(--neutral-300);
-  --map-label: var(--neutral-600);
+  --map-wood: var(--neutral-0);
+  --map-edge: var(--neutral-950);
+  --map-label: var(--neutral-950);
 }
-html[data-photo-palette="nord"],
-html[data-photo-palette="nord"]
+html[data-photo-palette="blue-hour"],
+html[data-photo-palette="blue-hour"]
   :is(.explorer, body:has(.explorer) .explorer-overlay),
-[data-theme-preview="nord"] {
-  --paper: var(--nord-0);
-  --pale: var(--nord-1);
-  --white: var(--nord-2);
-  --ink: var(--nord-6);
-  --line: var(--nord-3);
-  --muted-foreground: var(--nord-4);
-  --input: var(--nord-3);
-  --ring: var(--nord-8);
-  --reward: var(--nord-14);
-  --reward-surface: var(--nord-1);
-  --map-water: var(--nord-water);
-  --map-land: var(--nord-1);
-  --map-wood: var(--nord-wood);
-  --map-edge: var(--nord-3);
-  --map-label: var(--nord-4);
+[data-theme-preview="blue-hour"] {
+  --paper: var(--blue-hour-0);
+  --pale: var(--blue-hour-1);
+  --white: var(--blue-hour-2);
+  --ink: var(--blue-hour-6);
+  --line: var(--blue-hour-3);
+  --muted-foreground: var(--blue-hour-4);
+  --input: var(--blue-hour-3);
+  --ring: var(--blue-hour-8);
+  --reward: var(--blue-hour-14);
+  --reward-surface: var(--blue-hour-1);
+  --map-water: var(--blue-hour-water);
+  --map-land: var(--blue-hour-1);
+  --map-wood: var(--blue-hour-wood);
+  --map-edge: var(--blue-hour-3);
+  --map-label: var(--blue-hour-4);
 }
-html[data-photo-palette="solarized"],
-html[data-photo-palette="solarized"]
+html[data-photo-palette="golden-hour"],
+html[data-photo-palette="golden-hour"]
   :is(.explorer, body:has(.explorer) .explorer-overlay),
-[data-theme-preview="solarized"] {
-  --paper: var(--solarized-base3);
-  --pale: var(--solarized-base2);
-  --white: var(--solarized-base3);
-  --ink: var(--solarized-base02);
-  --line: var(--solarized-line);
-  --muted-foreground: var(--solarized-base00);
-  --input: var(--solarized-base1);
-  --ring: var(--solarized-blue);
-  --reward: var(--solarized-green);
-  --reward-surface: var(--solarized-green-surface);
-  --map-water: var(--solarized-water);
-  --map-land: var(--solarized-base3);
-  --map-wood: var(--solarized-wood);
-  --map-edge: var(--solarized-base1);
-  --map-label: var(--solarized-base00);
+[data-theme-preview="golden-hour"] {
+  --paper: var(--golden-hour-base3);
+  --pale: var(--golden-hour-base2);
+  --white: var(--golden-hour-base3);
+  --ink: var(--golden-hour-base02);
+  --line: var(--golden-hour-line);
+  --muted-foreground: var(--golden-hour-base00);
+  --input: var(--golden-hour-base1);
+  --ring: var(--golden-hour-blue);
+  --reward: var(--golden-hour-green);
+  --reward-surface: var(--golden-hour-green-surface);
+  --map-water: var(--golden-hour-water);
+  --map-land: var(--golden-hour-base3);
+  --map-wood: var(--golden-hour-wood);
+  --map-edge: var(--golden-hour-base1);
+  --map-label: var(--golden-hour-base00);
 }
-html[data-photo-palette="gruvbox"],
-html[data-photo-palette="gruvbox"]
+html[data-photo-palette="sepia"],
+html[data-photo-palette="sepia"]
   :is(.explorer, body:has(.explorer) .explorer-overlay),
-[data-theme-preview="gruvbox"] {
-  --paper: var(--gruvbox-bg);
-  --pale: var(--gruvbox-bg1);
-  --white: var(--gruvbox-bg2);
-  --ink: var(--gruvbox-fg);
-  --line: var(--gruvbox-bg2);
-  --muted-foreground: var(--gruvbox-fg3);
-  --input: var(--gruvbox-bg3);
-  --ring: var(--gruvbox-yellow);
-  --reward: var(--gruvbox-green);
-  --reward-surface: var(--gruvbox-green-surface);
-  --map-water: var(--gruvbox-bg0h);
-  --map-land: var(--gruvbox-land);
-  --map-wood: var(--gruvbox-wood);
-  --map-edge: var(--gruvbox-bg3);
-  --map-label: var(--gruvbox-fg4);
+[data-theme-preview="sepia"] {
+  --paper: var(--sepia-bg);
+  --pale: var(--sepia-bg1);
+  --white: var(--sepia-bg2);
+  --ink: var(--sepia-fg);
+  --line: var(--sepia-bg2);
+  --muted-foreground: var(--sepia-fg3);
+  --input: var(--sepia-bg3);
+  --ring: var(--sepia-yellow);
+  --reward: var(--sepia-green);
+  --reward-surface: var(--sepia-green-surface);
+  --map-water: var(--sepia-bg0h);
+  --map-land: var(--sepia-land);
+  --map-wood: var(--sepia-wood);
+  --map-edge: var(--sepia-bg3);
+  --map-label: var(--sepia-fg4);
 }
 
 @layer components {
@@ -2550,13 +2544,12 @@ html[data-photo-palette="gruvbox"]
     height: 60px;
     padding: 11px;
   }
+  /* The command bar's surface; fill, dots and thumb take the theme's ink. */
   .zoom-control {
     border-radius: 999px;
-    border: 1px solid var(--neutral-500);
-    background: linear-gradient(145deg, var(--neutral-700), var(--neutral-800));
-    box-shadow:
-      inset 0 1px 1px var(--neutral-500),
-      0 3px 14px var(--surface-shadow);
+    border: 1px solid var(--line);
+    background: var(--paper);
+    box-shadow: 0 3px 14px var(--surface-shadow);
   }
   .zoom-control:has(.map-zoom-slider :focus-visible) .zoom-thumb {
     outline: 2px solid var(--ring);
@@ -2577,7 +2570,7 @@ html[data-photo-palette="gruvbox"]
     left: 0;
     top: 0;
     border-radius: 999px;
-    background: var(--neutral-0);
+    background: color-mix(in srgb, var(--ink) 10%, transparent);
     pointer-events: none;
   }
   .zoom-dot {
@@ -2587,20 +2580,21 @@ html[data-photo-palette="gruvbox"]
     height: 7px;
     border-radius: 50%;
     transform: translate(-50%, -50%);
-    background: var(--neutral-500);
+    background: var(--input);
     pointer-events: none;
   }
   .zoom-dot.is-filled {
-    background: var(--neutral-300);
+    background: var(--muted-foreground);
   }
   .zoom-thumb {
     position: absolute;
     width: 32px;
     height: 32px;
     top: 2px;
-    background: var(--neutral-950);
-    border: 2px solid var(--neutral-0);
+    background: var(--ink);
+    border: 2px solid var(--paper);
     border-radius: 50%;
+    box-shadow: 0 1px 4px var(--surface-shadow);
     pointer-events: none;
   }
   .zoom-control input {
@@ -3236,10 +3230,10 @@ html[data-photo-palette="gruvbox"]
     width: 48px;
     height: 48px;
     min-height: 48px;
-    padding: 2px;
-    border: 2px solid var(--paper);
-    border-radius: 12px;
-    background: var(--paper);
+    padding: 0;
+    border: 0;
+    border-radius: 16px;
+    background: none;
     box-shadow: 0 2px 8px var(--surface-shadow);
     touch-action: none;
     z-index: 1;
@@ -3249,17 +3243,19 @@ html[data-photo-palette="gruvbox"]
     display: none;
   }
   .explorer .map-photo-marker[aria-pressed="true"] {
-    border-color: var(--green-800);
     box-shadow:
-      0 0 0 2px var(--paper),
+      0 0 0 2px var(--ink),
       0 2px 8px var(--surface-shadow);
     z-index: 2;
   }
+  /* No mat: a faint ink outline keeps a pale photo's edge on pale land. */
   .map-photo-marker img {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: 16px;
+    outline: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+    outline-offset: -1px;
     pointer-events: none;
   }
   .map-marker-label {
@@ -3270,7 +3266,7 @@ html[data-photo-palette="gruvbox"]
     /* Divided by the marker scale so labels keep their size on desktop. */
     font: 500 calc(11px / var(--marker-scale, 1)) / 1.3 var(--sans);
     color: var(--ink);
-    background: var(--paper);
+    background: var(--white);
     padding: calc(2px / var(--marker-scale, 1))
       calc(5px / var(--marker-scale, 1));
     border-radius: calc(4px / var(--marker-scale, 1));
@@ -3316,7 +3312,7 @@ html[data-photo-palette="gruvbox"]
     left: -24px;
     width: 48px;
     height: 48px;
-    border-radius: 12px;
+    border-radius: 16px;
     box-shadow: 0 0 0 2px var(--ink);
     opacity: 0;
     pointer-events: none;
@@ -3340,15 +3336,15 @@ html[data-photo-palette="gruvbox"]
   .map-marker-cover {
     position: relative;
     z-index: 1;
-    /* Frames the cover like the layers behind it. */
-    box-shadow: 0 0 0 2px var(--paper);
+    /* Lifts the cover off the photos behind it. */
+    box-shadow: 0 1px 5px var(--surface-shadow);
   }
   .map-marker-stack-layer {
     position: absolute;
     inset: 0;
-    border: 2px solid var(--paper);
-    border-radius: 10px;
-    background: var(--paper);
+    display: grid;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px var(--surface-shadow);
     pointer-events: none;
     transform: translate(3px, -3px) rotate(4deg);
     transition: transform 200ms cubic-bezier(0.2, 0, 0, 1);
@@ -3389,7 +3385,7 @@ html[data-photo-palette="gruvbox"]
     padding: 0 4px;
     border: 1px solid var(--line);
     border-radius: 6px;
-    background: var(--paper);
+    background: var(--white);
     color: var(--ink);
     font: 600 10px/1 var(--sans);
     pointer-events: none;
@@ -3418,9 +3414,21 @@ html[data-photo-palette="gruvbox"]
   .maplibre-explorer {
     display: block;
   }
+  /* Panning a globe rotates it, so on desktop the whole globe slides clear of the open drawer. */
+  @media (min-width: 701px) {
+    .maplibre-explorer[data-clear-drawer="true"] .maplibre-surface {
+      translate: -206px 0;
+    }
+  }
   .maplibre-surface {
     position: absolute;
     inset: 0;
+    transition: translate 650ms var(--ease-out);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .maplibre-surface {
+      transition: none;
+    }
   }
   .maplibre-explorer .maplibregl-canvas {
     outline-offset: -4px;
@@ -3607,18 +3615,16 @@ html[data-photo-palette="gruvbox"]
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
-/* A theme's paper, ink and line, painted by [data-theme-preview]. */
+/* A theme's icon in its ink on its paper, painted by [data-theme-preview]. */
 .theme-swatch {
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--paper);
   color: var(--ink);
-  font-size: 11px;
-  font-weight: 600;
 }
 /* Instagram and Terms: bottom left on desktop, under the nav on phones. */
 .map-links {
