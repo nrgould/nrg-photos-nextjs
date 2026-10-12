@@ -56,6 +56,9 @@ import { zoomPosition } from "@/lib/map-zoom-stops";
 import { photoUrl } from "@/lib/photography";
 import "maplibre-gl/dist/maplibre-gl.css";
 
+// The map is the page: fetch its engine while React hydrates, not after.
+const maplibre = typeof window === "undefined" ? null : import("maplibre-gl");
+
 // Intro: an ease-in spin hands off to the ease-out settle at equal speed
 // (2·spin/spinMs = 3·settle/settleMs), so the globe never jerks.
 const introSpinMs = 1600;
@@ -461,7 +464,7 @@ export default function PlacesMap(props: {
     window.addEventListener("keydown", onKey, true);
     window.addEventListener("pointerdown", onPointer, true);
     window.addEventListener("wheel", onPointer, true);
-    import("maplibre-gl")
+    (maplibre ?? import("maplibre-gl"))
       .then(async ({ Map: MapConstructor, Marker, LngLat, setWorkerUrl }) => {
         await document.fonts.ready;
         if (cancelled || !container.current) return;
