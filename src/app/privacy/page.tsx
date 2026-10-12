@@ -89,6 +89,18 @@ export default function PrivacyPage() {
             </p>
           </section>
           <section>
+            <h2>Security</h2>
+            <p>
+              The site only loads over HTTPS. You sign in with a one-time code
+              sent to your email, so there is no password to store or leak.
+              Accounts and purchase records sit in a database that refuses
+              requests from browsers; only the site’s server reads them. Preset
+              files are kept in private storage. The server checks that you own
+              a preset before it makes a download link, and the link expires
+              after 60 seconds. To report a security problem, email {email}.
+            </p>
+          </section>
+          <section>
             <h2>Keeping and deleting</h2>
             <p>
               Purchase records are kept as long as you can download your presets
