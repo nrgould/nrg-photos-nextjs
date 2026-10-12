@@ -8,6 +8,7 @@ import {
 } from "next/font/google";
 import { CommerceCartProvider } from "@/components/CommerceCartProvider";
 import { CommerceProviders } from "@/components/CommerceProviders";
+import { ConsentBanner } from "@/components/ConsentBanner";
 import { getAccountPublicConfiguration } from "@/lib/server/commerce-runtime";
 import { photoUrl } from "@/lib/photography";
 import { themeBootScript } from "@/lib/themes";
@@ -91,6 +92,7 @@ export default async function RootLayout({
         <CommerceProviders account={account}>
           <CommerceCartProvider>{children}</CommerceCartProvider>
         </CommerceProviders>
+        <ConsentBanner />
         <Analytics />
       </body>
     </html>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ConsentBanner } from "@/components/ConsentBanner";
 import { Breadcrumbs } from "@/components/seo/SeoContent";
 import { contentMetadata } from "@/lib/seo-content";
 import { site } from "@/lib/site";
@@ -49,9 +50,9 @@ export default function PrivacyPage() {
             <li>Your name, email and message when you use the contact form.</li>
             <li>
               How you use the site: the pages, places and photographs you open,
-              clicks, errors, load times and recordings of your visit, with what
-              you type hidden. Once you sign in or check out, they are linked to
-              your account.
+              clicks, errors and load times. If you accept cookies, also a
+              recording of your visit with what you type hidden, linked to your
+              account once you sign in or check out.
             </li>
           </ul>
         </section>
@@ -61,10 +62,13 @@ export default function PrivacyPage() {
             Your cart, saved places and photos, challenge progress and theme are
             kept in your browser’s storage and are not sent to us. Sign-in uses
             cookies to keep you signed in, including the guest account that
-            checkout creates when you have not added an email. PostHog sets an
-            analytics cookie that recognizes your browser between visits. There
-            are no advertising cookies.
+            checkout creates when you have not added an email. If you accept
+            cookies, PostHog sets one that recognizes your browser between
+            visits and records your visit. Until then, or if you decline, it
+            counts visits without cookies and records nothing. There are no
+            advertising cookies.
           </p>
+          <ConsentBanner inline />
         </section>
         <section>
           <h2>Who processes it</h2>
