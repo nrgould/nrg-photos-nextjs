@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useState, type FormEvent } from "react";
 import { UserRound, X } from "lucide-react";
+import { track } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import { usePresetCommerceBoundary } from "./CommerceCartProvider";
 import { useCommerceAccount } from "./CommerceProviders";
@@ -154,7 +155,11 @@ export function SignInDialog({
     }
     setPending(false);
     if (error) return setError(error.message);
-    if (!sentTo) return setSentTo(value);
+    if (!sentTo) {
+      track("sign-in-code-sent", { guest: anonymous });
+      return setSentTo(value);
+    }
+    track("signed-in", { guest: anonymous, optIn });
     // Consent is kept on the account, with when it was given; the email list reads it from there.
     if (optIn) {
       const { error } = await supabase.auth.updateUser({

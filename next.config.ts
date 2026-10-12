@@ -32,6 +32,24 @@ const config: NextConfig = {
       "/locations/:path*",
     ].map((source) => ({ source, destination: "/", permanent: false }));
   },
+  // PostHog through this origin, so blockers keep its events. Its paths end in a slash.
+  skipTrailingSlashRedirect: true,
+  async rewrites() {
+    return [
+      {
+        source: "/relay/static/:path*",
+        destination: "https://us-assets.i.posthog.com/static/:path*",
+      },
+      {
+        source: "/relay/array/:path*",
+        destination: "https://us-assets.i.posthog.com/array/:path*",
+      },
+      {
+        source: "/relay/:path*",
+        destination: "https://us.i.posthog.com/:path*",
+      },
+    ];
+  },
   async headers() {
     return getSeoConfig().indexable
       ? []

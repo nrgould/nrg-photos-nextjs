@@ -1,6 +1,7 @@
 "use client";
 import { useLayoutEffect, useRef, useState, type ComponentProps } from "react";
 import { Download } from "lucide-react";
+import { track } from "@/lib/analytics";
 import { getCatalogPreset } from "@/lib/preset-commerce";
 import { useCommerceAccount } from "./CommerceProviders";
 import { Button } from "./ui/button";
@@ -60,6 +61,7 @@ export function PresetDownloadButton({
         );
         return;
       }
+      track("preset-downloaded", { presetId: presetId ?? "all" });
       if (!presetId) {
         const file = URL.createObjectURL(await response.blob());
         if (controller.signal.aborted || activeSession.current !== sessionKey)

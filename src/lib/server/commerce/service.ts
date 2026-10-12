@@ -278,8 +278,13 @@ export function createCommerceService({
   async function applyEvent(event: PaymentEvent) {
     return store.transaction(async (tx) => {
       if (await tx.eventSeen(event.id)) return { duplicate: true };
-      // Presets in an order this event moved to paid, for analytics.
-      let purchased = 0;
+      // The order this event moved to paid, for analytics.
+      let purchased: {
+        orderId: string;
+        userId: string;
+        presetIds: string[];
+        totalCents: number;
+      } | null = null;
       if (event.type === "revoked") {
         // A refund arriving before payment leaves a tombstone for the later event.
         await tx.revokePayment(event.paymentIntentId);
@@ -320,7 +325,12 @@ export function createCommerceService({
         };
         await tx.putOrder(next);
         if (status === "paid" && order.status !== "paid")
-          purchased = order.presetIds.length;
+          purchased = {
+            orderId: order.id,
+            userId: order.userId,
+            presetIds: order.presetIds,
+            totalCents: order.totalCents,
+          };
         if (status === "paid") {
           for (const presetId of order.presetIds)
             await tx.putEntitlement({

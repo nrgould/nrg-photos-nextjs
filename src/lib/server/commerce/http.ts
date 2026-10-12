@@ -1,4 +1,3 @@
-import { track } from "@vercel/analytics/server";
 import { getCatalogPreset } from "../../preset-commerce";
 import { zip } from "../zip";
 import type { ConfigurationResult } from "./config";
@@ -157,8 +156,26 @@ export function createCommerceHandlers({
           await rawBody(request, 1048576),
           signature,
         );
-        if (result.purchased)
-          await track("purchase", { presets: result.purchased });
+        const { purchased } = result;
+        const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+        // Sent here, so a purchase counts even when the buyer never returns to the site.
+        if (purchased && key)
+          await fetch("https://us.i.posthog.com/i/v0/e/", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              api_key: key,
+              event: "purchase",
+              distinct_id: purchased.userId,
+              properties: {
+                presets: purchased.presetIds.length,
+                presetIds: purchased.presetIds,
+                orderId: purchased.orderId,
+                revenue: purchased.totalCents / 100,
+                currency: "usd",
+              },
+            }),
+          }).catch(() => {});
         return result;
       }),
     ownership: () =>
