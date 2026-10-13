@@ -3613,7 +3613,7 @@ html[data-photo-palette="sepia"]
   @media (max-width: 700px) {
     .maplibre-surface[data-map-mode="globe"][data-map-panning]
       .map-marker-callout {
-      opacity: 0.4;
+      opacity: 0.2;
     }
   }
   .map-marker-content {
