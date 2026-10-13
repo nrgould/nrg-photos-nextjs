@@ -214,6 +214,12 @@
     "bestFor": "Alpine trails and fall color in open mountain light.",
     "whatItDoes": "Pulls highlights hard (-83) and lifts shadows (+23) and blacks (+30), so bright sky and shaded slopes both keep detail. Eases texture and clarity, nudges greens toward yellow, and grades cool shadows and highlights around a warm midtone, with grain. Two sky gradients: one darkens a quarter stop, the other softens haze.",
     "watchOut": "Greens turn yellower and more saturated, so summer foliage can read autumnal.",
+    "example": {
+      "before": "maple-pass-1/8225223-3240327b-before.webp",
+      "after": "maple-pass-1/8225223-13b6bb8f-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
     "showcase": [
       "/photos/lr-8225227.webp",
       "/photos/lr-8225359.webp",
