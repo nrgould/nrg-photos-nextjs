@@ -61,7 +61,7 @@ import styles from "./PresetCatalog.module.css";
 export type PresetCatalogProps = {
   cartIds: readonly string[];
   onAddPreset: (id: string) => void;
-  onAddCollection?: (ids: readonly string[]) => void;
+  onAddCollection?: (ids: readonly string[], filtered: boolean) => void;
   onRemovePreset?: (id: string) => void;
   /** Pass only ownership confirmed by server-side entitlements. */
   ownedPresetIds?: readonly string[];
@@ -256,7 +256,9 @@ export default function PresetCatalog({
               <Button
                 className={styles.bundleAction}
                 disabled={remainingCollectionIds.length === 0}
-                onClick={() => onAddCollection(remainingCollectionIds)}
+                onClick={() =>
+                  onAddCollection(remainingCollectionIds, filtered)
+                }
               >
                 {remainingCollectionIds.length === 0 ? "In cart" : "Add all"}
               </Button>

@@ -28,15 +28,17 @@ function updateStoredCart(update: (cart: PresetCartState) => PresetCartState) {
   if (cartStore.set(next)) selectionFeedback();
 }
 
+/** How the shopper chose: one preset, Add all, or Add all on a filtered list. */
+export type AddVia = "single" | "all" | "matching";
+
 type PresetCartContextValue = {
   cart: PresetCartState;
   cartIds: readonly string[];
   ownedPresetIds: readonly string[];
   quote: ReturnType<typeof pricePresetCart>;
-  addPreset: (id: string) => void;
   removePreset: (id: string) => void;
   clearCart: () => void;
-  addPresets: (ids: readonly string[]) => void;
+  addPresets: (ids: readonly string[], via: AddVia) => void;
 };
 const PresetCartContext = createContext<PresetCartContextValue | null>(null);
 
@@ -63,13 +65,8 @@ export function PresetCartProvider({
       cartIds: cart.paidPresetIds,
       ownedPresetIds: owned,
       quote: pricePresetCart(cart),
-      addPreset: (id: string) => {
-        track("preset-added", { presets: 1, presetIds: [id] });
-        if (!owned.includes(id))
-          updateStoredCart((current) => addCartPreset(current, id));
-      },
-      addPresets: (ids: readonly string[]) => {
-        track("preset-added", { presets: ids.length, presetIds: ids });
+      addPresets: (ids: readonly string[], via: AddVia) => {
+        track("preset-added", { presets: ids.length, presetIds: ids, via });
         updateStoredCart((current) =>
           ids.reduce(
             (next, id) => (owned.includes(id) ? next : addCartPreset(next, id)),
