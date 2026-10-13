@@ -778,11 +778,13 @@ export default function PlacesMap(props: {
           }
         });
         instance.on("moveend", () => {
+          delete container.current?.dataset.mapPanning;
           setSettledZoom(Math.round(instance.getZoom() * 4) / 4);
           markerLayoutDirty.current = true;
           instance.triggerRepaint();
         });
         instance.on("dragstart", () => {
+          if (container.current) container.current.dataset.mapPanning = "true";
           gestureMoved.current = true;
           latest.current.onGesture?.();
           if (projection.current.mix > 0 && projection.current.mix < 1) {

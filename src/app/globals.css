@@ -3601,8 +3601,20 @@ html[data-photo-palette="sepia"]
     height: 0;
     transform: translate(var(--callout-x), var(--callout-y));
   }
+  .map-marker-callout {
+    transition: opacity 200ms var(--ease-out);
+  }
   .map-thumbnail-host[data-layout-motion="true"] .map-marker-callout {
-    transition: transform 180ms var(--ease-out);
+    transition:
+      transform 180ms var(--ease-out),
+      opacity 200ms var(--ease-out);
+  }
+  /* Dragging the globe on a phone thins the markers so the land under them shows. */
+  @media (max-width: 700px) {
+    .maplibre-surface[data-map-mode="globe"][data-map-panning]
+      .map-marker-callout {
+      opacity: 0.4;
+    }
   }
   .map-marker-content {
     width: 0;
