@@ -2,7 +2,8 @@
 import { useRef, useState, type ReactNode, type RefObject } from "react";
 import Image, { getImageProps } from "next/image";
 import { preload } from "react-dom";
-import { motion, useReducedMotion } from "motion/react";
+import { useReducedMotion } from "motion/react";
+import * as m from "motion/react-m";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { photoUrl, takenLabel, type Photo } from "@/lib/photography";
 import { Button } from "@/components/ui/button";
@@ -122,7 +123,7 @@ export default function Lightbox({
                 touchStart.current = null;
               }}
             >
-              <motion.div
+              <m.div
                 key={current.src}
                 className="lightbox-photo"
                 initial={
@@ -144,7 +145,7 @@ export default function Lightbox({
                   sizes={sizes(current)}
                   quality={85}
                 />
-              </motion.div>
+              </m.div>
             </div>
             <div className="lightbox-footer">
               <Button

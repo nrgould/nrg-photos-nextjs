@@ -3,13 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import {
   animate,
   AnimatePresence,
-  motion,
   useMotionValue,
   useMotionValueEvent,
   useReducedMotion,
   type MotionValue,
   useTransform,
 } from "motion/react";
+import * as m from "motion/react-m";
 import { Globe2, Map as MapIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { Slider } from "./ui/slider";
@@ -87,7 +87,7 @@ export default function MapZoom({
   const modeIcon = (
     <span className="map-zoom-icon" aria-hidden="true">
       <AnimatePresence initial={false}>
-        <motion.span
+        <m.span
           key={mode}
           initial={
             reduced || keyboardInteraction
@@ -107,7 +107,7 @@ export default function MapZoom({
           }
         >
           {mode === "globe" ? <Globe2 size={18} /> : <MapIcon size={18} />}
-        </motion.span>
+        </m.span>
       </AnimatePresence>
     </span>
   );
@@ -117,7 +117,7 @@ export default function MapZoom({
       data-orientation={vertical ? "vertical" : "horizontal"}
     >
       <div className="zoom-track">
-        <motion.div
+        <m.div
           className="zoom-fill"
           style={vertical ? { height: fillLength } : { width: fillLength }}
         />
@@ -130,7 +130,7 @@ export default function MapZoom({
             }}
           />
         ))}
-        <motion.span
+        <m.span
           className="zoom-thumb"
           style={
             vertical

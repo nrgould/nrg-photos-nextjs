@@ -9,7 +9,8 @@ import {
   type Ref,
 } from "react";
 import { createPortal } from "react-dom";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, useReducedMotion } from "motion/react";
+import * as m from "motion/react-m";
 import {
   ArrowLeft,
   Check,
@@ -88,7 +89,7 @@ const toastSpring = { type: "spring", duration: 0.45, bounce: 0.3 } as const;
 function DrawnCheck({ delay = 0 }: { delay?: number }) {
   const reducedMotion = useReducedMotion();
   return (
-    <motion.svg
+    <m.svg
       className={styles.toastCheck}
       viewBox="0 0 24 24"
       aria-hidden="true"
@@ -96,7 +97,7 @@ function DrawnCheck({ delay = 0 }: { delay?: number }) {
       animate={{ scale: 1 }}
       transition={{ ...toastSpring, delay }}
     >
-      <motion.path
+      <m.path
         d="M6 12.5l4 4 8-9"
         fill="none"
         strokeWidth={2.25}
@@ -106,7 +107,7 @@ function DrawnCheck({ delay = 0 }: { delay?: number }) {
         animate={{ pathLength: 1 }}
         transition={{ duration: 0.3, ease: "easeOut", delay: delay + 0.12 }}
       />
-    </motion.svg>
+    </m.svg>
   );
 }
 
@@ -160,7 +161,7 @@ export function ExplorationToast({
     >
       <AnimatePresence mode="wait">
         {moment && (
-          <motion.button
+          <m.button
             key={next ? `${moment.key}-next` : moment.key}
             type="button"
             className={styles.toast}
@@ -225,7 +226,7 @@ export function ExplorationToast({
             </span>
             {counted && !next && (
               <span className={styles.toastTrack} aria-hidden="true">
-                <motion.span
+                <m.span
                   initial={{
                     scaleX: reducedMotion
                       ? counted.count / counted.goal
@@ -236,7 +237,7 @@ export function ExplorationToast({
                 />
               </span>
             )}
-          </motion.button>
+          </m.button>
         )}
       </AnimatePresence>
     </div>,
@@ -271,7 +272,7 @@ export function ExploreChallengesTrigger({
       }
     >
       <AnimatePresence initial={false} mode="popLayout">
-        <motion.span
+        <m.span
           key={summary.allComplete ? "gift" : "leaf"}
           className={styles.triggerIcon}
           initial={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
@@ -285,7 +286,7 @@ export function ExploreChallengesTrigger({
           ) : (
             <TentTree size={18} strokeWidth={1.5} />
           )}
-        </motion.span>
+        </m.span>
       </AnimatePresence>
       <span
         className={styles.dot}
@@ -391,7 +392,7 @@ export default function ExploreChallenges({
             <ItemContent className={styles.rowContent}>
               <ItemTitle className={styles.reelTitle}>
                 {reel ? (
-                  <motion.span
+                  <m.span
                     key={reel.id}
                     aria-hidden={pending}
                     initial={{ transform: "translateY(8px)", opacity: 0 }}
@@ -399,7 +400,7 @@ export default function ExploreChallenges({
                     transition={{ duration: 0.08, ease: "easeOut" }}
                   >
                     {reel.name}
-                  </motion.span>
+                  </m.span>
                 ) : (
                   "Free preset"
                 )}

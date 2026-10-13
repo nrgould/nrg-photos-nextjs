@@ -8,7 +8,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { createBrowserClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { identify, reset } from "@/lib/analytics";
 
@@ -117,14 +116,27 @@ function ConfiguredSession({
   children: ReactNode;
 }) {
   const { slot, captcha } = useTurnstile(account.captchaSiteKey);
-  const [supabase] = useState(() =>
-    createBrowserClient(account.supabaseUrl, account.publishableKey),
-  );
+  const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
   const [session, setSession] = useState<Omit<
     Account,
     "enabled" | "supabase" | "captcha"
   > | null>(null);
+  // The auth client loads after hydration, out of every page's first load; until then the
+  // session reads as still loading, as it does while a stored session restores.
   useEffect(() => {
+    let live = true;
+    import("@supabase/ssr").then(({ createBrowserClient }) => {
+      if (live)
+        setSupabase(
+          createBrowserClient(account.supabaseUrl, account.publishableKey),
+        );
+    });
+    return () => {
+      live = false;
+    };
+  }, [account.supabaseUrl, account.publishableKey]);
+  useEffect(() => {
+    if (!supabase) return;
     const { data } = supabase.auth.onAuthStateChange((event, next) => {
       // Guests are identified too, so the purchase the webhook records joins their browsing.
       if (next)
