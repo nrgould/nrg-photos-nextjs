@@ -1,5 +1,9 @@
+import type { Metadata } from "next";
 import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
+
+export const metadata: Metadata = { robots: { index: false } };
+
 export default function NotFound() {
   return (
     <main id="main" className="empty-page">
