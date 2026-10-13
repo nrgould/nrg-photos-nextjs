@@ -619,6 +619,12 @@
     "bestFor": "Coastline at golden hour: sea stacks, wet sand and surf under a low sun.",
     "whatItDoes": "Pulls highlights (-61) and whites (-56) down and lifts shadows (+53) and blacks (+35) for a soft base, eases texture and clarity, and grades blue shadows against golden highlights with grain. Two sky gradients, one warming and softening haze, and a subject mask with a touch of clarity.",
     "watchOut": "Blues and aquas lose saturation, so a clear blue sky reads softer. The gradients sit where the original horizon was; move them to match yours.",
+    "example": {
+      "before": "cannon-beach-1/8268000-cb6ec951-before.webp",
+      "after": "cannon-beach-1/8268000-6e527a52-after.webp",
+      "width": 1536,
+      "height": 2048
+    },
     "showcase": [
       "/photos/lr-8267999.webp",
       "/photos/lr-8268013.webp",
