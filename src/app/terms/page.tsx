@@ -1,4 +1,10 @@
 import Link from "next/link";
+import {
+  BULK_DISCOUNT_MINIMUM,
+  BULK_DISCOUNT_PERCENT,
+  UNIT_PRICE_CENTS,
+} from "@/lib/preset-cart";
+import { formatPresetPrice } from "@/lib/preset-cart-storage";
 import { SubpageNav } from "@/components/SiteNav";
 import { Breadcrumbs } from "@/components/seo/SeoContent";
 import { contentMetadata } from "@/lib/seo-content";
@@ -41,13 +47,14 @@ export default function TermsPage() {
             <h2>What you buy</h2>
             <p>
               Each preset is a Lightroom preset file (.xmp). Prices are set in
-              US dollars: $1.99 per preset, with 20% off a cart of ten or more.
-              Checkout may show the price in your local currency. Where sales
-              tax or VAT applies, it is added at checkout in US and Canadian
-              dollars and included in the price in other currencies. Stripe is
-              the merchant of record: it takes payment and collects the tax.
-              Once payment clears, your presets are in your library on this
-              site, ready to download whenever you are signed in.
+              US dollars: {formatPresetPrice(UNIT_PRICE_CENTS)} per preset, with{" "}
+              {BULK_DISCOUNT_PERCENT}% off a cart of {BULK_DISCOUNT_MINIMUM} or
+              more. Checkout may show the price in your local currency. Where
+              sales tax or VAT applies, it is added at checkout in US and
+              Canadian dollars and included in the price in other currencies.
+              Stripe is the merchant of record: it takes payment and collects
+              the tax. Once payment clears, your presets are in your library on
+              this site, ready to download whenever you are signed in.
             </p>
             <p>
               Checkout asks for your email. Sign in on this site with that email

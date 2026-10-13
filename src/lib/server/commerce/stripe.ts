@@ -1,3 +1,4 @@
+import { BULK_DISCOUNT_PERCENT, UNIT_PRICE_CENTS } from "../../preset-cart";
 import type { CommerceConfiguration } from "./config";
 import { checkoutReturnUrl } from "./return-path";
 import {
@@ -162,7 +163,7 @@ export function createStripeGateway(
             !price.active ||
             price.livemode !== live ||
             price.currency !== "usd" ||
-            price.unit_amount !== 199 ||
+            price.unit_amount !== UNIT_PRICE_CENTS ||
             price.type !== "one_time",
         )
       )
@@ -175,7 +176,7 @@ export function createStripeGateway(
           coupon.id !== configuration.bulkCouponId ||
           !coupon.valid ||
           coupon.livemode !== live ||
-          coupon.percent_off !== 20 ||
+          coupon.percent_off !== BULK_DISCOUNT_PERCENT ||
           coupon.amount_off !== null ||
           coupon.duration !== "once" ||
           coupon.applies_to?.products.length

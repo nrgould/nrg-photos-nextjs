@@ -1,6 +1,7 @@
 import { createHash, randomInt } from "node:crypto";
 import { normalizeCommerceReturnPath } from "./return-path";
 import { getCatalogPreset } from "../../preset-commerce";
+import { priceCents } from "../../preset-cart";
 import {
   CommerceError,
   type CheckoutSession,
@@ -21,14 +22,14 @@ export function quotePresets(ids: unknown, allowed: readonly string[]): Quote {
   if (ids.some((id) => typeof id !== "string" || !allowed.includes(id)))
     throw new CommerceError("unknown_preset");
   const presetIds = [...new Set<string>(ids)].sort();
-  const subtotalCents = presetIds.length * 199;
-  const discountCents =
-    presetIds.length >= 10 ? Math.floor((subtotalCents * 20 + 50) / 100) : 0;
+  const { subtotalCents, discountCents, totalCents } = priceCents(
+    presetIds.length,
+  );
   return {
     presetIds,
     subtotalCents,
     discountCents,
-    totalCents: subtotalCents - discountCents,
+    totalCents,
     currency: "usd",
   };
 }

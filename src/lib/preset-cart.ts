@@ -5,6 +5,22 @@ export const BULK_DISCOUNT_MINIMUM = 10;
 export const BULK_DISCOUNT_PERCENT = 20;
 export const REWARD_LOCATION_REQUIREMENT = 5;
 
+/** The one price list: what the cart shows, the server charges and Stripe must match. */
+export function priceCents(count: number) {
+  const subtotalCents = count * UNIT_PRICE_CENTS;
+  const discountPercent =
+    count >= BULK_DISCOUNT_MINIMUM ? BULK_DISCOUNT_PERCENT : 0;
+  const discountCents = Math.floor(
+    (subtotalCents * discountPercent + 50) / 100,
+  );
+  return {
+    subtotalCents,
+    discountPercent,
+    discountCents,
+    totalCents: subtotalCents - discountCents,
+  };
+}
+
 export type PresetCartState = {
   paidPresetIds: string[];
   rewardPresetId: string | null;
@@ -125,12 +141,12 @@ export function pricePresetCart(
 ) {
   const current = createPresetCart(cart, eligibility);
   const paidCount = current.paidPresetIds.length;
-  const paidSubtotalCents = paidCount * UNIT_PRICE_CENTS;
-  const discountPercent =
-    paidCount >= BULK_DISCOUNT_MINIMUM ? BULK_DISCOUNT_PERCENT : 0;
-  const discountCents = Math.floor(
-    (paidSubtotalCents * discountPercent + 50) / 100,
-  );
+  const {
+    subtotalCents: paidSubtotalCents,
+    discountPercent,
+    discountCents,
+    totalCents,
+  } = priceCents(paidCount);
   return {
     currency: "USD" as const,
     unitPriceCents: UNIT_PRICE_CENTS,
@@ -139,7 +155,7 @@ export function pricePresetCart(
     paidSubtotalCents,
     discountPercent,
     discountCents,
-    totalCents: paidSubtotalCents - discountCents,
+    totalCents,
     rewardPresetId: current.rewardPresetId,
     ownership: "unknown" as const,
     checkout: "prototype-only" as const,

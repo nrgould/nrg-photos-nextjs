@@ -35,7 +35,7 @@ import {
   type PresetCatalogState,
   type PresetCategory,
 } from "@/lib/preset-commerce";
-import { pricePresetCart } from "@/lib/preset-cart";
+import { pricePresetCart, UNIT_PRICE_CENTS } from "@/lib/preset-cart";
 import { formatPresetPrice } from "@/lib/preset-cart-storage";
 import { Button } from "./ui/button";
 import { PresetDownloadButton } from "./PresetDownloadButton";
@@ -416,7 +416,7 @@ export function PresetList({
                   className={styles.chevron}
                 />
                 <span className={styles.rowPrice}>
-                  <span>$1.99</span>
+                  <span>{formatPresetPrice(UNIT_PRICE_CENTS)}</span>
                   {(isOwned || inCart) && (
                     <small>{isOwned ? "Owned" : "In cart"}</small>
                   )}
@@ -617,7 +617,7 @@ export function PresetDetail({
       </div>
       {example && <PhotoComparison key={example.after.src} pair={example} />}
       <div className={styles.purchase}>
-        <p>{owned ? "Owned" : "$1.99"}</p>
+        <p>{owned ? "Owned" : formatPresetPrice(UNIT_PRICE_CENTS)}</p>
         {owned ? (
           <>
             <PresetDownloadButton

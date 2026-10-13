@@ -5,7 +5,11 @@ import { useId, useRef, useState } from "react";
 import { ArrowLeft, LockKeyhole, ShoppingBag, X } from "lucide-react";
 import { getCatalogPreset } from "@/lib/preset-commerce";
 import { cn } from "@/lib/utils";
-import { BULK_DISCOUNT_MINIMUM, UNIT_PRICE_CENTS } from "@/lib/preset-cart";
+import {
+  BULK_DISCOUNT_MINIMUM,
+  BULK_DISCOUNT_PERCENT,
+  UNIT_PRICE_CENTS,
+} from "@/lib/preset-cart";
 import {
   formatPresetPrice,
   safePresetReturnPath,
@@ -174,7 +178,7 @@ export default function PresetCartPanel({
           <footer className={styles.cartSummary}>
             {remaining > 0 && (
               <p className={styles.discountHint} role="status">
-                {remaining} more for 20% off
+                {remaining} more for {BULK_DISCOUNT_PERCENT}% off
               </p>
             )}
             <dl className={styles.totals}>
@@ -184,7 +188,7 @@ export default function PresetCartPanel({
               </div>
               {quote.discountCents > 0 && (
                 <div>
-                  <dt>20% discount</dt>
+                  <dt>{BULK_DISCOUNT_PERCENT}% discount</dt>
                   <dd>−{formatPresetPrice(quote.discountCents)}</dd>
                 </div>
               )}
