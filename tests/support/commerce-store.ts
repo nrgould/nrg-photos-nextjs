@@ -9,6 +9,8 @@ const url = process.env.COMMERCE_TEST_DATABASE_URL;
 const migration = [
   "20261004000000_commerce.sql",
   "20261005020000_commerce_legacy_orders.sql",
+  "20261006000000_commerce_order_email.sql",
+  "20261012000000_commerce_order_promotion.sql",
 ]
   .map((file) =>
     readFileSync(

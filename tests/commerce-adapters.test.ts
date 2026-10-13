@@ -100,6 +100,31 @@ function sdkFixture() {
         };
       },
     },
+    promotionCodes: {
+      async list({ code }) {
+        return {
+          data:
+            code === "HALF"
+              ? [
+                  {
+                    id: "promo_half",
+                    livemode: false,
+                    promotion: {
+                      coupon: {
+                        id: "coupon_half",
+                        valid: true,
+                        livemode: false,
+                        percent_off: 50,
+                        amount_off: null,
+                        duration: "once",
+                      },
+                    },
+                  },
+                ]
+              : [],
+        };
+      },
+    },
     coupons: {
       async retrieve(id) {
         return {
@@ -362,6 +387,33 @@ test("Stripe adapter validates server Price/coupon then emits only fixed test Ch
     fails("price_configuration_mismatch"),
   );
   assert.equal(f.creations.length, 2);
+});
+
+test("Stripe adapter finds a promotion code and sends it in place of the bulk coupon", async () => {
+  const f = sdkFixture();
+  const gateway = createStripeGateway(f.client, config);
+  assert.deepEqual(await gateway.findPromotion("HALF"), {
+    id: "promo_half",
+    percentOff: 50,
+    amountOffCents: null,
+  });
+  assert.equal(await gateway.findPromotion("NOPE"), null);
+  f.client.coupons.retrieve = async () => {
+    throw new Error("The bulk coupon is not read for a code order");
+  };
+  await gateway.createCheckout({ ...order(10), promotionCodeId: "promo_half" });
+  assert.deepEqual(f.creations[0].params.discounts, [
+    { promotion_code: "promo_half" },
+  ]);
+  f.client.checkout.sessions.create = async () => {
+    throw Object.assign(new Error("minimum amount"), {
+      type: "StripeInvalidRequestError",
+    });
+  };
+  await assert.rejects(
+    gateway.createCheckout({ ...order(1), promotionCodeId: "promo_half" }),
+    fails("invalid_code"),
+  );
 });
 
 test("Stripe adapter rejects wrong coupons and reuses a bound session without creating another", async () => {

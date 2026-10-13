@@ -466,6 +466,14 @@
   color: var(--destructive);
   font-size: 13px;
 }
+.code {
+  margin: 0 0 16px;
+  color: var(--muted-foreground);
+}
+.code > .error {
+  display: block;
+  margin-top: 6px;
+}
 .store {
   max-width: 900px;
   margin: 0 auto;

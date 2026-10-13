@@ -5,14 +5,15 @@ export const BULK_DISCOUNT_MINIMUM = 10;
 export const BULK_DISCOUNT_PERCENT = 20;
 export const REWARD_LOCATION_REQUIREMENT = 5;
 
+export const percentOffCents = (subtotalCents: number, percent: number) =>
+  Math.floor((subtotalCents * percent + 50) / 100);
+
 /** The one price list: what the cart shows, the server charges and Stripe must match. */
 export function priceCents(count: number) {
   const subtotalCents = count * UNIT_PRICE_CENTS;
   const discountPercent =
     count >= BULK_DISCOUNT_MINIMUM ? BULK_DISCOUNT_PERCENT : 0;
-  const discountCents = Math.floor(
-    (subtotalCents * discountPercent + 50) / 100,
-  );
+  const discountCents = percentOffCents(subtotalCents, discountPercent);
   return {
     subtotalCents,
     discountPercent,

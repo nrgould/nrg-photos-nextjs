@@ -11,9 +11,10 @@ import {
 import { track } from "@/lib/analytics";
 import { useCommerceAccount } from "./CommerceProviders";
 import type { ExplorationClaimBoundary } from "./ExploreChallenges";
-import type {
-  PresetCheckoutBoundary,
-  PresetCheckoutRequest,
+import {
+  invalidCheckoutCode,
+  type PresetCheckoutBoundary,
+  type PresetCheckoutRequest,
 } from "./PresetCartPanel";
 import {
   checkoutAttempt,
@@ -149,6 +150,7 @@ export function useCommerceBoundary() {
           request.returnPath,
           stored,
           () => crypto.randomUUID(),
+          request.code,
         );
         attempt.current = current;
         try {
@@ -163,6 +165,7 @@ export function useCommerceBoundary() {
             paidPresetIds: request.paidPresetIds,
             returnPath: checkoutReturnPath(request.returnPath),
             requestId: current.requestId,
+            ...(request.code ? { code: request.code } : {}),
           }),
         });
         if (controller.signal.aborted || activeSession.current !== sessionKey)
@@ -177,6 +180,7 @@ export function useCommerceBoundary() {
               "order_not_pending",
               "checkout_attempt_expired",
               "checkout_unavailable",
+              "invalid_code",
             ].includes(String(error.error))
           ) {
             attempt.current = null;
@@ -185,7 +189,14 @@ export function useCommerceBoundary() {
             } catch {}
           }
           refreshOwnership();
-          throw new Error("Checkout unavailable");
+          throw new Error(
+            error &&
+              typeof error === "object" &&
+              "error" in error &&
+              error.error === "invalid_code"
+              ? invalidCheckoutCode
+              : "Checkout unavailable",
+          );
         }
         const url = stripeCheckoutUrl(await response.json());
         if (controller.signal.aborted || activeSession.current !== sessionKey)

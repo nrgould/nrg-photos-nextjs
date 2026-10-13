@@ -43,6 +43,26 @@ test("checkout retry identity survives sorting, duplicate cart IDs and return qu
         .requestId,
       "fixture-request-00002",
     );
+  // A code is part of the basket, matched case-insensitively.
+  const coded = checkoutAttempt(
+    "user-A",
+    ["eibsee-1"],
+    "/",
+    null,
+    () => "fixture-request-00003",
+    "half",
+  );
+  assert.equal(
+    checkoutAttempt("user-A", ["eibsee-1"], "/", coded, createId, "HALF")
+      .requestId,
+    "fixture-request-00003",
+  );
+  for (const code of ["", "OTHER"])
+    assert.notEqual(
+      checkoutAttempt("user-A", ["eibsee-1"], "/", coded, createId, code)
+        .requestId,
+      "fixture-request-00003",
+    );
   for (const ids of [[], ["invented"], ["eibsee-1", "invented"]])
     assert.throws(() => checkoutAttempt("user-A", ids, "/", null, createId));
   assert.throws(() => checkoutAttempt("", ["eibsee-1"], "/", null, createId));

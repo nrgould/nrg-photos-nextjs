@@ -55,11 +55,18 @@ export function checkoutAttempt(
   returnPath: string,
   previous: unknown,
   createId: () => string,
+  code = "",
 ): CheckoutAttempt {
   const ids = [...new Set(presetIds)].sort();
   if (!userId || !ids.length || ids.some((id) => !getCatalogPreset(id)))
     throw new Error("Invalid checkout selection");
-  const key = JSON.stringify([userId, ids, checkoutReturnPath(returnPath)]);
+  const key = JSON.stringify([
+    userId,
+    ids,
+    checkoutReturnPath(returnPath),
+    // Stripe codes match case-insensitively.
+    ...(code ? [code.toUpperCase()] : []),
+  ]);
   if (
     previous &&
     typeof previous === "object" &&

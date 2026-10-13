@@ -22,6 +22,7 @@ type StripeCoupon = {
   livemode: boolean;
   percent_off: number | null;
   amount_off: number | null;
+  currency?: string | null;
   duration: string;
   applies_to?: { products: string[] };
 };
@@ -35,7 +36,7 @@ export type StripeCheckoutParameters = {
   payment_intent_data: { description: string; metadata: { orderId: string } };
   managed_payments: { enabled: true };
   expires_at: number;
-  discounts?: { coupon: string }[];
+  discounts?: ({ coupon: string } | { promotion_code: string })[];
 };
 /** Structural subset accepted by the official Stripe Node SDK; inject a client initialized with the configured key. */
 export interface StripeClient {
@@ -46,6 +47,20 @@ export interface StripeClient {
     }): Promise<{ data: StripePrice[]; has_more: boolean }>;
   };
   coupons: { retrieve(id: string): Promise<StripeCoupon> };
+  promotionCodes: {
+    list(params: {
+      code: string;
+      active: true;
+      limit: 1;
+      expand: ["data.promotion.coupon"];
+    }): Promise<{
+      data: {
+        id: string;
+        livemode: boolean;
+        promotion: { coupon: string | StripeCoupon | null };
+      }[];
+    }>;
+  };
   checkout: {
     sessions: {
       create(
@@ -168,7 +183,7 @@ export function createStripeGateway(
         )
       )
         throw new CommerceError("price_configuration_mismatch", 503);
-      if (order.discountCents) {
+      if (order.discountCents && !order.promotionCodeId) {
         const coupon = await client.coupons.retrieve(
           configuration.bulkCouponId,
         );
@@ -183,38 +198,78 @@ export function createStripeGateway(
         )
           throw new CommerceError("discount_configuration_mismatch", 503);
       }
-      const result = await client.checkout.sessions.create(
-        {
-          mode: "payment",
-          line_items: priceIds.map((price) => ({ price, quantity: 1 })),
-          success_url: checkoutReturnUrl(
-            configuration.origin,
-            order.returnPath,
-            "returned",
-          ),
-          cancel_url: checkoutReturnUrl(
-            configuration.origin,
-            order.returnPath,
-            "cancelled",
-          ),
-          client_reference_id: order.id,
-          metadata: { orderId: order.id },
-          // Stripe's receipt email prints the description.
-          payment_intent_data: {
-            description: `Lightroom presets. Sign in at ${new URL(configuration.origin).host} with this email to download them on any device.`,
+      let result: unknown;
+      try {
+        result = await client.checkout.sessions.create(
+          {
+            mode: "payment",
+            line_items: priceIds.map((price) => ({ price, quantity: 1 })),
+            success_url: checkoutReturnUrl(
+              configuration.origin,
+              order.returnPath,
+              "returned",
+            ),
+            cancel_url: checkoutReturnUrl(
+              configuration.origin,
+              order.returnPath,
+              "cancelled",
+            ),
+            client_reference_id: order.id,
             metadata: { orderId: order.id },
+            // Stripe's receipt email prints the description.
+            payment_intent_data: {
+              description: `Lightroom presets. Sign in at ${new URL(configuration.origin).host} with this email to download them on any device.`,
+              metadata: { orderId: order.id },
+            },
+            // Stripe sells as merchant of record and owns tax and currency, so it rejects automatic_tax and adaptive_pricing here.
+            managed_payments: { enabled: true },
+            expires_at: Math.floor(order.createdAt / 1000) + 3600,
+            // Promotion codes default off; sending allow_promotion_codes beside discounts makes Stripe reject the session.
+            ...(order.promotionCodeId
+              ? { discounts: [{ promotion_code: order.promotionCodeId }] }
+              : order.discountCents
+                ? { discounts: [{ coupon: configuration.bulkCouponId }] }
+                : {}),
           },
-          // Stripe sells as merchant of record and owns tax and currency, so it rejects automatic_tax and adaptive_pricing here.
-          managed_payments: { enabled: true },
-          expires_at: Math.floor(order.createdAt / 1000) + 3600,
-          // Promotion codes default off; sending allow_promotion_codes beside discounts makes Stripe reject the session.
-          ...(order.discountCents
-            ? { discounts: [{ coupon: configuration.bulkCouponId }] }
-            : {}),
-        },
-        { idempotencyKey: `preset-order:${order.id}` },
-      );
+          { idempotencyKey: `preset-order:${order.id}` },
+        );
+      } catch (error) {
+        // ponytail: any invalid request on a code order reads as the code (minimum amount,
+        // redemption limit, first-time-only); tell params apart if config errors start hiding here.
+        if (
+          order.promotionCodeId &&
+          (error as { type?: unknown })?.type === "StripeInvalidRequestError"
+        )
+          throw new CommerceError("invalid_code");
+        throw error;
+      }
       return session(result, live);
+    },
+    async findPromotion(code) {
+      const [found] = (
+        await client.promotionCodes.list({
+          code,
+          active: true,
+          limit: 1,
+          expand: ["data.promotion.coupon"],
+        })
+      ).data;
+      const coupon = found?.promotion.coupon;
+      if (
+        !found ||
+        found.livemode !== live ||
+        !coupon ||
+        typeof coupon === "string" ||
+        !coupon.valid ||
+        (coupon.duration !== "once" && coupon.duration !== "forever") ||
+        (coupon.amount_off !== null && coupon.currency !== "usd")
+      )
+        return null;
+      return {
+        id: found.id,
+        percentOff: coupon.percent_off,
+        amountOffCents: coupon.amount_off,
+      };
     },
     async expireCheckout(sessionId) {
       try {

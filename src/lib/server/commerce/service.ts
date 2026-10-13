@@ -1,7 +1,7 @@
 import { createHash, randomInt } from "node:crypto";
 import { normalizeCommerceReturnPath } from "./return-path";
 import { getCatalogPreset } from "../../preset-commerce";
-import { priceCents } from "../../preset-cart";
+import { percentOffCents, priceCents } from "../../preset-cart";
 import {
   CommerceError,
   type CheckoutSession,
@@ -13,26 +13,50 @@ import {
   type PaymentEvent,
   type PaymentGateway,
   type PrivateDelivery,
+  type Promotion,
   type Quote,
 } from "./types";
 
-export function quotePresets(ids: unknown, allowed: readonly string[]): Quote {
+export function quotePresets(
+  ids: unknown,
+  allowed: readonly string[],
+  promotion: Promotion | null = null,
+): Quote {
   if (!Array.isArray(ids) || ids.length < 1 || ids.length > 100)
     throw new CommerceError("invalid_cart");
   if (ids.some((id) => typeof id !== "string" || !allowed.includes(id)))
     throw new CommerceError("unknown_preset");
   const presetIds = [...new Set<string>(ids)].sort();
-  const { subtotalCents, discountCents, totalCents } = priceCents(
-    presetIds.length,
-  );
+  const { subtotalCents, discountCents } = priceCents(presetIds.length);
+  // Stripe takes one discount per session, so the larger of the code and the bulk discount applies.
+  const codeCents = promotion
+    ? Math.min(
+        subtotalCents,
+        promotion.percentOff !== null
+          ? percentOffCents(subtotalCents, promotion.percentOff)
+          : (promotion.amountOffCents ?? 0),
+      )
+    : 0;
+  const discount = Math.max(codeCents, discountCents);
   return {
     presetIds,
     subtotalCents,
-    discountCents,
-    totalCents,
+    discountCents: discount,
+    totalCents: subtotalCents - discount,
     currency: "usd",
+    promotionCodeId: codeCents > discountCents ? promotion!.id : null,
   };
 }
+
+/** A code order's discount is Stripe's computation; ours was the estimate that chose it. */
+const withSessionDiscount = (order: Order, session: CheckoutSession): Order =>
+  order.promotionCodeId && session.subtotalCents === order.subtotalCents
+    ? {
+        ...order,
+        discountCents: session.discountCents,
+        totalCents: order.subtotalCents - session.discountCents,
+      }
+    : order;
 
 function assertSession(order: Order, session: CheckoutSession) {
   if (
@@ -164,15 +188,23 @@ export function createCommerceService({
     ids: unknown,
     requestId: unknown,
     returnPath: unknown = "/",
+    code: unknown = null,
   ) {
     if (!userId) throw new CommerceError("unauthenticated", 401);
+    if (
+      code !== null &&
+      (typeof code !== "string" || !/^[A-Za-z0-9_-]{1,40}$/.test(code))
+    )
+      throw new CommerceError("invalid_code");
     if (
       typeof requestId !== "string" ||
       !/^[a-zA-Z0-9_-]{16,100}$/.test(requestId)
     )
       throw new CommerceError("invalid_request_id");
     const approvedReturnPath = normalizeCommerceReturnPath(returnPath);
-    const quote = quotePresets(ids, allowed);
+    const promotion = code ? await payments.findPromotion(code) : null;
+    if (code && !promotion) throw new CommerceError("invalid_code");
+    const quote = quotePresets(ids, allowed, promotion);
     const id = createHash("sha256")
       .update(JSON.stringify([userId, requestId]))
       .digest("hex");
@@ -194,7 +226,8 @@ export function createCommerceService({
           if (
             JSON.stringify(existing.presetIds) !==
               JSON.stringify(quote.presetIds) ||
-            existing.returnPath !== approvedReturnPath
+            existing.returnPath !== approvedReturnPath ||
+            existing.promotionCodeId !== quote.promotionCodeId
           )
             throw new CommerceError("request_id_reused", 409);
           if (existing.status !== "pending")
@@ -212,6 +245,7 @@ export function createCommerceService({
           if (
             pending.length !== 1 ||
             prior.returnPath !== approvedReturnPath ||
+            prior.promotionCodeId !== quote.promotionCodeId ||
             JSON.stringify(prior.presetIds) !== JSON.stringify(quote.presetIds)
           ) {
             // A different basket replaces open sessions; one still being created keeps its reservation.
@@ -257,12 +291,25 @@ export function createCommerceService({
         throw new CommerceError("checkout_in_progress", 409);
     }
     // The gateway uses the persistent order ID as Stripe's idempotency key.
-    const session = await payments.createCheckout(order);
-    assertSession(order, session);
+    let session: CheckoutSession;
+    try {
+      session = await payments.createCheckout(order);
+    } catch (error) {
+      // Stripe refused the code and opened no session, so release the reservation.
+      if (error instanceof CommerceError && error.code === "invalid_code")
+        await store.transaction(async (tx) => {
+          const current = await tx.getOrder(order.id);
+          if (current?.status === "pending" && !current.sessionId)
+            await tx.putOrder({ ...current, status: "expired" });
+        });
+      throw error;
+    }
+    assertSession(withSessionDiscount(order, session), session);
     if (session.status === "expired" && session.paymentStatus === "unpaid") {
       await store.transaction(async (tx) => {
-        const current = await tx.getOrder(order.id);
-        if (!current) throw new CommerceError("order_missing", 409);
+        const stored = await tx.getOrder(order.id);
+        if (!stored) throw new CommerceError("order_missing", 409);
+        const current = withSessionDiscount(stored, session);
         assertSession(current, session);
         if (current.status !== "pending") return;
         const paymentIntentId =
@@ -287,8 +334,9 @@ export function createCommerceService({
       throw new CommerceError("invalid_checkout_url", 502);
     await store.transaction(async (tx) => {
       await assertUnowned(tx, userId, quote.presetIds);
-      const current = await tx.getOrder(order.id);
-      if (!current) throw new CommerceError("order_missing", 409);
+      const stored = await tx.getOrder(order.id);
+      if (!stored) throw new CommerceError("order_missing", 409);
+      const current = withSessionDiscount(stored, session);
       assertSession(current, session);
       if (current.status !== "pending")
         throw new CommerceError("order_not_pending", 409);
@@ -320,8 +368,9 @@ export function createCommerceService({
         }
       } else if (event.type !== "ignored") {
         const session = event.session;
-        const order = await tx.getOrder(session.orderId);
-        if (!order) throw new CommerceError("unknown_order", 409);
+        const stored = await tx.getOrder(session.orderId);
+        if (!stored) throw new CommerceError("unknown_order", 409);
+        const order = withSessionDiscount(stored, session);
         assertSession(order, session);
         const paymentIntentId =
           session.paymentIntentId ?? order.paymentIntentId;

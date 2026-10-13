@@ -13,6 +13,13 @@ export type Quote = {
   discountCents: number;
   totalCents: number;
   currency: "usd";
+  /** A Stripe promotion code that beat the bulk discount; Stripe computes its discount. */
+  promotionCodeId: string | null;
+};
+export type Promotion = {
+  id: string;
+  percentOff: number | null;
+  amountOffCents: number | null;
 };
 export type Order = Quote & {
   id: string;
@@ -100,6 +107,8 @@ export interface PaymentGateway {
   createCheckout(order: Order): Promise<CheckoutSession>;
   /** Expires an open session; returns the session as the provider now holds it. */
   expireCheckout(sessionId: string): Promise<CheckoutSession>;
+  /** The active promotion code a buyer typed, or null. */
+  findPromotion(code: string): Promise<Promotion | null>;
   verifyWebhook(rawBody: string, signature: string): PaymentEvent;
 }
 export type CommercePolicy = {

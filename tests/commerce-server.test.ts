@@ -15,6 +15,7 @@ import {
   type Order,
   type PaymentEvent,
   type PaymentGateway,
+  type Promotion,
 } from "../src/lib/server/commerce/types";
 import {
   createSupabaseDelivery,
@@ -40,9 +41,22 @@ function fixture(store = makeStore()) {
   const created: Order[] = [];
   const sessions = new Map<string, CheckoutSession>();
   let incoming: PaymentEvent = { id: "evt_ignored", type: "ignored" };
+  const promotions: Record<string, Promotion> = {
+    HALF: { id: "promo_half", percentOff: 50, amountOffCents: null },
+    SMALL: { id: "promo_small", percentOff: 5, amountOffCents: null },
+    // Passes lookup; Stripe refuses it at session create (a minimum amount, say).
+    REFUSED: { id: "promo_refused", percentOff: 90, amountOffCents: null },
+  };
   const payments: PaymentGateway = {
+    async findPromotion(code) {
+      return promotions[code.toUpperCase()] ?? null;
+    },
     async createCheckout(order) {
       created.push(order);
+      if (order.promotionCodeId === "promo_refused")
+        throw new CommerceError("invalid_code");
+      // Stripe rounds a code's discount its own way; a cent off the estimate.
+      const rounding = order.promotionCodeId ? 1 : 0;
       if (!sessions.has(order.id))
         sessions.set(order.id, {
           id: `cs_test_${order.id}`,
@@ -52,9 +66,9 @@ function fixture(store = makeStore()) {
           status: "open",
           paymentStatus: "unpaid",
           subtotalCents: order.subtotalCents,
-          discountCents: order.discountCents,
+          discountCents: order.discountCents + rounding,
           taxCents: 0,
-          totalCents: order.totalCents,
+          totalCents: order.totalCents - rounding,
           currency: "usd",
           email: null,
         });
@@ -122,6 +136,88 @@ test("server quote ignores no client prices and deduplicates before the ten-item
     Array(101).fill(ids[0]),
   ])
     assert.throws(() => quotePresets(input, ids), CommerceError);
+});
+
+test("a promotion code applies only when it beats the bulk discount", () => {
+  const half = { id: "promo_half", percentOff: 50, amountOffCents: null };
+  const small = { id: "promo_small", percentOff: 5, amountOffCents: null };
+  const dollar = { id: "promo_dollar", percentOff: null, amountOffCents: 100 };
+  assert.deepEqual(pick(quotePresets(ids.slice(0, 10), ids, half)), [
+    995,
+    995,
+    "promo_half",
+  ]);
+  assert.deepEqual(pick(quotePresets(ids.slice(0, 10), ids, small)), [
+    398,
+    1592,
+    null,
+  ]);
+  assert.deepEqual(pick(quotePresets(ids.slice(0, 1), ids, small)), [
+    10,
+    189,
+    "promo_small",
+  ]);
+  // An amount off never takes the total below zero.
+  assert.deepEqual(
+    pick(
+      quotePresets(ids.slice(0, 1), ids, { ...dollar, amountOffCents: 500 }),
+    ),
+    [199, 0, "promo_dollar"],
+  );
+});
+const pick = (quote: ReturnType<typeof quotePresets>) => [
+  quote.discountCents,
+  quote.totalCents,
+  quote.promotionCodeId,
+];
+
+test("a code checkout takes Stripe's discount and grants on payment; unknown codes reserve nothing", async () => {
+  const f = fixture();
+  for (const code of ["NOPE", "bad code!", 7])
+    await assert.rejects(
+      f.service.checkout("user-A", [ids[0]], requestId, "/", code),
+      fails("invalid_code"),
+    );
+  assert.equal(f.created.length, 0);
+  const checkout = await f.service.checkout(
+    "user-A",
+    ids.slice(0, 10),
+    requestId,
+    "/",
+    "half",
+  );
+  assert.equal(f.created[0].promotionCodeId, "promo_half");
+  const stored = await f.store.transaction((tx) =>
+    tx.getOrder(checkout.orderId),
+  );
+  assert.equal(stored?.discountCents, 996);
+  assert.equal(stored?.totalCents, 994);
+  // The same request without the code is a different basket.
+  await assert.rejects(
+    f.service.checkout("user-A", ids.slice(0, 10), requestId, "/"),
+    fails("request_id_reused"),
+  );
+  await f.event({
+    id: "evt_code_paid",
+    type: "completed",
+    session: f.paid(checkout.orderId),
+  });
+  assert.equal((await f.service.ownership("user-A")).presetIds.length, 10);
+});
+
+test("a code Stripe refuses releases its reservation for a checkout without it", async () => {
+  const f = fixture();
+  await assert.rejects(
+    f.service.checkout("user-A", [ids[0]], requestId, "/", "REFUSED"),
+    fails("invalid_code"),
+  );
+  const checkout = await f.service.checkout(
+    "user-A",
+    [ids[0]],
+    "fixture-request-000002",
+    "/",
+  );
+  assert.ok(checkout.url);
 });
 
 test("checkout persists account-bound immutable intent; retries share session and reject tampering", async () => {

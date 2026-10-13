@@ -139,12 +139,16 @@ export function createCommerceHandlers({
           "paidPresetIds",
           "requestId",
           "returnPath",
+          "code",
         ]);
         return service.checkout(
           user,
           input.paidPresetIds,
           input.requestId,
           input.returnPath,
+          typeof input.code === "string"
+            ? input.code.trim() || null
+            : input.code,
         );
       }),
     webhook: (request: Request) =>

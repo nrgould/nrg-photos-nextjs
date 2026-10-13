@@ -16,6 +16,8 @@ import {
 } from "@/lib/preset-cart-storage";
 import { usePresetCart } from "./PresetCartProvider";
 import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 import {
   Empty,
   EmptyContent,
@@ -29,7 +31,10 @@ import styles from "./PresetCatalog.module.css";
 export type PresetCheckoutRequest = {
   paidPresetIds: string[];
   returnPath: string;
+  /** A promotion code; checkout rejects an unknown one with `invalidCheckoutCode`. */
+  code?: string;
 };
+export const invalidCheckoutCode = "invalid_code";
 export type PresetCheckoutBoundary =
   | { status: "unavailable"; message?: string }
   | {
@@ -60,6 +65,8 @@ export default function PresetCartPanel({
   const list = useRef<HTMLDivElement>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [code, setCode] = useState("");
+  const [codeInvalid, setCodeInvalid] = useState(false);
   const remaining = Math.max(0, BULK_DISCOUNT_MINIMUM - quote.paidCount);
 
   async function beginCheckout() {
@@ -67,13 +74,17 @@ export default function PresetCartPanel({
       return;
     setPending(true);
     setError(null);
+    setCodeInvalid(false);
     try {
       await checkout.startCheckout({
         paidPresetIds: [...cartIds],
         returnPath: safePresetReturnPath(returnPath),
+        code: code.trim() || undefined,
       });
-    } catch {
-      setError("Checkout could not open. Try again.");
+    } catch (failure) {
+      if (failure instanceof Error && failure.message === invalidCheckoutCode)
+        setCodeInvalid(true);
+      else setError("Checkout could not open. Try again.");
     } finally {
       setPending(false);
     }
@@ -197,6 +208,34 @@ export default function PresetCartPanel({
                 <dd>{formatPresetPrice(quote.totalCents)}</dd>
               </div>
             </dl>
+            {checkout.status !== "unavailable" && (
+              <Label className={styles.code}>
+                Discount code
+                <Input
+                  variant="boxed"
+                  name="code"
+                  value={code}
+                  maxLength={40}
+                  autoComplete="off"
+                  autoCapitalize="characters"
+                  spellCheck={false}
+                  aria-invalid={codeInvalid || undefined}
+                  aria-describedby={codeInvalid ? `${id}-code` : undefined}
+                  onChange={(event) => {
+                    setCode(event.target.value);
+                    setCodeInvalid(false);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") beginCheckout();
+                  }}
+                />
+                {codeInvalid && (
+                  <span id={`${id}-code`} className={styles.error} role="alert">
+                    Code not valid
+                  </span>
+                )}
+              </Label>
+            )}
             <Button
               size="lg"
               variant="default"

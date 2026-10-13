@@ -25,6 +25,7 @@ type OrderRow = {
   payment_intent_id: string | null;
   status: Order["status"];
   email: string | null;
+  promotion_code_id: string | null;
 };
 const order = (row: OrderRow): Order => ({
   id: row.id,
@@ -40,6 +41,7 @@ const order = (row: OrderRow): Order => ({
   paymentIntentId: row.payment_intent_id,
   status: row.status,
   email: row.email,
+  promotionCodeId: row.promotion_code_id,
 });
 
 function bind(sql: Tx): CommerceTransaction {
@@ -84,22 +86,29 @@ function bind(sql: Tx): CommerceTransaction {
         where id <> ${next.id}
           and (session_id = ${next.sessionId} or payment_intent_id = ${next.paymentIntentId})`;
       if (identity) throw new CommerceError("order_identity_conflict", 409);
-      // Account, basket, quote, creation time and return path are immutable once written.
+      // Account, basket, code, creation time and return path are immutable once written. The
+      // discount changes only on a code order, to the amount Stripe computed.
       await sql`
         insert into commerce_orders (
           id, user_id, preset_ids, subtotal_cents, discount_cents, total_cents,
-          currency, created_at, return_path, session_id, payment_intent_id, status, email
+          currency, created_at, return_path, session_id, payment_intent_id, status, email,
+          promotion_code_id
         ) values (
           ${next.id}, ${next.userId}, ${sql.array(next.presetIds, textArray)}::text[],
           ${next.subtotalCents}, ${next.discountCents}, ${next.totalCents},
           ${next.currency}, ${next.createdAt}, ${next.returnPath},
-          ${next.sessionId}, ${next.paymentIntentId}, ${next.status}, ${next.email}
+          ${next.sessionId}, ${next.paymentIntentId}, ${next.status}, ${next.email},
+          ${next.promotionCodeId}
         )
         on conflict (id) do update set
           session_id = excluded.session_id,
           payment_intent_id = excluded.payment_intent_id,
           status = excluded.status,
-          email = excluded.email`;
+          email = excluded.email,
+          discount_cents = case when commerce_orders.promotion_code_id is null
+            then commerce_orders.discount_cents else excluded.discount_cents end,
+          total_cents = case when commerce_orders.promotion_code_id is null
+            then commerce_orders.total_cents else excluded.total_cents end`;
     },
     async eventSeen(id) {
       const [row] = await sql`select 1 from commerce_events where id = ${id}`;
