@@ -88,7 +88,7 @@ import Link from "next/link";
 import SavedPanel from "./SavedPanel";
 import { useFavorites } from "./useFavorites";
 import { nodeForPhoto, placeNode, type FavoriteKind } from "@/lib/favorites";
-import { usePresetCart } from "./PresetCartProvider";
+import { usePresetCart, type AddVia } from "./PresetCartProvider";
 import { usePresetCommerceBoundary } from "./CommerceCartProvider";
 import { AccountControl } from "./AccountControl";
 import { ButtonGroup } from "./ui/button-group";
@@ -365,13 +365,13 @@ function Explorer({
   const { checkout, reward } = usePresetCommerceBoundary();
   const { cartIds, ownedPresetIds, addPresets, removePreset } = usePresetCart();
   // Below the bulk discount, each add shows the progress toward it.
-  function addToCart(ids: readonly string[]) {
+  function addToCart(ids: readonly string[], via: AddVia = "single") {
     const before = cartIds.length;
     const after = new Set([
       ...cartIds,
       ...ids.filter((id) => !ownedPresetIds.includes(id)),
     ]).size;
-    addPresets(ids);
+    addPresets(ids, via);
     if (after === before || before >= BULK_DISCOUNT_MINIMUM) return;
     const count = Math.min(after, BULK_DISCOUNT_MINIMUM);
     setToast({
@@ -1078,7 +1078,9 @@ function Explorer({
           cartIds={cartIds}
           ownedPresetIds={ownedPresetIds}
           onAddPreset={(id) => addToCart([id])}
-          onAddCollection={addToCart}
+          onAddCollection={(ids, filtered) =>
+            addToCart(ids, filtered ? "matching" : "all")
+          }
           onRemovePreset={removePreset}
           scrollMemory={catalogScrollMemory}
           onBack={onBack}
