@@ -3258,13 +3258,13 @@ html[data-photo-palette="sepia"]
     text-wrap: balance;
     color: var(--neutral-50);
     transition:
-      opacity 700ms var(--ease-out),
       transform 700ms var(--ease-out),
       filter 700ms var(--ease-out);
   }
+  /* Rises out of a blur, never from opacity 0: browsers don't count a transparent title as painted,
+     which pushed Largest Contentful Paint behind the page's JavaScript. */
   @starting-style {
     .intro-title p {
-      opacity: 0;
       transform: translateY(12px);
       filter: blur(4px);
     }
@@ -3801,7 +3801,10 @@ html[data-photo-palette="sepia"]
   .explorer .map-toolbar [data-slot="navigation-menu-trigger"] {
     padding: 0 6px;
   }
-  .explorer .map-toolbar [data-slot="navigation-menu-trigger"] > svg:last-child {
+  .explorer
+    .map-toolbar
+    [data-slot="navigation-menu-trigger"]
+    > svg:last-child {
     display: none;
   }
 }

@@ -10,7 +10,8 @@ import {
   type ReactNode,
   type CSSProperties,
 } from "react";
-import { motion, useMotionValue, useReducedMotion } from "motion/react";
+import { LazyMotion, useMotionValue, useReducedMotion } from "motion/react";
+import * as m from "motion/react-m";
 import {
   ArrowLeft,
   ArrowRight,
@@ -71,7 +72,6 @@ import {
 import PhotoImage from "./PhotoImage";
 import Lightbox from "./Lightbox";
 import PlacesMap from "./PlacesMap";
-import PresetCatalog, { PresetDetail, PresetList } from "./PresetCatalog";
 import ExploreChallenges, {
   ExploreChallengesTrigger,
   ExplorationToast,
@@ -105,6 +105,14 @@ import {
 
 // Opened from the nav only; keeps zod and the form out of the first load.
 const ContactPanel = dynamic(() => import("./ContactPanel"));
+// The store loads when a page or place shows presets, not with the map.
+const PresetCatalog = dynamic(() => import("./PresetCatalog"));
+const PresetDetail = dynamic(() =>
+  import("./PresetCatalog").then((module) => module.PresetDetail),
+);
+const PresetList = dynamic(() =>
+  import("./PresetCatalog").then((module) => module.PresetList),
+);
 import MenuPanel from "./MenuPanel";
 import SiteNav, { currentTheme, switchTheme } from "./SiteNav";
 
@@ -159,7 +167,9 @@ function stepTo<T>(stack: T[], view: T) {
   return index < 0 ? [...stack, view] : stack.slice(0, index + 1);
 }
 
-const MotionButton = motion.create(Button);
+const MotionButton = m.create(Button);
+const motionFeatures = () =>
+  import("@/lib/motion-features").then((module) => module.default);
 const separatorStyle: CSSProperties = {
   height: 20,
   width: 1,
@@ -240,7 +250,17 @@ function markHint(name: "place" | "step") {
   } catch {}
 }
 
-export default function PlacesExplorer({
+// Motion components here are the lighter `m` set; their features load after the first paint.
+export default function PlacesExplorer(props: ExplorerProps) {
+  return (
+    <LazyMotion features={motionFeatures} strict>
+      <Explorer {...props} />
+    </LazyMotion>
+  );
+}
+type ExplorerProps = Parameters<typeof Explorer>[0];
+
+function Explorer({
   initialLocationId,
   initialCatalogState,
   initialView,
@@ -1456,7 +1476,11 @@ export default function PlacesExplorer({
             if (Math.hypot(event.clientX - start.x, distanceY) <= 8) return;
             dragged.current = true;
             if (start.owner === null)
-              start.owner = drawerOwnsGesture({ ...start, distanceY, expanded })
+              start.owner = drawerOwnsGesture({
+                ...start,
+                distanceY,
+                expanded,
+              })
                 ? "drawer"
                 : "scroll";
             if (start.owner === "scroll")

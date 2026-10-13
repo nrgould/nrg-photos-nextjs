@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { createPortal, preconnect } from "react-dom";
 import Image from "next/image";
 import { animate } from "motion";
 import type {
@@ -57,6 +57,7 @@ import { photoUrl } from "@/lib/photography";
 import type { ThemeId } from "@/lib/themes";
 import "maplibre-gl/dist/maplibre-gl.css";
 
+const tileOrigin = "https://tiles.openfreemap.org";
 // The map is the page: fetch its engine while React hydrates, not after.
 const maplibre = typeof window === "undefined" ? null : import("maplibre-gl");
 
@@ -148,7 +149,7 @@ function style(mix: number): StyleSpecification {
       boundaries: { type: "geojson", data: "/maps/boundaries.json" },
       countries: { type: "geojson", data: "/maps/country-labels.json" },
       cities: { type: "geojson", data: "/maps/city-labels.json" },
-      osm: { type: "vector", url: "https://tiles.openfreemap.org/planet" },
+      osm: { type: "vector", url: `${tileOrigin}/planet` },
     },
     layers: [
       {
@@ -348,6 +349,8 @@ export default function PlacesMap(props: {
   /** A visitor pan or zoom on the map itself, not a programmatic camera move. */
   onGesture?: () => void;
 }) {
+  // The engine fetches the tile index as soon as it starts; open the connection with the HTML.
+  preconnect(tileOrigin, { crossOrigin: "anonymous" });
   const {
     selected,
     selectedNodeId,

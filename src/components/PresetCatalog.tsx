@@ -2,7 +2,8 @@
 
 import { useEffect, useId, useRef, useState, type Ref } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, useReducedMotion } from "motion/react";
+import * as m from "motion/react-m";
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -187,7 +188,7 @@ export default function PresetCatalog({
             />
             <AnimatePresence initial={false}>
               {state.query && (
-                <motion.span
+                <m.span
                   key="clear"
                   className={styles.clear}
                   initial={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
@@ -206,7 +207,7 @@ export default function PresetCatalog({
                   >
                     <X size={16} strokeWidth={1.5} aria-hidden="true" />
                   </Button>
-                </motion.span>
+                </m.span>
               )}
             </AnimatePresence>
           </div>
@@ -443,7 +444,7 @@ export function PresetList({
                 >
                   <span className={styles.selectionIcon} aria-hidden="true">
                     <AnimatePresence initial={false}>
-                      <motion.span
+                      <m.span
                         key={isOwned || inCart ? "selected" : "add"}
                         initial={{
                           opacity: 0,
@@ -467,7 +468,7 @@ export function PresetList({
                         ) : (
                           <Plus size={18} />
                         )}
-                      </motion.span>
+                      </m.span>
                     </AnimatePresence>
                   </span>
                 </Button>
