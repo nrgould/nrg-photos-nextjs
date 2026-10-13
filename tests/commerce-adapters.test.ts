@@ -416,6 +416,49 @@ test("Stripe adapter finds a promotion code and sends it in place of the bulk co
   );
 });
 
+test("a product-restricted code cannot replace the larger whole-cart bulk discount", async () => {
+  const f = sdkFixture();
+  const list = f.client.promotionCodes.list;
+  f.client.promotionCodes.list = async (params) => {
+    assert.deepEqual(params.expand, ["data.promotion.coupon.applies_to"]);
+    const result = await list(params);
+    const coupon = result.data[0].promotion.coupon;
+    if (coupon && typeof coupon !== "string")
+      coupon.applies_to = { products: ["prod_one_preset_only"] };
+    return result;
+  };
+  f.client.checkout.sessions.create = async (params) => ({
+    ...f.session,
+    metadata: params.metadata,
+    amount_subtotal: 1990,
+    // 50% off one $1.99 preset gives $1 off, less than the $3.98 bulk discount.
+    amount_total: 1890,
+    total_details: { amount_discount: 100, amount_tax: 0, amount_shipping: 0 },
+  });
+  const store = new MemoryCommerceStore();
+  const service = createCommerceService({
+    policy: { presetIds: ids },
+    store,
+    payments: createStripeGateway(f.client, config),
+  });
+  await assert.rejects(
+    service.checkout(
+      "buyer-fixture",
+      ids.slice(0, 10),
+      "restricted-code-0001",
+      "/",
+      "HALF",
+    ),
+    fails("invalid_code"),
+  );
+  assert.deepEqual(
+    await store.transaction((tx) =>
+      tx.pendingOrdersForPresets("buyer-fixture", ids),
+    ),
+    [],
+  );
+});
+
 test("Stripe adapter rejects wrong coupons and reuses a bound session without creating another", async () => {
   const f = sdkFixture();
   const gateway = createStripeGateway(f.client, config);
@@ -432,6 +475,23 @@ test("Stripe adapter rejects wrong coupons and reuses a bound session without cr
     fails("discount_configuration_mismatch"),
   );
   await gateway.createCheckout({ ...f.current, sessionId: "cs_test_fixture" });
+  assert.equal(f.creations.length, 0);
+});
+
+test("bulk coupon validation expands product restrictions before opening Checkout", async () => {
+  const f = sdkFixture();
+  const retrieve = f.client.coupons.retrieve;
+  f.client.coupons.retrieve = async (id, params) => {
+    assert.deepEqual(params.expand, ["applies_to"]);
+    return {
+      ...(await retrieve(id, params)),
+      applies_to: { products: ["prod_one_preset_only"] },
+    };
+  };
+  await assert.rejects(
+    createStripeGateway(f.client, config).createCheckout(order(10)),
+    fails("discount_configuration_mismatch"),
+  );
   assert.equal(f.creations.length, 0);
 });
 

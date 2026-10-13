@@ -12,6 +12,7 @@ import {
 import {
   CommerceError,
   type CheckoutSession,
+  type CommerceStore,
   type Order,
   type PaymentEvent,
   type PaymentGateway,
@@ -792,6 +793,93 @@ test("transaction rollback includes the event marker and grants", async () => {
   assert.deepEqual(
     await store.transaction((tx) => tx.entitlements("user-A")),
     [],
+  );
+});
+
+test("a fulfillment write failure rolls back the paid order and retries the whole event", async () => {
+  const backing = makeStore();
+  let failGrant = false;
+  const store: CommerceStore = {
+    durability: backing.durability,
+    transaction: (work) =>
+      backing.transaction((tx) =>
+        work({
+          ...tx,
+          async putEntitlement(entitlement) {
+            await tx.putEntitlement(entitlement);
+            if (failGrant) throw new Error("fixture interrupted fulfillment");
+          },
+        }),
+      ),
+  };
+  const f = fixture(store);
+  const { orderId } = await f.service.checkout(
+    "user-A",
+    ids.slice(0, 2),
+    requestId,
+  );
+  const event: PaymentEvent = {
+    id: "evt_write_retry",
+    type: "paid",
+    session: f.paid(orderId),
+  };
+  failGrant = true;
+  await assert.rejects(f.event(event), /fixture interrupted fulfillment/);
+  assert.equal(
+    await backing.transaction(
+      async (tx) => (await tx.getOrder(orderId))?.status,
+    ),
+    "pending",
+  );
+  assert.equal(
+    await backing.transaction((tx) => tx.eventSeen(event.id)),
+    false,
+  );
+  assert.deepEqual((await f.service.ownership("user-A")).presetIds, []);
+  failGrant = false;
+  await f.event(event);
+  assert.deepEqual(
+    (await f.service.ownership("user-A")).presetIds,
+    ids.slice(0, 2),
+  );
+  assert.deepEqual(await f.event(event), { duplicate: true });
+});
+
+test("repurchase after refund uses a new source that an old refund replay cannot revoke", async () => {
+  const f = fixture();
+  const first = await f.service.checkout("user-A", [ids[0]], requestId);
+  await f.event({
+    id: "evt_first_paid",
+    type: "paid",
+    session: f.paid(first.orderId),
+  });
+  await f.event({
+    id: "evt_first_refund",
+    type: "revoked",
+    paymentIntentId: `pi_${first.orderId}`,
+  });
+  const second = await f.service.checkout(
+    "user-A",
+    [ids[0]],
+    "repurchase-request-0001",
+  );
+  assert.notEqual(first.orderId, second.orderId);
+  await f.event({
+    id: "evt_second_paid",
+    type: "paid",
+    session: f.paid(second.orderId),
+  });
+  await f.event({
+    id: "evt_old_refund_late",
+    type: "revoked",
+    paymentIntentId: `pi_${first.orderId}`,
+  });
+  assert.deepEqual((await f.service.ownership("user-A")).presetIds, [ids[0]]);
+  assert.equal(
+    await f.store.transaction(
+      async (tx) => (await tx.getOrder(second.orderId))?.status,
+    ),
+    "paid",
   );
 });
 

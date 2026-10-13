@@ -46,13 +46,18 @@ export interface StripeClient {
       starting_after?: string;
     }): Promise<{ data: StripePrice[]; has_more: boolean }>;
   };
-  coupons: { retrieve(id: string): Promise<StripeCoupon> };
+  coupons: {
+    retrieve(
+      id: string,
+      params: { expand: ["applies_to"] },
+    ): Promise<StripeCoupon>;
+  };
   promotionCodes: {
     list(params: {
       code: string;
       active: true;
       limit: 1;
-      expand: ["data.promotion.coupon"];
+      expand: ["data.promotion.coupon.applies_to"];
     }): Promise<{
       data: {
         id: string;
@@ -186,6 +191,7 @@ export function createStripeGateway(
       if (order.discountCents && !order.promotionCodeId) {
         const coupon = await client.coupons.retrieve(
           configuration.bulkCouponId,
+          { expand: ["applies_to"] },
         );
         if (
           coupon.id !== configuration.bulkCouponId ||
@@ -251,7 +257,7 @@ export function createStripeGateway(
           code,
           active: true,
           limit: 1,
-          expand: ["data.promotion.coupon"],
+          expand: ["data.promotion.coupon.applies_to"],
         })
       ).data;
       const coupon = found?.promotion.coupon;
@@ -262,6 +268,8 @@ export function createStripeGateway(
         typeof coupon === "string" ||
         !coupon.valid ||
         (coupon.duration !== "once" && coupon.duration !== "forever") ||
+        // The quote compares whole-cart discounts; a product-scoped code may save less than bulk.
+        coupon.applies_to?.products.length ||
         (coupon.amount_off !== null && coupon.currency !== "usd")
       )
         return null;

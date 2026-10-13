@@ -139,3 +139,110 @@ test("SDK-signed payment/replay/refund fixtures apply idempotently to account-bo
   });
   assert.equal(networkCalls, 0);
 });
+
+test("SDK-signed no-cost completion fulfills once without a PaymentIntent", async () => {
+  const store = new MemoryCommerceStore();
+  const freeOrder: Order = {
+    ...order,
+    promotionCodeId: "promo_free_fixture",
+    discountCents: 199,
+    totalCents: 0,
+  };
+  await store.transaction((tx) => tx.putOrder(freeOrder));
+  const service = createCommerceService({
+    policy: { presetIds: order.presetIds },
+    store,
+    payments: gateway,
+    delivery: {
+      allowedOrigins: ["https://files.example.test"],
+      issueDownload: async () => "https://files.example.test/fixture.xmp",
+    },
+  });
+  const freeSession = {
+    ...session,
+    payment_status: "no_payment_required",
+    payment_intent: null,
+    amount_total: 0,
+    total_details: { amount_discount: 199, amount_tax: 0, amount_shipping: 0 },
+    customer_details: { email: "buyer@example.test" },
+  };
+  const raw = event("evt_free", "checkout.session.completed", freeSession);
+  const result = await service.webhook(raw, sign(raw));
+  assert.equal(result.purchased?.totalCents, 0);
+  assert.deepEqual((await service.ownership(order.userId)).presetIds, [
+    "eibsee-1",
+  ]);
+  assert.equal(
+    (await service.download(order.userId, "eibsee-1")).expiresInSeconds,
+    60,
+  );
+  assert.deepEqual(await service.webhook(raw, sign(raw)), { duplicate: true });
+  const later = event(
+    "evt_free_later",
+    "checkout.session.completed",
+    freeSession,
+  );
+  assert.equal((await service.webhook(later, sign(later))).purchased, null);
+  assert.equal(
+    await store.transaction(
+      async (tx) => (await tx.entitlements(order.userId)).length,
+    ),
+    1,
+  );
+  assert.deepEqual(
+    (await service.ownership("returning-buyer", "buyer@example.test"))
+      .presetIds,
+    ["eibsee-1"],
+  );
+  await assert.rejects(
+    service.checkout(order.userId, ["eibsee-1"], "repeat-free-order-0001"),
+    fails("already_owned"),
+  );
+  assert.equal(networkCalls, 0);
+});
+
+test("no-cost fulfillment still requires a complete zero-total session; charged orders need a PaymentIntent", async () => {
+  for (const variant of ["nonzero", "open", "unpaid", "missing-intent"]) {
+    const free = variant === "open" || variant === "unpaid";
+    const stored = free
+      ? {
+          ...order,
+          promotionCodeId: "promo_free_fixture",
+          discountCents: 199,
+          totalCents: 0,
+        }
+      : order;
+    const store = new MemoryCommerceStore();
+    await store.transaction((tx) => tx.putOrder(stored));
+    const service = createCommerceService({
+      policy: { presetIds: order.presetIds },
+      store,
+      payments: gateway,
+    });
+    const raw = event(`evt_${variant}`, "checkout.session.completed", {
+      ...session,
+      status: variant === "open" ? "open" : "complete",
+      payment_status:
+        variant === "missing-intent"
+          ? "paid"
+          : variant === "unpaid"
+            ? "unpaid"
+            : "no_payment_required",
+      payment_intent: null,
+      amount_total: stored.totalCents,
+      total_details: {
+        amount_discount: stored.discountCents,
+        amount_tax: 0,
+        amount_shipping: 0,
+      },
+    });
+    if (variant === "missing-intent")
+      await assert.rejects(
+        service.webhook(raw, sign(raw)),
+        fails("missing_payment_intent"),
+      );
+    else await service.webhook(raw, sign(raw));
+    assert.deepEqual((await service.ownership(order.userId)).presetIds, []);
+  }
+  assert.equal(networkCalls, 0);
+});

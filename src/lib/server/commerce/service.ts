@@ -380,10 +380,14 @@ export function createCommerceService({
         else if (status !== "revoked") {
           if (
             (event.type === "paid" || event.type === "completed") &&
-            session.paymentStatus === "paid" &&
+            (session.paymentStatus === "paid" ||
+              (session.paymentStatus === "no_payment_required" &&
+                session.totalCents === 0 &&
+                order.totalCents === 0)) &&
             session.status === "complete"
           ) {
-            if (!session.paymentIntentId)
+            // Stripe does not create a PaymentIntent for a no-cost Checkout.
+            if (session.paymentStatus === "paid" && !session.paymentIntentId)
               throw new CommerceError("missing_payment_intent", 409);
             status = "paid";
           } else if (status !== "paid" && event.type === "failed")
