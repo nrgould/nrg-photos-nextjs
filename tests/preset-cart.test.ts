@@ -67,11 +67,11 @@ test("add and remove are idempotent selections, never ownership", () => {
 test("ten distinct paid presets unlock twenty percent off the entire subtotal", () => {
   for (const [count, subtotal, discount, total] of [
     [0, 0, 0, 0],
-    [1, 199, 0, 199],
-    [9, 1791, 0, 1791],
-    [10, 1990, 398, 1592],
-    [11, 2189, 438, 1751],
-    [28, 5572, 1114, 4458],
+    [1, 299, 0, 299],
+    [9, 2691, 0, 2691],
+    [10, 2990, 598, 2392],
+    [11, 3289, 658, 2631],
+    [28, 8372, 1674, 6698],
   ]) {
     const quote = pricePresetCart(
       createPresetCart({ paidPresetIds: ids.slice(0, count) }),
@@ -121,14 +121,14 @@ test("one eligible free choice cannot inflate the paid discount threshold", () =
   assert.equal(quote.selectedCount, 10);
   assert.equal(quote.paidCount, 9);
   assert.equal(quote.discountCents, 0);
-  assert.equal(quote.totalCents, 1791);
+  assert.equal(quote.totalCents, 2691);
   assert.deepEqual(getPresetCartSelection(reward, ids[9], eligible), {
     selection: "prototype-reward",
     ownership: "unknown",
   });
   assert.deepEqual(addCartPreset(reward, ids[9], eligible), reward);
   const tenPaid = addCartPreset(reward, ids[10], eligible);
-  assert.equal(pricePresetCart(tenPaid, eligible).totalCents, 1592);
+  assert.equal(pricePresetCart(tenPaid, eligible).totalCents, 2392);
   assert.equal(pricePresetCart(tenPaid, eligible).selectedCount, 11);
 });
 

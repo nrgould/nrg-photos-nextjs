@@ -118,17 +118,17 @@ function fixture(store = makeStore()) {
 
 test("server quote ignores no client prices and deduplicates before the ten-item threshold", () => {
   for (const [count, discount, total] of [
-    [1, 0, 199],
-    [9, 0, 1791],
-    [10, 398, 1592],
-    [11, 438, 1751],
-    [28, 1114, 4458],
+    [1, 0, 299],
+    [9, 0, 2691],
+    [10, 598, 2392],
+    [11, 658, 2631],
+    [28, 1674, 6698],
   ]) {
     const quote = quotePresets(ids.slice(0, count), ids);
     assert.equal(quote.discountCents, discount);
     assert.equal(quote.totalCents, total);
   }
-  assert.equal(quotePresets(Array(10).fill(ids[0]), ids).totalCents, 199);
+  assert.equal(quotePresets(Array(10).fill(ids[0]), ids).totalCents, 299);
   for (const input of [
     [],
     null,
@@ -144,18 +144,18 @@ test("a promotion code applies only when it beats the bulk discount", () => {
   const small = { id: "promo_small", percentOff: 5, amountOffCents: null };
   const dollar = { id: "promo_dollar", percentOff: null, amountOffCents: 100 };
   assert.deepEqual(pick(quotePresets(ids.slice(0, 10), ids, half)), [
-    995,
-    995,
+    1495,
+    1495,
     "promo_half",
   ]);
   assert.deepEqual(pick(quotePresets(ids.slice(0, 10), ids, small)), [
-    398,
-    1592,
+    598,
+    2392,
     null,
   ]);
   assert.deepEqual(pick(quotePresets(ids.slice(0, 1), ids, small)), [
-    10,
-    189,
+    15,
+    284,
     "promo_small",
   ]);
   // An amount off never takes the total below zero.
@@ -163,7 +163,7 @@ test("a promotion code applies only when it beats the bulk discount", () => {
     pick(
       quotePresets(ids.slice(0, 1), ids, { ...dollar, amountOffCents: 500 }),
     ),
-    [199, 0, "promo_dollar"],
+    [299, 0, "promo_dollar"],
   );
 });
 const pick = (quote: ReturnType<typeof quotePresets>) => [
@@ -191,8 +191,8 @@ test("a code checkout takes Stripe's discount and grants on payment; unknown cod
   const stored = await f.store.transaction((tx) =>
     tx.getOrder(checkout.orderId),
   );
-  assert.equal(stored?.discountCents, 996);
-  assert.equal(stored?.totalCents, 994);
+  assert.equal(stored?.discountCents, 1496);
+  assert.equal(stored?.totalCents, 1494);
   // The same request without the code is a different basket.
   await assert.rejects(
     f.service.checkout("user-A", ids.slice(0, 10), requestId, "/"),
@@ -460,8 +460,8 @@ test("a guest signing into an existing account hands over what it bought; a refu
 
 test("tax added on top of the quote, or carried inside it, still grants", async () => {
   for (const [tax, total] of [
-    [38, 237],
-    [33, 199],
+    [38, 337],
+    [33, 299],
   ]) {
     const f = fixture();
     const { orderId } = await f.service.checkout("user-A", [ids[0]], requestId);
@@ -744,7 +744,7 @@ test("mismatched amounts/session and invalid signatures fail before ownership; f
   const session = f.paid(orderId);
   for (const mismatch of [
     { totalCents: 1 },
-    { taxCents: 38, totalCents: 236 },
+    { taxCents: 38, totalCents: 336 },
     { currency: "eur" },
     { id: "cs_test_other" },
     { subtotalCents: 1 },

@@ -414,9 +414,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  /* Clears the drawer's 44px close button and centers on it: 12px padding + 44px row. */
   min-height: 68px;
-  padding-right: 60px;
 }
 .menuHeader .heading {
   flex: 1;

@@ -1,6 +1,6 @@
 import { getCatalogPreset } from "./preset-commerce";
 
-export const UNIT_PRICE_CENTS = 199;
+export const UNIT_PRICE_CENTS = 299;
 export const BULK_DISCOUNT_MINIMUM = 10;
 export const BULK_DISCOUNT_PERCENT = 20;
 export const REWARD_LOCATION_REQUIREMENT = 5;

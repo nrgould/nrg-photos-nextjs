@@ -93,7 +93,7 @@ function sdkFixture() {
             active: true,
             livemode: false,
             currency: "usd",
-            unit_amount: 199,
+            unit_amount: 299,
             type: "one_time",
           })),
           has_more: false,
@@ -430,10 +430,10 @@ test("a product-restricted code cannot replace the larger whole-cart bulk discou
   f.client.checkout.sessions.create = async (params) => ({
     ...f.session,
     metadata: params.metadata,
-    amount_subtotal: 1990,
-    // 50% off one $1.99 preset gives $1 off, less than the $3.98 bulk discount.
-    amount_total: 1890,
-    total_details: { amount_discount: 100, amount_tax: 0, amount_shipping: 0 },
+    amount_subtotal: 2990,
+    // 50% off one $2.99 preset gives $1.50 off, less than the $5.98 bulk discount.
+    amount_total: 2840,
+    total_details: { amount_discount: 150, amount_tax: 0, amount_shipping: 0 },
   });
   const store = new MemoryCommerceStore();
   const service = createCommerceService({

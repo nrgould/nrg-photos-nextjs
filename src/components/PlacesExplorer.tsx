@@ -1645,13 +1645,16 @@ function Explorer({
                     {place.name}
                   </Button>
                 )}
-                <Button
-                  variant="quiet"
-                  aria-label="Close drawer"
-                  onClick={closeDrawer}
-                >
-                  <X size={18} />
-                </Button>
+                {/* The menu sheet closes by swipe, backdrop or Escape; a fixed X would float over its scrolled rows. */}
+                {drawerMode !== "menu" && (
+                  <Button
+                    variant="quiet"
+                    aria-label="Close drawer"
+                    onClick={closeDrawer}
+                  >
+                    <X size={18} />
+                  </Button>
+                )}
               </div>
             )}
             <div
@@ -1892,7 +1895,7 @@ function Explorer({
         >
           {/* Drag-to-dismiss cue; Close and Back are the keyboard path. */}
           {!desktop && <div className="photo-drawer-grip" aria-hidden="true" />}
-          {!desktop && (
+          {!desktop && nested !== "menu" && (
             <div className="drawer-commerce-header">
               <Button variant="quiet" aria-label="Close" onClick={closeNested}>
                 <X size={18} />

@@ -49,8 +49,8 @@ const session = {
   currency: "usd",
   metadata: { orderId: order.id },
   payment_intent: "pi_fixture",
-  amount_subtotal: 199,
-  amount_total: 199,
+  amount_subtotal: 299,
+  amount_total: 299,
   total_details: { amount_discount: 0, amount_tax: 0, amount_shipping: 0 },
 };
 const event = (
@@ -77,7 +77,7 @@ test("official Stripe SDK verifies exact raw signatures; tampering, stale signat
   assert.equal(gateway.verifyWebhook(raw, signature).type, "completed");
   for (const [body, header] of [
     [JSON.stringify(JSON.parse(raw)), signature],
-    [raw.replace('"amount_total": 199', '"amount_total": 1'), signature],
+    [raw.replace('"amount_total": 299', '"amount_total": 1'), signature],
     [raw, sign(raw, Math.floor(Date.now() / 1000) - 600)],
     [raw, sign(raw, undefined, "whsec_wrong_fixture")],
     [raw, "t=1,v1=forged"],
@@ -126,7 +126,7 @@ test("SDK-signed payment/replay/refund fixtures apply idempotently to account-bo
     rewardPresetId: null,
   });
   const refund = event("evt_sdk_refund", "charge.refunded", {
-    amount_refunded: 199,
+    amount_refunded: 299,
     payment_intent: "pi_fixture",
   });
   await service.webhook(refund, sign(refund));
@@ -145,7 +145,7 @@ test("SDK-signed no-cost completion fulfills once without a PaymentIntent", asyn
   const freeOrder: Order = {
     ...order,
     promotionCodeId: "promo_free_fixture",
-    discountCents: 199,
+    discountCents: 299,
     totalCents: 0,
   };
   await store.transaction((tx) => tx.putOrder(freeOrder));
@@ -163,7 +163,7 @@ test("SDK-signed no-cost completion fulfills once without a PaymentIntent", asyn
     payment_status: "no_payment_required",
     payment_intent: null,
     amount_total: 0,
-    total_details: { amount_discount: 199, amount_tax: 0, amount_shipping: 0 },
+    total_details: { amount_discount: 299, amount_tax: 0, amount_shipping: 0 },
     customer_details: { email: "buyer@example.test" },
   };
   const raw = event("evt_free", "checkout.session.completed", freeSession);
@@ -208,7 +208,7 @@ test("no-cost fulfillment still requires a complete zero-total session; charged 
       ? {
           ...order,
           promotionCodeId: "promo_free_fixture",
-          discountCents: 199,
+          discountCents: 299,
           totalCents: 0,
         }
       : order;

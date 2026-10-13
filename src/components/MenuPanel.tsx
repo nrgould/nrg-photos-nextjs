@@ -66,7 +66,6 @@ export default function MenuPanel({
       data-drawer-scroll
       aria-labelledby={`${id}-heading`}
     >
-      {/* The drawer's close button overlays the right end of this row. */}
       <header className={`${styles.header} ${styles.menuHeader}`}>
         <h2 id={`${id}-heading`} className={styles.heading}>
           Menu

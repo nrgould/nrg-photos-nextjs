@@ -1,6 +1,6 @@
 # Catalog and cart verification
 
-The direct `/presets` route and map drawer expose all21 real public preset names. Individual prices are USD1.99; ten or more distinct paid items receive20% off the subtotal. Cart selection never represents ownership. Authentic edit associations, comparisons, compatibility, license and package details remain explicitly unavailable pending approved source data.
+The direct `/presets` route and map drawer expose all21 real public preset names. Individual prices are USD2.99; ten or more distinct paid items receive20% off the subtotal. Cart selection never represents ownership. Authentic edit associations, comparisons, compatibility, license and package details remain explicitly unavailable pending approved source data.
 
 ## Supported Mac Chrome checks
 
