@@ -965,11 +965,18 @@
     gap: 4px;
     color: var(--ink);
   }
+  /* One photo per snap: a swipe follows the finger and settles on the next photo.
+     Each slide's 6px padding is the gutter between photos, so the track's margin gives it back. */
   .lightbox-image {
-    position: relative;
+    display: flex;
     flex: 1;
-    margin: 0 70px;
+    margin: 0 64px;
     min-height: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
   }
   .lightbox-image img {
     width: auto;
@@ -1001,6 +1008,7 @@
     gap: 6px;
     flex-shrink: 0;
     overflow-x: auto;
+    scroll-behavior: smooth;
     scrollbar-width: none;
     padding: 4px 50% 18px;
   }
@@ -1529,7 +1537,7 @@
       padding: 9px 14px;
     }
     .lightbox-image {
-      margin: 0 12px;
+      margin: 0 6px;
     }
     .lightbox-footer {
       padding: 15px 13px 20px;
@@ -1687,7 +1695,9 @@
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    html {
+    html,
+    .lightbox-image,
+    .lightbox-strip {
       scroll-behavior: auto;
     }
     *,
@@ -3542,8 +3552,10 @@ html[data-photo-palette="sepia"]
     outline-offset: 3px;
   }
   .lightbox-photo {
-    position: absolute;
-    inset: 0;
+    flex: 0 0 100%;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+    padding: 0 6px;
     display: flex;
     align-items: center;
     justify-content: center;
