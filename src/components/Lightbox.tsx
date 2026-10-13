@@ -1,9 +1,7 @@
 "use client";
-import { useRef, useState, type ReactNode, type RefObject } from "react";
+import { useRef, type ReactNode, type RefObject } from "react";
 import Image, { getImageProps } from "next/image";
 import { preload } from "react-dom";
-import { useReducedMotion } from "motion/react";
-import * as m from "motion/react-m";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { photoUrl, takenLabel, type Photo } from "@/lib/photography";
 import { Button } from "@/components/ui/button";
@@ -32,20 +30,27 @@ export default function Lightbox({
   index: number | null;
   onIndexChange: (index: number | null) => void;
 }) {
-  const reducedMotion = useReducedMotion();
-  const touchStart = useRef<[number, number] | null>(null);
-  const [keyboardNavigation, setKeyboardNavigation] = useState(false);
-  const move = (direction: number) =>
-    index !== null &&
-    onIndexChange((index + direction + photos.length) % photos.length);
+  // The track's scroll position is the source of truth: navigation scrolls it, and a settled scroll reports the index.
+  const track = useRef<HTMLDivElement | null>(null);
+  // Where a button or key last aimed, so presses during a slide keep counting.
+  const aim = useRef<number | null>(null);
+  const go = (i: number, slide: boolean) => {
+    aim.current = i;
+    track.current?.scrollTo({
+      left: i * track.current.clientWidth,
+      behavior: slide ? "auto" : "instant",
+    });
+  };
+  const move = (direction: number) => {
+    if (index === null) return;
+    const next = (aim.current ?? index) + direction;
+    const wrapped = (next + photos.length) % photos.length;
+    go(wrapped, wrapped === next);
+  };
   const current = index === null ? null : photos[index];
   // Keep the current photo centred in the filmstrip; the dialog mounts after effects run.
   const centre = (button: HTMLButtonElement | null) =>
-    button?.scrollIntoView({
-      inline: "center",
-      block: "nearest",
-      behavior: reducedMotion ? "instant" : "smooth",
-    });
+    button?.scrollIntoView({ inline: "center", block: "nearest" });
   if (index !== null)
     for (const offset of [1, -1]) {
       const photo = photos[(index + offset + photos.length) % photos.length];
@@ -75,7 +80,6 @@ export default function Lightbox({
         onKeyDown={(e) => {
           if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
             e.preventDefault();
-            setKeyboardNavigation(true);
             move(e.key === "ArrowRight" ? 1 : -1);
           }
         }}
@@ -99,61 +103,50 @@ export default function Lightbox({
             </div>
             <div
               className="lightbox-image"
-              onTouchStart={(e) => {
-                setKeyboardNavigation(false);
-                touchStart.current =
-                  e.touches.length === 1
-                    ? [e.touches[0].clientX, e.touches[0].clientY]
-                    : null;
+              ref={(el) => {
+                // Open on the chosen photo without sliding from the first.
+                if (el && el !== track.current) {
+                  el.scrollTo({
+                    left: index! * el.clientWidth,
+                    behavior: "instant",
+                  });
+                  track.current = el;
+                  aim.current = null;
+                }
               }}
-              onTouchCancel={() => {
-                touchStart.current = null;
-              }}
-              onTouchEnd={(e) => {
-                if (touchStart.current === null) return;
-                const distance =
-                  e.changedTouches[0].clientX - touchStart.current[0];
-                const vertical =
-                  e.changedTouches[0].clientY - touchStart.current[1];
-                if (
-                  Math.abs(distance) > 50 &&
-                  Math.abs(distance) > Math.abs(vertical)
-                )
-                  move(distance > 0 ? -1 : 1);
-                touchStart.current = null;
+              onScroll={(e) => {
+                const { scrollLeft, clientWidth } = e.currentTarget;
+                const i = Math.round(scrollLeft / clientWidth);
+                // Report only once settled, so a drag across the midpoint opens nothing.
+                if (Math.abs(scrollLeft - i * clientWidth) >= 1) return;
+                // Still at the start of a slide a button or key began.
+                if (i === index && aim.current !== null && aim.current !== i)
+                  return;
+                aim.current = null;
+                if (i !== index) onIndexChange(i);
               }}
             >
-              <m.div
-                key={current.src}
-                className="lightbox-photo"
-                initial={
-                  reducedMotion || keyboardNavigation
-                    ? false
-                    : { opacity: 0, transform: "scale(0.985)" }
-                }
-                animate={{ opacity: 1, transform: "scale(1)" }}
-                transition={{
-                  transform: { type: "spring", duration: 0.28, bounce: 0.14 },
-                  opacity: { duration: 0.14 },
-                }}
-              >
-                <Image
-                  src={photoUrl(current.src)}
-                  alt={current.alt}
-                  width={current.width}
-                  height={current.height}
-                  sizes={sizes(current)}
-                  quality={85}
-                />
-              </m.div>
+              {photos.map((photo, i) => (
+                <div
+                  key={photo.src}
+                  className="lightbox-photo"
+                  aria-hidden={i !== index || undefined}
+                >
+                  <Image
+                    src={photoUrl(photo.src)}
+                    alt={photo.alt}
+                    width={photo.width}
+                    height={photo.height}
+                    sizes={sizes(photo)}
+                    quality={85}
+                  />
+                </div>
+              ))}
             </div>
             <div className="lightbox-footer">
               <Button
                 variant="icon"
-                onClick={(event) => {
-                  setKeyboardNavigation(event.detail === 0);
-                  move(-1);
-                }}
+                onClick={() => move(-1)}
                 aria-label="Previous photograph"
               >
                 <ChevronLeft strokeWidth={1.5} />
@@ -167,10 +160,7 @@ export default function Lightbox({
               </p>
               <Button
                 variant="icon"
-                onClick={(event) => {
-                  setKeyboardNavigation(event.detail === 0);
-                  move(1);
-                }}
+                onClick={() => move(1)}
                 aria-label="Next photograph"
               >
                 <ChevronRight strokeWidth={1.5} />
@@ -184,10 +174,7 @@ export default function Lightbox({
                   aria-label={`Photograph ${i + 1}`}
                   ref={i === index ? centre : undefined}
                   aria-current={i === index || undefined}
-                  onClick={() => {
-                    setKeyboardNavigation(true);
-                    onIndexChange(i);
-                  }}
+                  onClick={() => go(i, Math.abs(i - index!) === 1)}
                 >
                   <Image
                     src={photoUrl(photo.src, true)}
