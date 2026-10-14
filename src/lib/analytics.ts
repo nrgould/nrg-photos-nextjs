@@ -8,6 +8,8 @@ export type AnalyticsEvent =
   | "place-selected"
   | "page-opened"
   | "preset-added"
+  | "preset-removed"
+  | "searched"
   | "checkout-started"
   | "preset-downloaded"
   | "sign-in-code-sent"
