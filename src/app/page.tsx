@@ -1,38 +1,14 @@
 import PlacesExplorer from "@/components/PlacesExplorer";
 import { curating } from "@/lib/server/curate";
-import { getMapNode } from "@/lib/map-hierarchy";
-import { travelPlaces } from "@/lib/places";
-import {
-  createPresetCatalogState,
-  type PresetCategory,
-} from "@/lib/preset-commerce";
+import { readExplorerParams } from "@/lib/explorer-url";
 export const metadata = { alternates: { canonical: "/" } };
 export default async function Home({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const params = await searchParams;
-  const initialLocationId =
-    typeof params.location === "string" &&
-    getMapNode(params.location, travelPlaces)
-      ? params.location
-      : undefined;
-  const initialCatalogState = createPresetCatalogState({
-    query: typeof params.query === "string" ? params.query.slice(0, 200) : "",
-    category:
-      typeof params.category === "string"
-        ? (params.category as PresetCategory)
-        : "All",
-    selectedPresetId: typeof params.preset === "string" ? params.preset : null,
-  });
-  const initialView =
-    params.view === "cart" ||
-    params.view === "catalog" ||
-    params.view === "contact" ||
-    params.view === "library"
-      ? params.view
-      : undefined;
+  const { initialLocationId, initialPhoto, initialView, initialCatalogState } =
+    readExplorerParams(await searchParams);
   return (
     <main id="main" className="explorer">
       <PlacesExplorer
@@ -40,10 +16,12 @@ export default async function Home({
           initialLocationId,
           initialCatalogState,
           initialView,
+          initialPhoto,
         })}
         initialLocationId={initialLocationId}
         initialCatalogState={initialCatalogState}
         initialView={initialView}
+        initialPhoto={initialPhoto}
         curating={curating()}
         contactEmailEnabled={Boolean(
           process.env.RESEND_API_KEY && process.env.CONTACT_FROM_EMAIL,

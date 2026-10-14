@@ -98,6 +98,7 @@ import {
   getCatalogPreset,
   type PresetCatalogState,
 } from "@/lib/preset-commerce";
+import { writeExplorerParams, type ExplorerView } from "@/lib/explorer-url";
 import {
   BULK_DISCOUNT_MINIMUM,
   BULK_DISCOUNT_PERCENT,
@@ -278,12 +279,15 @@ function Explorer({
   initialLocationId,
   initialCatalogState,
   initialView,
+  initialPhoto,
   contactEmailEnabled = false,
   curating = false,
 }: {
   initialLocationId?: string | null;
   initialCatalogState?: PresetCatalogState;
-  initialView?: "catalog" | "cart" | "contact" | "library";
+  initialView?: ExplorerView;
+  /** The lightbox photo, already checked to belong to the initial place. */
+  initialPhoto?: string;
   contactEmailEnabled?: boolean;
   /** Preview only: mark photos for removal or as heroes (src/app/api/curate). */
   curating?: boolean;
@@ -356,14 +360,12 @@ function Explorer({
     createPresetCatalogState({ ...initialCatalogState, query: "" }),
   );
   const [initialPages] = useState<PageView[]>(() =>
-    initialView === "cart" ||
-    initialView === "contact" ||
-    initialView === "library"
-      ? [initialView]
-      : initialView === "catalog"
-        ? getCatalogPreset(catalogState.selectedPresetId)
-          ? ["presets", "preset"]
-          : ["presets"]
+    initialView === "catalog"
+      ? getCatalogPreset(catalogState.selectedPresetId)
+        ? ["presets", "preset"]
+        : ["presets"]
+      : initialView
+        ? [initialView]
         : [],
   );
   const [baseStack, setBaseStack] = useState<DrawerView[]>(
@@ -427,7 +429,31 @@ function Explorer({
   const [query, setQuery] = useState("");
   // The command bar names the place it stepped to until the visitor moves the map.
   const [stepped, setStepped] = useState(false);
-  const [viewer, setViewer] = useState<string | null>(null);
+  const [viewer, setViewer] = useState<string | null>(initialPhoto ?? null);
+  const urlSearch = writeExplorerParams({
+    location: selectedNodeId,
+    page: topView,
+    presetId: catalogState.selectedPresetId,
+    category: catalogState.category,
+    photo: viewer,
+  }).toString();
+  // Replace, not push: Back leaves the site instead of replaying every drawer.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    for (const key of [
+      "location",
+      "view",
+      "preset",
+      "category",
+      "query",
+      "photo",
+    ])
+      url.searchParams.delete(key);
+    for (const [key, value] of new URLSearchParams(urlSearch))
+      url.searchParams.set(key, value);
+    if (url.href !== window.location.href)
+      window.history.replaceState(null, "", url);
+  }, [urlSearch]);
   const [marks, setMarks] = useState<Record<PhotoMark, string[]>>({
     remove: [],
     hero: [],
