@@ -74,8 +74,10 @@ export function PresetCartProvider({
           ),
         );
       },
-      removePreset: (id: string) =>
-        updateStoredCart((current) => removeCartPreset(current, id)),
+      removePreset: (id: string) => {
+        track("preset-removed", { presetId: id });
+        updateStoredCart((current) => removeCartPreset(current, id));
+      },
       clearCart: () => updateStoredCart(() => createPresetCart()),
     };
   }, [snapshot, ownedPresetIds]);

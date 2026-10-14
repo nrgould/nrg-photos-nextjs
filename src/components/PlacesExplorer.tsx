@@ -132,6 +132,20 @@ const placeHeroes = (photos: readonly { src: string }[]) =>
     photos.filter((photo) => heroSrcs.has(photo.src)).length,
   );
 // A place opens on its heroes, so a challenge photograph among them is found without the viewer.
+
+/** Records a search once typing pauses, so each keystroke is not an event. */
+function useSearchTracking(where: string, query: string, results: number) {
+  useEffect(() => {
+    const term = query.trim().toLowerCase();
+    if (!term) return;
+    const timer = setTimeout(
+      () => track("searched", { where, query: term, results }),
+      1500,
+    );
+    return () => clearTimeout(timer);
+  }, [where, query, results]);
+}
+
 function explorePlace(
   node: MapNode,
   record: (event: ExplorationEvent) => unknown,
@@ -648,6 +662,19 @@ function Explorer({
         return words.every((word) => text.includes(word));
       })
     : [];
+  useSearchTracking(
+    "site",
+    query,
+    results.places.length +
+      results.photos.length +
+      presetHits.length +
+      pageHits.length,
+  );
+  useSearchTracking(
+    "presets",
+    catalogState.query,
+    filterPresetCatalog(catalogState).length,
+  );
   function closeSearch() {
     setCommand(false);
     setQuery("");

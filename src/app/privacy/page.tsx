@@ -56,9 +56,10 @@ export default function PrivacyPage() {
               </li>
               <li>
                 How you use the site: the pages, places and photographs you
-                open, clicks, errors and load times. If you accept cookies, also
-                a recording of your visit with what you type hidden, linked to
-                your account once you sign in or check out.
+                open, what you search for, clicks, errors and load times. If you
+                accept cookies, also a recording of your visit with what you
+                type hidden, linked to your account once you sign in or check
+                out.
               </li>
             </ul>
           </section>
