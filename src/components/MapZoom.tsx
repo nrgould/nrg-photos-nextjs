@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
   animate,
-  AnimatePresence,
   useMotionValue,
   useMotionValueEvent,
   useReducedMotion,
@@ -84,31 +83,19 @@ export default function MapZoom({
     sent.current = stop;
     onChange(stop === 0 ? "globe" : "map", zoomLevels[stop] || 1);
   };
+  // Both icons stay mounted: an exit started before LazyMotion's features loaded never finished.
   const modeIcon = (
-    <span className="map-zoom-icon" aria-hidden="true">
-      <AnimatePresence initial={false}>
-        <m.span
-          key={mode}
-          initial={
-            reduced || keyboardInteraction
-              ? false
-              : { opacity: 0, scale: 0.25, filter: "blur(4px)" }
-          }
-          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          exit={
-            reduced || keyboardInteraction
-              ? { opacity: 0 }
-              : { opacity: 0, scale: 0.25, filter: "blur(4px)" }
-          }
-          transition={
-            reduced || keyboardInteraction
-              ? { duration: 0 }
-              : { type: "spring", duration: 0.3, bounce: 0 }
-          }
-        >
-          {mode === "globe" ? <Globe2 size={18} /> : <MapIcon size={18} />}
-        </m.span>
-      </AnimatePresence>
+    <span
+      className="map-zoom-icon"
+      aria-hidden="true"
+      data-instant={keyboardInteraction || undefined}
+    >
+      <span data-active={mode === "globe"}>
+        <Globe2 size={18} />
+      </span>
+      <span data-active={mode === "map"}>
+        <MapIcon size={18} />
+      </span>
     </span>
   );
   const control = (

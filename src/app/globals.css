@@ -3359,6 +3359,26 @@ html[data-photo-palette="sepia"]
     inset: 0;
     display: grid;
     place-items: center;
+    transition-property: opacity, scale, filter;
+    transition-duration: 300ms;
+    transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+  }
+  .map-zoom-icon > span[data-active="false"] {
+    opacity: 0;
+    scale: 0.25;
+    filter: blur(4px);
+  }
+  .map-zoom-icon[data-instant] > span {
+    transition: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .map-zoom-icon > span {
+      transition-property: opacity;
+    }
+    .map-zoom-icon > span[data-active="false"] {
+      scale: 1;
+      filter: none;
+    }
   }
   @media (prefers-reduced-motion: reduce) {
     .map-zoom-popover[data-slot="popover-content"] {
