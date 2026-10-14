@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode, type Ref } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  ArrowLeft,
   Check,
   Download,
   Mail,
@@ -58,7 +59,7 @@ export function switchTheme(next: Theme) {
 
 /** Top-left site nav: the map's toolbar, and the header of the site pages. */
 export default function SiteNav({
-  search,
+  leading,
   onMenu,
   menuOpen,
   presetsTrigger,
@@ -70,7 +71,8 @@ export default function SiteNav({
   onContact,
   contactOpen,
 }: {
-  search?: ReactNode;
+  /** First item: the map's search, or a site page's way back to the map. */
+  leading?: ReactNode;
   /** Phones on the map: a Menu button in place of search, Theme and Contact. */
   onMenu?: (trigger: HTMLElement) => void;
   menuOpen?: boolean;
@@ -106,7 +108,7 @@ export default function SiteNav({
             </button>
           </NavigationMenuItem>
         ) : (
-          search && <NavigationMenuItem>{search}</NavigationMenuItem>
+          leading && <NavigationMenuItem>{leading}</NavigationMenuItem>
         )}
         <NavigationMenuItem value="presets">
           <NavigationMenuTrigger ref={presetsTrigger}>
@@ -166,7 +168,9 @@ export default function SiteNav({
             <NavigationMenuItem value="theme">
               <NavigationMenuTrigger aria-label="Theme">
                 <Palette size={18} aria-hidden="true" />
-                <span className="map-nav-label">Theme</span>
+                <span className="map-nav-label" data-optional>
+                  Theme
+                </span>
               </NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ItemGroup className="map-nav-rows">
@@ -205,7 +209,9 @@ export default function SiteNav({
                 onClick={(event) => onContact(event.currentTarget)}
               >
                 <Mail size={18} aria-hidden="true" />
-                <span className="map-nav-label">Contact</span>
+                <span className="map-nav-label" data-optional>
+                  Contact
+                </span>
               </button>
             </NavigationMenuItem>
           </>
@@ -227,6 +233,12 @@ export function SubpageNav() {
   return (
     <header className="page-width site-nav">
       <SiteNav
+        leading={
+          <Link className={navigationMenuTriggerStyle()} href="/">
+            <ArrowLeft size={18} aria-hidden="true" />
+            <span className="map-nav-label">Map</span>
+          </Link>
+        }
         ownedCount={ownedPresetIds.length}
         theme={theme}
         onTheme={(next) => {

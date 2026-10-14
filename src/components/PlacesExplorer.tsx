@@ -1275,7 +1275,7 @@ function Explorer({
       <div className="explorer-workspace">
         <div className="map-workspace">
           <SiteNav
-            search={search}
+            leading={search}
             onMenu={
               desktop ? undefined : (trigger) => openPage("menu", trigger)
             }

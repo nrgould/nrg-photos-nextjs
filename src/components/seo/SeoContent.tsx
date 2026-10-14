@@ -25,25 +25,9 @@ export function StructuredData({ data }: { data: unknown }) {
   ) : null;
 }
 
+/** Search engines only: on the page, the nav's Map link is the way back. */
 export function Breadcrumbs({ items }: { items: Breadcrumb[] }) {
-  return (
-    <>
-      <nav aria-label="Breadcrumb" className={styles.breadcrumbs}>
-        <ol>
-          {items.map((item, index) => (
-            <li key={item.path}>
-              {index === items.length - 1 ? (
-                <span aria-current="page">{item.name}</span>
-              ) : (
-                <Link href={item.path}>{item.name}</Link>
-              )}
-            </li>
-          ))}
-        </ol>
-      </nav>
-      <StructuredData data={breadcrumbData(items)} />
-    </>
-  );
+  return <StructuredData data={breadcrumbData(items)} />;
 }
 
 /** Plain server-rendered anchors remain discoverable without map or drawer hydration. */

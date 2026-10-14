@@ -3765,7 +3765,13 @@ html[data-photo-palette="sepia"]
 .site-nav .map-toolbar {
   margin-left: -12px;
 }
-.map-toolbar :is([data-slot="navigation-menu-list"] > li > button) {
+/* Phones keep words for the way back and Presets; Theme and Contact fit as icons. */
+@media (max-width: 700px) {
+  .site-nav .map-nav-label[data-optional] {
+    display: none;
+  }
+}
+.map-toolbar [data-slot="navigation-menu-list"] > li > :is(button, a) {
   min-width: 44px;
   height: 44px;
   justify-content: center;
@@ -3780,7 +3786,7 @@ html[data-photo-palette="sepia"]
   text-decoration: none;
   transition: background-color 150ms var(--ease-out);
 }
-.map-toolbar [data-slot="navigation-menu-list"] > li > button:hover,
+.map-toolbar [data-slot="navigation-menu-list"] > li > :is(button, a):hover,
 .map-toolbar [data-slot="navigation-menu-list"] > li > button[data-popup-open] {
   background: color-mix(in srgb, var(--ink) 8%, transparent);
 }
