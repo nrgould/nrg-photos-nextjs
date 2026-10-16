@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
@@ -64,10 +65,11 @@ async function rebuildOriginals() {
   for (const item of manifest) {
     if (item.lightroomId) continue;
     let input;
-    if (item.origin.startsWith("Repository at ade778d: ")) {
-      input = await fs.readFile(
-        item.origin.replace("Repository at ade778d: ", ""),
-      );
+    const commit = item.origin.match(/^Repository at (\w+): (.+)$/);
+    if (commit) {
+      input = execFileSync("git", ["show", `${commit[1]}:${commit[2]}`], {
+        maxBuffer: 1 << 28,
+      });
     } else if (item.origin.startsWith("Stills: ")) {
       if (!process.env.STILLS_DIR)
         throw new Error("Set STILLS_DIR to the Stills archive folder");
