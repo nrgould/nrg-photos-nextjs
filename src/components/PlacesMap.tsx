@@ -1602,7 +1602,7 @@ export default function PlacesMap(props: {
         ),
       )}
       <span className="map-attribution">
-        Natural Earth ·{" "}
+        <span className="map-attribution-optional">Natural Earth · </span>
         <a href="https://openfreemap.org" target="_blank" rel="noreferrer">
           OpenFreeMap
         </a>{" "}
