@@ -8945,153 +8945,168 @@
     "lightroomId": 8225955
   },
   {
-    "src": "/photos/mount-rainier-2026-10-01.webp",
-    "title": "Mount Rainier",
-    "alt": "Close view of a glaciated mountain summit in alpenglow, rust-red rock ridges catching low sun between white ice fields under a clear blue sky",
-    "origin": "Repository at afaa12e: incoming/mount-rainier/01.jpg",
-    "width": 1600,
-    "height": 1067,
-    "taken": "2026-10",
-    "locationId": "mount-rainier"
-  },
-  {
-    "src": "/photos/mount-rainier-2026-10-02.webp",
-    "title": "Mount Rainier",
-    "alt": "A glaciated mountain glows pink at its summit above a slope of orange autumn grass, scattered firs and a large grey boulder",
-    "origin": "Repository at afaa12e: incoming/mount-rainier/02.jpg",
-    "width": 1200,
-    "height": 1600,
-    "taken": "2026-10",
-    "locationId": "mount-rainier"
-  },
-  {
-    "src": "/photos/mount-rainier-2026-10-03.webp",
-    "title": "Mount Rainier",
-    "alt": "Snow and rust-red rock of a glaciated mountain lit by low sun, rising behind a dense stand of dark firs on a golden hillside",
-    "origin": "Repository at afaa12e: incoming/mount-rainier/03.jpg",
-    "width": 1200,
-    "height": 1600,
-    "taken": "2026-10",
-    "locationId": "mount-rainier"
-  },
-  {
-    "src": "/photos/mount-rainier-2026-10-04.webp",
+    "src": "/photos/lr-8175748.webp",
     "title": "Mount Rainier",
     "alt": "A pink and blue dusk sky over a grey rocky ridge, seen through a gap in dark firs above an orange autumn meadow",
-    "origin": "Repository at afaa12e: incoming/mount-rainier/04.jpg",
+    "origin": "Lightroom 8175748",
     "width": 1200,
     "height": 1600,
-    "taken": "2026-10",
-    "locationId": "mount-rainier"
+    "taken": "2026-10-07T09:05:26.28",
+    "locationId": "mount-rainier",
+    "lightroomId": 8175748
   },
   {
-    "src": "/photos/mount-rainier-2026-10-05.webp",
+    "src": "/photos/lr-8175808.webp",
+    "title": "Mount Rainier",
+    "alt": "Snow and rust-red rock of a glaciated mountain lit by low sun, rising behind a dense stand of dark firs on a golden hillside",
+    "origin": "Lightroom 8175808",
+    "width": 1200,
+    "height": 1600,
+    "taken": "2026-10-07T09:10:09.42",
+    "locationId": "mount-rainier",
+    "lightroomId": 8175808
+  },
+  {
+    "src": "/photos/lr-8175816.webp",
+    "title": "Mount Rainier",
+    "alt": "A glaciated mountain glows pink at its summit above a slope of orange autumn grass, scattered firs and a large grey boulder",
+    "origin": "Lightroom 8175816",
+    "width": 1200,
+    "height": 1600,
+    "taken": "2026-10-07T09:10:43.77",
+    "locationId": "mount-rainier",
+    "lightroomId": 8175816
+  },
+  {
+    "src": "/photos/lr-8175838.webp",
+    "title": "Mount Rainier",
+    "alt": "Close view of a glaciated mountain summit in alpenglow, rust-red rock ridges catching low sun between white ice fields under a clear blue sky",
+    "origin": "Lightroom 8175838",
+    "width": 1600,
+    "height": 1067,
+    "taken": "2026-10-07T09:12:22.70",
+    "locationId": "mount-rainier",
+    "lightroomId": 8175838
+  },
+  {
+    "src": "/photos/lr-8175867.webp",
     "title": "Mount Rainier",
     "alt": "A glaciated mountain catches warm pink light on its upper slopes above a dark, rock-strewn alpine meadow",
-    "origin": "Repository at afaa12e: incoming/mount-rainier/05.jpg",
+    "origin": "Lightroom 8175867",
     "width": 1200,
     "height": 1600,
-    "taken": "2026-10",
-    "locationId": "mount-rainier"
+    "taken": "2026-10-07T09:13:38.64",
+    "locationId": "mount-rainier",
+    "lightroomId": 8175867
   },
   {
-    "src": "/photos/mount-rainier-2026-10-06.webp",
+    "src": "/photos/lr-8175897.webp",
     "title": "Mount Rainier",
     "alt": "The glowing pink face of a snowy mountain framed between dark green firs, with a shadowed meadow below",
-    "origin": "Repository at afaa12e: incoming/mount-rainier/06.jpg",
+    "origin": "Lightroom 8175897",
     "width": 1200,
     "height": 1600,
-    "taken": "2026-10",
-    "locationId": "mount-rainier"
+    "taken": "2026-10-07T09:17:45.86",
+    "locationId": "mount-rainier",
+    "lightroomId": 8175897
   },
   {
-    "src": "/photos/mount-rainier-2026-10-07.webp",
+    "src": "/photos/lr-8175926.webp",
     "title": "Mount Rainier",
     "alt": "A jagged mountain range lit pink at sunset under an orange horizon, a distant snowy volcano at right, a dirt trail winding through dark meadow below",
-    "origin": "Repository at afaa12e: incoming/mount-rainier/07.jpg",
+    "origin": "Lightroom 8175926",
     "width": 1200,
     "height": 1600,
-    "taken": "2026-10",
-    "locationId": "mount-rainier"
+    "taken": "2026-10-07T09:20:03.61",
+    "locationId": "mount-rainier",
+    "lightroomId": 8175926
   },
   {
-    "src": "/photos/mount-rainier-2026-10-08.webp",
+    "src": "/photos/lr-8175951.webp",
     "title": "Mount Rainier",
     "alt": "Layered hazy ridges in orange sunset light, a rugged rocky peak at right and a dark fir forest in the foreground",
-    "origin": "Repository at afaa12e: incoming/mount-rainier/08.jpg",
+    "origin": "Lightroom 8175951",
     "width": 1600,
     "height": 900,
-    "taken": "2026-10",
-    "locationId": "mount-rainier"
+    "taken": "2026-10-07T09:22:34.08",
+    "locationId": "mount-rainier",
+    "lightroomId": 8175951
   },
   {
-    "src": "/photos/mount-rainier-2026-10-09.webp",
+    "src": "/photos/lr-8175986.webp",
     "title": "Mount Rainier",
     "alt": "A woman with a blue backpack stands at a viewpoint in warm golden light, looking out over hazy mountains, orange shrubs and an amber lens flare at left",
-    "origin": "Repository at afaa12e: incoming/mount-rainier/09.jpg",
+    "origin": "Lightroom 8175986",
     "width": 1600,
     "height": 1067,
-    "taken": "2026-10",
-    "locationId": "mount-rainier"
+    "taken": "2026-10-07T09:24:29.37",
+    "locationId": "mount-rainier",
+    "lightroomId": 8175986
   },
   {
-    "src": "/photos/mount-rainier-2026-10-10.webp",
+    "src": "/photos/lr-8176083.webp",
     "title": "Mount Rainier",
     "alt": "Tall backlit firs glowing gold in low sun against a peach sky, hazy rocky peaks behind and a stony slope in front",
-    "origin": "Repository at afaa12e: incoming/mount-rainier/10.jpg",
+    "origin": "Lightroom 8176083",
     "width": 1600,
     "height": 1067,
-    "taken": "2026-10",
-    "locationId": "mount-rainier"
+    "taken": "2026-10-07T09:31:11.69",
+    "locationId": "mount-rainier",
+    "lightroomId": 8176083
   },
   {
-    "src": "/photos/mount-rainier-2026-10-11.webp",
+    "src": "/photos/lr-8176138.webp",
     "title": "Mount Rainier",
     "alt": "A jagged grey mountain range under a clear sky with a distant snowy volcano, a sunlit orange ridge of firs in the middle ground",
-    "origin": "Repository at afaa12e: incoming/mount-rainier/11.jpg",
+    "origin": "Lightroom 8176138",
     "width": 1600,
     "height": 900,
-    "taken": "2026-10",
-    "locationId": "mount-rainier"
+    "taken": "2026-10-07T09:35:12.74",
+    "locationId": "mount-rainier",
+    "lightroomId": 8176138
   },
   {
-    "src": "/photos/mount-rainier-2026-10-12.webp",
+    "src": "/photos/lr-8176210.webp",
     "title": "Mount Rainier",
     "alt": "A white mountain goat grazes on a sunlit ridge beside a tall cluster of firs, hazy blue cliffs rising behind",
-    "origin": "Repository at afaa12e: incoming/mount-rainier/12.jpg",
+    "origin": "Lightroom 8176210",
     "width": 1200,
     "height": 1600,
-    "taken": "2026-10",
-    "locationId": "mount-rainier"
+    "taken": "2026-10-07T09:44:28.23",
+    "locationId": "mount-rainier",
+    "lightroomId": 8176210
   },
   {
-    "src": "/photos/mount-rainier-2026-10-13.webp",
+    "src": "/photos/lr-8176219.webp",
     "title": "Mount Rainier",
     "alt": "A rocky peak rises through layers of blue haze above dark firs and a rolling orange meadow, a small hiker at lower right",
-    "origin": "Repository at afaa12e: incoming/mount-rainier/13.jpg",
+    "origin": "Lightroom 8176219",
     "width": 1200,
     "height": 1600,
-    "taken": "2026-10",
-    "locationId": "mount-rainier"
+    "taken": "2026-10-07T09:46:56.19",
+    "locationId": "mount-rainier",
+    "lightroomId": 8176219
   },
   {
-    "src": "/photos/mount-rainier-2026-10-14.webp",
+    "src": "/photos/lr-8176421.webp",
     "title": "Mount Rainier",
     "alt": "A distant snow-capped volcano framed between dark fir branches, blue ridges layered in haze below it",
-    "origin": "Repository at afaa12e: incoming/mount-rainier/14.jpg",
+    "origin": "Lightroom 8176421",
     "width": 1200,
     "height": 1600,
-    "taken": "2026-10",
-    "locationId": "mount-rainier"
+    "taken": "2026-10-07T10:28:08.43",
+    "locationId": "mount-rainier",
+    "lightroomId": 8176421
   },
   {
-    "src": "/photos/mount-rainier-2026-10-15.webp",
+    "src": "/photos/lr-8176515.webp",
     "title": "Mount Rainier",
     "alt": "Layer after layer of forested ridges fading into blue haze, a dark treeline silhouetted in front and two thin contrails in the sky",
-    "origin": "Repository at afaa12e: incoming/mount-rainier/15.jpg",
+    "origin": "Lightroom 8176515",
     "width": 1200,
     "height": 1600,
-    "taken": "2026-10",
-    "locationId": "mount-rainier"
+    "taken": "2026-10-07T10:44:00.80",
+    "locationId": "mount-rainier",
+    "lightroomId": 8176515
   }
 ]
